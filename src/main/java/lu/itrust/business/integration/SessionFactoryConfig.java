@@ -49,6 +49,7 @@ public class SessionFactoryConfig {
 				+ ".xml";
 		final JpaProperties properties = new JpaProperties();
 		final Resource resource = resourceLoader.getResource(path);
+		properties.getProperties().put("hibernate.auto_quote_keyword", "true");
 		properties.getProperties().put("hibernate.dialect", environment.getProperty("jdbc.dialect"));
 		properties.getProperties().put("hibernate.show_sql", environment.getProperty("jdbc.show_sql"));
 		properties.getProperties().put("hibernate.jdbc.time_zone", environment.getProperty("jdbc.time_zone"));
