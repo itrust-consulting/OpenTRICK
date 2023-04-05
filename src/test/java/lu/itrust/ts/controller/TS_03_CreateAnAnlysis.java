@@ -9,7 +9,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.forwardedUrl;
@@ -119,7 +119,7 @@ public class TS_03_CreateAnAnlysis extends SpringTestConfiguration {
 
 	@Test(timeOut = 120000, dependsOnMethods = "test_00_loadData")
 	public void test_01_CreateSimpleAnalysis() throws Exception {
-		this.mockMvc.perform(post("/Analysis/Build/Save").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).contentType(APPLICATION_X_WWW_FORM_URLENCODED_CHARSET_UTF_8)
+		this.mockMvc.perform(post("/Analysis/Build/Save").with(csrf()).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")).contentType(APPLICATION_X_WWW_FORM_URLENCODED_CHARSET_UTF_8)
 				.param("author", "Admin Admin").param("name", SIMPLE_ANALYSIS_NAME).param("version", SIMPLE_ANALYSIS_VERSION).param("comment", "comment")
 				.param("customer", String.valueOf(CUSTOMER_ID)).param("language", String.valueOf(LANGUAGE_ID)).param("profile", String.valueOf(DEFAULT_PROFILE))
 				.param("type", AnalysisType.QUANTITATIVE.name())).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
@@ -133,13 +133,13 @@ public class TS_03_CreateAnAnlysis extends SpringTestConfiguration {
 		notNull(analysis, "Analysis cannot be found");
 		put(SIMPLE_ANALYSIS_V0_0_1_ID, analysis.getId());
 		ANALYSIS_ID = analysis.getId();
-		this.mockMvc.perform(get(String.format("/Analysis/%d/Select", ANALYSIS_ID)).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8))
-				.andExpect(status().isOk()).andExpect(forwardedUrl("analyses/single/home"));
+		this.mockMvc.perform(get(String.format("/Analysis/%d/Select", ANALYSIS_ID)).with(csrf()).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")).accept(APPLICATION_JSON_CHARSET_UTF_8))
+				.andExpect(status().isOk()).andExpect(forwardedUrl("/WEB-INF/views/jsp/analyses/single/home.jsp"));
 	}
 
 	@Test
 	public void test_03_DisplayAll() throws Exception {
-		this.mockMvc.perform(get(String.format("/Analysis")).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isFound())
+		this.mockMvc.perform(get(String.format("/Analysis")).with(csrf()).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")).accept(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isFound())
 				.andExpect(redirectedUrl("/Analysis/All"));
 	}
 
@@ -153,7 +153,7 @@ public class TS_03_CreateAnAnlysis extends SpringTestConfiguration {
 	@Test(timeOut = 120000, dependsOnMethods = "test_04_CreateCustom")
 	public synchronized void test_05_CreateVersion() throws Exception {
 		TASK_ID = new ObjectMapper().readTree(this.mockMvc
-				.perform(post(String.format("/Analysis/Duplicate/%d", ANALYSIS_ID)).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8)
+				.perform(post(String.format("/Analysis/Duplicate/%d", ANALYSIS_ID)).with(csrf()).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")).accept(APPLICATION_JSON_CHARSET_UTF_8)
 						.content(String.format("{\"author\":\"%s\", \"version\":\"%s\", \"comment\":\"%s\"}", "Admin Admin", "0.0.2", "comment")))
 				.andExpect(status().isOk()).andReturn().getResponse().getContentAsString()).findValue("analysis_task_id").asText("");
 		wait(100);
@@ -175,7 +175,7 @@ public class TS_03_CreateAnAnlysis extends SpringTestConfiguration {
 
 	@Test(dependsOnMethods = "test_06_SelectAnalysis_Version_0_0_2")
 	public void test_07_AddAsset() throws UnsupportedEncodingException, Exception {
-		this.mockMvc.perform(post("/Analysis/Asset/Save").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8)
+		this.mockMvc.perform(post("/Analysis/Asset/Save").with(csrf()).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")).accept(APPLICATION_JSON_CHARSET_UTF_8)
 				.sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
 				.content(String.format(
 						"{\"id\":\"-1\", \"name\":\"%s\" ,\"assetType\": {\"id\": \"%d\" }, \"value\": \"%s\", \"selected\":\"%s\", \"comment\":\"%s\", \"hiddenComment\":\"%s\"}",
@@ -208,7 +208,7 @@ public class TS_03_CreateAnAnlysis extends SpringTestConfiguration {
 
 	@Test(dependsOnMethods = "test_06_SelectAnalysis_Version_0_0_2")
 	public void test_10_AddScenario() throws Exception {
-		this.mockMvc.perform(post("/Analysis/Scenario/Save").with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8)
+		this.mockMvc.perform(post("/Analysis/Scenario/Save").with(csrf()).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")).accept(APPLICATION_JSON_CHARSET_UTF_8)
 				.sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
 				.content(String.format(
 						"{\"id\":\"-1\", \"name\":\"%s\", \"scenarioType\": {\"id\": %d},\"selected\":\"%s\", \"description\":\"%s\", \"assetTypeValues\" : [%s] ,\"assetValues\" : [], \"assetLinked\" : false, \"preventive\": 1.0, \"detective\": 0 , \"limitative\": 0, \"corrective\": 0, \"intentional\": 1, \"accidental\": 0, \"environmental\": 0, \"internalThreat\": 0, \"externalThreat\": 0}",
@@ -229,55 +229,55 @@ public class TS_03_CreateAnAnlysis extends SpringTestConfiguration {
 		Integer idScenario = getInteger(SCENARIO_SCENARIO_TEST);
 		notNull(idScenario, "Scenario id cannot be null");
 		this.mockMvc
-				.perform(post("/Analysis/EditField/Scenario/" + idScenario).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID)
+				.perform(post("/Analysis/EditField/Scenario/" + idScenario).with(csrf()).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")).sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID)
 						.sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT).contentType(APPLICATION_JSON_CHARSET_UTF_8)
 						.content(String.format("{\"id\":%d, \"fieldName\": \"%s\",\"type\": \"%s\", \"value\": %s}", idScenario, "intentional", "Integer", 1)))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 
 		this.mockMvc
-				.perform(post("/Analysis/EditField/Scenario/" + idScenario).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
+				.perform(post("/Analysis/EditField/Scenario/" + idScenario).with(csrf()).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
 						.sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID).contentType(APPLICATION_JSON_CHARSET_UTF_8)
 						.content(String.format("{\"id\":%d, \"fieldName\": \"%s\",\"type\": \"%s\", \"value\": %d}", idScenario, "accidental", "Integer", 1)))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 
 		this.mockMvc
-				.perform(post("/Analysis/EditField/Scenario/" + idScenario).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
+				.perform(post("/Analysis/EditField/Scenario/" + idScenario).with(csrf()).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
 						.sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID).contentType(APPLICATION_JSON_CHARSET_UTF_8)
 						.content(String.format("{\"id\":%d, \"fieldName\": \"%s\",\"type\": \"%s\", \"value\": %d}", idScenario, "environmental", "Integer", 1)))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 
 		this.mockMvc
-				.perform(post("/Analysis/EditField/Scenario/" + idScenario).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
+				.perform(post("/Analysis/EditField/Scenario/" + idScenario).with(csrf()).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
 						.sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID).contentType(APPLICATION_JSON_CHARSET_UTF_8)
 						.content(String.format("{\"id\":%d, \"fieldName\": \"%s\",\"type\": \"%s\", \"value\": %d}", idScenario, "internalThreat", "Integer", 1)))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 
 		this.mockMvc
-				.perform(post("/Analysis/EditField/Scenario/" + idScenario).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
+				.perform(post("/Analysis/EditField/Scenario/" + idScenario).with(csrf()).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
 						.sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID).contentType(APPLICATION_JSON_CHARSET_UTF_8)
 						.content(String.format("{\"id\":%d, \"fieldName\": \"%s\",\"type\": \"%s\", \"value\": %d}", idScenario, "externalThreat", "Integer", 1)))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 
 		this.mockMvc
-				.perform(post("/Analysis/EditField/Scenario/" + idScenario).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
+				.perform(post("/Analysis/EditField/Scenario/" + idScenario).with(csrf()).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
 						.sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID).contentType(APPLICATION_JSON_CHARSET_UTF_8)
 						.content(String.format("{\"id\":%d, \"fieldName\": \"%s\",\"type\": \"%s\", \"value\": %f}", idScenario, "preventive", "Double", 0.25)))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 
 		this.mockMvc
-				.perform(post("/Analysis/EditField/Scenario/" + idScenario).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
+				.perform(post("/Analysis/EditField/Scenario/" + idScenario).with(csrf()).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
 						.sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID).contentType(APPLICATION_JSON_CHARSET_UTF_8)
 						.content(String.format("{\"id\":%d, \"fieldName\": \"%s\",\"type\": \"%s\", \"value\": %f}", idScenario, "detective", "Double", 0.25)))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 
 		this.mockMvc
-				.perform(post("/Analysis/EditField/Scenario/" + idScenario).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
+				.perform(post("/Analysis/EditField/Scenario/" + idScenario).with(csrf()).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
 						.sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID).contentType(APPLICATION_JSON_CHARSET_UTF_8)
 						.content(String.format("{\"id\":%d, \"fieldName\": \"%s\",\"type\": \"%s\", \"value\": %f}", idScenario, "limitative", "Double", 0.25)))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 
 		this.mockMvc
-				.perform(post("/Analysis/EditField/Scenario/" + idScenario).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
+				.perform(post("/Analysis/EditField/Scenario/" + idScenario).with(csrf()).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
 						.sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID).contentType(APPLICATION_JSON_CHARSET_UTF_8)
 						.content(String.format("{\"id\":%d, \"fieldName\": \"%s\",\"type\": \"%s\", \"value\": %f}", idScenario, "corrective", "Double", 0.25)))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
@@ -321,12 +321,12 @@ public class TS_03_CreateAnAnlysis extends SpringTestConfiguration {
 	@Test(dependsOnMethods = "test_12_CheckAssessment")
 	public void test_13_SelectAssetAndScenario() throws Exception {
 		this.mockMvc
-				.perform(get("/Analysis/Asset/Select/" + getInteger(ASSET_TRICK_SERVICE)).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).accept(APPLICATION_JSON_CHARSET_UTF_8)
+				.perform(get("/Analysis/Asset/Select/" + getInteger(ASSET_TRICK_SERVICE)).with(csrf()).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")).accept(APPLICATION_JSON_CHARSET_UTF_8)
 						.sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT).sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 
 		this.mockMvc
-				.perform(get("/Analysis/Scenario/Select/" + getInteger(SCENARIO_SCENARIO_TEST)).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
+				.perform(get("/Analysis/Scenario/Select/" + getInteger(SCENARIO_SCENARIO_TEST)).with(csrf()).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN"))
 						.accept(APPLICATION_JSON_CHARSET_UTF_8).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT).sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 	}
@@ -336,12 +336,12 @@ public class TS_03_CreateAnAnlysis extends SpringTestConfiguration {
 		Integer idAssessment = getInteger(ASSESSMENT_TRICK_SERVICE_SCENARIO_TEST);
 		notNull(idAssessment, "Assessment id cannot be null");
 		this.mockMvc
-				.perform(post("/Analysis/EditField/Assessment/" + idAssessment).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
+				.perform(post("/Analysis/EditField/Assessment/" + idAssessment).with(csrf()).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
 						.sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID).contentType(APPLICATION_JSON_CHARSET_UTF_8)
 						.content(String.format("{\"id\":%d, \"fieldName\": \"%s\",\"type\": \"%s\", \"value\": \"%s\"}", idAssessment, "IMPACT", "String", "i9")))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 		this.mockMvc
-				.perform(post("/Analysis/EditField/Assessment/" + idAssessment).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
+				.perform(post("/Analysis/EditField/Assessment/" + idAssessment).with(csrf()).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
 						.sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID).contentType(APPLICATION_JSON_CHARSET_UTF_8)
 						.content(String.format("{\"id\":%d, \"fieldName\": \"%s\",\"type\": \"%s\", \"value\": \"%s\"}", idAssessment, "likelihood", "String", "p9")))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());

@@ -62,7 +62,7 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
 		try {
 			User myUser = daoUser.get(authentication.getName());
 			if (myUser.getLocale() == null)
-				myUser.setLocale("en");
+				myUser.setLocale(Locale.ENGLISH.getLanguage());
 			localeResolver.setLocale(request, response, new Locale(myUser.getLocale()));
 			final String stringdate = new SimpleDateFormat("MMM d, yyyy HH:mm:ss").format(new Date());
 			final String remoteaddr = AccountLockerManager.getIP(request);

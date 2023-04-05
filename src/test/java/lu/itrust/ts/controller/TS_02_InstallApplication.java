@@ -3,9 +3,8 @@ package lu.itrust.ts.controller;
 import static lu.itrust.ts.helper.TestSharingData.put;
 import static org.junit.Assert.assertEquals;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -76,8 +75,11 @@ public class TS_02_InstallApplication extends SpringTestConfiguration {
 	@Test
 	public void test_00_Install() throws Exception {
 		INSTALL_TASK_ID = new ObjectMapper()
-				.readTree(this.mockMvc.perform(post("/Install").contentType(MediaType.APPLICATION_JSON_VALUE).with(httpBasic(USERNAME, PASSWORD)).with(csrf()))
-						.andExpect(status().isOk()).andExpect(jsonPath("$.idTask").exists()).andReturn().getResponse().getContentAsString())
+				.readTree(this.mockMvc
+						.perform(post("/Install").contentType(MediaType.APPLICATION_JSON_VALUE)
+								.with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")).with(csrf()))
+						.andExpect(status().isOk()).andExpect(jsonPath("$.idTask").exists()).andReturn().getResponse()
+						.getContentAsString())
 				.findValue("idTask").asText(null);
 	}
 
@@ -128,13 +130,17 @@ public class TS_02_InstallApplication extends SpringTestConfiguration {
 
 	@Test
 	public void test_08_CreateCustomer() throws UnsupportedEncodingException, Exception {
-		this.mockMvc.perform(post("/KnowledgeBase/Customer/Save").with(httpBasic(USERNAME, PASSWORD)).with(csrf()).accept(APPLICATION_JSON_CHARSET_UTF_8)
+		this.mockMvc.perform(post("/KnowledgeBase/Customer/Save")
+				.with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")).with(csrf())
+				.accept(APPLICATION_JSON_CHARSET_UTF_8)
 				.contentType(APPLICATION_JSON_CHARSET_UTF_8)
 				.content(String.format(
 						"{\"id\":\"-1\", \"organisation\":\"%s\", \"contactPerson\":\"%s\", \"phoneNumber\":\"%s\", \"email\":\"%s\", \"address\":\"%s\", \"city\":\"%s\", \"zipCode\":\"%s\", \"country\":\"%s\"}",
-						CUSTOMER_OTHER_FIELDS, CUSTOMER_OTHER_FIELDS, CUSTOMER_OTHER_FIELDS, CUSTOMER_EMAIL, CUSTOMER_OTHER_FIELDS, CUSTOMER_OTHER_FIELDS, CUSTOMER_OTHER_FIELDS,
+						CUSTOMER_OTHER_FIELDS, CUSTOMER_OTHER_FIELDS, CUSTOMER_OTHER_FIELDS, CUSTOMER_EMAIL,
+						CUSTOMER_OTHER_FIELDS, CUSTOMER_OTHER_FIELDS, CUSTOMER_OTHER_FIELDS,
 						CUSTOMER_OTHER_FIELDS))
-				.with(httpBasic(USERNAME, PASSWORD))).andDo(print()).andExpect(content().contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk())
+				.with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")))
+				.andExpect(content().contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk())
 				.andExpect(content().string("{}"));
 	}
 

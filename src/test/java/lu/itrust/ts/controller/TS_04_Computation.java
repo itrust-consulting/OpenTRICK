@@ -7,7 +7,7 @@ import static lu.itrust.ts.controller.TS_03_CreateAnAnlysis.ANALYSIS_ID;
 import static lu.itrust.ts.helper.TestSharingData.getInteger;
 import static lu.itrust.ts.helper.TestSharingData.put;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -66,7 +66,7 @@ public class TS_04_Computation extends SpringTestConfiguration {
 
 	@Test(timeOut = 120000)
 	public synchronized void test_00_ActionPlan() throws Exception {
-		this.mockMvc.perform(post("/Analysis/ActionPlan/Compute").with(csrf()).with(httpBasic(USERNAME, PASSWORD))
+		this.mockMvc.perform(post("/Analysis/ActionPlan/Compute").with(csrf()).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN"))
 				.sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID).contentType(APPLICATION_JSON_CHARSET_UTF_8)
 				.content("[]")).andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 		Worker worker = null;
@@ -112,7 +112,7 @@ public class TS_04_Computation extends SpringTestConfiguration {
 		int id = getInteger(CSSF_PARAMETER_ANALYSIS + ANALYSIS_ID);
 		this.mockMvc
 				.perform(post("/Analysis/EditField/SimpleParameter/" + id).with(csrf())
-						.with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
+						.with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
 						.sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID)
 						.contentType(APPLICATION_JSON_CHARSET_UTF_8)
 						.content(String.format("{\"id\":%d, \"fieldName\": \"%s\",\"type\": \"%s\", \"value\": %f}", id,

@@ -5,7 +5,6 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <%@ taglib uri="jakarta.tags.functions" prefix="fn"%>
-<spring:theme code='theme.css.location' var="currentTheme" text="/css/themes/default.css" />
 <head>
 <meta charset="utf-8" />
 <meta name="_csrf" content="${_csrf.token}" />
@@ -20,9 +19,9 @@
 <link rel="stylesheet" type="text/css" href='<c:url value="/css/font-awesome.min.css" />' />
 <link rel="stylesheet" type="text/css" href='<c:url value="/css/bootstrap.vertical-tabs.min.css" />' />
 <c:forEach items="${customCSSs}" var="customCSS">
-  <link rel="stylesheet" href='<c:url value="${customCSS}" />' type="text/css" />
+  <link rel="stylesheet" type="text/css" href='<c:url value="${customCSS}" />'  />
 </c:forEach>
-<link rel="stylesheet" href='<c:url value="${currentTheme}" />' type="text/css" />
+<link rel="stylesheet" type="text/css" href='<c:url value="/css/main.css" />'  />
 <script type="text/javascript">
 <!--
 	var context = '${pageContext.request.contextPath}';

@@ -3,10 +3,13 @@ package lu.itrust.ts.controller;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestExecutionListeners;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 import org.springframework.test.context.support.DirtiesContextTestExecutionListener;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
@@ -19,13 +22,19 @@ import org.testng.annotations.BeforeMethod;
 
 import lu.itrust.boot.Application;
 import lu.itrust.business.ts.database.service.ServiceTrickService;
+import lu.itrust.ts.boot.configuration.TestSessionFactoryConfig;
 
 /**
  * @author eomar
  *
  */
 @SpringBootTest(classes = Application.class)
-@TestExecutionListeners(listeners = { ServletTestExecutionListener.class, DependencyInjectionTestExecutionListener.class, DirtiesContextTestExecutionListener.class,
+@AutoConfigureMockMvc
+@TestPropertySource(locations = { "classpath:application.properties", "classpath:deployment.properties",
+		"classpath:deployment-ldap.properties" })
+@Import({ TestSessionFactoryConfig.class })
+@TestExecutionListeners(listeners = { ServletTestExecutionListener.class,
+		DependencyInjectionTestExecutionListener.class, DirtiesContextTestExecutionListener.class,
 		TransactionalTestExecutionListener.class })
 @ActiveProfiles({ "Dev", "Test", "Debug" })
 public abstract class SpringTestConfiguration extends AbstractTestNGSpringContextTests {
@@ -45,20 +54,19 @@ public abstract class SpringTestConfiguration extends AbstractTestNGSpringContex
 	@Autowired
 	protected WebApplicationContext webApplicationContext;
 
-	@Autowired
-	protected FilterChainProxy springSecurityFilterChain;
-
 	/**
 	 * Services
 	 */
 	@Autowired
 	protected ServiceTrickService serviceTrickService;
 
+	@Autowired
 	protected MockMvc mockMvc;
 
-	@BeforeMethod(groups = "setup")
+	/*@BeforeMethod(groups = "setup")
 	public void setUp() throws Exception {
-		this.mockMvc = MockMvcBuilders.webAppContextSetup(this.webApplicationContext).apply(springSecurity(springSecurityFilterChain)).build();
-	}
+		/*this.mockMvc = MockMvcBuilders.webAppContextSetup(this.webApplicationContext)
+				.apply(springSecurity()).build();
+	}*/
 
 }

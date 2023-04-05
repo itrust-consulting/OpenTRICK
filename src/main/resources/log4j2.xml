@@ -37,7 +37,7 @@
 
 		<logger name="org.springframework.security" level='INFO' />
 
-		<logger name="org.springframework.web" level='DEBUG' />
+		<logger name="org.springframework.web" level='INFO' />
 
 		<logger name="org.xlsx4j.jaxb.Context" level='INFO' />
 

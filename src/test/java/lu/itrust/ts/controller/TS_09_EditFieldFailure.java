@@ -8,7 +8,7 @@ import static lu.itrust.ts.helper.TestSharingData.getInteger;
 import static lu.itrust.ts.helper.TestSharingData.put;
 import static org.junit.Assert.assertEquals;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -117,7 +117,7 @@ public class TS_09_EditFieldFailure extends SpringTestConfiguration {
 		isTrue(resource.exists(), "Resource cannot be found");
 
 		MockMultipartFile mockMultipartFile = new MockMultipartFile("file", resource.getInputStream());
-		this.mockMvc.perform(multipart("/Analysis/Data-manager/Sqlite/Import-process").file(mockMultipartFile).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).param("customer",
+		this.mockMvc.perform(multipart("/Analysis/Data-manager/Sqlite/Import-process").file(mockMultipartFile).with(csrf()).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")).param("customer",
 				getInteger(ME_CUSTOMER).toString())).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 
 		Worker worker = null;
@@ -189,17 +189,17 @@ public class TS_09_EditFieldFailure extends SpringTestConfiguration {
 		Integer idAsset = getInteger(ASSET_FAILURE_ID);
 		notNull(idAsset, ASSET_ID_CANNOT_BE_NULL);
 		this.mockMvc
-				.perform(post(ANALYSIS_EDIT_FIELD_ASSET + idAsset).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
+				.perform(post(ANALYSIS_EDIT_FIELD_ASSET + idAsset).with(csrf()).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
 						.sessionAttr(Constant.SELECTED_ANALYSIS, getInteger(ANALYSIS_KEY)).contentType(APPLICATION_JSON_CHARSET_UTF_8)
 						.content(String.format(ID_D_FIELD_NAME_S_TYPE_S_VALUE_S, idAsset, "name", "String", "")))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.error").exists());
 		this.mockMvc
-				.perform(post(ANALYSIS_EDIT_FIELD_ASSET + idAsset).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
+				.perform(post(ANALYSIS_EDIT_FIELD_ASSET + idAsset).with(csrf()).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
 						.sessionAttr(Constant.SELECTED_ANALYSIS, getInteger(ANALYSIS_KEY)).contentType(APPLICATION_JSON_CHARSET_UTF_8)
 						.content(String.format(ID_D_FIELD_NAME_S_TYPE_S_VALUE_D, idAsset, "name", "Integer", 1568822)))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.error").exists());
 		this.mockMvc
-				.perform(post(ANALYSIS_EDIT_FIELD_ASSET + idAsset).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
+				.perform(post(ANALYSIS_EDIT_FIELD_ASSET + idAsset).with(csrf()).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
 						.sessionAttr(Constant.SELECTED_ANALYSIS, getInteger(ANALYSIS_KEY)).contentType(APPLICATION_JSON_CHARSET_UTF_8)
 						.content(String.format(ID_D_FIELD_NAME_S_TYPE_S_VALUE_S, idAsset, "name", "String", "Customer documents")))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.error").exists());
@@ -210,19 +210,19 @@ public class TS_09_EditFieldFailure extends SpringTestConfiguration {
 		Integer idAsset = getInteger(ASSET_FAILURE_ID);
 		notNull(idAsset, ASSET_ID_CANNOT_BE_NULL);
 		this.mockMvc
-				.perform(post(ANALYSIS_EDIT_FIELD_ASSET + idAsset).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
+				.perform(post(ANALYSIS_EDIT_FIELD_ASSET + idAsset).with(csrf()).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
 						.sessionAttr(Constant.SELECTED_ANALYSIS, getInteger(ANALYSIS_KEY)).contentType(APPLICATION_JSON_CHARSET_UTF_8)
 						.content(String.format(ID_D_FIELD_NAME_S_TYPE_S_VALUE_S, idAsset, "value", "String", "")))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.error").exists());
 
 		this.mockMvc
-				.perform(post(ANALYSIS_EDIT_FIELD_ASSET + idAsset).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
+				.perform(post(ANALYSIS_EDIT_FIELD_ASSET + idAsset).with(csrf()).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
 						.sessionAttr(Constant.SELECTED_ANALYSIS, getInteger(ANALYSIS_KEY)).contentType(APPLICATION_JSON_CHARSET_UTF_8)
 						.content(String.format(ID_D_FIELD_NAME_S_TYPE_S_VALUE_S, idAsset, "value", "Boolean", true)))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.error").exists());
 
 		this.mockMvc
-				.perform(post(ANALYSIS_EDIT_FIELD_ASSET + idAsset).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
+				.perform(post(ANALYSIS_EDIT_FIELD_ASSET + idAsset).with(csrf()).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
 						.sessionAttr(Constant.SELECTED_ANALYSIS, getInteger(ANALYSIS_KEY)).contentType(APPLICATION_JSON_CHARSET_UTF_8)
 						.content(String.format(ID_D_FIELD_NAME_S_TYPE_S_VALUE_D, idAsset, "value", "Integer", 85554)))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.error").exists());
@@ -233,19 +233,19 @@ public class TS_09_EditFieldFailure extends SpringTestConfiguration {
 		Integer idAsset = getInteger(ASSET_FAILURE_ID);
 		notNull(idAsset, ASSET_ID_CANNOT_BE_NULL);
 		this.mockMvc
-				.perform(post(ANALYSIS_EDIT_FIELD_ASSET + idAsset).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
+				.perform(post(ANALYSIS_EDIT_FIELD_ASSET + idAsset).with(csrf()).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
 						.sessionAttr(Constant.SELECTED_ANALYSIS, getInteger(ANALYSIS_KEY)).contentType(APPLICATION_JSON_CHARSET_UTF_8)
 						.content(String.format(ID_D_FIELD_NAME_S_TYPE_S_VALUE_S, idAsset, "assetType", "String", "")))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.error").exists());
 
 		this.mockMvc
-				.perform(post(ANALYSIS_EDIT_FIELD_ASSET + idAsset).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
+				.perform(post(ANALYSIS_EDIT_FIELD_ASSET + idAsset).with(csrf()).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
 						.sessionAttr(Constant.SELECTED_ANALYSIS, getInteger(ANALYSIS_KEY)).contentType(APPLICATION_JSON_CHARSET_UTF_8)
 						.content(String.format(ID_D_FIELD_NAME_S_TYPE_S_VALUE_S, idAsset, "assetType", "Boolean", true)))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.error").exists());
 
 		this.mockMvc
-				.perform(post(ANALYSIS_EDIT_FIELD_ASSET + idAsset).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
+				.perform(post(ANALYSIS_EDIT_FIELD_ASSET + idAsset).with(csrf()).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
 						.sessionAttr(Constant.SELECTED_ANALYSIS, getInteger(ANALYSIS_KEY)).contentType(APPLICATION_JSON_CHARSET_UTF_8)
 						.content(String.format(ID_D_FIELD_NAME_S_TYPE_S_VALUE_D, idAsset, "assetType", "Integer", -85554)))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.error").exists());
@@ -255,18 +255,18 @@ public class TS_09_EditFieldFailure extends SpringTestConfiguration {
 	public void editAssetComment() throws Exception {
 		Integer idAsset = getInteger(ASSET_FAILURE_ID);
 		notNull(idAsset, ASSET_ID_CANNOT_BE_NULL);
-		this.mockMvc.perform(post(ANALYSIS_EDIT_FIELD_ASSET + idAsset).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
+		this.mockMvc.perform(post(ANALYSIS_EDIT_FIELD_ASSET + idAsset).with(csrf()).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
 				.sessionAttr(Constant.SELECTED_ANALYSIS, getInteger(ANALYSIS_KEY)).contentType(APPLICATION_JSON_CHARSET_UTF_8)
 				.content(String.format(ID_D_FIELD_NAME_S_TYPE_S, idAsset, "comment", "String"))).andExpect(status().isOk()).andExpect(jsonPath("$.error").exists());
 
 		this.mockMvc
-				.perform(post(ANALYSIS_EDIT_FIELD_ASSET + idAsset).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
+				.perform(post(ANALYSIS_EDIT_FIELD_ASSET + idAsset).with(csrf()).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
 						.sessionAttr(Constant.SELECTED_ANALYSIS, getInteger(ANALYSIS_KEY)).contentType(APPLICATION_JSON_CHARSET_UTF_8)
 						.content(String.format(ID_D_FIELD_NAME_S_TYPE_S_VALUE_S, idAsset, "comment", "Boolean", true)))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.error").exists());
 
 		this.mockMvc
-				.perform(post(ANALYSIS_EDIT_FIELD_ASSET + idAsset).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
+				.perform(post(ANALYSIS_EDIT_FIELD_ASSET + idAsset).with(csrf()).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
 						.sessionAttr(Constant.SELECTED_ANALYSIS, getInteger(ANALYSIS_KEY)).contentType(APPLICATION_JSON_CHARSET_UTF_8)
 						.content(String.format(ID_D_FIELD_NAME_S_TYPE_S_VALUE_D, idAsset, "comment", "Integer", -85554)))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.error").exists());
@@ -276,18 +276,18 @@ public class TS_09_EditFieldFailure extends SpringTestConfiguration {
 	public void editAssetHiddenComment() throws Exception {
 		Integer idAsset = getInteger(ASSET_FAILURE_ID);
 		notNull(idAsset, ASSET_ID_CANNOT_BE_NULL);
-		this.mockMvc.perform(post(ANALYSIS_EDIT_FIELD_ASSET + idAsset).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
+		this.mockMvc.perform(post(ANALYSIS_EDIT_FIELD_ASSET + idAsset).with(csrf()).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
 				.sessionAttr(Constant.SELECTED_ANALYSIS, getInteger(ANALYSIS_KEY)).contentType(APPLICATION_JSON_CHARSET_UTF_8)
 				.content(String.format(ID_D_FIELD_NAME_S_TYPE_S, idAsset, "hiddenComment", "String"))).andExpect(status().isOk()).andExpect(jsonPath("$.error").exists());
 
 		this.mockMvc
-				.perform(post(ANALYSIS_EDIT_FIELD_ASSET + idAsset).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
+				.perform(post(ANALYSIS_EDIT_FIELD_ASSET + idAsset).with(csrf()).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
 						.sessionAttr(Constant.SELECTED_ANALYSIS, getInteger(ANALYSIS_KEY)).contentType(APPLICATION_JSON_CHARSET_UTF_8)
 						.content(String.format(ID_D_FIELD_NAME_S_TYPE_S_VALUE_S, idAsset, "hiddenComment", "Boolean", true)))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.error").exists());
 
 		this.mockMvc
-				.perform(post(ANALYSIS_EDIT_FIELD_ASSET + idAsset).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
+				.perform(post(ANALYSIS_EDIT_FIELD_ASSET + idAsset).with(csrf()).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
 						.sessionAttr(Constant.SELECTED_ANALYSIS, getInteger(ANALYSIS_KEY)).contentType(APPLICATION_JSON_CHARSET_UTF_8)
 						.content(String.format(ID_D_FIELD_NAME_S_TYPE_S_VALUE_D, idAsset, "hiddenComment", "Integer", -85554)))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.error").exists());
@@ -298,19 +298,19 @@ public class TS_09_EditFieldFailure extends SpringTestConfiguration {
 		Integer idAsset = getInteger(SCENARIO_FAILURE_ID);
 		notNull(idAsset, SCENARIO_ID_CANNOT_BE_NULL);
 		this.mockMvc
-				.perform(post(ANALYSIS_EDIT_FIELD_SCENARIO + idAsset).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
+				.perform(post(ANALYSIS_EDIT_FIELD_SCENARIO + idAsset).with(csrf()).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
 						.sessionAttr(Constant.SELECTED_ANALYSIS, getInteger(ANALYSIS_KEY)).contentType(APPLICATION_JSON_CHARSET_UTF_8)
 						.content(String.format(ID_D_FIELD_NAME_S_TYPE_S_VALUE_S, idAsset, "value", "String", "")))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.error").exists());
 
 		this.mockMvc
-				.perform(post(ANALYSIS_EDIT_FIELD_SCENARIO + idAsset).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
+				.perform(post(ANALYSIS_EDIT_FIELD_SCENARIO + idAsset).with(csrf()).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
 						.sessionAttr(Constant.SELECTED_ANALYSIS, getInteger(ANALYSIS_KEY)).contentType(APPLICATION_JSON_CHARSET_UTF_8)
 						.content(String.format(ID_D_FIELD_NAME_S_TYPE_S_VALUE_S, idAsset, "value", "Boolean", true)))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.error").exists());
 
 		this.mockMvc
-				.perform(post(ANALYSIS_EDIT_FIELD_SCENARIO + idAsset).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
+				.perform(post(ANALYSIS_EDIT_FIELD_SCENARIO + idAsset).with(csrf()).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
 						.sessionAttr(Constant.SELECTED_ANALYSIS, getInteger(ANALYSIS_KEY)).contentType(APPLICATION_JSON_CHARSET_UTF_8)
 						.content(String.format(ID_D_FIELD_NAME_S_TYPE_S_VALUE_D, idAsset, "value", "Integer", 85554)))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.error").exists());
@@ -321,19 +321,19 @@ public class TS_09_EditFieldFailure extends SpringTestConfiguration {
 		Integer idAsset = getInteger(SCENARIO_FAILURE_ID);
 		notNull(idAsset, SCENARIO_ID_CANNOT_BE_NULL);
 		this.mockMvc
-				.perform(post(ANALYSIS_EDIT_FIELD_SCENARIO + idAsset).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
+				.perform(post(ANALYSIS_EDIT_FIELD_SCENARIO + idAsset).with(csrf()).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
 						.sessionAttr(Constant.SELECTED_ANALYSIS, getInteger(ANALYSIS_KEY)).contentType(APPLICATION_JSON_CHARSET_UTF_8)
 						.content(String.format(ID_D_FIELD_NAME_S_TYPE_S_VALUE_S, idAsset, "scanrioType", "String", "")))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.error").exists());
 
 		this.mockMvc
-				.perform(post(ANALYSIS_EDIT_FIELD_SCENARIO + idAsset).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
+				.perform(post(ANALYSIS_EDIT_FIELD_SCENARIO + idAsset).with(csrf()).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
 						.sessionAttr(Constant.SELECTED_ANALYSIS, getInteger(ANALYSIS_KEY)).contentType(APPLICATION_JSON_CHARSET_UTF_8)
 						.content(String.format(ID_D_FIELD_NAME_S_TYPE_S_VALUE_S, idAsset, "scenarioType", "Boolean", true)))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.error").exists());
 
 		this.mockMvc
-				.perform(post(ANALYSIS_EDIT_FIELD_SCENARIO + idAsset).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
+				.perform(post(ANALYSIS_EDIT_FIELD_SCENARIO + idAsset).with(csrf()).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
 						.sessionAttr(Constant.SELECTED_ANALYSIS, getInteger(ANALYSIS_KEY)).contentType(APPLICATION_JSON_CHARSET_UTF_8)
 						.content(String.format(ID_D_FIELD_NAME_S_TYPE_S_VALUE_D, idAsset, "scenarioType", "Integer", -85554)))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.error").exists());
@@ -343,12 +343,12 @@ public class TS_09_EditFieldFailure extends SpringTestConfiguration {
 	public void editScenarioDescription() throws Exception {
 		Integer idAsset = getInteger(SCENARIO_FAILURE_ID);
 		notNull(idAsset, SCENARIO_ID_CANNOT_BE_NULL);
-		this.mockMvc.perform(post(ANALYSIS_EDIT_FIELD_SCENARIO + idAsset).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
+		this.mockMvc.perform(post(ANALYSIS_EDIT_FIELD_SCENARIO + idAsset).with(csrf()).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
 				.sessionAttr(Constant.SELECTED_ANALYSIS, getInteger(ANALYSIS_KEY)).contentType(APPLICATION_JSON_CHARSET_UTF_8)
 				.content(String.format(ID_D_FIELD_NAME_S_TYPE_S, idAsset, "description", "String"))).andExpect(status().isOk()).andExpect(jsonPath("$.error").exists());
 
 		this.mockMvc
-				.perform(post(ANALYSIS_EDIT_FIELD_SCENARIO + idAsset).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
+				.perform(post(ANALYSIS_EDIT_FIELD_SCENARIO + idAsset).with(csrf()).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
 						.sessionAttr(Constant.SELECTED_ANALYSIS, getInteger(ANALYSIS_KEY)).contentType(APPLICATION_JSON_CHARSET_UTF_8)
 						.content(String.format(ID_D_FIELD_NAME_S_TYPE_S_VALUE_D, idAsset, "description", "Integer", -85554)))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.error").exists());
@@ -359,25 +359,25 @@ public class TS_09_EditFieldFailure extends SpringTestConfiguration {
 		Integer idAssessment = getInteger(ASSESSMENT_FAILURE_ID);
 		notNull(idAssessment, "Assessment id cannot be null");
 		this.mockMvc
-				.perform(post(ANALYSIS_EDIT_FIELD_ASSESSMENT + idAssessment).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
+				.perform(post(ANALYSIS_EDIT_FIELD_ASSESSMENT + idAssessment).with(csrf()).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
 						.sessionAttr(Constant.SELECTED_ANALYSIS, getInteger(ANALYSIS_KEY)).contentType(APPLICATION_JSON_CHARSET_UTF_8)
 						.content(String.format(ID_D_FIELD_NAME_S_TYPE_S_VALUE_S, idAssessment, "impactFin", "String", "-9")))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.error").exists());
 
 		this.mockMvc
-				.perform(post(ANALYSIS_EDIT_FIELD_ASSESSMENT + idAssessment).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
+				.perform(post(ANALYSIS_EDIT_FIELD_ASSESSMENT + idAssessment).with(csrf()).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
 						.sessionAttr(Constant.SELECTED_ANALYSIS, getInteger(ANALYSIS_KEY)).contentType(APPLICATION_JSON_CHARSET_UTF_8)
 						.content(String.format(ID_D_FIELD_NAME_S_TYPE_S_VALUE_F, idAssessment, "impactOP", "double", 16582.0)))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.error").exists());
 
 		this.mockMvc
-				.perform(post(ANALYSIS_EDIT_FIELD_ASSESSMENT + idAssessment).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
+				.perform(post(ANALYSIS_EDIT_FIELD_ASSESSMENT + idAssessment).with(csrf()).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
 						.sessionAttr(Constant.SELECTED_ANALYSIS, getInteger(ANALYSIS_KEY)).contentType(APPLICATION_JSON_CHARSET_UTF_8)
 						.content(String.format(ID_D_FIELD_NAME_S_TYPE_S_VALUE_S, idAssessment, "asset", "Asset", "Asset1")))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.error").exists());
 
 		this.mockMvc
-				.perform(post(ANALYSIS_EDIT_FIELD_ASSESSMENT + idAssessment).with(csrf()).with(httpBasic(USERNAME, PASSWORD)).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
+				.perform(post(ANALYSIS_EDIT_FIELD_ASSESSMENT + idAssessment).with(csrf()).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
 						.sessionAttr(Constant.SELECTED_ANALYSIS, getInteger(ANALYSIS_KEY)).contentType(APPLICATION_JSON_CHARSET_UTF_8)
 						.content(String.format(ID_D_FIELD_NAME_S_TYPE_S_VALUE_S, idAssessment, "likelihood", "String", "-9")))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.error").exists());

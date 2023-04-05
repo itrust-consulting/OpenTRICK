@@ -380,7 +380,6 @@ public class ControllerAssessment {
 			Analysis analysis = serviceAnalysis.get(integer);
 			// update assessments of analysis
 			assessmentAndRiskProfileManager.updateAndSave(analysis, null);
-			;
 			// return success message
 			return new String("{\"success\":\"" + messageSource.getMessage("success.assessment.update", null,
 					"Assessments were successfully updated", locale) + "\"}");
@@ -424,8 +423,8 @@ public class ControllerAssessment {
 	}
 
 	private void loadAnalysisSettings(Model model, Analysis analysis) {
-		AnalysisSetting rawSetting = AnalysisSetting.ALLOW_RISK_ESTIMATION_RAW_COLUMN,
-				hiddenCommentSetting = AnalysisSetting.ALLOW_RISK_HIDDEN_COMMENT;
+		final AnalysisSetting rawSetting = AnalysisSetting.ALLOW_RISK_ESTIMATION_RAW_COLUMN;
+		final AnalysisSetting hiddenCommentSetting = AnalysisSetting.ALLOW_RISK_HIDDEN_COMMENT;
 		model.addAttribute("showHiddenComment", analysis.findSetting(hiddenCommentSetting));
 		model.addAttribute("showRawColumn", analysis.findSetting(rawSetting));
 		model.addAttribute("showDynamicAnalysis", analysis.findSetting(AnalysisSetting.ALLOW_DYNAMIC_ANALYSIS));

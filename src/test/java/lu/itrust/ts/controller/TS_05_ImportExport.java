@@ -26,7 +26,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -120,7 +120,7 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 		MockMultipartFile mockMultipartFile = new MockMultipartFile("file", resource.getInputStream());
 		this.mockMvc
 				.perform(multipart("/Analysis/Data-manager/Sqlite/Import-process").file(mockMultipartFile).with(csrf())
-						.with(httpBasic(USERNAME, PASSWORD)).param("customer",
+						.with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")).param("customer",
 								getInteger(ME_CUSTOMER).toString()))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 
@@ -170,7 +170,7 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 	public synchronized void test_02_ComputeActionPlan() throws Exception {
 		Integer idAnalysis = getInteger(ANALYSIS_KEY);
 		notNull(idAnalysis, "Analysis id cannot be found");
-		this.mockMvc.perform(post("/Analysis/ActionPlan/Compute").with(csrf()).with(httpBasic(USERNAME, PASSWORD))
+		this.mockMvc.perform(post("/Analysis/ActionPlan/Compute").with(csrf()).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN"))
 				.sessionAttr(Constant.SELECTED_ANALYSIS, idAnalysis).contentType(APPLICATION_JSON_CHARSET_UTF_8)
 				.content("[]")).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 		Worker worker = null;
@@ -397,7 +397,7 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 		notNull(idAnalysis, "Analysis cannot be found");
 		this.mockMvc
 				.perform(get("/Analysis/Data-manager/Sqlite/Export-process").with(csrf())
-						.param("idAnalysis", idAnalysis + "").with(httpBasic(USERNAME, PASSWORD))
+						.param("idAnalysis", idAnalysis + "").with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN"))
 						.contentType(APPLICATION_JSON_CHARSET_UTF_8))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 		Worker worker = null;
@@ -427,7 +427,7 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 			isNull(worker.getError(), "An error occured while export analysis");
 			notNull(messageHandler, "Last message cannot be found");
 			this.mockMvc
-					.perform(get("/Task/Status/" + worker.getId()).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
+					.perform(get("/Task/Status/" + worker.getId()).with(csrf()).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN"))
 							.contentType(APPLICATION_JSON_CHARSET_UTF_8))
 					.andExpect(status().isOk()).andExpect(jsonPath("$.asyncCallbacks[0].args[1]").exists());
 			serviceTaskFeedback.unregisterTask(USERNAME, worker.getId());
@@ -445,7 +445,7 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 		try {
 			MvcResult result = this.mockMvc
 					.perform(get(String.format("/Account/Sqlite/%d/Download", getLong("key_sql_export"))).with(csrf())
-							.with(httpBasic(USERNAME, PASSWORD))
+							.with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN"))
 							.contentType(APPLICATION_JSON_CHARSET_UTF_8))
 					.andExpect(status().isOk()).andReturn();
 			notNull(result, "No result");
@@ -463,6 +463,7 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 	}
 
 	@SuppressWarnings("unchecked")
+	@Transactional
 	@Test(dependsOnMethods = "test_02_ComputeActionPlan")
 	public synchronized void test_06_ExportReport() throws Exception {
 		Integer idAnalysis = getInteger(ANALYSIS_KEY);
@@ -471,7 +472,7 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 		List<ReportTemplate> templates = (List<ReportTemplate>) this.mockMvc
 				.perform(
 						get("/Analysis/Data-manager/Report/Export-form/" + idAnalysis).with(csrf())
-								.with(httpBasic(USERNAME, PASSWORD)).contentType(APPLICATION_JSON_CHARSET_UTF_8))
+								.with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")).contentType(APPLICATION_JSON_CHARSET_UTF_8))
 				.andExpect(status().isOk()).andReturn().getModelAndView().getModel().get("templates");
 
 		notEmpty(templates, "No template can be found");
@@ -483,7 +484,7 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 
 		this.mockMvc
 				.perform(post("/Analysis/Data-manager/Report/Export-process").param("analysis", idAnalysis + "")
-						.with(csrf()).with(httpBasic(USERNAME, PASSWORD))
+						.with(csrf()).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN"))
 						.contentType(APPLICATION_JSON_CHARSET_UTF_8).param("type", "QUANTITATIVE")
 						.param("template", idTemplate + ""))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
@@ -513,7 +514,7 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 			MessageHandler messageHandler = serviceTaskFeedback.recieveById(worker.getId());
 			notNull(messageHandler, "Last message cannot be found");
 			this.mockMvc
-					.perform(get("/Task/Status/" + worker.getId()).with(csrf()).with(httpBasic(USERNAME, PASSWORD))
+					.perform(get("/Task/Status/" + worker.getId()).with(csrf()).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN"))
 							.contentType(APPLICATION_JSON_CHARSET_UTF_8))
 					.andExpect(status().isOk()).andExpect(jsonPath("$.asyncCallbacks[0].args[1]").exists());
 			serviceTaskFeedback.unregisterTask(USERNAME, worker.getId());
@@ -530,7 +531,7 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 	public void test_07_DownloadReport() throws Exception {
 		MvcResult result = this.mockMvc
 				.perform(get(String.format("/Account/Report/%d/Download", getInteger("key_word_export"))).with(csrf())
-						.with(httpBasic(USERNAME, PASSWORD))
+						.with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN"))
 						.contentType(APPLICATION_JSON_CHARSET_UTF_8))
 				.andExpect(status().isOk()).andReturn();
 		notNull(result, "No result");

@@ -2237,22 +2237,6 @@ public class Analysis implements Cloneable {
 		this.ilrImpactTypes = ilrImpactTypes;
 	}
 
-	/**
-	 * toString: <br>
-	 * Description
-	 * 
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString() {
-		return "Analysis [id=" + id + ", customer=" + customer + ", identifier=" + identifier + ", version=" + version
-				+ ", creationDate=" + creationDate + ", label=" + label + ", histories=" + histories + ", language="
-				+ language + ", empty=" + data + ", itemInformations=" + itemInformations + ", parameters=" + parameters
-				+ ", assets=" + assets + ", riskInformations=" + riskInformations + ", scenarios=" + scenarios
-				+ ", assessments=" + assessments + ", analysisStandards=" + analysisStandards + ", phases=" + phases
-				+ ", actionPlans=" + actionPlans + ", summaries=" + summaries + ", riskRegisters=" + riskRegisters
-				+ "]";
-	}
 
 	@Transient
 	public void updateType() {

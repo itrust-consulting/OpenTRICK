@@ -21,12 +21,11 @@ import org.springframework.context.annotation.ComponentScan;
  * @author eomar
  *
  */
-@ComponentScan("lu.itrust.business")
+@ComponentScan({"lu.itrust.boot.configuration","lu.itrust.business"})
 @SpringBootApplication(exclude = { FlywayAutoConfiguration.class, DataSourceAutoConfiguration.class,
 		FreeMarkerAutoConfiguration.class, SecurityAutoConfiguration.class, TransactionAutoConfiguration.class,
 		DataSourceTransactionManagerAutoConfiguration.class, UserDetailsServiceAutoConfiguration.class,
 		HibernateJpaAutoConfiguration.class })
-// @ImportResource("classpath:spring/application-config.xml")
 public class Application extends SpringBootServletInitializer {
 
 	@Override

@@ -36,8 +36,8 @@ public class TS_01_CreateAdminAccount extends SpringTestConfiguration {
 
 	@Test(dependsOnMethods = "test_00_CreateAdminAccount")
 	public void test_01_Authenticate() throws Exception {
-		this.mockMvc.perform(formLogin().loginProcessingUrl("/signin").user(USERNAME).password(PASSWORD)).andExpect(status().isFound()).andExpect(authenticated())
-				.andExpect(redirectedUrl("/"));
+		this.mockMvc.perform(formLogin().loginProcessingUrl("/Login").user(USERNAME).password(PASSWORD)).andExpect(status().isFound()).andExpect(authenticated())
+				.andExpect(redirectedUrl("/Home"));
 	}
 
 	@Test(dependsOnMethods = "test_01_Authenticate")
