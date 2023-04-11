@@ -30,6 +30,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.ValidationUtils;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -141,11 +142,11 @@ public class ControllerRegister {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/DoRegister", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PostMapping(value = "/DoRegister", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PostAuthorize("@permissionEvaluator.isAllowed(T(lu.itrust.business.ts.model.general.TSSettingName).SETTING_ALLOWED_SIGNUP,true)")
 	public @ResponseBody Map<String, String> save(@RequestBody String source, RedirectAttributes attributes,
 			Locale locale, HttpServletRequest request,
-			HttpServletResponse response) throws Exception {
+			HttpServletResponse response) {
 		Map<String, String> errors = new LinkedHashMap<>();
 		try {
 			User user = new User();
@@ -174,23 +175,10 @@ public class ControllerRegister {
 			// set role of new user
 			user.addRole(role);
 
-			List<User> admins = serviceUser.getAllAdministrators();
+			this.serviceUser.save(user);
 
-			try {
+			serviceEmailSender.send(serviceUser.getAllAdministrators(), user);
 
-				serviceEmailSender.send(admins, user);
-
-				this.serviceUser.save(user);
-
-			} catch (Exception e) {
-				// save user
-				TrickLogManager.Persist(e);
-
-				errors.put("general", messageSource.getMessage("error.user.save", null,
-						"Error during account creation, please try again later...", locale));
-			}
-
-			return errors;
 		} catch (ConstraintViolationException | DataIntegrityViolationException e) {
 			errors.put("constraint",
 					messageSource.getMessage("error.user.constraint", null,
@@ -199,8 +187,12 @@ public class ControllerRegister {
 					messageSource.getMessage("error.user.username.used_change", null, "Change the username", locale));
 			errors.put("email",
 					messageSource.getMessage("error.user.email.used_change", null, "Change the email", locale));
-			return errors;
+		} catch (Exception e) {
+			TrickLogManager.Persist(e);
+			errors.put("general", messageSource.getMessage("error.user.save", null,
+					"Error during account creation, please try again later...", locale));
 		}
+		return errors;
 	}
 
 	public void checkAttempt(String name, HttpServletRequest request, Principal principal) {
@@ -230,12 +222,13 @@ public class ControllerRegister {
 	}
 
 	@RequestMapping("/ResetPassword")
+	@PostAuthorize("@permissionEvaluator.isAllowed(T(lu.itrust.business.ts.model.general.TSSettingName).SETTING_ALLOWED_RESET_PASSWORD,true)")
 	public String resetPassword(Principal principal, Model model, HttpServletRequest request) {
 		model.addAttribute("resetPassword", new ResetPasswordHelper());
 		return "jsp/default/recovery/reset-password";
 	}
 
-	public static String URL(HttpServletRequest request) {
+	public static String generateURL(HttpServletRequest request) {
 		return request.getScheme() + "://" + request.getServerName()
 				+ ("http".equals(request.getScheme()) && request.getServerPort() == 80
 						|| "https".equals(request.getScheme()) && request.getServerPort() == 443 ? ""
@@ -244,15 +237,16 @@ public class ControllerRegister {
 	}
 
 	@RequestMapping("/ResetPassword/Save")
+	@PostAuthorize("@permissionEvaluator.isAllowed(T(lu.itrust.business.ts.model.general.TSSettingName).SETTING_ALLOWED_RESET_PASSWORD,true)")
 	public String resetPassword(@ModelAttribute("resetPassword") ResetPasswordHelper resetPassword,
 			BindingResult result, Principal principal, RedirectAttributes attributes,
 			Locale locale, HttpServletRequest request) {
-		if (resetPassword.isEmpty()) {
-			result.reject("error.reset.password.field.empty", "Please enter your username or your eamil address");
-			return "jsp/default/recovery/reset-password";
-		}
 
 		try {
+			if (resetPassword.isEmpty()) {
+				result.reject("error.reset.password.field.empty", "Please enter your username or your eamil address");
+				return "jsp/default/recovery/reset-password";
+			}
 			checkAttempt("service-attempt-reset-password", request, principal);
 			String ipAdress = request.getHeader("X-FORWARDED-FOR");
 			if (ipAdress == null)
@@ -301,6 +295,7 @@ public class ControllerRegister {
 	}
 
 	@RequestMapping("/ChangePassword/{keyControl}")
+	@PostAuthorize("@permissionEvaluator.isAllowed(T(lu.itrust.business.ts.model.general.TSSettingName).SETTING_ALLOWED_RESET_PASSWORD,true)")
 	public String updatePassword(@PathVariable String keyControl, Principal principal, Model model,
 			RedirectAttributes attributes, Locale locale, HttpServletRequest request) {
 		try {
@@ -334,6 +329,7 @@ public class ControllerRegister {
 	}
 
 	@RequestMapping("/ChangePassword/{keyControl}/Cancel")
+	@PostAuthorize("@permissionEvaluator.isAllowed(T(lu.itrust.business.ts.model.general.TSSettingName).SETTING_ALLOWED_RESET_PASSWORD,true)")
 	public String cancel(@PathVariable String keyControl, Principal principal, Model model,
 			RedirectAttributes attributes, Locale locale, HttpServletRequest request) {
 		ResetPassword resetPassword = serviceResetPassword.get(keyControl);
@@ -347,24 +343,25 @@ public class ControllerRegister {
 	}
 
 	@RequestMapping("/ChangePassword/Save")
+	@PostAuthorize("@permissionEvaluator.isAllowed(T(lu.itrust.business.ts.model.general.TSSettingName).SETTING_ALLOWED_RESET_PASSWORD,true)")
 	public String updatePassword(@ModelAttribute("changePassword") ChangePasswordhelper changePassword,
 			BindingResult result, Principal principal, Model model,
 			RedirectAttributes attributes, Locale locale, HttpServletRequest request) {
-		ValidationUtils.rejectIfEmptyOrWhitespace(result, "password", "error.user.password.empty",
-				"Password cannot be empty");
-		ValidationUtils.rejectIfEmptyOrWhitespace(result, "repeatPassword", "error.user.password.empty",
-				"Password cannot be empty");
-		if (!result.hasFieldErrors("password")
-				&& !changePassword.getRepeatPassword().matches(Constant.REGEXP_VALID_PASSWORD))
-			result.rejectValue("password", "error.user.password.invalid",
-					"Password does not match policy (12 characters, at least one digit, one lower and one uppercase)");
-		if (!result.hasFieldErrors("repeatPassword")
-				&& !changePassword.getRepeatPassword().equals(changePassword.getPassword()))
-			result.rejectValue("repeatPassword", "error.user.repeatPassword.not_same", "Passwords are not the same");
-		if (result.hasErrors())
-			return "jsp/default/recovery/change-password";
-
 		try {
+			ValidationUtils.rejectIfEmptyOrWhitespace(result, "password", "error.user.password.empty",
+					"Password cannot be empty");
+			ValidationUtils.rejectIfEmptyOrWhitespace(result, "repeatPassword", "error.user.password.empty",
+					"Password cannot be empty");
+			if (!result.hasFieldErrors("password")
+					&& !changePassword.getRepeatPassword().matches(Constant.REGEXP_VALID_PASSWORD))
+				result.rejectValue("password", "error.user.password.invalid",
+						"Password does not match policy (12 characters, at least one digit, one lower and one uppercase)");
+			if (!result.hasFieldErrors("repeatPassword")
+					&& !changePassword.getRepeatPassword().equals(changePassword.getPassword()))
+				result.rejectValue("repeatPassword", "error.user.repeatPassword.not_same",
+						"Passwords are not the same");
+			if (result.hasErrors())
+				return "jsp/default/recovery/change-password";
 
 			checkAttempt("service-attempt-change-password", request, principal);
 			ResetPassword resetPassword = serviceResetPassword.get(changePassword.getRequestId());

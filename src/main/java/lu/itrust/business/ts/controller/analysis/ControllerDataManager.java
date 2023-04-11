@@ -352,7 +352,7 @@ public class ControllerDataManager {
 						locale)));
 		model.addAttribute("items", items);
 		model.addAttribute("maxFileSize", maxUploadFileSize);
-		return "analyses/single/components/data-manager/export";
+		return "jsp/analyses/single/components/data-manager/export";
 	}
 
 	@GetMapping(value = "/ILR/Export-form", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
@@ -360,7 +360,7 @@ public class ControllerDataManager {
 	public String exportILRForm(Model model, HttpSession session, Principal principal, Locale locale) {
 		model.addAttribute("item", new DataManagerItem("ilr", "/Analysis/Data-manager/ILR/Export-process"));
 		model.addAttribute("maxFileSize", maxUploadFileSize);
-		return "analyses/single/components/data-manager/export/ilr";
+		return "jsp/analyses/single/components/data-manager/export/ilr";
 	}
 
 	@PostMapping(value = "/ILR/Export-process", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
@@ -1262,7 +1262,7 @@ public class ControllerDataManager {
 						locale)));
 		model.addAttribute("items", items);
 		model.addAttribute("maxFileSize", maxUploadFileSize);
-		return "analyses/single/components/data-manager/import";
+		return "jsp/analyses/single/components/data-manager/import";
 	}
 
 	@PostMapping(value = "/Risk-estimation/Import-process", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)

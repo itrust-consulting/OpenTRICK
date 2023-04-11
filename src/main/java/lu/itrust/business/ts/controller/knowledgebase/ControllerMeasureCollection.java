@@ -32,6 +32,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -529,24 +530,31 @@ public class ControllerMeasureCollection {
 	public String displayAll(@PathVariable int idStandard, @PathVariable int idLanguage, HttpServletRequest request,
 			Model model) throws Exception {
 
-		// load all measuredescriptions of a standard
-		List<MeasureDescription> mesDescs = serviceMeasureDescription.getAllByStandard(idStandard);
+		final Standard standard = serviceStandard.get(idStandard);
+		if (standard != null) {
+			// load all measuredescriptions of a standard
+			final List<MeasureDescription> mesDescsDescriptions = serviceMeasureDescription.getAllByStandard(standard);
 
-		// chekc if measuredescriptions are not null
-		if (mesDescs != null) {
+			// chekc if measuredescriptions are not null
+
+			final List<Language> languages = serviceLanguage.getAll();
+
 			// set language
 			Language lang = null;
-			if (idLanguage != 0) {
-				lang = serviceLanguage.get(idLanguage);
-			} else {
-				lang = serviceLanguage.getByAlpha3("ENG");
+			if (idLanguage != 0)
+				lang = languages.stream().filter(e -> e.getId() == idLanguage).findAny().orElse(null);
+			if (lang == null) {
+				lang = languages.stream().filter(e -> e.getAlpha2().equalsIgnoreCase("en")).findAny().orElse(null);
+				if (lang == null && !languages.isEmpty())
+					lang = languages.get(0);
 			}
-			Collections.sort(mesDescs, new ComparatorMeasureDescription());
+
+			Collections.sort(mesDescsDescriptions, new ComparatorMeasureDescription());
 			// put data to model
 			model.addAttribute("selectedLanguage", lang);
-			model.addAttribute("languages", serviceLanguage.getAll());
-			model.addAttribute("standard", serviceStandard.get(idStandard));
-			model.addAttribute("measureDescriptions", mesDescs);
+			model.addAttribute("languages", languages);
+			model.addAttribute("standard", standard);
+			model.addAttribute("measureDescriptions", mesDescsDescriptions);
 		}
 		return "jsp/knowledgebase/standards/measure/section";
 	}

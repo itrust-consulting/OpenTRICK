@@ -26,13 +26,7 @@ import org.springframework.context.annotation.ComponentScan;
 		FreeMarkerAutoConfiguration.class, SecurityAutoConfiguration.class, TransactionAutoConfiguration.class,
 		DataSourceTransactionManagerAutoConfiguration.class, UserDetailsServiceAutoConfiguration.class,
 		HibernateJpaAutoConfiguration.class })
-public class Application extends SpringBootServletInitializer {
-
-	@Override
-	protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
-		return builder.sources(Application.class);
-	}
-
+public class Application {
 	public static void main(String[] args) {
 		SpringApplication.run(Application.class, args);
 	}

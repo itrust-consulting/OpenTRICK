@@ -110,10 +110,9 @@ public class DAOMeasureDescriptionHBM extends DAOHibernate implements lu.itrust.
 	 *
 	 * @see lu.itrust.business.ts.database.dao.DAOMeasureDescription#getAllByStandard(java.lang.Integer)
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
 	public List<MeasureDescription> getAllByStandard(Integer idStandard) {
-		return (List<MeasureDescription>) getSession().createQuery("From MeasureDescription where standard.id = :idStandard").setParameter("idStandard", idStandard)
+		return  getSession().createQuery("From MeasureDescription where standard.id = :idStandard", MeasureDescription.class).setParameter("idStandard", idStandard)
 				.getResultList();
 	}
 

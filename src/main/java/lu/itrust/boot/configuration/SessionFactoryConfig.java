@@ -4,7 +4,10 @@
 package lu.itrust.boot.configuration;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Map;
 import java.util.Properties;
+import java.util.stream.StreamSupport;
 
 import javax.sql.DataSource;
 
@@ -17,9 +20,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.env.AbstractEnvironment;
+import org.springframework.core.env.EnumerablePropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.core.io.support.ResourcePropertySource;
 import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -55,27 +61,44 @@ public class SessionFactoryConfig {
 	@Bean
 	@Primary
 	@ConfigurationProperties("app.jpa.first")
-	public JpaProperties firstJpaProperties(Environment environment, ResourceLoader resourceLoader) throws IOException {
-		final String path = "classpath:/persistence/ehcache-" + environment.getProperty("jdbc.cache.storage.type")
+	public JpaProperties firstJpaProperties(Environment env, ResourceLoader resourceLoader) throws IOException {
+		final String path = "classpath:/persistence/ehcache-" + env.getProperty("jdbc.cache.storage.type")
 				+ ".xml";
 		final JpaProperties properties = new JpaProperties();
 		final Resource resource = resourceLoader.getResource(path);
-		properties.getProperties().put("hibernate.dialect", environment.getProperty("jdbc.dialect"));
-		properties.getProperties().put("hibernate.show_sql", environment.getProperty("jdbc.show_sql"));
-		properties.getProperties().put("hibernate.jdbc.time_zone", environment.getProperty("jdbc.time_zone"));
-		properties.getProperties().put("hibernate.hbm2ddl.auto", environment.getProperty("jdbc.hbm2ddl.auto"));
+		loadSpringJpaProperties(env, properties.getProperties());
+		properties.getProperties().put("hibernate.dialect", env.getProperty("jdbc.dialect"));
+		properties.getProperties().put("hibernate.show_sql", env.getProperty("jdbc.show_sql"));
+		properties.getProperties().put("hibernate.jdbc.time_zone", env.getProperty("jdbc.time_zone"));
+		properties.getProperties().put("hibernate.hbm2ddl.auto", env.getProperty("jdbc.hbm2ddl.auto"));
 		properties.getProperties().put("hibernate.javax.cache.missing_cache_strategy",
-				environment.getProperty("jdbc.cache.missing_cache_strategy"));
+				env.getProperty("jdbc.cache.missing_cache_strategy"));
 		properties.getProperties().put("hibernate.javax.cache.provider",
-				environment.getProperty("jdbc.cache.provider"));
+				env.getProperty("jdbc.cache.provider"));
 		properties.getProperties().put("hibernate.cache.use_query_cache",
-				environment.getProperty("jdbc.cache.use_query_cache"));
+				env.getProperty("jdbc.cache.use_query_cache"));
 		properties.getProperties().put("hibernate.cache.region.factory_class",
-				environment.getProperty("jdbc.cache.factory_class"));
+				env.getProperty("jdbc.cache.factory_class"));
 		properties.getProperties().put("hibernate.cache.use_second_level_cache",
-				environment.getProperty("jdbc.cache.use_second_level"));
+				env.getProperty("jdbc.cache.use_second_level"));
 		if (resource.exists())
 			properties.getProperties().put("hibernate.javax.cache.uri", resource.getURI().toString());
+
 		return properties;
+	}
+
+	public static void loadSpringJpaProperties(final Environment env, final Map<String, String> properties) {
+		StreamSupport.stream(
+				((AbstractEnvironment) env).getPropertySources().spliterator(), false)
+				.filter(EnumerablePropertySource.class::isInstance)
+				.map(e -> ((EnumerablePropertySource<?>) e).getPropertyNames()).flatMap(Arrays::<String>stream)
+				.filter(e -> e.startsWith("spring.jpa") && e.contains("hibernate")).forEach(e -> properties
+						.put(e.substring(e.indexOf("hibernate")), env.getProperty(e)));
+
+		//translate spring jap properties to hibernate
+		
+		var value = properties.remove("hibernate.keyword_auto_quoting_enabled");
+		if (value != null)
+			properties.put("hibernate.auto_quote_keyword", value);
 	}
 }

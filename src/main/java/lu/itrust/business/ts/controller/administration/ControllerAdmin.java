@@ -730,7 +730,7 @@ public class ControllerAdmin {
 			model.addAttribute("user", user);
 			model.addAttribute("users", serviceUser.getAllOthers(user));
 			model.addAttribute("analyses", serviceAnalysis.getAllFromOwner(user));
-			return "admin/user/delete-dialog";
+			return "jsp/admin/user/delete-dialog";
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
 			return "redirect:/Error";

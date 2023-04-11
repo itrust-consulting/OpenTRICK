@@ -37,12 +37,15 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.testng.annotations.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.PersistenceContextType;
 import lu.itrust.ts.helper.TestConstant;
 import lu.itrust.business.ts.asynchronousWorkers.Worker;
 import lu.itrust.business.ts.asynchronousWorkers.WorkerImportStandard;
@@ -131,11 +134,10 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 	private String appVersion;
 
 	@Test
-	@Transactional(readOnly = true)
 	public void test_00_Show27001Standard() throws Exception {
 		this.mockMvc
-				.perform(get("/KnowledgeBase/Standard/1/Language/1/Measures").with(csrf())
-						.with(user(USERNAME).password(PASSWORD).roles("CONSULTANT", "ADMIN")))
+				.perform(get("/KnowledgeBase/Standard/1/Language/1/Measures")
+						.with(user(USERNAME).password(PASSWORD).roles("CONSULTANT", "ADMIN")).with(csrf()))
 				.andExpect(status().isOk())
 				.andExpect(view().name("jsp/knowledgebase/standards/measure/section"))
 				.andExpect(model().attributeExists("selectedLanguage", "languages", "standard", "measureDescriptions"));

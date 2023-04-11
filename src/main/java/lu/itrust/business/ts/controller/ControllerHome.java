@@ -74,7 +74,7 @@ public class ControllerHome {
 		return "templates/base/home";
 	}
 
-	//@PreAuthorize(Constant.ROLE_MIN_OTP)
+	// @PreAuthorize(Constant.ROLE_MIN_OTP)
 	@RequestMapping({ "", "/", "/Home" })
 	public String home(HttpServletRequest request) {
 		if (request.isUserInRole(Constant.ROLE_OTP_NAME))
@@ -103,15 +103,16 @@ public class ControllerHome {
 		if (request.getParameter("registerSuccess") != null) {
 			model.addAttribute("success", messageSource.getMessage("success.create.account", null,
 					"Account has been created successfully", locale));
-			model.addAttribute("username", request.getParameter("username") == null ? "" : request.getParameter("username"));
+			model.addAttribute("username",
+					request.getParameter("username") == null ? "" : request.getParameter("username"));
 		}
 		return "jsp/default/login";
 	}
 
 	private void loadSettings(Model model, Locale locale) {
 		try {
-			TSSetting register = serviceTSSetting.get(TSSettingName.SETTING_ALLOWED_SIGNUP),
-					resetPassword = serviceTSSetting.get(TSSettingName.SETTING_ALLOWED_RESET_PASSWORD);
+			TSSetting register = serviceTSSetting.get(TSSettingName.SETTING_ALLOWED_SIGNUP);
+			TSSetting resetPassword = serviceTSSetting.get(TSSettingName.SETTING_ALLOWED_RESET_PASSWORD);
 			model.addAttribute("allowRegister", register == null || register.getBoolean());
 			model.addAttribute("resetPassword", resetPassword == null || resetPassword.getBoolean());
 		} catch (GenericJDBCException e) {
