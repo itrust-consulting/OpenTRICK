@@ -109,8 +109,6 @@ import lu.itrust.business.ts.usermanagement.IDS;
  * @since Jun 4, 2015
  */
 @RestController
-@CrossOrigin(originPatterns = "*", methods = { RequestMethod.GET, RequestMethod.POST, RequestMethod.DELETE,
-		RequestMethod.HEAD, RequestMethod.OPTIONS }, allowCredentials = "true")
 @RequestMapping(value = "/Api", headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, produces = MediaType.APPLICATION_JSON_VALUE)
 public class ControllerApi {
 

@@ -64,9 +64,9 @@ public class SecurityConfig {
                 .authenticationManager(apiAuthenticationManager())
                 .httpBasic(basic -> basic.authenticationEntryPoint(apiAuthenticationEntryPoint())
                         .realmName("TRICK Service application"))
-                .authorizeHttpRequests(authz -> authz.anyRequest().hasRole(Constant.ROLE_IDS))
+                .authorizeHttpRequests(authz -> authz.anyRequest().hasAuthority(Constant.ROLE_IDS))
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .requiresChannel(ch -> ch.requestMatchers(API_IDS).requiresSecure()).csrf(csrf -> csrf.disable())
+                .requiresChannel(ch -> ch.requestMatchers(API_IDS).requiresSecure()).csrf(csrf -> csrf.disable()).cors(e -> e.and())
                 .addFilterAt(apiAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
@@ -79,10 +79,11 @@ public class SecurityConfig {
     @Order(2)
     public SecurityFilterChain apiDatafilterChain(HttpSecurity http) throws Exception {
         http.securityMatchers(matchers -> matchers.requestMatchers("/Api/data/**"))
-                .authorizeHttpRequests(authz -> authz.anyRequest().hasAnyRole(Constant.ROLE_USER,
+                .authorizeHttpRequests(authz -> authz.anyRequest().hasAnyAuthority(Constant.ROLE_USER,
                         Constant.ROLE_CONSULTANT, Constant.ROLE_ADMIN, Constant.ROLE_SUPERVISOR))
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .requiresChannel(ch -> ch.requestMatchers(API_IDS).requiresSecure()).csrf(csrf -> csrf.disable())
+                .cors(e -> e.and())
                 .httpBasic(basic -> basic
                         .realmName("TRICK Service application"))
                 .authenticationManager(authenticationManager);
@@ -95,9 +96,13 @@ public class SecurityConfig {
         http.authorizeHttpRequests(
                 e -> e.requestMatchers(
                         "/favicon.ico", "/css/**", "/fonts/**", "/js/**", "/images/**",
-                        "/IsAuthenticate", "/Success/**", "/Error/**", "//Unlock-account/**", "/Login/**",
+                        "/IsAuthenticate", "/Success/**", "/Error/**", "/Unlock-account/**", "/Login/**",
                         "/Signout/**",
-                        "/ResetPassword/**", "/ChangePassword/**",
+                        "/ResetPassword/**", "/ChangePassword/**", "/Api/**" /**
+                                                                              * This filterchain will not be used to
+                                                                              * protect Api
+                                                                              */
+                        ,
                         "/Analysis-access-management/**", "/Validate/**")
                         .permitAll())
                 .authorizeHttpRequests(e -> e

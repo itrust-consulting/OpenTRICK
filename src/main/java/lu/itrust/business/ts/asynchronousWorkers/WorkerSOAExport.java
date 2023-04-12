@@ -3,7 +3,6 @@
  */
 package lu.itrust.business.ts.asynchronousWorkers;
 
-import static lu.itrust.business.ts.constants.Constant.CLEAN_UP_FILE_NAME;
 import static lu.itrust.business.ts.exportation.word.impl.docx4j.Docx4jReportImpl.mergeCell;
 import static lu.itrust.business.ts.exportation.word.impl.docx4j.formatting.Docx4jFormatter.updateRow;
 import static lu.itrust.business.ts.exportation.word.impl.docx4j.formatting.Docx4jMeasureFormatter.sum;
@@ -53,6 +52,7 @@ import lu.itrust.business.ts.model.analysis.Analysis;
 import lu.itrust.business.ts.model.analysis.ExportFileName;
 import lu.itrust.business.ts.model.general.document.impl.WordReport;
 import lu.itrust.business.ts.model.general.helper.Utils;
+import lu.itrust.business.ts.model.parameter.helper.ValueFactory;
 import lu.itrust.business.ts.model.standard.AnalysisStandard;
 import lu.itrust.business.ts.model.standard.measure.AbstractNormalMeasure;
 import lu.itrust.business.ts.model.standard.measure.Measure;
@@ -228,6 +228,8 @@ public class WorkerSOAExport extends WorkerImpl {
 			InstanceManager.getServiceStorage().copy(doctemplate, workFile.getName());
 			final WordprocessingMLPackage wordMLPackage = WordprocessingMLPackage.load(workFile);
 			final Document document = wordMLPackage.getMainDocumentPart().getContents();
+			final ValueFactory factory = new ValueFactory(analysis.getParameters());
+			final double soaThreshold = analysis.findParameter(Constant.SOA_THRESHOLD, 100d);
 			getServiceTaskFeedback().send(getId(),
 					new MessageHandler("info.preparing.soa.data", "Preparing soa sheet template", progressing[0] += 5));
 			final List<AnalysisStandard> analysisStandards = analysis.getAnalysisStandards().values().stream()
@@ -237,6 +239,7 @@ public class WorkerSOAExport extends WorkerImpl {
 			getServiceTaskFeedback().send(getId(), handler);
 			progressing[2] = analysisStandards.stream()
 					.mapToInt(analysisStandard -> analysisStandard.getMeasures().size()).sum();
+
 			for (AnalysisStandard analysisStandard : analysisStandards) {
 				P p = null;
 				if (progressing[3] == 0)
@@ -247,7 +250,7 @@ public class WorkerSOAExport extends WorkerImpl {
 				analysisStandard.getMeasures()
 						.sort((e1, e2) -> NaturalOrderComparator.compareTo(e1.getMeasureDescription().getReference(),
 								e2.getMeasureDescription().getReference()));
-				Tbl tbl = generateTable(analysisStandard.getMeasures(), handler, progressing);
+				Tbl tbl = generateTable(analysisStandard.getMeasures(), handler, factory, soaThreshold, progressing);
 				document.getContent().add(tbl);
 			}
 			getServiceTaskFeedback().send(getId(), new MessageHandler("info.saving.soa", "Saving soa", 95));
@@ -268,7 +271,8 @@ public class WorkerSOAExport extends WorkerImpl {
 		}
 	}
 
-	private Tbl generateTable(List<Measure> measures, MessageHandler handler, int[] progressing) {
+	private Tbl generateTable(List<Measure> measures, MessageHandler handler, ValueFactory factory, double soaThreshold,
+			int[] progressing) {
 		int rowIndex = 0;
 		Tbl table = createTable("TSSOA", measures.size() + 1, 6);
 		Tr row = (Tr) table.getContent().get(rowIndex++);
@@ -293,7 +297,11 @@ public class WorkerSOAExport extends WorkerImpl {
 				setCellText((Tc) row.getContent().get(2),
 						getMessageSource().getMessage("label.measure.status." + measure.getStatus().toLowerCase(), null,
 								measure.getStatus(), locale));
-				setCellText((Tc) row.getContent().get(3), format.format(measure.getPhase().getEndDate()));
+				if (measure.getImplementationRateValue(factory) >= soaThreshold)
+					setCellText((Tc) row.getContent().get(3),
+							getMessageSource().getMessage("label.measure.implemented", null, "Implemented", locale));
+				else
+					setCellText((Tc) row.getContent().get(3), format.format(measure.getPhase().getEndDate()));
 				if (measure instanceof AbstractNormalMeasure) {
 					setCellText((Tc) row.getContent().get(4), ((AbstractNormalMeasure) measure).getSoaComment());
 					setCellText((Tc) row.getContent().get(5), ((AbstractNormalMeasure) measure).getSoaReference());
