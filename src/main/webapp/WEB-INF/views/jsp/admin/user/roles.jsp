@@ -1,0 +1,25 @@
+<%@ taglib uri="jakarta.tags.core" prefix="c"%>
+<%@ taglib prefix="fmt" uri="jakarta.tags.fmt"%>
+<%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
+<%@ taglib uri="jakarta.tags.functions" prefix="fn"%>
+<div class="section" id="section_roles">
+	<table class="table" style="text-align: center;">
+		<thead>
+			<tr>
+				<c:forEach items="${roles}" var="role">
+					<c:set var="role_value" value="${fn:replace(role,'ROLE_','')}" />
+					<th><spring:message code="label.role.${fn:toLowerCase(role_value)}" text="${role_value}"/></th>
+				</c:forEach>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<c:forEach items="${roles}" var="role">
+					<td align="center"><input id="${role}" name="${role}" class="checkbox" type="checkbox" ${!empty userRoles && userRoles.contains(role)?"checked":""} /></td>
+				</c:forEach>
+			</tr>
+		</tbody>
+	</table>
+</div>

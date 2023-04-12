@@ -41,8 +41,8 @@ function saveAssessmentData(e) {
 								updated = true;
 							else {
 								$element = $("[name='" + field.name + "'].form-control", $assessmentUI);
-								if(!$element.length && field.name.startsWith("ALE")){
-									$("[data-name='" + field.name + "']", $assessmentUI).text(field.value).attr("title",field.title);
+								if (!$element.length && field.name.startsWith("ALE")) {
+									$("[data-name='" + field.name + "']", $assessmentUI).text(field.value).attr("title", field.title);
 									continue;
 								}
 							}
@@ -55,7 +55,7 @@ function saveAssessmentData(e) {
 										$element.attr(fieldName, field[fieldName]);
 										break;
 									case "color":
-										$element.css({"border-color" : field.color});
+										$element.css({ "border-color": field.color });
 										break;
 								}
 							}
@@ -69,7 +69,7 @@ function saveAssessmentData(e) {
 						}
 						if (application.analysisType.isQualitative())
 							reloadSection("section_riskregister", undefined, true);
-						if(application.analysisType.isQuantitative())
+						if (application.analysisType.isQuantitative())
 							reloadAssetScenario();
 						reloadAssetScenarioChart();
 						setTimeout(function () {
@@ -187,7 +187,7 @@ function updateEstimationIteam(type, item) {
 			case "selected":
 				$option.attr("data-trick-selected", item[key]);
 				$link.attr("data-trick-selected", item[key]);
-				if (item[key]=="true")
+				if (item[key] == "true")
 					$option.removeClass("hidden");
 				else {
 					$option.addClass("hidden");
@@ -218,7 +218,7 @@ function riskEstimationUpdate(force) {
 	if (helper == undefined)
 		initialiseRiskEstimation();
 	if (helper.$tabSection.is(":visible")) {
-		if(force===true)
+		if (force === true)
 			helper.invalidate = true;
 		updateRiskEstimationNavigation();
 		helper.updateContent();
@@ -259,7 +259,7 @@ function changeAssessment(e) {
 }
 
 function AssessmentHelder() {
-	this.id = -1;
+	this.id = 0;
 	this.invalidate = true;
 	this.updateLocked = false;
 	this.names = ["asset", "scenario"];
@@ -292,7 +292,7 @@ AssessmentHelder.prototype = {
 			return false;
 		this.lastSelected[name] = id;
 	}, isValid: function (idAsset, idScanerio) {
-		return activeSelector == "asset" ? idAsset != '-1' : activeSelector == 'scenario' ? idScanerio != '-1' : false;
+		return activeSelector == "asset" ? parseInt(idAsset) > 0 : activeSelector == 'scenario' ? parseInt(idScanerio) > 0 : false;
 	},
 	getLastSelected: function (name) {
 		return this.lastSelected[name];
@@ -322,12 +322,12 @@ AssessmentHelder.prototype = {
 					let $this = $(this), scenarioType = $this.attr("data-trick-type"), linked = $this.attr("data-trick-linked");
 					let scenarioTypeArray = scenarioType.split("|");
 					if (linked === "true") {
-						if (scenarioType && scenarioType.length &&  (id === scenarioType || scenarioTypeArray.includes(id)))
+						if (scenarioType && scenarioType.length && (id === scenarioType || scenarioTypeArray.includes(id)))
 							$this.show();
 						else
 							$this.hide();
 					} else {
-						if (scenarioType && scenarioType.length && (type === scenarioType ||scenarioTypeArray.includes(type)))
+						if (scenarioType && scenarioType.length && (type === scenarioType || scenarioTypeArray.includes(type)))
 							$this.show();
 						else
 							$this.hide();
@@ -338,8 +338,8 @@ AssessmentHelder.prototype = {
 				let typeArray = type.split("|");;
 				$elements.each(function () {
 					let $this = $(this);
-					let assetType = linked? $this.attr("data-trick-id") : $this.attr("data-trick-type");
-					if (type.length && (type=== assetType || typeArray.includes(assetType)))
+					let assetType = linked ? $this.attr("data-trick-id") : $this.attr("data-trick-type");
+					if (type.length && (type === assetType || typeArray.includes(assetType)))
 						$this.show();
 					else
 						$this.hide();
@@ -469,15 +469,15 @@ AssessmentHelder.prototype = {
 			success: function (response) {
 				let $assessmentUI = $(instance.section, new DOMParser().parseFromString(response, "text/html"));
 				if ($assessmentUI.length) {
-					
-					backupFieldHeight("assesment",["assessment-comment", "assessment-riskTreatment", "assessment-hiddenComment","assessment-actionPlan"],$currentUI);
-					
-					restoreFieldHeight("assesment",["assessment-comment", "assessment-riskTreatment", "assessment-hiddenComment","assessment-actionPlan"],$assessmentUI);
-					
+
+					backupFieldHeight("assesment", ["assessment-comment", "assessment-riskTreatment", "assessment-hiddenComment", "assessment-actionPlan"], $currentUI);
+
+					restoreFieldHeight("assesment", ["assessment-comment", "assessment-riskTreatment", "assessment-hiddenComment", "assessment-actionPlan"], $assessmentUI);
+
 					$currentUI.replaceWith($assessmentUI);
-					
+
 					toggleAdditionalActionPlan();
-					
+
 					if (OPEN_MODE.isReadOnly()) {
 						$("select:not([disabled])", $assessmentUI).prop("disabled", true);
 						$("input:not([disabled]),textarea:not([disabled])", $assessmentUI).attr("readOnly", true);
@@ -567,11 +567,11 @@ function generateDataList(id) {
 }
 
 function displayParameters(name, title) {
-	let html = $(name).map(function() { return this.innerHTML; }).get().join("");
+	let html = $(name).map(function () { return this.innerHTML; }).get().join("");
 	let view = new Modal(undefined, html), $modalBody = $(view.modal_body), $legend = $modalBody.find("legend").remove().slice(0, 1);
 	$(view.modal_footer).remove();
 	$(view.modal_dialog).addClass("modal-mdl");
-	$modalBody.css({"overflow-y" : "auto", "max-height" : "800px"}).find("th[data-th-name='qualification']").css({
+	$modalBody.css({ "overflow-y": "auto", "max-height": "800px" }).find("th[data-th-name='qualification']").css({
 		"text-align": "center"
 	});
 	$modalBody.find("tbody").css({
@@ -580,7 +580,7 @@ function displayParameters(name, title) {
 	if (!title)
 		title = $legend.text();
 	view.setTitle(title);
-	
+
 	view.Show();
 	return false;
 }
@@ -751,7 +751,7 @@ function manageRiskProfileMeasure(idAsset, idScenario, e) {
 											else
 												$("<label class='label label-danger' style='font-size:12px; display: block; margin-bottom: 15px;padding: 10px;'/>").text(
 													MessageResolver("error.loading.measures", 'An unknown error occurred while loading measures')).appendTo(
-													instance.$messageContainer.empty());
+														instance.$messageContainer.empty());
 										}, error: unknowError
 									}).complete(function () {
 										$progress.hide();
@@ -1054,16 +1054,16 @@ function initialiseRiskEstimation() {
 	});
 }
 
-function importRiskEstimation(){
+function importRiskEstimation() {
 	let $progress = $("#loading-indicator").show();
 	$.ajax({
 		url: context + "/Analysis/Data-manager/Risk-estimation/Import-form",
 		success: function (response, textStatus, jqXHR) {
 			let $modal = $("#import-risk-estimation-modal", new DOMParser().parseFromString(response, "text/html"));
-			if($modal.length){
+			if ($modal.length) {
 				$("button[name='import']", $modal).on("click", importRiskEstimationProcess);
 				$modal.appendTo("#widgets").modal("show").on("hidden.bs.modal", e => $modal.remove());
-			}else if (response["error"])
+			} else if (response["error"])
 				showDialog("#alert-dialog", response['error']);
 			else
 				unknowError();
@@ -1077,7 +1077,7 @@ function importRiskEstimation(){
 }
 
 function importRiskEstimationProcess() {
-	let $modal = $("#import-risk-estimation-modal"), $uploadFile = $("#upload-file-info-risk-estimation", $modal), $progress = $("#loading-indicator"), $measureNotification = $("#riskEstimationNotification",$modal);
+	let $modal = $("#import-risk-estimation-modal"), $uploadFile = $("#upload-file-info-risk-estimation", $modal), $progress = $("#loading-indicator"), $measureNotification = $("#riskEstimationNotification", $modal);
 	if (!$uploadFile.length)
 		return false;
 	else if ($uploadFile.val() == "") {
@@ -1089,7 +1089,7 @@ function importRiskEstimationProcess() {
 		$.ajax({
 			url: context + "/Analysis/Data-manager/Risk-estimation/Import-process",
 			type: 'POST',
-			data: new FormData($('#importRiskEstimationForm',$modal)[0]),
+			data: new FormData($('#importRiskEstimationForm', $modal)[0]),
 			cache: false,
 			contentType: false,
 			processData: false,
@@ -1102,11 +1102,11 @@ function importRiskEstimationProcess() {
 					showDialog("#alert-dialog", MessageResolver("error.unknown.file.uploading", "An unknown error occurred during file uploading"));
 			},
 			error: unknowError
-	
+
 		}).complete(function () {
 			$progress.hide();
 		});
-	}finally{
+	} finally {
 		$modal.modal("hide");
 	}
 	return false;

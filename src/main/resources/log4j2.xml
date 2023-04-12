@@ -19,17 +19,17 @@
 			<AppenderRef ref="RemoteLogger" />
 		</Asynclogger>
 
-		<logger name="org.docx4j" level='ERROR' />
+		<logger name="org.docx4j" level='INFO' />
 
-		<logger name="org.ehcache.jsr107.Eh107CacheManager" level="WARN" />
+		<logger name="org.ehcache.jsr107.Eh107CacheManager" level="INFO" />
 
-		<logger name="org.docx4j.jaxb.JaxbValidationEventHandler" level='ERROR' />
+		<logger name="org.docx4j.jaxb.JaxbValidationEventHandler" level='INFO' />
 
-		<logger name="org.docx4j.jaxb.NamespacePrefixMapperUtils" level='ERROR' />
+		<logger name="org.docx4j.jaxb.NamespacePrefixMapperUtils" level='INFO' />
 
-		<logger name="org.docx4j.openpackaging.contenttype.ContentTypeManager" level='ERROR' />
+		<logger name="org.docx4j.openpackaging.contenttype.ContentTypeManager" level='INFO' />
 
-		<logger name="org.docx4j.utils.XSLTUtils" level='ERROR' />
+		<logger name="org.docx4j.utils.XSLTUtils" level='INFO' />
 
 		<logger name="org.hibernate" level='INFO' />
 
@@ -39,15 +39,15 @@
 
 		<logger name="org.springframework.web" level='INFO' />
 
-		<logger name="org.xlsx4j.jaxb.Context" level='WARN' />
+		<logger name="org.xlsx4j.jaxb.Context" level='INFO' />
 
 		<logger name="stdout.org.springframework" level='INFO' />
 
 		<logger name="lu.itrust.boot.Application" level="INFO"/>
 
-		<logger name="org.springframework.web.socket.config.WebSocketMessageBrokerStats" level="WARN"/>
+		<logger name="org.springframework.web.socket.config.WebSocketMessageBrokerStats" level="INFO"/>
 
-		<logger name="org.apache.coyote.http2.StreamProcessor" level="WARN"/>
+		<logger name="org.apache.coyote.http2.StreamProcessor" level="INFO"/>
 
 		<Root level="INFO">
 			<AppenderRef ref="STDOUT" />

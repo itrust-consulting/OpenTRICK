@@ -1,0 +1,39 @@
+/**
+ * 
+ */
+package lu.itrust.business.ts.model.analysis;
+
+import java.io.Serializable;
+
+/**
+ * @author eomar
+ *
+ */
+public enum AnalysisType implements Serializable {
+	QUANTITATIVE, HYBRID, QUALITATIVE;
+
+	public boolean isHybrid() {
+		return HYBRID == this;
+	}
+
+	public boolean isQualitative() {
+		return this == QUALITATIVE || isHybrid();
+	}
+
+	public boolean isQuantitative() {
+		return QUANTITATIVE == this || isHybrid();
+	}
+
+	public static boolean isHybrid(AnalysisType type) {
+		return HYBRID == type;
+	}
+
+	public static boolean isQualitative(AnalysisType type) {
+		return QUALITATIVE == type || isHybrid(type);
+	}
+
+	public static boolean isQuantitative(AnalysisType type) {
+		return QUANTITATIVE == type || isHybrid(type);
+	}
+
+}

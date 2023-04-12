@@ -8,9 +8,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import lu.itrust.business.TS.constants.Constant;
-import lu.itrust.business.TS.model.parameter.helper.ValueFactory;
-import lu.itrust.business.TS.model.parameter.value.IValue;
+import lu.itrust.business.ts.constants.Constant;
+import lu.itrust.business.ts.model.parameter.helper.ValueFactory;
+import lu.itrust.business.ts.model.parameter.value.IValue;
 
 /**
  * Represents a simple expression parser with support for variables and basic
