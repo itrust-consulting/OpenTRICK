@@ -6,7 +6,6 @@ package lu.itrust.boot.configuration;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Locale;
 import java.util.Map;
 
 import javax.sql.DataSource;
@@ -35,10 +34,7 @@ import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.ui.freemarker.FreeMarkerConfigurationFactoryBean;
 import org.springframework.web.multipart.MultipartResolver;
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
-import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.handler.SimpleUrlHandlerMapping;
-import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
-import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 import org.springframework.web.servlet.resource.ResourceHttpRequestHandler;
 import org.springframework.web.servlet.resource.ResourceUrlEncodingFilter;
 import org.xml.sax.InputSource;

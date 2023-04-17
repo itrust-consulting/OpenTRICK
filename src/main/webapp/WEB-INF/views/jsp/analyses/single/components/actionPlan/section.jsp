@@ -18,7 +18,7 @@
 </c:forEach>
 <div class="tab-pane" id="tab-action-plan">
 	<div class="section" id="section_actionplans">
-		<spring:eval expression="T(lu.itrust.business.ts.model.actionplan.helper.ActionPlanManager).SplitByType(actionplans)" var="actionplansplitted" />
+		<spring:eval expression="T(lu.itrust.business.ts.model.actionplan.helper.ActionPlanManager).splitByType(actionplans)" var="actionplansplitted" />
 		<div class="page-header tab-content-header">
 			<div class="container">
 				<div class="row-fluid">

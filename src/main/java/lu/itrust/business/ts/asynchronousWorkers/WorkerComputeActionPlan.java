@@ -16,6 +16,7 @@ import org.hibernate.Session;
 import lu.itrust.business.ts.asynchronousWorkers.helper.AsyncCallback;
 import lu.itrust.business.ts.component.AssessmentAndRiskProfileManager;
 import lu.itrust.business.ts.component.TrickLogManager;
+import lu.itrust.business.ts.constants.Constant;
 import lu.itrust.business.ts.database.dao.DAOActionPlan;
 import lu.itrust.business.ts.database.dao.DAOActionPlanSummary;
 import lu.itrust.business.ts.database.dao.DAOActionPlanType;
@@ -79,7 +80,8 @@ public class WorkerComputeActionPlan extends WorkerImpl {
 	 * @param standards
 	 * @param uncertainty
 	 */
-	public WorkerComputeActionPlan(int idAnalysis, List<Integer> standards, Boolean uncertainty, Boolean reloadSection) {
+	public WorkerComputeActionPlan(int idAnalysis, List<Integer> standards, Boolean uncertainty,
+			Boolean reloadSection) {
 		this.idAnalysis = idAnalysis;
 		this.standards = standards;
 		this.uncertainty = uncertainty;
@@ -135,15 +137,15 @@ public class WorkerComputeActionPlan extends WorkerImpl {
 			boolean match = values.length == expressions.length && values.length == 2;
 			for (int i = 0; i < expressions.length && match; i++) {
 				switch (expressions[i]) {
-				case "analysis.id":
-					match &= values[i].equals(idAnalysis);
-					break;
-				case "class":
-					match &= values[i].equals(getClass());
-					break;
-				default:
-					match = false;
-					break;
+					case "analysis.id":
+						match &= values[i].equals(idAnalysis);
+						break;
+					case "class":
+						match &= values[i].equals(getClass());
+						break;
+					default:
+						match = false;
+						break;
 				}
 			}
 			return match;
@@ -179,15 +181,17 @@ public class WorkerComputeActionPlan extends WorkerImpl {
 
 			System.out.println("Loading Analysis...");
 
-			getServiceTaskFeedback().send(getId(), new MessageHandler("info.load.analysis", "Analysis is loading", null));
+			getServiceTaskFeedback().send(getId(),
+					new MessageHandler("info.load.analysis", "Analysis is loading", null));
 			Analysis analysis = this.daoAnalysis.get(idAnalysis);
 			if (analysis == null) {
-				getServiceTaskFeedback().send(getId(), new MessageHandler("error.analysis.not_found", "Analysis cannot be found", null));
+				getServiceTaskFeedback().send(getId(),
+						new MessageHandler("error.analysis.not_found", "Analysis cannot be found", null));
 				return;
 			}
 			session.beginTransaction();
 
-			List<AnalysisStandard> analysisStandards = new ArrayList<AnalysisStandard>();
+			List<AnalysisStandard> analysisStandards = new ArrayList<>();
 
 			initAnalysis(analysis, analysisStandards);
 
@@ -197,7 +201,8 @@ public class WorkerComputeActionPlan extends WorkerImpl {
 
 			assessmentAndRiskProfileManager.updateAssessment(analysis, null);
 
-			ActionPlanComputation computation = new ActionPlanComputation(daoActionPlanType, getServiceTaskFeedback(), getId(), analysis, analysisStandards, this.uncertainty,
+			ActionPlanComputation computation = new ActionPlanComputation(daoActionPlanType, getServiceTaskFeedback(),
+					getId(), analysis, analysisStandards, this.uncertainty,
 					this.getMessageSource());
 			if (computation.calculateActionPlans() == null) {
 				MessageHandler messageHandler = null;
@@ -206,12 +211,15 @@ public class WorkerComputeActionPlan extends WorkerImpl {
 					if ((messageHandler = computeRiskRegister(analysis)) == null)
 						updateRiskRegister(analysis.getRiskRegisters());
 					else
-						throw new TrickException(messageHandler.getCode(), messageHandler.getMessage(), messageHandler.getException(), messageHandler.getParameters());
+						throw new TrickException(messageHandler.getCode(), messageHandler.getMessage(),
+								messageHandler.getException(), messageHandler.getParameters());
 				}
-				getServiceTaskFeedback().send(getId(), new MessageHandler("info.info.action_plan.saved", "Saving Action Plans", 95));
+				getServiceTaskFeedback().send(getId(),
+						new MessageHandler("info.info.action_plan.saved", "Saving Action Plans", 95));
 				daoAnalysis.saveOrUpdate(analysis);
 				session.getTransaction().commit();
-				messageHandler = new MessageHandler("info.info.action_plan.done", "Computing Action Plans Complete!", 100);
+				messageHandler = new MessageHandler("info.info.action_plan.done", "Computing Action Plans Complete!",
+						100);
 				if (reloadSection)
 					messageHandler.setAsyncCallbacks(communsCallback(analysis.isHybrid()));
 				getServiceTaskFeedback().send(getId(), messageHandler);
@@ -228,7 +236,8 @@ public class WorkerComputeActionPlan extends WorkerImpl {
 			}
 		} catch (TrickException e) {
 			try {
-				getServiceTaskFeedback().send(getId(), new MessageHandler(e.getCode(), e.getParameters(), e.getCode(), e));
+				getServiceTaskFeedback().send(getId(),
+						new MessageHandler(e.getCode(), e.getParameters(), e.getCode(), e));
 				TrickLogManager.Persist(e);
 				if (session != null && session.getTransaction().getStatus().canRollback())
 					session.getTransaction().rollback();
@@ -237,7 +246,8 @@ public class WorkerComputeActionPlan extends WorkerImpl {
 			}
 		} catch (Exception e) {
 			try {
-				getServiceTaskFeedback().send(getId(), new MessageHandler("error.analysis.compute.actionPlan", "Action Plan computation was failed", e));
+				getServiceTaskFeedback().send(getId(), new MessageHandler("error.analysis.compute.actionPlan",
+						"Action Plan computation was failed", e));
 				TrickLogManager.Persist(e);
 				if (session != null && session.getTransaction().getStatus().canRollback())
 					session.getTransaction().rollback();
@@ -297,22 +307,26 @@ public class WorkerComputeActionPlan extends WorkerImpl {
 	 */
 	private void deleteActionPlan(Analysis analysis) throws Exception {
 
-		getServiceTaskFeedback().send(getId(), new MessageHandler("info.analysis.delete.action_plan.summary", "Action Plan summary is deleting", null));
+		getServiceTaskFeedback().send(getId(), new MessageHandler("info.analysis.delete.action_plan.summary",
+				"Action Plan summary is deleting", null));
 
 		while (!analysis.getSummaries().isEmpty())
 			daoActionPlanSummary.delete(analysis.getSummaries().remove(0));
 
-		getServiceTaskFeedback().send(getId(), new MessageHandler("info.analysis.delete.action_plan", "Action Plan is deleting", null));
+		getServiceTaskFeedback().send(getId(),
+				new MessageHandler("info.analysis.delete.action_plan", "Action Plan is deleting", null));
 
 		while (!analysis.getActionPlans().isEmpty())
 			daoActionPlan.delete(analysis.getActionPlans().remove(0));
 
 		getServiceTaskFeedback().send(getId(), new MessageHandler("info.analysis.clear.soa", "Erasing of SOA", null));
 
-		analysis.getAnalysisStandards().values().stream().filter(AnalysisStandard::isSoaEnabled).flatMap(analysisStandard -> analysisStandard.getMeasures().stream()).forEach(measure -> {
-			if (measure instanceof AbstractNormalMeasure)
-				((AbstractNormalMeasure) measure).getMeasurePropertyList().setSoaRisk("");
-		});
+		analysis.getAnalysisStandards().values().stream().filter(AnalysisStandard::isSoaEnabled)
+				.flatMap(analysisStandard -> analysisStandard.getMeasures().stream())
+				.filter(e -> e instanceof AbstractNormalMeasure
+						&& !e.getStatus().equals(Constant.MEASURE_STATUS_EXCLUDE))
+				.map(AbstractNormalMeasure.class::cast)
+				.forEach(measure -> measure.getMeasurePropertyList().setSoaRisk(""));
 	}
 
 	/**
@@ -353,7 +367,8 @@ public class WorkerComputeActionPlan extends WorkerImpl {
 	}
 
 	private void saveRiskRegister(Analysis analysis) {
-		oldRiskRegisters = analysis.getRiskRegisters().stream().collect(Collectors.toMap(RiskRegisterItem::getKey, Function.identity()));
+		oldRiskRegisters = analysis.getRiskRegisters().stream()
+				.collect(Collectors.toMap(RiskRegisterItem::getKey, Function.identity()));
 		analysis.getRiskRegisters().clear();
 	}
 
@@ -361,7 +376,8 @@ public class WorkerComputeActionPlan extends WorkerImpl {
 		if (oldRiskRegisters == null || oldRiskRegisters.isEmpty())
 			return;
 		for (int i = 0; i < registerItems.size(); i++) {
-			RiskRegisterItem registerItem = registerItems.get(i), oldRegisterItem = oldRiskRegisters.remove(registerItem.getKey());
+			RiskRegisterItem registerItem = registerItems.get(i),
+					oldRegisterItem = oldRiskRegisters.remove(registerItem.getKey());
 			if (oldRegisterItem == null)
 				continue;
 			registerItems.set(i, oldRegisterItem.merge(registerItem));

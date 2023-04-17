@@ -16,7 +16,7 @@ public interface TemplateReportTemplate extends TemplateDAOService<ReportTemplat
 	
 	ReportTemplate findByIdAndCustomerOrDefault(Long id, Integer customerId);
 	
-	Boolean isUseAuthorised(Long id, Integer customerId);
+	boolean isUseAuthorised(Long id, Integer customerId);
 	
 	List<ReportTemplate> findDefault();
 	

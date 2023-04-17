@@ -240,7 +240,7 @@ public class MaturityMeasure extends Measure implements Cloneable {
 	@Override
 	@Transient
 	public List<String> getVariablesInvolvedInImplementationRateValue() {
-		return new ArrayList<String>();
+		return new ArrayList<>();
 	}
 
 	/**
@@ -268,7 +268,7 @@ public class MaturityMeasure extends Measure implements Cloneable {
 	@Override
 	@Transient
 	public double getImplementationRateValue(ValueFactory factory) {
-		return getImplementationRate() != null ? getImplementationRate().getValue().intValue() : 0;
+		return getImplementationRate() != null ? getImplementationRate().getValue().doubleValue() : 0d;
 	}
 
 	/**

@@ -79,9 +79,11 @@
 			</c:if>
 			<spring:message code="label.measure.status.m" var="statusM" />
 			<spring:message code="label.measure.status.ap" var="statusAP" />
+			<spring:message code="label.measure.status.ex" var="statusEX" />
 			<spring:message code="label.measure.status.na" var="statusNA" />
 			<spring:message code="label.title.measure.status.m" var="titleStatusM" />
 			<spring:message code="label.title.measure.status.ap" var="titleStatusAP" />
+			<spring:message code="label.title.measure.status.ex" var="titleStatusEX" />
 			<spring:message code="label.title.measure.status.na" var="titleStatusNA" />
 
 			<c:forEach begin="1" step="1" end="3" var="impValue">
@@ -126,6 +128,7 @@
 									<td><select class='form-control' name="status" data-trick-value='${selectedMeasure.status}' data-trick-type='string'>
 											<option value='NA' ${selectedMeasure.status=='NA'?'selected' : ''} title='${titleStatusNA}'>${statusNA}</option>
 											<option value='AP' ${selectedMeasure.status=='AP'?'selected' : ''} title='${titleStatusAP}'>${statusAP}</option>
+											<option value='EX' ${selectedMeasure.status=='EX'?'selected' : ''} title='${titleStatusEX}'>${statusEX}</option>
 											<option value='M' ${selectedMeasure.status=='M'?'selected' : ''} title='${titleStatusM}'>${statusM}</option>
 									</select></td>
 									<td style="border-right: 1px solid #ddd"><div class="input-group">
@@ -159,7 +162,7 @@
 											<span class="input-group-addon">${metricKEuro}</span><input name="recurrentInvestment" value="${kRecurrentInvestment}" title="${recurrentInvestment}${metricEuro}"
 												class="form-control numeric" placeholder="${kRecurrentInvestment}" data-trick-type='double'>
 										</div></td>
-									<td><div class="input-group ${selectedMeasure.status!='NA' && selectedMeasure.cost==0?'has-error':''}">
+									<td><div class="input-group ${!(selectedMeasure.status eq 'NA' or selectedMeasure.status eq 'EX') && selectedMeasure.cost eq 0?'has-error':''}">
 											<span class="input-group-addon">${metricKEuro}</span><input name="cost" value="${kCost}" readonly="readonly" title="${cost}${metricEuro}" class="form-control numeric">
 										</div></td>
 									<td><select name='phase' class="form-control" style="padding-left: 6px; padding-right: 6px" data-trick-value='${selectedMeasure.phase.id}' data-trick-type='integer'>

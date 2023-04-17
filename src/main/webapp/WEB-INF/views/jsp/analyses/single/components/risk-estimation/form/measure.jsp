@@ -8,9 +8,11 @@
 <spring:message code="label.assessment.likelihood.unit" var="probaUnit" />
 <spring:message code="label.measure.status.m" var="statusM" />
 <spring:message code="label.measure.status.ap" var="statusAP" />
+<spring:message code="label.measure.status.ex" var="statusEX" />
 <spring:message code="label.measure.status.na" var="statusNA" />
 <spring:message code="label.title.measure.status.m" var="titleStatusM" />
 <spring:message code="label.title.measure.status.ap" var="titleStatusAP" />
+<spring:message code="label.title.measure.status.ex" var="titleStatusEX" />
 <spring:message code="label.title.measure.status.na" var="titleStatusNA" />
 <spring:message code="label.action.remove" var="titleRemove" />
 <div class="modal fade" id="riskProfileMeasureManager" tabindex="-1" data-aria-hidden="true" data-aria-labelledby="probaScaleModal" data-keyboard="false">
@@ -108,6 +110,9 @@
 										</c:when>
 										<c:when test="${measure.status=='AP'}">
 											<td title="${titleStatusAP}" data-real-value='AP'>${statusAP}</td>
+										</c:when>
+										<c:when test="${measure.status=='EX'}">
+											<td title="${titleStatusEX}" data-real-value='EX'>${statusEX}</td>
 										</c:when>
 										<c:otherwise>
 											<td title="${titleStatusM}" data-real-value='M'>${statusM}</td>

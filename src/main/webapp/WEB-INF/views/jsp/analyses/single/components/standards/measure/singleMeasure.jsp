@@ -12,9 +12,11 @@
 <c:set var="language" value="${locale.language}" scope="request" />
 <spring:message code="label.measure.status.m" var="statusM" />
 <spring:message code="label.measure.status.ap" var="statusAP" />
+<spring:message code="label.measure.status.ex" var="statusEX" />
 <spring:message code="label.measure.status.na" var="statusNA" />
 <spring:message code="label.title.measure.status.m" var="titleStatusM" />
 <spring:message code="label.title.measure.status.ap" var="titleStatusAP" />
+<spring:message code="label.title.measure.status.ex" var="titleStatusEX" />
 <spring:message code="label.title.measure.status.na" var="titleStatusNA" />
 <c:forEach begin="1" step="1" end="3" var="impValue">
 	<spring:message code="label.measure.importance.value" arguments="${impValue}" var="imp${impValue}" />
@@ -23,7 +25,7 @@
 <fmt:setLocale value="fr" scope="session" />
 <c:set value="${measure.getImplementationRateValue(valueFactory)}" var="implementationRate" />
 <c:set var="css">
-	<c:if test="${implementationRate < 100 and measure.status!='NA'}">class="editable"</c:if>
+	<c:if test="${implementationRate < 100 and !(measure.status eq'NA' || measure.status eq 'EX') }">class="editable"</c:if>
 </c:set>
 <c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha2(language)}" />
 <c:set var="dblclickaction">
@@ -131,14 +133,17 @@
 					</c:otherwise>
 				</c:choose></td>
 			<td ${popoverRef}><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
-			<td ${css} data-trick-field="status" data-trick-choose="M,AP,NA" data-trick-choose-translate='${statusM},${statusAP},${statusNA}'
-				data-trick-choose-title='${titleStatusM},${titleStatusAP},${titleStatusNA}' data-trick-callback="reloadMeasureAndCompliance('${standardid}','${measure.id}')"
+			<td ${css} data-trick-field="status" data-trick-choose="M,AP,EX,NA" data-trick-choose-translate='${statusM},${statusAP},${statusEX},${statusNA}'
+				data-trick-choose-title='${titleStatusM},${titleStatusAP},${titleStatusEX},${titleStatusNA}' data-trick-callback="reloadMeasureAndCompliance('${standardid}','${measure.id}')"
 				data-trick-field-type="string" onclick="return editField(this);"><c:choose>
 					<c:when test="${measure.status=='NA'}">
 						${statusNA}
 					</c:when>
 					<c:when test="${measure.status=='AP'}">
 						${statusAP}
+					</c:when>
+					<c:when test="${measure.status=='EX'}">
+						${statusEX}
 					</c:when>
 					<c:otherwise>
 						${statusM}
@@ -182,7 +187,7 @@
 				data-real-value='<fmt:formatNumber value="${measure.recurrentInvestment*0.001}" maxFractionDigits="2" />'><fmt:formatNumber
 					value="${fct:round(measure.recurrentInvestment*0.001,0)}" maxFractionDigits="0" /></td>
 			<c:choose>
-				<c:when test="${implementationRateValue>=100 || measure.getStatus().equals('NA')}">
+				<c:when test="${implementationRateValue >= 100 || measure.status eq 'NA' || measure.status eq 'EX'}">
 					<td class='textaligncenter' title='<fmt:formatNumber value="${fct:round(measure.cost,0)}" maxFractionDigits="0" /> &euro;'><fmt:formatNumber
 							value="${fct:round(measure.cost*0.001,0)}" maxFractionDigits="0" /></td>
 				</c:when>

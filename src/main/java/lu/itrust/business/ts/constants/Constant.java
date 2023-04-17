@@ -1,6 +1,7 @@
 package lu.itrust.business.ts.constants;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * Constant: <br>
@@ -23,9 +24,9 @@ public class Constant {
 	 * List of Role and permissions (for controllers) - BEGIN
 	 **********************************************************************************************/
 
-	 /**
-	  * ROLE LIST
-	  */
+	/**
+	 * ROLE LIST
+	 */
 
 	public static final String ROLE_PRE_AUTHEN = "ROLE_PRE_AUTHEN";
 
@@ -201,13 +202,15 @@ public class Constant {
 	public static final String REGEXP_VALID_MATURITY_CATEGORY = "Policies|Procedure|Implementation|Test|Integration";
 
 	/** Status regular expression */
-	public static final String REGEXP_VALID_MEASURE_STATUS = "AP|NA|M";
+	public static final String REGEXP_VALID_MEASURE_STATUS = "AP|NA|M|EX";
 
 	/** Status regular expression */
-	public static final String REGEXP_VALID_STANDARD_MEASURE_STATUS = "AP|NA";
+	public static final String REGEXP_VALID_STANDARD_MEASURE_STATUS = "AP|NA|M|EX";
 
 	/** Status regular expression */
 	public static final String REGEXP_VALID_MATURITY_MEASURE_STATUS = "M|NA";
+
+	public static final Pattern REGEXP_MEASURE_STATUS = Pattern.compile(REGEXP_VALID_MEASURE_STATUS);
 
 	/** Standard Caption regular Expression */
 	public static final String REGEXP_VALID_STANDARD_NAME = "Maturity|2700[1-2]|[cC]ustom";
@@ -293,6 +296,7 @@ public class Constant {
 	/** Measure status */
 	public static final String MEASURE_STATUS_APPLICABLE = "AP";
 	public static final String MEASURE_STATUS_MANDATORY = "M";
+	public static final String MEASURE_STATUS_EXCLUDE = "EX";
 	public static final String MEASURE_STATUS_NOT_APPLICABLE = "NA";
 
 	/** Maturity Tasks and Categories */
@@ -779,7 +783,7 @@ public class Constant {
 			"External Workload", "Investment", "Life time",
 			"Internal Maintenance", "External Maintenance", "Recurrent Maintenance", "Phase", "Importance",
 			"Responsible", "To check",
-			"Comment", "To do" };
+			"Comment", "To do", "SOA Mitigated risk", "SOA Justification", "SOA Reference" };
 
 	public static final String[] MATURITY_MEASURE_COLUMNS = { "Reference", "Status", "Implemention",
 			"Internal Workload", "External Workload", "Investment", "Life time",

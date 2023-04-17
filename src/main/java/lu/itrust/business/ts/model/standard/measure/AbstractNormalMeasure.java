@@ -77,6 +77,21 @@ public abstract class AbstractNormalMeasure extends Measure implements Cloneable
 	}
 
 	/**
+	 * Create MeasurePropertyList if it is null
+	 */
+	@Transient
+	public MeasureProperties getOrCreateMeasurePropertyList() {
+		if (measurePropertyList == null) {
+			synchronized (this) {
+				if (measurePropertyList == null) {
+					setMeasurePropertyList(new MeasureProperties());
+				}
+			}
+		}
+		return measurePropertyList;
+	}
+
+	/**
 	 * getToCheck: <br>
 	 * Returns the "toCheck" field value
 	 * 
@@ -125,7 +140,9 @@ public abstract class AbstractNormalMeasure extends Measure implements Cloneable
 		try {
 			final double value = (new StringExpressionParser(this.getImplementationRate(),
 					StringExpressionParser.IMPLEMENTATION)).evaluate(factory);
-			return (value < 0 ? 0 : (value > 100 ? 100 : value));
+			if (value < 0)
+				return 0;
+			return value > 100 ? 100 : value;
 		} catch (Exception ex) {
 			return 0.0;
 		}
@@ -136,7 +153,9 @@ public abstract class AbstractNormalMeasure extends Measure implements Cloneable
 		try {
 			final double value = (new StringExpressionParser(this.getImplementationRate(),
 					StringExpressionParser.IMPLEMENTATION)).evaluate(factory);
-			return (value < 0 ? 0 : (value > 100 ? 100 : value));
+			if (value < 0)
+				return 0;
+			return value > 100 ? 100 : value;
 		} catch (Exception ex) {
 			return 0.0;
 		}
@@ -183,19 +202,7 @@ public abstract class AbstractNormalMeasure extends Measure implements Cloneable
 		if (!(implementationRate instanceof String || implementationRate instanceof Number))
 			throw new TrickException("error.norm_measure.implementation_rate.invalid",
 					"ImplementationRate needs to be of Type String!");
-		setImplementationRate(implementationRate.toString());
-	}
-
-	/**
-	 * setImplementationRate: <br>
-	 * Sets the Implementation Rate with a Value
-	 * 
-	 * @param implementationRate The Implementation Rate Value as Double
-	 * @throws TrickException
-	 * @see lu.itrust.business.ts.model.standard.measure.Measure#setImplementationRate(java.lang.Object)
-	 */
-	public void setImplementationRate(String implementationRate) throws TrickException {
-		super.setImplementationRate(implementationRate);
+		super.setImplementationRate(implementationRate.toString());
 	}
 
 	@Override

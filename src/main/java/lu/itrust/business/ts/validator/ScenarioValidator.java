@@ -15,27 +15,29 @@ public class ScenarioValidator extends ValidatorFieldImpl implements Validator {
 
 	@Override
 	public String validate(String fieldName, Object candidate) {
-		if ( fieldName == null || fieldName.trim().isEmpty())
+		if (fieldName == null || fieldName.trim().isEmpty())
 			return null;
 		switch (fieldName) {
-		case "name":
-			if (candidate == null || !(candidate instanceof String))
-				return "error.scenario.name.unsupported::Name type is not valid";
-			else if (candidate.toString().trim().isEmpty())
-				return "error.scenario.name.empty::Name cannot be empty";
-			break;
-		case "scenarioType":
-			if (candidate == null || !(candidate instanceof ScenarioType))
-				return "error.scenario.scenario_type.unsupported::Scenario Type is not valid";
-			break;
-		case "description":
-			if (candidate == null || !(candidate instanceof String))
-				return "error.scenario.description.unsupported::Description type is not valid";
-			break;
-		case "selected":
-			if (candidate == null || !(candidate instanceof Boolean))
-				return "error.scenario.selected.unsupported::Selected type is not valid";
-			break;
+			case "name":
+				if (!(candidate instanceof String))
+					return "error.scenario.name.unsupported::Name type is not valid";
+				else if (candidate.toString().trim().isEmpty())
+					return "error.scenario.name.empty::Name cannot be empty";
+				break;
+			case "scenarioType":
+				if (!(candidate instanceof ScenarioType))
+					return "error.scenario.scenario_type.unsupported::Scenario Type is not valid";
+				break;
+			case "description":
+				if (!(candidate instanceof String))
+					return "error.scenario.description.unsupported::Description type is not valid";
+				break;
+			case "selected":
+				if (!(candidate instanceof Boolean))
+					return "error.scenario.selected.unsupported::Selected type is not valid";
+				break;
+			default:
+				return null;
 		}
 		return null;
 	}
@@ -46,7 +48,8 @@ public class ScenarioValidator extends ValidatorFieldImpl implements Validator {
 	}
 
 	@Override
-	public String validate(Object o, String fieldName, Object candidate, Collection<Object> choose) throws TrickException {
+	public String validate(Object o, String fieldName, Object candidate, Collection<Object> choose)
+			throws TrickException {
 		return validate(o, fieldName, candidate);
 	}
 
@@ -58,7 +61,7 @@ public class ScenarioValidator extends ValidatorFieldImpl implements Validator {
 	@Override
 	public void validate(Object arg0, Errors arg1) {
 		Scenario scenario = (Scenario) arg0;
-		
+
 		ValidationUtils.rejectIfEmptyOrWhitespace(arg1, "name", "error.scneario.name.empty", "Name cannot be empty");
 
 		if (!arg1.hasFieldErrors("scnearioType") && !(scenario.getType() instanceof ScenarioType))

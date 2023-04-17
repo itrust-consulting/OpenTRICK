@@ -50,6 +50,7 @@ import lu.itrust.business.ts.model.standard.MaturityStandard;
 import lu.itrust.business.ts.model.standard.measure.AbstractNormalMeasure;
 import lu.itrust.business.ts.model.standard.measure.Measure;
 import lu.itrust.business.ts.model.standard.measure.impl.MaturityMeasure;
+import lu.itrust.business.ts.model.standard.measure.impl.MeasureProperties;
 
 /**
  * @author eomar
@@ -293,6 +294,22 @@ public class WorkerImportMeasureData extends WorkerImpl {
 					case "To do":
 						measure.setToDo(getString(row, j, formatter));
 						break;
+					case "SOA Mitigated risk":
+						if (measure instanceof AbstractNormalMeasure)
+							((AbstractNormalMeasure) measure).getOrCreateMeasurePropertyList()
+									.setSoaRisk(getString(row, j, formatter));
+						break;
+					case "SOA Justification":
+						if (measure instanceof AbstractNormalMeasure)
+							((AbstractNormalMeasure) measure).getOrCreateMeasurePropertyList()
+									.setSoaComment(getString(row, j, formatter));
+						break;
+					case "SOA Reference":
+						if (measure instanceof AbstractNormalMeasure)
+							((AbstractNormalMeasure) measure).getOrCreateMeasurePropertyList()
+									.setSoaReference(getString(row, j, formatter));
+						break;
+
 					default:
 						boolean tmpUpdateCost = true;
 						switch (name) {
@@ -336,7 +353,7 @@ public class WorkerImportMeasureData extends WorkerImpl {
 				}
 
 				if (updateCost)
-					Measure.ComputeCost(measure, analysis);
+					Measure.computeCost(measure, analysis);
 
 				handler.setProgress((int) (minProgress + (i / (double) size) * maxProgress));
 				getServiceTaskFeedback().send(getId(), handler);

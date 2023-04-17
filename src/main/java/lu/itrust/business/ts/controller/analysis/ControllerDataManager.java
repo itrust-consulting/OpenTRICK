@@ -40,6 +40,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.xml.bind.JAXBException;
 
+import org.apache.commons.io.FileUtils;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.docx4j.openpackaging.exceptions.InvalidFormatException;
 import org.docx4j.openpackaging.packages.SpreadsheetMLPackage;
@@ -55,6 +56,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.unit.DataSize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -188,10 +190,8 @@ public class ControllerDataManager {
 	@Autowired
 	private TaskExecutor executor;
 
-	@Value("${app.settings.report.refurbish.max.size}")
 	private long maxRefurbishReportSize;
 
-	@Value("${app.settings.upload.file.max.size}")
 	private Long maxUploadFileSize;
 
 	@Autowired
@@ -469,7 +469,7 @@ public class ControllerDataManager {
 									.getNameToLower());
 					if (rowColumn)
 						cellIndex += writeProbaImpact(row, cellIndex++, profile.getRawProbaImpact(), scales, false);
-					cellIndex += writeProbaImpact(row, cellIndex++, assessment, scales, analysis.getType());
+					cellIndex += writeProbaImpact(row, cellIndex++, assessment, scales);
 					cellIndex += writeProbaImpact(row, cellIndex++, profile.getExpProbaImpact(), scales, true);
 				} else {
 					writeLikelihood(row, cellIndex++, assessment.getLikelihood());
@@ -625,6 +625,7 @@ public class ControllerDataManager {
 		}
 	}
 
+	@Deprecated
 	private void sortNodeByDependancyLevel(final AssetNode node, final Set<AssetNode> rootNodes,
 			final Set<AssetNode> branchNodes, final Set<AssetNode> leafNodes) {
 		if (leafNodes.contains(node) || rootNodes.contains(node))
@@ -1647,6 +1648,18 @@ public class ControllerDataManager {
 					case "To do":
 						setValue(row, i, measure.getToDo());
 						break;
+					case "SOA Mitigated risk":
+						if (measure instanceof AbstractNormalMeasure)
+							setValue(row, i, ((AbstractNormalMeasure) measure).getSoaRisk());
+						break;
+					case "SOA Justification":
+						if (measure instanceof AbstractNormalMeasure)
+							setValue(row, i, ((AbstractNormalMeasure) measure).getSoaComment());
+						break;
+					case "SOA Reference":
+						if (measure instanceof AbstractNormalMeasure)
+							setValue(row, i, ((AbstractNormalMeasure) measure).getSoaReference());
+						break;
 					default:
 						break;
 				}
@@ -1825,6 +1838,16 @@ public class ControllerDataManager {
 								"Importing of risk estimations data", locale));
 	}
 
+	@Value("${app.settings.report.refurbish.max.size}")
+	public void setMaxRefurbishReportSize(String value) {
+		this.maxRefurbishReportSize = DataSize.parse(value).toBytes();
+	}
+
+	@Value("${spring.servlet.multipart.max-file-size}")
+	public void setMaxUploadFileSize(String value) {
+		this.maxUploadFileSize = DataSize.parse(value).toBytes();
+	}
+
 	private void prepareTableHeader(AnalysisStandard analysisStandard, WorksheetPart worksheetPart, String[] columns)
 			throws Exception {
 		createHeader(worksheetPart, "Measures" + analysisStandard.getStandard().getId(), defaultExcelTableStyle,
@@ -1878,8 +1901,7 @@ public class ControllerDataManager {
 		return row;
 	}
 
-	private int writeProbaImpact(Row row, int colIndex, Assessment assessment, List<ScaleType> scales,
-			AnalysisType analysisType) {
+	private int writeProbaImpact(Row row, int colIndex, Assessment assessment, List<ScaleType> scales) {
 		writeLikelihood(row, colIndex++, assessment.getLikelihood());
 		setValue(row, colIndex++, "v" + assessment.getVulnerability());
 		for (ScaleType type : scales) {

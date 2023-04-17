@@ -274,7 +274,7 @@ public class WorkerSOAExport extends WorkerImpl {
 	private Tbl generateTable(List<Measure> measures, MessageHandler handler, ValueFactory factory, double soaThreshold,
 			int[] progressing) {
 		int rowIndex = 0;
-		Tbl table = createTable("TSSOA", measures.size() + 1, 6);
+		Tbl table = createTable("TableBLight", measures.size() + 1, 6);
 		Tr row = (Tr) table.getContent().get(rowIndex++);
 		setCellText((Tc) row.getContent().get(0),
 				getMessageSource().getMessage("report.measure.reference", null, "Ref.", locale));
@@ -297,7 +297,13 @@ public class WorkerSOAExport extends WorkerImpl {
 				setCellText((Tc) row.getContent().get(2),
 						getMessageSource().getMessage("label.measure.status." + measure.getStatus().toLowerCase(), null,
 								measure.getStatus(), locale));
-				if (measure.getImplementationRateValue(factory) >= soaThreshold)
+				if (measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE)
+						|| measure.getStatus().equals(Constant.MEASURE_STATUS_EXCLUDE))
+					setCellText((Tc) row.getContent().get(3),
+							getMessageSource().getMessage(
+									"label.title.measure.status." + measure.getStatus().toLowerCase(), null,
+									measure.getStatus(), locale));
+				else if (measure.getImplementationRateValue(factory) >= soaThreshold)
 					setCellText((Tc) row.getContent().get(3),
 							getMessageSource().getMessage("label.measure.implemented", null, "Implemented", locale));
 				else
@@ -378,7 +384,7 @@ public class WorkerSOAExport extends WorkerImpl {
 			} else
 				paragraph.getPPr().setTextAlignment(alignment);
 		}
-		paragraph.getContent().removeIf(r -> r instanceof R);
+		paragraph.getContent().removeIf(R.class::isInstance);
 		R r = new R();
 		Text text = new Text();
 		text.setValue(content);

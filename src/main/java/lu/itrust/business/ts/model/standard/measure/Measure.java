@@ -111,10 +111,10 @@ public abstract class Measure implements Cloneable {
 	/** The Phase object for this measure */
 	private Phase phase = null;
 
-	public Measure() {
+	protected Measure() {
 	}
 
-	public Measure(MeasureDescription measureDescription) {
+	protected Measure(MeasureDescription measureDescription) {
 		this.measureDescription = measureDescription;
 	}
 
@@ -195,11 +195,12 @@ public abstract class Measure implements Cloneable {
 	 */
 	public void setStatus(String status) {
 
-		if ((status == null) || (status.trim().isEmpty())
-				|| !status.trim().matches(Constant.REGEXP_VALID_MEASURE_STATUS))
+		var value = status == null ? "" : status.trim();
+		if (value.isEmpty()
+				|| !Constant.REGEXP_MEASURE_STATUS.matcher(value).matches())
 			this.status = Constant.MEASURE_STATUS_NOT_APPLICABLE;
 		else
-			this.status = status.trim();
+			this.status = value;
 	}
 
 	/**
@@ -251,9 +252,15 @@ public abstract class Measure implements Cloneable {
 	@Transient
 	public abstract List<String> getVariablesInvolvedInImplementationRateValue();
 
+	/**
+	 * Turn expression parameters into a map { key => value }
+	 * 
+	 * @param expressionParameters
+	 * @return
+	 */
 	@Transient
 	public double getImplementationRateValue(List<IAcronymParameter> expressionParameters) {
-		// Turn expression parameters into a map { key => value }
+
 		return this.getImplementationRateValue(new ValueFactory(expressionParameters));
 	}
 
@@ -607,7 +614,7 @@ public abstract class Measure implements Cloneable {
 	 * @param analysis
 	 * @throws TrickException
 	 */
-	public static void ComputeCost(Measure measure, Analysis analysis) throws TrickException {
+	public static void computeCost(Measure measure, Analysis analysis) throws TrickException {
 		// ****************************************************************
 		// * variable initialisation
 		// ****************************************************************
@@ -622,7 +629,7 @@ public abstract class Measure implements Cloneable {
 
 		final double lifetimeDefault = analysis.findParameter(Constant.PARAMETER_LIFETIME_DEFAULT);
 
-		final double implementationRate = measure.getImplementationRateValue(analysis.getExpressionParameters())*0.01;
+		final double implementationRate = measure.getImplementationRateValue(analysis.getExpressionParameters()) * 0.01;
 
 		final boolean isFullCostRelated = analysis.findSetting(AnalysisSetting.ALLOW_FULL_COST_RELATED_TO_MEASURE);
 
@@ -631,7 +638,7 @@ public abstract class Measure implements Cloneable {
 				measure.getInternalMaintenance(), measure.getExternalMaintenance(),
 				measure.getRecurrentInvestment(), measure.getInternalWL(), measure.getExternalWL(),
 				measure.getInvestment(), measure.getLifetime(), implementationRate, isFullCostRelated);
-				
+
 		// return calculated cost
 		if (cost > 0)
 			measure.setCost(cost);
@@ -699,5 +706,22 @@ public abstract class Measure implements Cloneable {
 
 	public static String keyName(Standard standard, String reference) {
 		return standard.getName() + "^NAME-'MEASURE'-NAME^" + reference;
+	}
+
+	public static int statusLevel(String status) {
+		if (status == null)
+			return -1;
+		switch (status) {
+			case Constant.MEASURE_STATUS_NOT_APPLICABLE:
+				return 0;
+			case Constant.MEASURE_STATUS_EXCLUDE:
+				return 1;
+			case Constant.MEASURE_STATUS_APPLICABLE:
+				return 2;
+			case Constant.MEASURE_STATUS_MANDATORY:
+				return 3;
+			default:
+				return -1;
+		}
 	}
 }

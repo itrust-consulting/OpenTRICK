@@ -25,11 +25,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -47,6 +43,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
+import lu.itrust.business.permissionevaluator.PermissionEvaluator;
+import lu.itrust.business.permissionevaluator.PermissionEvaluatorImpl;
 import lu.itrust.business.ts.asynchronousWorkers.Worker;
 import lu.itrust.business.ts.asynchronousWorkers.WorkerCreateAnalysisVersion;
 import lu.itrust.business.ts.component.AssessmentAndRiskProfileManager;
@@ -92,8 +92,6 @@ import lu.itrust.business.ts.model.standard.measure.helper.MeasureComparator;
 import lu.itrust.business.ts.usermanagement.RoleType;
 import lu.itrust.business.ts.usermanagement.User;
 import lu.itrust.business.ts.validator.HistoryValidator;
-import lu.itrust.business.permissionevaluator.PermissionEvaluator;
-import lu.itrust.business.permissionevaluator.PermissionEvaluatorImpl;
 
 /**
  * ControllerAnalysis.java: <br>
@@ -131,9 +129,6 @@ public class ControllerAnalysis extends AbstractController {
 
 	@Autowired
 	private ServiceUserAnalysisRight serviceUserAnalysisRight;
-
-	@Value("${app.settings.upload.file.max.size}")
-	private Long maxUploadFileSize;
 
 	/**
 	 * addHistory: <br>

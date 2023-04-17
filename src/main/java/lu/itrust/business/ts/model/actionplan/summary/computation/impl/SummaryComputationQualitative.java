@@ -80,7 +80,8 @@ public class SummaryComputationQualitative extends SummaryComputation {
 				.collect(Collectors.toMap(Measure::getKey, measure -> true, (e1, e2) -> e1));
 		getAnalysisStandards().values().stream().flatMap(standard -> standard.getMeasures().stream())
 				.forEach(measure -> {
-					if (!measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE)) {
+					if (!(measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE)
+							|| measure.getStatus().equals(Constant.MEASURE_STATUS_EXCLUDE))) {
 						if (measure.getImplementationRateValue((ValueFactory) null) >= 100)
 							getPreMaintenance().add(measure.getInternalMaintenance(), measure.getExternalMaintenance(),
 									measure.getRecurrentInvestment());
@@ -208,7 +209,8 @@ public class SummaryComputationQualitative extends SummaryComputation {
 			for (Measure measure : analysisStandard.getMeasures()) {
 				final double imprate = measure.getImplementationRateValue(getValueFactory());
 				if (measure.getMeasureDescription().isComputable()
-						&& !measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE)) {
+						&& !(measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE)
+								|| measure.getStatus().equals(Constant.MEASURE_STATUS_EXCLUDE))) {
 					denominator++;
 					numerator += imprate * 0.01;// imprate / 100.0
 					if (isFirst && imprate >= Constant.MEASURE_IMPLEMENTATIONRATE_COMPLETE)

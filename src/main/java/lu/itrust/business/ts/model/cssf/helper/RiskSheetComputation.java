@@ -171,7 +171,7 @@ public class RiskSheetComputation {
 			if (usePhases.get(i).getNumber() == 0)
 				continue;
 			tmas.addAll(
-					ActionPlanComputation.generateTMAList(this.analysis, factory, useMeasures, ActionPlanMode.APN, usePhases.get(i).getNumber(), true, true, analysisStandards));
+					ActionPlanComputation.generateTMAs(this.analysis, factory, useMeasures, ActionPlanMode.APN, usePhases.get(i).getNumber(), true, true, analysisStandards));
 			if (mandatoryPhase == usePhases.get(i).getNumber())
 				break;
 		}

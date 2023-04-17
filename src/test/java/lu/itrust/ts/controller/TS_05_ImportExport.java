@@ -170,7 +170,8 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 	public synchronized void test_02_ComputeActionPlan() throws Exception {
 		Integer idAnalysis = getInteger(ANALYSIS_KEY);
 		notNull(idAnalysis, "Analysis id cannot be found");
-		this.mockMvc.perform(post("/Analysis/ActionPlan/Compute").with(csrf()).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN"))
+		this.mockMvc.perform(post("/Analysis/ActionPlan/Compute").with(csrf())
+				.with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN"))
 				.sessionAttr(Constant.SELECTED_ANALYSIS, idAnalysis).contentType(APPLICATION_JSON_CHARSET_UTF_8)
 				.content("[]")).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 		Worker worker = null;
@@ -223,29 +224,59 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 	@Transactional(readOnly = true)
 	public void test_04_CheckActionPlan() throws Exception {
 		Analysis analysis = serviceAnalysis.get(getInteger(ANALYSIS_KEY));
+
 		notNull(analysis,
 				String.format("Analysis (identifier : %s and version: %s) cannot be found", identifier, version));
 		List<Object[]> data = new ArrayList<Object[]>(7);
-		data.add(new Object[] { "27002", "5.1.1", "Policies for information security", "Define sectorial policies.",
-				5426.5d, 573.5d, 3600d, -3026.5d, 1d, 1d, 1000d, 1 });
-		data.add(new Object[] { "Custom", "1.1.1", "Custom security measure", " 	Custom security measure To do text",
-				5426.5d, 0d, 3600d, -3600d, 1d, 1d, 1000d, 1 });
-		data.add(new Object[] { "Custom Asset", "1.1", "Subdomain name", "Subdomain name  custom asset todo", 5426.5d,
-				0d, 3600d, -3600d, 1d, 1d, 1000d, 1 });
 		data.add(new Object[] { "Custom Asset", "1.2", "Subdomaine name 2", "Subdomain name 2  custom asset todo",
-				5426.5d, 0d, 3600d, -3600d, 1d, 1d, 1000d, 1 });
+				6000.000000, 0.000000, 3600.000000, -3600.000000, 1.000000, 1.000000, 1000.000000, 1 });
+
 		data.add(new Object[] { "Custom non-computable", "1.1.1", "Non-comp domain name", "Non-comp domain name todo",
-				5426.5d, 0d, 3600d, -3600d, 1d, 1d, 1000d, 1 });
-		data.add(new Object[] { "27001", "5.1.2", "Establishment of security policy & objectives", "", 5426.5d, 0d,
-				21000d, -21000d, 10d, 1d, 0d, 3 });
+				6000.000000, 0.000000, 3600.000000, -3600.000000, 1.000000, 1.000000, 1000.000000, 1 });
+
+		data.add(new Object[] { "27002", "5.1.1", "Policies for information security", "Define sectorial policies.",
+				5426.500000, 573.500000, 3600.000000, -3026.500000, 1.000000, 1.000000, 1000.000000, 1 });
+
+		data.add(new Object[] { "Custom", "1.1.1", "Custom security measure", " 	Custom security measure To do text",
+				5426.500000, 0.000000, 3600.000000, -3600.000000, 1.000000, 1.000000, 1000.000000, 1 });
+
+		data.add(new Object[] { "Custom Asset", "1.1", "Subdomain name", "Subdomain name  custom asset todo",
+				5426.500000, 0.000000, 3600.000000, -3600.000000, 1.000000, 1.000000, 1000.000000, 1 });
+		data.add(new Object[] { "27001", "5.1.2", "Establishment of security policy & objectives", "", 5426.500000,
+				0.000000, 21000.000000, -21000.000000, 10.000000, 1.000000, 0.000000, 3 });
 		data.add(new Object[] { "27002", "6.1.1", "Information security roles and responsibilities",
-				"Define roles and responsibilities.", 5110.76d, 315.74d, 200d, 115.74d, 1d, 0d,
-				0d, 4 });
+				"Define roles and responsibilities.", 5110.761500, 315.738500, 200.000000, 115.738500, 1.000000,
+				0.000000, 0.000000, 4 });
+
 		List<ActionPlanEntry> actionPlanEntries = analysis.getActionPlans();
 		notEmpty(actionPlanEntries, "Action plan should not be empty");
 		Language language = analysis.getLanguage();
+
+		//generateActionPlan(actionPlanEntries, language);
+
 		for (int i = 0; i < actionPlanEntries.size(); i++)
 			validate(actionPlanEntries.get(i), data.get(i), language);
+	}
+
+	/**
+	 * Generate expected Action Plan
+	 * @param actionPlanEntries
+	 * @param language
+	 */
+	private void generateActionPlan(List<ActionPlanEntry> actionPlanEntries, Language language) {
+		for (ActionPlanEntry actionPlanEntry : actionPlanEntries) {
+			Measure measure = actionPlanEntry.getMeasure();
+			MeasureDescription measureDescription = measure.getMeasureDescription();
+			MeasureDescriptionText measureDescriptionText = measureDescription.getMeasureDescriptionText(language);
+			System.out.println(
+					String.format(
+							"{\"%s\",\"%s\",\"%s\",\"%s\",%f,%f,%f,%f,%f,%f,%f,%d}",
+							measureDescription.getStandard().getName(), measureDescription.getReference(),
+							measureDescriptionText.getDomain(), measure.getToDo(), actionPlanEntry.getTotalALE(),
+							actionPlanEntry.getDeltaALE(), measure.getCost(), actionPlanEntry.getROI(),
+							measure.getInternalWL(), measure.getExternalWL(), measure.getInvestment(),
+							measure.getPhase().getNumber()));
+		}
 	}
 
 	private void validate(ActionPlanEntry actionPlanEntry, Object[] objects, Language language) {
@@ -397,7 +428,8 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 		notNull(idAnalysis, "Analysis cannot be found");
 		this.mockMvc
 				.perform(get("/Analysis/Data-manager/Sqlite/Export-process").with(csrf())
-						.param("idAnalysis", idAnalysis + "").with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN"))
+						.param("idAnalysis", idAnalysis + "")
+						.with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN"))
 						.contentType(APPLICATION_JSON_CHARSET_UTF_8))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 		Worker worker = null;
@@ -427,7 +459,8 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 			isNull(worker.getError(), "An error occured while export analysis");
 			notNull(messageHandler, "Last message cannot be found");
 			this.mockMvc
-					.perform(get("/Task/Status/" + worker.getId()).with(csrf()).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN"))
+					.perform(get("/Task/Status/" + worker.getId()).with(csrf())
+							.with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN"))
 							.contentType(APPLICATION_JSON_CHARSET_UTF_8))
 					.andExpect(status().isOk()).andExpect(jsonPath("$.asyncCallbacks[0].args[1]").exists());
 			serviceTaskFeedback.unregisterTask(USERNAME, worker.getId());
@@ -472,7 +505,8 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 		List<ReportTemplate> templates = (List<ReportTemplate>) this.mockMvc
 				.perform(
 						get("/Analysis/Data-manager/Report/Export-form/" + idAnalysis).with(csrf())
-								.with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")).contentType(APPLICATION_JSON_CHARSET_UTF_8))
+								.with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN"))
+								.contentType(APPLICATION_JSON_CHARSET_UTF_8))
 				.andExpect(status().isOk()).andReturn().getModelAndView().getModel().get("templates");
 
 		notEmpty(templates, "No template can be found");
@@ -514,7 +548,8 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 			MessageHandler messageHandler = serviceTaskFeedback.recieveById(worker.getId());
 			notNull(messageHandler, "Last message cannot be found");
 			this.mockMvc
-					.perform(get("/Task/Status/" + worker.getId()).with(csrf()).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN"))
+					.perform(get("/Task/Status/" + worker.getId()).with(csrf())
+							.with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN"))
 							.contentType(APPLICATION_JSON_CHARSET_UTF_8))
 					.andExpect(status().isOk()).andExpect(jsonPath("$.asyncCallbacks[0].args[1]").exists());
 			serviceTaskFeedback.unregisterTask(USERNAME, worker.getId());

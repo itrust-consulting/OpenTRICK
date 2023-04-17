@@ -11,9 +11,11 @@
 <c:set var="language" value="${locale.language}" scope="request" />
 <spring:message code="label.measure.status.m" var="statusM" />
 <spring:message code="label.measure.status.ap" var="statusAP" />
+<spring:message code="label.measure.status.ex" var="statusEX" />
 <spring:message code="label.measure.status.na" var="statusNA" />
 <spring:message code="label.title.measure.status.m" var="titleStatusM" />
 <spring:message code="label.title.measure.status.ap" var="titleStatusAP" />
+<spring:message code="label.title.measure.status.ex" var="titleStatusEX" />
 <spring:message code="label.title.measure.status.na" var="titleStatusNA" />
 <div id="tab-soa" class="tab-pane">
 	<div class="section" id="section_soa" style="z-index: 3">
@@ -84,22 +86,25 @@
 														text="${measure.measureDescription.reference}" />'><spring:message text="${measure.measureDescription.reference}" /></td>
 											</c:otherwise>
 										</c:choose>
-										<td ${measure.status == 'NA'? 'class="active"':''}><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
+										<td ${measure.status eq 'NA' or measure.status eq 'EX' ? 'class="active"':''}><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
 										<c:choose>
-											<c:when test="${measure.status=='NA'}">
-												<td ${measure.status == 'NA'? 'class="active"':''} title="${titleStatusNA}" data-trick-field='status' data-trick-real-vlue='NA'>${statusNA}</td>
+											<c:when test="${measure.status eq 'NA'}">
+												<td class="active" title="${titleStatusNA}" data-trick-field='status' data-trick-real-vlue='NA'>${statusNA}</td>
 											</c:when>
-											<c:when test="${measure.status=='AP'}">
-												<td ${measure.status == 'NA'? 'class="active"':''} title="${titleStatusAP}"  data-trick-field='status' data-trick-real-vlue='AP'>${statusAP}</td>
+											<c:when test="${measure.status eq 'EX'}">
+												<td class="active" title="${titleStatusEX}" data-trick-field='status' data-trick-real-vlue='EX'>${statusEX}</td>
+											</c:when>
+											<c:when test="${measure.status eq 'AP'}">
+												<td  title="${titleStatusAP}"  data-trick-field='status' data-trick-real-vlue='AP'>${statusAP}</td>
 											</c:when>
 											<c:otherwise>
-												<td ${measure.status == 'NA'? 'class="active"':''} title="${titleStatusM}"  data-trick-field='status' data-trick-real-vlue='M'>${statusM}</td>
+												<td title="${titleStatusM}"  data-trick-field='status' data-trick-real-vlue='M'>${statusM}</td>
 											</c:otherwise>
 										</c:choose>
-										<td ${measure.status == 'NA'? 'class="active"':''} ><fmt:formatNumber value="${implementationRateValue}" maxFractionDigits="0" minFractionDigits="0" /></td>
-										<td ${measure.status == 'NA'? 'class="active"':''} >${measure.phase.number}</td>
+										<td ${measure.status eq 'NA' or measure.status eq 'EX' ? 'class="active"':''} ><fmt:formatNumber value="${implementationRateValue}" maxFractionDigits="0" minFractionDigits="0" /></td>
+										<td ${measure.status eq 'NA' or measure.status eq 'EX' ? 'class="active"':''} >${measure.phase.number}</td>
 										<c:if test="${type.quantitative}">
-											<td class="pre ${measure.status == 'NA'? 'active':''}"><spring:message text="${measure.soaRisk}" /></td>
+											<td class="pre ${measure.status eq 'NA' or measure.status eq 'EX' ? 'active':''}"><spring:message text="${measure.soaRisk}" /></td>
 										</c:if>
 										<td ${empty measure.soaComment? 'class="warning"' :  empty css? '' : css} onclick="return editField(this);" data-trick-field="soaComment" 
 											data-trick-content="text" data-trick-field-type="string" data-trick-callback="validateSOAState('${standard.id }','${measure.id}')"><spring:message text="${measure.soaComment}" /></td>

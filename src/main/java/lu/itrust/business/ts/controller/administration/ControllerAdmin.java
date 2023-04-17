@@ -29,6 +29,7 @@ import org.springframework.ui.Model;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
+import org.springframework.util.unit.DataSize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -185,10 +186,8 @@ public class ControllerAdmin {
 	@Value("${app.settings.version}")
 	private String version;
 
-	@Value("${app.settings.report.template.max.size}")
 	private Long maxTemplateSize;
 
-	@Value("${app.settings.upload.file.max.size}")
 	private Long maxUploadFileSize;
 
 	@Autowired
@@ -1182,6 +1181,16 @@ public class ControllerAdmin {
 						notification.getParameters(), message, new Locale(langue)));
 		}
 		return notification;
+	}
+
+	@Value("${app.settings.report.template.max.size}")
+	public void setMaxTemplateSize(String value) {
+		this.maxTemplateSize = DataSize.parse(value).toBytes();
+	}
+
+	@Value("${spring.servlet.multipart.max-file-size}")
+	public void setMaxUploadFileSize(String value) {
+		this.maxUploadFileSize = DataSize.parse(value).toBytes();
 	}
 
 	/**

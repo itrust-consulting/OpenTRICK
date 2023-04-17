@@ -781,7 +781,9 @@ function manageRiskProfileMeasure(idAsset, idScenario, e) {
 									this.measures[measure.id] = measure.id;
 									let $measure = $("tbody tr[data-trick-id='" + measure.id + "']", this.$standardMeasures), $clone = $measure.clone();
 									if (!$measure.length) {
-										let $tr = $("<tr data-trick-id='" + measure.id + "' data-trick-class='Measure'>"), standardName = $("option[value='" + measure.idStandard + "']", this.$standardSelector).text(), status = application.measureStatus[measure.status];
+										let $tr = $("<tr data-trick-id='" + measure.id + "' data-trick-class='Measure'>");
+										let standardName = $("option[value='" + measure.idStandard + "']", this.$standardSelector).text();
+										let status = application.measureStatus[measure.status];
 										$("<td />").appendTo($tr);
 										$("<td data-real-value='" + measure.idStandard + "'>" + standardName + "</td>").appendTo($tr);
 										$("<td data-toggle='tooltip' data-container='body' data-trigger='click' data-placement='right' style='cursor: pointer;'>" + measure.reference + "</td>").attr("data-title", measure.description).appendTo($tr).tooltip().on('show.bs.tooltip', toggleToolTip);
@@ -820,9 +822,13 @@ function manageRiskProfileMeasure(idAsset, idScenario, e) {
 							updateStandardUI: function (standard) {
 								let that = this, measures = this.getStandardMeasures(standard), $tbody = $("tbody", this.$standardMeasures), standardName = $("option:selected", this.$standardSelector).text(), isCustomed = $("option:selected", this.$standardSelector).attr("data-trick-custom"), $btnAddMeasure = $("button[name='add-measure']", this.$measureManager);
 								for (let idMeasure in measures) {
-									let measure = measures[idMeasure], $tr = $("<tr data-trick-id='" + measure.id + "' data-trick-class='Measure'>"),
-										$button = $("<button class='btn btn-xs'></button>"), status = application.measureStatus[measure.status];
+									let measure = measures[idMeasure];
+									let $tr = $("<tr data-trick-id='" + measure.id + "' data-trick-class='Measure'>");
+									let $button = $("<button class='btn btn-xs'></button>");
+									let status = application.measureStatus[measure.status];
+
 									$button.appendTo($("<td />").appendTo($tr));
+
 									$("<td data-real-value='" + measure.idStandard + "' >" + standardName + "</td>").appendTo($tr);
 									$("<td data-toggle='tooltip' data-container='body' data-trigger='click' data-placement='right' style='cursor: pointer;'>" + measure.reference + "</td>").attr("data-title", measure.description).appendTo($tr).tooltip().on('show.bs.tooltip', toggleToolTip);
 									$("<td />").text(measure.domain).appendTo($tr);

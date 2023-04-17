@@ -6,10 +6,7 @@ package lu.itrust.business.ts.model.actionplan.summary.computation.impl;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import lu.itrust.business.ts.constants.Constant;
@@ -155,7 +152,8 @@ public class SummaryComputationQuantitative extends SummaryComputation {
 
 	private void generatePreMaintenance(List<AnalysisStandard> analysisStandards) {
 		analysisStandards.stream().flatMap(standard -> standard.getMeasures().stream()).forEach(measure -> {
-			if (!measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE)) {
+			if (!(measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE)
+					|| measure.getStatus().equals(Constant.MEASURE_STATUS_EXCLUDE))) {
 				if (measure.getImplementationRateValue(getValueFactory()) >= 100)
 					getPreMaintenance().add(measure.getInternalMaintenance(), measure.getExternalMaintenance(),
 							measure.getRecurrentInvestment());
@@ -191,7 +189,8 @@ public class SummaryComputationQuantitative extends SummaryComputation {
 			for (Measure measure : helper.standard.getMeasures()) {
 				final double imprate = measure.getImplementationRateValue(getValueFactory());
 				if (measure.getMeasureDescription().isComputable()
-						&& !measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE)) {
+						&& !(measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE)
+								|| measure.getStatus().equals(Constant.MEASURE_STATUS_EXCLUDE))) {
 					denominator++;
 					numerator += imprate * 0.01;// imprate / 100.0
 					if (isFirst && imprate >= Constant.MEASURE_IMPLEMENTATIONRATE_COMPLETE)

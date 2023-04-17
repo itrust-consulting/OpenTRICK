@@ -300,7 +300,7 @@ public class ControllerFieldEditor {
 
 			Field field = FindField(Asset.class, fieldEditor.getFieldName());
 			// check if field is a phase
-			if (!SetFieldValue(asset, field, value))
+			if (!setFieldValue(asset, field, value))
 				JsonMessage
 						.Error(messageSource.getMessage("error.edit.save.field", null, "Data cannot be saved", locale));
 
@@ -645,7 +645,7 @@ public class ControllerFieldEditor {
 						measure.setImplementationRate(parameter);
 
 						// recompute cost
-						Measure.ComputeCost(measure, analysis);
+						Measure.computeCost(measure, analysis);
 
 						// update measure
 						serviceMeasure.saveOrUpdate(measure);
@@ -701,7 +701,7 @@ public class ControllerFieldEditor {
 			Field field = FindField(MaturityParameter.class, fieldEditor.getFieldName());
 			// set value /100 to save as values between 0 and 1
 			// set field data
-			if (SetFieldValue(parameter, field, (Double) value * 0.01)) {
+			if (setFieldValue(parameter, field, (Double) value * 0.01)) {
 				// update field
 				serviceMaturityParameter.saveOrUpdate(parameter);
 				// return success message
@@ -790,7 +790,7 @@ public class ControllerFieldEditor {
 									locale));
 						measure.setImplementationRate(value);
 					} else
-						SetFieldValue(measure, field, value);
+						setFieldValue(measure, field, value);
 				}
 
 				// retrieve parameters
@@ -803,7 +803,7 @@ public class ControllerFieldEditor {
 					measure.setRecurrentInvestment(measure.getRecurrentInvestment() * 1000);
 
 				// compute new cost
-				Measure.ComputeCost(measure, analysis);
+				Measure.computeCost(measure, analysis);
 
 				// update measure
 				serviceMeasure.saveOrUpdate(measure);
@@ -1417,7 +1417,7 @@ public class ControllerFieldEditor {
 				if (error != null)
 					return Result.Error(serviceDataValidation.ParseError(error, messageSource, locale));
 
-				if (SetFieldValue(measure, field, value))
+				if (setFieldValue(measure, field, value))
 					result = Result.Success(messageSource.getMessage("success.measure.updated", null,
 							"Measure was successfully updated", locale));
 				else
@@ -1430,7 +1430,7 @@ public class ControllerFieldEditor {
 				if (fieldEditor.getFieldName().equals("recurrentInvestment"))
 					measure.setRecurrentInvestment((double) (realValue = measure.getRecurrentInvestment() * 1000));
 				if (computeCostPattern.matcher(fieldEditor.getFieldName()).find()) {
-					Measure.ComputeCost(measure, serviceAnalysis.get(idAnalysis));
+					Measure.computeCost(measure, serviceAnalysis.get(idAnalysis));
 					NumberFormat numberFormat = NumberFormat.getInstance(Locale.FRANCE);
 					result.add(new FieldValue("cost", format(measure.getCost() * .001, numberFormat, 0),
 							format(measure.getCost(), numberFormat, 0) + " €"));
@@ -1504,7 +1504,7 @@ public class ControllerFieldEditor {
 			IValue toDelete = null;
 			// retrieve all acronyms of impact and likelihood
 			if (assessment.hasImpact(fieldEditor.getFieldName())) {
-				final Optional<Double> optional = ParseFrNumber(fieldEditor.getValue().toString());
+				final Optional<Double> optional = parseFrNumber(fieldEditor.getValue().toString());
 				factory = createFactoryForAssessment(idAnalysis);
 				if (optional.isPresent()) {
 					final double value = optional.get();
@@ -1535,7 +1535,7 @@ public class ControllerFieldEditor {
 					assessment.setLikelihood(factory.findProb(0));
 				else {
 					final IValue likelihood;
-					final Optional<Double> optional = ParseFrNumber(fieldEditor.getValue().toString());
+					final Optional<Double> optional = parseFrNumber(fieldEditor.getValue().toString());
 					if (optional.isPresent()) {
 						final double value = optional.get();
 						if (value < 0)
@@ -1883,7 +1883,7 @@ public class ControllerFieldEditor {
 			Object value = FieldValue(fieldEditor, pattern);
 			if (value == null)
 				return false;
-			return SetFieldValue(object, field, value);
+			return setFieldValue(object, field, value);
 		} catch (TrickException e) {
 			throw e;
 		} catch (Exception e) {
@@ -1892,7 +1892,7 @@ public class ControllerFieldEditor {
 		}
 	}
 
-	private static Boolean SetFieldValue(Object object, Field field, Object value) {
+	private static boolean setFieldValue(Object object, Field field, Object value) {
 		try {
 			field.setAccessible(true);
 			field.set(object, value);
@@ -1904,7 +1904,7 @@ public class ControllerFieldEditor {
 		}
 	}
 
-	private static Optional<Double> ParseFrNumber(String raw) {
+	private static Optional<Double> parseFrNumber(String raw) {
 		final ParsePosition position = new ParsePosition(0);
 		final Number value = NumberFormat.getInstance(Locale.FRANCE).parse(raw, position);
 		if (position.getIndex() >= raw.length())

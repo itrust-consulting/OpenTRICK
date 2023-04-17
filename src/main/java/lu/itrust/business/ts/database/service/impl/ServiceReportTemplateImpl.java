@@ -182,7 +182,7 @@ public class ServiceReportTemplateImpl implements ServiceReportTemplate {
 	}
 
 	@Override
-	public Boolean isUseAuthorised(Long id, Integer customerId) {
+	public boolean isUseAuthorised(Long id, Integer customerId) {
 		return daoReportTemplate.isUseAuthorised(id, customerId);
 	}
 

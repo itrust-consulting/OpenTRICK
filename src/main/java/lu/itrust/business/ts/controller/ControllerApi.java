@@ -25,6 +25,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.FileCopyUtils;
+import org.springframework.util.unit.DataSize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -169,7 +170,6 @@ public class ControllerApi {
 	@Autowired
 	private ServiceAssetEdge serviceAssetEdge;
 
-	@Value("${app.settings.upload.file.max.size}")
 	private Long maxUploadFileSize;
 
 	@PostMapping("/data/analysis/{idAnalysis}/new-asset")
@@ -677,6 +677,11 @@ public class ControllerApi {
 		// Return the error message to the client (JSON).
 		// -1 denotes general errors.
 		return new ApiResult(-1, MessageFormat.format(ex.getMessage(), ex.getParameters()));
+	}
+
+	@Value("${spring.servlet.multipart.max-file-size}")
+	public void setMaxUploadFileSize(String value) {
+		this.maxUploadFileSize = DataSize.parse(value).toBytes();
 	}
 
 	private AssetNode createAssetNde(final ApiNode apiNode, final Map<Integer, AssetNode> nodes,

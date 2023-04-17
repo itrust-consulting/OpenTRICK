@@ -73,19 +73,19 @@ public class TMA {
 
 		// get ALE corresponding to type of computation
 		switch (mode) {
-		case APN:
-		case APPN:
-		case APQ:
-			this.ALE = this.assessment.getALE();
-			break;
-		case APO:
-		case APPO:
-			this.ALE = this.assessment.getALEO();
-			break;
-		case APP:
-		case APPP:
-			this.ALE = this.assessment.getALEP();
-			break;
+			case APN:
+			case APPN:
+			case APQ:
+				this.ALE = this.assessment.getALE();
+				break;
+			case APO:
+			case APPO:
+				this.ALE = this.assessment.getALEO();
+				break;
+			case APP:
+			case APPP:
+				this.ALE = this.assessment.getALEP();
+				break;
 		}
 
 		// the analysisStandard
@@ -128,16 +128,17 @@ public class TMA {
 	 * ALE * RRF * (1 - ImpRate / 1 - RRF * ImpRate)
 	 * 
 	 * @param ALE
-	 *            The ALE before
+	 *                The ALE before
 	 * @param RRF
-	 *            The calculated RRF
+	 *                The calculated RRF
 	 * @param measure
-	 *            The Measure to calculate the deltaALE
+	 *                The Measure to calculate the deltaALE
 	 * 
 	 * @return the computed deltaALE for this measure using a given ALE
 	 * @throws TrickException
 	 */
-	public static double calculateDeltaALE(double ALE, double RRF, Measure measure, ValueFactory valueFactory) throws TrickException {
+	public static double calculateDeltaALE(double ALE, double RRF, Measure measure, ValueFactory valueFactory)
+			throws TrickException {
 		if (Double.isNaN(RRF))
 			throw new TrickException("error.tma.rrf.nan", "Please check your data: RRF is not a number");
 		if (Double.isNaN(ALE))
@@ -154,7 +155,8 @@ public class TMA {
 	 */
 	public void calculateDeltaALEMaturity(ValueFactory factory) {
 		double implementationRate = measure.getImplementationRateValue(factory) / 100.0;
-		this.deltaALEMat = this.ALE * RRF * implementationRate * ((nMaxEff / 100. - cMaxEff / 100.) / (1. - RRF * cMaxEff / 100. * implementationRate));
+		this.deltaALEMat = this.ALE * RRF * implementationRate
+				* ((nMaxEff / 100. - cMaxEff / 100.) / (1. - RRF * cMaxEff / 100. * implementationRate));
 	}
 
 	/***********************************************************************************************
@@ -176,7 +178,7 @@ public class TMA {
 	 * Sets the "assessment" field with a value
 	 * 
 	 * @param assessment
-	 *            The value to set the Assessment
+	 *                   The value to set the Assessment
 	 */
 	public void setAssessment(Assessment assessment) {
 		this.assessment = assessment;
@@ -217,7 +219,7 @@ public class TMA {
 	 * Sets the "measure" field with a value
 	 * 
 	 * @param measure
-	 *            The value to set the Measure
+	 *                The value to set the Measure
 	 */
 	public void setMeasure(Measure measure) {
 		this.measure = measure;
@@ -280,7 +282,7 @@ public class TMA {
 	 * Sets the "deltaALE" field with a value
 	 * 
 	 * @param deltaALE
-	 *            The value to set the delta ALE
+	 *                 The value to set the delta ALE
 	 */
 	public void setDeltaALE(double deltaALE) {
 		this.deltaALE = deltaALE;
@@ -301,7 +303,7 @@ public class TMA {
 	 * Sets the "cMaxEff" field with a value
 	 * 
 	 * @param cMaxEff
-	 *            The value to set the Current Max Effency value
+	 *                The value to set the Current Max Effency value
 	 */
 	public void setcMaxEff(double cMaxEff) {
 		this.cMaxEff = cMaxEff;
@@ -322,7 +324,7 @@ public class TMA {
 	 * Sets the "nMaxEff" field with a value
 	 * 
 	 * @param nMaxEff
-	 *            The value to set the Next Max Effency value
+	 *                The value to set the Next Max Effency value
 	 */
 	public void setnMaxEff(double nMaxEff) {
 		this.nMaxEff = nMaxEff;
@@ -343,7 +345,7 @@ public class TMA {
 	 * Sets the "deltaALEMat" field with a value
 	 * 
 	 * @param deltaALEMat
-	 *            The value to set the delta ALE for Maturity
+	 *                    The value to set the delta ALE for Maturity
 	 */
 	public void setDeltaALEMat(double deltaALEMat) {
 		this.deltaALEMat = deltaALEMat;
@@ -395,12 +397,18 @@ public class TMA {
 	 */
 	@Override
 	public String toString() {
-		return "TMA [" + "Assessment [id=" + assessment.getId() + ", ALE=" + assessment.getALE() + ", ALEO=" + assessment.getALEO() + ", ALEP=" + assessment.getALEP() + ", Impact="
-				+ assessment.getImpactReal() + ", Likelihood=" + assessment.getLikelihoodReal() + ", Uncertainty=" + assessment.getUncertainty() + ", " + "Asset [id="
-				+ assessment.getAsset().getId() + ", name=" + assessment.getAsset().getName() + "], " + "Scenario [id=" + assessment.getScenario().getName() + ", name="
-				+ assessment.getScenario().getName() + "]], " + "Measure[id=" + measure.getId() + ", Standard [ id=" + standard.getId() + ", name=" + standard.getName()
-				+ ", version=" + standard.getVersion() + "], reference=" + measure.getMeasureDescription().getReference() + "], " + "RRF=" + RRF + ", ALE=" + ALE + ", deltaALE="
-				+ deltaALE + ", current SML Max Eff= " + cMaxEff + ", next SML Max Eff=" + nMaxEff + ", deltaALE Maturtity=" + deltaALEMat + "]";
+		return "TMA [" + "Assessment [id=" + assessment.getId() + ", ALE=" + assessment.getALE() + ", ALEO="
+				+ assessment.getALEO() + ", ALEP=" + assessment.getALEP() + ", Impact="
+				+ assessment.getImpactReal() + ", Likelihood=" + assessment.getLikelihoodReal() + ", Uncertainty="
+				+ assessment.getUncertainty() + ", " + "Asset [id="
+				+ assessment.getAsset().getId() + ", name=" + assessment.getAsset().getName() + "], " + "Scenario [id="
+				+ assessment.getScenario().getName() + ", name="
+				+ assessment.getScenario().getName() + "]], " + "Measure[id=" + measure.getId() + ", Standard [ id="
+				+ standard.getId() + ", name=" + standard.getName()
+				+ ", version=" + standard.getVersion() + "], reference="
+				+ measure.getMeasureDescription().getReference() + "], " + "RRF=" + RRF + ", ALE=" + ALE + ", deltaALE="
+				+ deltaALE + ", current SML Max Eff= " + cMaxEff + ", next SML Max Eff=" + nMaxEff
+				+ ", deltaALE Maturtity=" + deltaALEMat + "]";
 	}
 
 	/**
@@ -413,7 +421,7 @@ public class TMA {
 	public TMA clone() {
 		try {
 			TMA tma = (TMA) super.clone();
-			tma.assessment = (Assessment) assessment.clone();
+			tma.assessment = assessment.clone();
 			return (TMA) super.clone();
 		} catch (Exception e) {
 			throw new RuntimeException(e);

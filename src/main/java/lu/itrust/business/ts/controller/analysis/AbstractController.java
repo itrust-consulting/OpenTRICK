@@ -36,7 +36,6 @@ import lu.itrust.business.ts.model.analysis.ReportSetting;
 import lu.itrust.business.ts.model.cssf.helper.ColorManager;
 import lu.itrust.business.ts.model.general.TSSettingName;
 import lu.itrust.business.ts.model.general.TicketingSystem;
-import lu.itrust.business.ts.model.general.TicketingSystemType;
 import lu.itrust.business.ts.model.scale.ScaleType;
 import lu.itrust.business.ts.usermanagement.User;
 

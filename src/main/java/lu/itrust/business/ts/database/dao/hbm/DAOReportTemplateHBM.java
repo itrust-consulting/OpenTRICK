@@ -234,7 +234,7 @@ public class DAOReportTemplateHBM extends DAOHibernate implements DAOReportTempl
 	}
 
 	@Override
-	public Boolean isUseAuthorised(Long id, Integer customerId) {
+	public boolean isUseAuthorised(Long id, Integer customerId) {
 		return getSession().createQuery(
 				"Select count(template) > 0 From Customer customer inner join customer.templates as template where template.id = :id and (customer.id = :customerId or customer.canBeUsed = false)",
 				Boolean.class).setParameter("id", id).setParameter("customerId", customerId).uniqueResult();

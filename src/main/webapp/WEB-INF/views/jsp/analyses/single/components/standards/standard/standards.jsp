@@ -13,9 +13,11 @@
 <fmt:setLocale value="fr" scope="session" />
 <spring:message code="label.measure.status.m" var="statusM" />
 <spring:message code="label.measure.status.ap" var="statusAP" />
+<spring:message code="label.measure.status.ex" var="statusEX" />
 <spring:message code="label.measure.status.na" var="statusNA" />
 <spring:message code="label.title.measure.status.m" var="titleStatusM" />
 <spring:message code="label.title.measure.status.ap" var="titleStatusAP" />
+<spring:message code="label.title.measure.status.ex" var="titleStatusEX" />
 <spring:message code="label.title.measure.status.na" var="titleStatusNA" />
 <c:forEach begin="1" step="1" end="3" var="impValue">
 	<spring:message code="label.measure.importance.value" arguments="${impValue}" var="imp${impValue}" />
@@ -160,7 +162,7 @@
 						<c:forEach items="${measuresByStandard.get(standard)}" var="measure">
 							<c:set value="${measure.getImplementationRateValue(valueFactory)}" var="implementationRate" />
 							<c:set var="css">
-								<c:if test="${implementationRate < 100 and measure.status!='NA' }">class="editable"</c:if>
+								<c:if test="${implementationRate < 100 and !(measure.status eq 'NA' || measure.status eq 'EX') }">class="editable"</c:if>
 							</c:set>
 							<c:set var="todoCSS">
 								<c:choose>
@@ -240,7 +242,7 @@
 									<tr ${analysisOnly?dblclickaction:''} data-trick-computable="true" data-trick-description="${measureDescriptionText.description}" onclick="selectElement(this)"
 										data-trick-class="Measure" data-is-linked='${hasTicket}' data-trick-id="${measure.id}" data-trick-callback="reloadMeasureRow('${measure.id}','${standardid}');">
 										<c:if test="${isLinkedToProject or  analysisOnly and isEditable}">
-											<td><input type="checkbox" ${measure.status=='NA'?'disabled':''} class="checkbox"
+											<td><input type="checkbox" ${measure.status eq 'NA' || measure.status eq 'EX' ?'disabled':''} class="checkbox"
 												onchange="return updateMenu(this,'#section_standard_${standardid}','#menu_standard_${standardid}');"></td>
 										</c:if>
 										<td ${not analysisOnly ?dblclickaction:''}><c:choose>
@@ -267,14 +269,17 @@
 												</c:otherwise>
 											</c:choose></td>
 										<td ${popoverRef}><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
-										<td ${css} data-trick-field="status" data-trick-choose="M,AP,NA" data-trick-choose-translate="${statusM},${statusAP},${statusNA}"
-											data-trick-choose-title='${titleStatusM},${titleStatusAP},${titleStatusNA}' data-trick-field-type="string" onclick="return editField(this);"
+										<td ${css} data-trick-field="status" data-trick-choose="M,AP,EX,NA" data-trick-choose-translate="${statusM},${statusAP},${statusEX},${statusNA}"
+											data-trick-choose-title='${titleStatusM},${titleStatusAP},${titleStatusEX},${titleStatusNA}' data-trick-field-type="string" onclick="return editField(this);"
 											data-trick-callback="reloadMeasureAndCompliance('${standardid}','${measure.id}')"><c:choose>
 												<c:when test="${measure.status=='NA'}">
 													${statusNA}
 												</c:when>
 												<c:when test="${measure.status=='AP'}">
 													${statusAP}
+												</c:when>
+												<c:when test="${measure.status=='EX'}">
+													${statusEX}
 												</c:when>
 												<c:otherwise>
 													${statusM}
@@ -319,7 +324,7 @@
 											data-real-value='<fmt:formatNumber value="${measure.recurrentInvestment*0.001}" maxFractionDigits="2" />'><fmt:formatNumber
 												value="${fct:round(measure.recurrentInvestment*0.001,0)}" maxFractionDigits="0" /></td>
 										<c:choose>
-											<c:when test="${implementationRateValue>=100 || measure.getStatus().equals('NA')}">
+											<c:when test="${implementationRateValue >= 100 || measure.status eq 'NA' || measure.status eq 'EX'}">
 												<td class='textaligncenter' title='<fmt:formatNumber value="${fct:round(measure.cost,0)}" maxFractionDigits="0" /> &euro;'><fmt:formatNumber
 														value="${fct:round(measure.cost*0.001,0)}" maxFractionDigits="0" /></td>
 											</c:when>
