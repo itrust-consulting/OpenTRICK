@@ -7,14 +7,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import jakarta.servlet.http.HttpSession;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
-import org.springframework.core.task.TaskExecutor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,15 +22,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
+import jakarta.servlet.http.HttpSession;
 import lu.itrust.business.ts.asynchronousWorkers.Worker;
 import lu.itrust.business.ts.asynchronousWorkers.WorkerComputeActionPlan;
 import lu.itrust.business.ts.component.TrickLogManager;
 import lu.itrust.business.ts.constants.Constant;
 import lu.itrust.business.ts.database.service.ServiceActionPlan;
-import lu.itrust.business.ts.database.service.ServiceAnalysis;
 import lu.itrust.business.ts.database.service.ServiceAnalysisStandard;
-import lu.itrust.business.ts.database.service.ServiceTaskFeedback;
-import lu.itrust.business.ts.database.service.ServiceUser;
 import lu.itrust.business.ts.database.service.ServiceUserAnalysisRight;
 import lu.itrust.business.ts.helper.JsonMessage;
 import lu.itrust.business.ts.model.actionplan.ActionPlanEntry;
@@ -116,7 +111,7 @@ public class ControllerActionPlan extends AbstractController {
 	}
 
 	@SuppressWarnings("unchecked")
-	@RequestMapping(value = "/Assets", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@GetMapping(value = "/Assets", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).READ)")
 	public String loadAssets(@RequestParam(defaultValue = "APPN") String selectedApt, Model model, HttpSession session,
 			Principal principal) throws Exception {

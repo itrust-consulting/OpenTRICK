@@ -30,9 +30,9 @@
 					<thead>
 						<tr>
 							<th width="1%"></th>
-							<th><spring:message code="label.norm.name" text="Display name" /></th>
-							<th><spring:message code="label.norm.label" text="Name" /></th>
-							<th><spring:message code="label.norm.version" text="Version" /></th>
+							<th><a href="#" onclick="return sortTable('name',this)" data-order='0'> <spring:message code="label.norm.name" text="Display name" /></a></th>
+							<th> <a href="#" onclick="return sortTable('label',this)" data-order='1'><spring:message code="label.norm.label" text="Name" /></a></th>
+							<th> <a href="#" onclick="return sortTable('version',this,true)" data-order='1'><spring:message code="label.norm.version" text="Version" /></a></th>
 							<th width="50%"><spring:message code="label.norm.description" text="Description" /></th>
 							<th><spring:message code="label.norm.type" text="Type" /></th>
 							<th><spring:message code="label.norm.computable" text="Computable" /></th>
@@ -42,9 +42,9 @@
 						<c:forEach items="${standards}" var="standard">
 							<tr data-trick-id="${standard.id}" onclick="selectElement(this)" ondblclick="return editSingleStandard('${standard.id}');">
 								<td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_kb_standard','#menu_standard',null,'showTabMeasure(${standard.id})');"></td>
-								<td><spring:message text="${standard.name}" /></td>
-								<td><spring:message text="${standard.label}" /></td>
-								<td><spring:message text="${standard.version}" /></td>
+								<td data-trick-field="name"><spring:message text="${standard.name}" /></td>
+								<td data-trick-field="label"><spring:message text="${standard.label}" /></td>
+								<td data-trick-field="version"><spring:message text="${standard.version}" /></td>
 								<td class='pre'><spring:message text="${standard.description}" /></td>
 								<td data-trick-type="${standard.type}"><spring:message code="label.norm.type_${fn:toLowerCase(standard.type)}" text="${standard.type}" /></td>
 								<td data-trick-computable="${standard.computable?'Yes':'No'}"><spring:message code="label.yes_no.${standard.computable}" text="${standard.computable?'Yes':'No'}" /></td>

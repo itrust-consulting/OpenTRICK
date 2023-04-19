@@ -17,7 +17,7 @@
 					<h4>
 						<spring:message code="label.title.actionplan.assets" />
 					</h4>
-					<spring:eval expression="T(lu.itrust.business.ts.model.actionplan.helper.ActionPlanManager).SplitByType(actionplans)" var="actionplansplitted" />
+					<spring:eval expression="T(lu.itrust.business.ts.model.actionplan.helper.ActionPlanManager).splitByType(actionplans)" var="actionplansplitted" />
 					<ul class="nav nav-pills" id="menu_asset_actionplan">
 						<c:forEach items="${actionplansplitted.keySet()}" var="apt" varStatus="status">
 							<li ${selectedApt == apt? "class='disabled'" : ""} data-trick-nav-control="${apt}"><a href="#"
@@ -72,9 +72,9 @@
 								</c:if>
 								<c:forEach items="${actionplansplitted.get(apt)}" var="ape">
 									<tr data-trick-class="ActionPlanEntry" data-trick-id="${ape.id}"
-										data-trick-callback="reloadMeasureRow('${ape.measure.id}', '<spring:message text="${ape.measure.analysisStandard.standard.label}" />')">
+										data-trick-callback="reloadMeasureRow('${ape.measure.id}', '<spring:message text="${ape.measure.measureDescription.standard.label}" />')">
 										<td><spring:message text="${ape.order}" /></td>
-										<td><spring:message text="${ape.measure.analysisStandard.standard.name}" /></td>
+										<td><spring:message text="${ape.measure.measureDescription.standard.name}" /></td>
 										<td><spring:message text="${ape.measure.measureDescription.reference}" /></td>
 										<td ${ape.totalALE == 0? "class='danger'" : "" } title='<fmt:formatNumber value="${ape.totalALE}" maxFractionDigits="2" /> &euro;'><fmt:formatNumber
 												value="${fct:round(ape.totalALE*0.001,0)}" maxFractionDigits="0" /></td>
