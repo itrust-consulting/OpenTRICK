@@ -2087,9 +2087,11 @@ public class ActionPlanComputation {
 
 						// store reference
 						tmpReference = measure.getMeasureDescription().getReference();
-
-						// create chapter reference to check on maturity
-						tmpReference = tmpReference.substring(0, tmpReference.indexOf("."));
+						int index = tmpReference.indexOf(".");
+						if (index != -1) {
+							// create chapter reference to check on maturity
+							tmpReference = tmpReference.substring(0, index);
+						}
 
 						// ****************************************************************
 						// * Parse standards to find maturity standard to

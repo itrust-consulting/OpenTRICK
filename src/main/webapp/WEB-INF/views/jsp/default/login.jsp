@@ -40,7 +40,7 @@
 					<c:remove var="LOGIN_ERROR_HANDLER" scope="session" />
 				</c:if>
 				<jsp:include page="../template/successErrors.jsp" />
-				<form id="login_form" method="post" action="${pageContext.request.contextPath}/Login">
+				<form id="login_form" method="post" action="${pageContext.request.contextPath}/Signin">
 					<div class="form-group">
 						<input id="username" name="username" autofocus="autofocus" value="${(!empty (username))? username : ''}"
 							placeholder="<spring:message code='label.signin.login' text='Username'/>" required="required" class="form-control"

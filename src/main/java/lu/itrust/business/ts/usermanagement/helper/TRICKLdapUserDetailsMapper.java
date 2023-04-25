@@ -57,10 +57,10 @@ public class TRICKLdapUserDetailsMapper implements UserDetailsContextMapper {
 	private boolean alwaysLoadRole = true;
 
 	private boolean allowedAuthentication = false;
-	
+
 	private String defaultRole = RoleType.ROLE_USER.name();
 
-	protected Boolean initialised = false;
+	protected boolean initialised = false;
 
 	private List<String> supervisorRoles;
 
@@ -79,20 +79,23 @@ public class TRICKLdapUserDetailsMapper implements UserDetailsContextMapper {
 	private DAORole daoRole;
 
 	protected void initialisation() {
-		synchronized (initialised) {
-			if (!initialised) {
-				formatRoles(supervisorRoles);
-				formatRoles(adminRoles);
-				formatRoles(consultantRoles);
-				formatRoles(userRoles);
-				initialised = true;
+		if (!initialised) {
+			synchronized (this) {
+				if (!initialised) {
+					formatRoles(supervisorRoles);
+					formatRoles(adminRoles);
+					formatRoles(consultantRoles);
+					formatRoles(userRoles);
+					initialised = true;
+				}
 			}
 		}
 	}
 
 	@Transactional
 	@Override
-	public UserDetails mapUserFromContext(DirContextOperations ctx, String username, Collection<? extends GrantedAuthority> authorities) {
+	public UserDetails mapUserFromContext(DirContextOperations ctx, String username,
+			Collection<? extends GrantedAuthority> authorities) {
 
 		try {
 			if (!initialised)
@@ -108,8 +111,10 @@ public class TRICKLdapUserDetailsMapper implements UserDetailsContextMapper {
 				essence.setPassword(mapPassword(passwordValue));
 			}
 
-			String firstName = ctx.getStringAttribute(firstNameAttribute), lastName = ctx.getStringAttribute(lastNameAttribute), email = ctx.getStringAttribute(emailAttribute),
-					fullName = ctx.getStringAttribute(fullNameAttribute);
+			String firstName = ctx.getStringAttribute(firstNameAttribute);
+			String lastName = ctx.getStringAttribute(lastNameAttribute);
+			String email = ctx.getStringAttribute(emailAttribute);
+			String fullName = ctx.getStringAttribute(fullNameAttribute);
 
 			if (firstName == null) {
 				if (fullName == null)
@@ -130,11 +135,13 @@ public class TRICKLdapUserDetailsMapper implements UserDetailsContextMapper {
 				if (StringUtils.hasText(email))
 					user = daoUser.getByEmail(email);
 				else
-					throw new TrickException("error.ldap.email.empty", "Please contact your administrator, your email cannot be loaded");
+					throw new TrickException("error.ldap.email.empty",
+							"Please contact your administrator, your email cannot be loaded");
 				if (user == null)
 					user = new User(username, firstName, lastName, email, User.LADP_CONNEXION);
 			} else if (!(email == null || email.equalsIgnoreCase(user.getEmail())) && daoUser.existByEmail(email))
-				throw new TrickException("error.ldap.conflit.account", "Please contact your administrator, your username and email are both in use by two different people");
+				throw new TrickException("error.ldap.conflit.account",
+						"Please contact your administrator, your username and email are both in use by two different people");
 
 			if (!allowedAuthentication || user.getConnexionType() == User.STANDARD_CONNEXION)
 				throw new BadCredentialsException("User is not authorised to connect via LDAP");
@@ -142,7 +149,8 @@ public class TRICKLdapUserDetailsMapper implements UserDetailsContextMapper {
 			if (user.getId() < 1 || alwaysLoadRole)
 				loadRoles(ctx, authorities, essence, user);
 			else
-				user.getRoles().forEach(role -> essence.addAuthority(new SimpleGrantedAuthority(role.getType().name())));
+				user.getRoles()
+						.forEach(role -> essence.addAuthority(new SimpleGrantedAuthority(role.getType().name())));
 
 			if (!user.isEnable())
 				throw new DisabledException("User account is disabled");
@@ -150,7 +158,8 @@ public class TRICKLdapUserDetailsMapper implements UserDetailsContextMapper {
 			essence.setUsername(user.getLogin());
 
 			// Check for PPolicy data
-			PasswordPolicyResponseControl ppolicy = (PasswordPolicyResponseControl) ctx.getObjectAttribute(PasswordPolicyControl.OID);
+			PasswordPolicyResponseControl ppolicy = (PasswordPolicyResponseControl) ctx
+					.getObjectAttribute(PasswordPolicyControl.OID);
 
 			if (ppolicy != null) {
 				essence.setTimeBeforeExpiration(ppolicy.getTimeBeforeExpiration());
@@ -165,7 +174,8 @@ public class TRICKLdapUserDetailsMapper implements UserDetailsContextMapper {
 		}
 	}
 
-	private void loadRoles(DirContextOperations ctx, Collection<? extends GrantedAuthority> authorities, LdapUserDetailsImpl.Essence essence, User user) throws Exception {
+	private void loadRoles(DirContextOperations ctx, Collection<? extends GrantedAuthority> authorities,
+			LdapUserDetailsImpl.Essence essence, User user) throws Exception {
 		// Map the roles
 		if (roleAttributes != null) {
 			for (int i = 0; i < roleAttributes.length; i++) {
@@ -191,7 +201,7 @@ public class TRICKLdapUserDetailsMapper implements UserDetailsContextMapper {
 
 		if (essence.getGrantedAuthorities().isEmpty() && StringUtils.hasText(defaultRole))
 			essence.addAuthority(new SimpleGrantedAuthority(defaultRole));
-		
+
 		user.disable();
 
 		for (GrantedAuthority grantedAuthority : essence.getGrantedAuthorities()) {
@@ -206,13 +216,15 @@ public class TRICKLdapUserDetailsMapper implements UserDetailsContextMapper {
 
 	}
 
-	private void AddRole(LdapUserDetailsImpl.Essence essence, GrantedAuthority authority, List<String> roles, String roleName) {
+	private void AddRole(LdapUserDetailsImpl.Essence essence, GrantedAuthority authority, List<String> roles,
+			String roleName) {
 		if (roles != null && roles.stream().anyMatch(role -> role.equalsIgnoreCase(authority.getAuthority())))
 			essence.addAuthority(new SimpleGrantedAuthority(roleName));
 	}
 
 	public void mapUserToContext(UserDetails user, DirContextAdapter ctx) {
-		throw new UnsupportedOperationException("LdapUserDetailsMapper only supports reading from a context. Please" + "use a subclass if mapUserToContext() is required.");
+		throw new UnsupportedOperationException("LdapUserDetailsMapper only supports reading from a context. Please"
+				+ "use a subclass if mapUserToContext() is required.");
 	}
 
 	/**
@@ -220,7 +232,7 @@ public class TRICKLdapUserDetailsMapper implements UserDetailsContextMapper {
 	 * the attribute stored in the directory.
 	 *
 	 * @param passwordValue
-	 *            the value of the password attribute
+	 *                      the value of the password attribute
 	 * @return a String representation of the password.
 	 */
 	protected String mapPassword(Object passwordValue) {
@@ -244,7 +256,7 @@ public class TRICKLdapUserDetailsMapper implements UserDetailsContextMapper {
 	 * </p>
 	 *
 	 * @param role
-	 *            the attribute returned from
+	 *             the attribute returned from
 	 * @return the authority to be added to the list of authorities for the
 	 *         user, or null if this attribute should be ignored.
 	 */
@@ -263,7 +275,8 @@ public class TRICKLdapUserDetailsMapper implements UserDetailsContextMapper {
 	 * loaded. The default is true.
 	 *
 	 * @param convertToUpperCase
-	 *            true if the roles should be converted to upper case.
+	 *                           true if the roles should be converted to upper
+	 *                           case.
 	 */
 	public void setConvertToUpperCase(boolean convertToUpperCase) {
 		this.convertToUpperCase = convertToUpperCase;
@@ -274,7 +287,7 @@ public class TRICKLdapUserDetailsMapper implements UserDetailsContextMapper {
 	 * "userPassword".
 	 *
 	 * @param passwordAttributeName
-	 *            the name of the attribute
+	 *                              the name of the attribute
 	 */
 	public void setPasswordAttributeName(String passwordAttributeName) {
 		this.passwordAttributeName = passwordAttributeName;
@@ -287,7 +300,7 @@ public class TRICKLdapUserDetailsMapper implements UserDetailsContextMapper {
 	 * attribute values must be Strings by default.
 	 *
 	 * @param roleAttributes
-	 *            the names of the role attributes.
+	 *                       the names of the role attributes.
 	 */
 	public void setRoleAttributes(String[] roleAttributes) {
 		this.roleAttributes = roleAttributes;
@@ -297,7 +310,7 @@ public class TRICKLdapUserDetailsMapper implements UserDetailsContextMapper {
 	 * The prefix that should be applied to the role names
 	 * 
 	 * @param rolePrefix
-	 *            the prefix (defaults to "ROLE_").
+	 *                   the prefix (defaults to "ROLE_").
 	 */
 	public void setRolePrefix(String rolePrefix) {
 		this.rolePrefix = rolePrefix;
@@ -332,7 +345,8 @@ public class TRICKLdapUserDetailsMapper implements UserDetailsContextMapper {
 		if (roles == null || roles.isEmpty())
 			return;
 		for (int i = 0; i < roles.size(); i++)
-			roles.set(i, String.format("%s%s", rolePrefix, convertToUpperCase ? roles.get(i).toUpperCase() : roles.get(i)));
+			roles.set(i,
+					String.format("%s%s", rolePrefix, convertToUpperCase ? roles.get(i).toUpperCase() : roles.get(i)));
 	}
 
 	public List<String> getAdminRoles() {
@@ -387,7 +401,7 @@ public class TRICKLdapUserDetailsMapper implements UserDetailsContextMapper {
 
 	/**
 	 * @param emailAttribute
-	 *            the emailAttribute to set
+	 *                       the emailAttribute to set
 	 */
 	public void setEmailAttribute(String emailAttribute) {
 		this.emailAttribute = emailAttribute;
@@ -402,7 +416,7 @@ public class TRICKLdapUserDetailsMapper implements UserDetailsContextMapper {
 
 	/**
 	 * @param fullNameAttribute
-	 *            the fullNameAttribute to set
+	 *                          the fullNameAttribute to set
 	 */
 	public void setFullNameAttribute(String fullNameAttribute) {
 		this.fullNameAttribute = fullNameAttribute;
@@ -417,7 +431,7 @@ public class TRICKLdapUserDetailsMapper implements UserDetailsContextMapper {
 
 	/**
 	 * @param alwaysLoadRole
-	 *            the alwaysLoadRole to set
+	 *                       the alwaysLoadRole to set
 	 */
 	public void setAlwaysLoadRole(boolean alwaysLoadRole) {
 		this.alwaysLoadRole = alwaysLoadRole;
@@ -432,13 +446,12 @@ public class TRICKLdapUserDetailsMapper implements UserDetailsContextMapper {
 
 	/**
 	 * @param allowedAuthentication
-	 *            the allowedAuthentication to set
+	 *                              the allowedAuthentication to set
 	 */
 	public void setAllowedAuthentication(boolean allowedAuthentication) {
 		this.allowedAuthentication = allowedAuthentication;
 	}
 
-	
 	/**
 	 * @return the defaultRole
 	 */

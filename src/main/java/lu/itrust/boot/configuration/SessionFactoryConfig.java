@@ -34,7 +34,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
  * @author eomar
  *
  */
-@Profile({ "p-auth-all", "p-auth-std-ad", "p-auth-std-ldap", "p-auth-std", "p-auth-ldap", "p-auth-ad" })
+@Profile({ "p-auth-std", "p-auth-ldap", "p-auth-ad" })
 @Configuration(proxyBeanMethods = false)
 @EnableTransactionManagement
 public class SessionFactoryConfig {
@@ -94,8 +94,8 @@ public class SessionFactoryConfig {
 				.filter(e -> e.startsWith("spring.jpa") && e.contains("hibernate")).forEach(e -> properties
 						.put(e.substring(e.indexOf("hibernate")), env.getProperty(e)));
 
-		//translate spring jap properties to hibernate
-		
+		// translate spring jap properties to hibernate
+
 		var value = properties.remove("hibernate.keyword_auto_quoting_enabled");
 		if (value != null)
 			properties.put("hibernate.auto_quote_keyword", value);

@@ -4,13 +4,11 @@ import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 import org.hibernate.SessionFactory;
-import org.junit.jupiter.api.Order;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.CacheControl;
 import org.springframework.orm.hibernate5.support.OpenSessionInViewInterceptor;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;

@@ -215,7 +215,7 @@ public class RedmineClient implements Client {
 	 * lu.itrust.business.ts.messagehandler.MessageHandler, int)
 	 */
 	@Override
-	public boolean createIssues(String projectId,String trackerName, String language, Collection<Measure> measures,
+	public boolean createIssues(String projectId, String trackerName, String language, Collection<Measure> measures,
 			Collection<Measure> updateMeasures, ValueFactory factory, MessageHandler handler,
 			int maxProgess) {
 		if (manager == null)
@@ -228,7 +228,9 @@ public class RedmineClient implements Client {
 			Tracker tracker = project.getTrackerByName(trackerName);
 			if (tracker == null)
 				tracker = project.getTrackers().stream().findFirst().orElse(null);
-			int min = handler.getProgress(), size = measures.size() + updateMeasures.size(), current = 0;
+			int min = handler.getProgress();
+			int size = measures.size() + updateMeasures.size();
+			int current = 0;
 			for (Measure measure : measures) {
 				if (StringUtils.isEmpty(measure.getToDo()) || StringUtils.isBlank(measure.getToDo())) {
 					final MeasureDescription description = measure.getMeasureDescription();
@@ -299,6 +301,10 @@ public class RedmineClient implements Client {
 				.getMeasureDescriptionTextByAlpha2(language);
 		if (measure.getToDo().length() > 255)
 			builder.add(measure.getToDo() + "\n");
+
+		if (!(measure.getComment() == null || measure.getComment().isEmpty()))
+			builder.add(measure.getComment() + "\n");
+
 		builder.add(String.format("%s - %s: %s", description.getStandard().getName(), description.getReference(),
 				descriptionText.getDomain()) + "\n");
 		builder.add(descriptionText.getDescription() + "\n");

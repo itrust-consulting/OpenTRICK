@@ -3,11 +3,11 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>lu.itrust</groupId>
 	<artifactId>trickservice</artifactId>
-	<version>2.16b</version>
+	<version>2.16d</version>
 	<packaging>war</packaging>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<org.apache.directory.server.version>1.5.7</org.apache.directory.server.version>
+		<org.apache.directory.server.version>2.0.0.AM26</org.apache.directory.server.version>
 		<spring-boot.version>3.0.5</spring-boot.version>
 		<java.version>17</java.version>
 	</properties>
@@ -57,6 +57,12 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-mail</artifactId>
+		</dependency>
+
+		<!-- LDAP -->
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-ldap</artifactId>
 		</dependency>
 
 		<dependency>
@@ -174,13 +180,9 @@
 			<version>1.4</version>
 		</dependency>
 
-		<!-- LDAP -->
+		
 
-		<dependency>
-			<groupId>org.springframework.security</groupId>
-			<artifactId>spring-security-ldap</artifactId>
-		</dependency>
-
+	
 		<!-- Hibernate dependencies -->
 
 		<dependency>
@@ -320,7 +322,7 @@
 			<artifactId>freemarker</artifactId>
 		</dependency>
 
-		<dependency>
+		<!--<dependency>
 			<groupId>org.apache.directory.server</groupId>
 			<artifactId>apacheds-core</artifactId>
 			<version>${org.apache.directory.server.version}</version>
@@ -348,6 +350,11 @@
 			<groupId>org.apache.directory.shared</groupId>
 			<artifactId>shared-ldap</artifactId>
 			<version>0.9.19</version>
+		</dependency>-->
+
+		<dependency>
+			<groupId>com.unboundid</groupId>
+			<artifactId>unboundid-ldapsdk</artifactId>
 		</dependency>
 
 		<dependency>
@@ -404,8 +411,8 @@
 		</dependency>
 
 		<dependency>
-    		<groupId>org.mariadb.jdbc</groupId>
-    		<artifactId>mariadb-java-client</artifactId>
+			<groupId>org.mariadb.jdbc</groupId>
+			<artifactId>mariadb-java-client</artifactId>
 		</dependency>
 
 		<!-- Unit testing -->
@@ -496,6 +503,15 @@
 			<version>2.0b5</version>
 			<scope>test</scope>
 		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.dom4j/dom4j -->
+		<dependency>
+			<groupId>org.dom4j</groupId>
+			<artifactId>dom4j</artifactId>
+			<version>2.1.4</version>
+			<scope>test</scope>
+		</dependency>
+
 
 	</dependencies>
 

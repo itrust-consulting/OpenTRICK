@@ -342,8 +342,12 @@ public final class ExcelHelper {
 	}
 
 	public static String getString(Row row, int cell, DataFormatter formatter) {
-		Cell c = getCellAt(row, cell);
-		return c == null ? null : getString(c, formatter);
+		return getString(row, cell, formatter, null);
+	}
+
+	public static String getString(Row row, int cell, DataFormatter formatter, String defaultValue) {
+		String value = getString(getCellAt(row, cell), formatter);
+		return value == null ? defaultValue : value;
 	}
 
 	public static String getString(SheetData sheet, int row, int cell, DataFormatter formatter) {

@@ -35,7 +35,7 @@
 
 		<logger name="org.hibernate.type" level='INFO' />
 
-		<logger name="org.springframework.security" level='INFO' />
+		<logger name="org.springframework.security" level='TRACE' />
 
 		<logger name="org.springframework.web" level='INFO' />
 

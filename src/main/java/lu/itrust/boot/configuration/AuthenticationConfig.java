@@ -1,25 +1,23 @@
 package lu.itrust.boot.configuration;
 
+import java.util.Arrays;
+
 import javax.sql.DataSource;
 
-import org.apache.tomcat.dbcp.dbcp2.BasicDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
-import org.springframework.core.annotation.Order;
 import org.springframework.core.env.Environment;
-import org.springframework.ldap.core.support.BaseLdapPathContextSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configurers.ldap.LdapAuthenticationProviderConfigurer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.ldap.DefaultSpringSecurityContextSource;
 import org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.provisioning.UserDetailsManager;
@@ -45,84 +43,50 @@ public class AuthenticationConfig {
         @Autowired
         private @Lazy AuthenticationManager authenticationManager;
 
-        @Order(1)
-        @Bean("authenticationManager")
-        @Profile("p-auth-all")
-        public AuthenticationManager fullAuthenticationManager(HttpSecurity http)
+        @Bean
+        @Primary
+        @Profile({ "p-auth-std", "p-auth-ldap", "p-auth-ad" })
+        public AuthenticationManager authenticationManager(HttpSecurity http)
                         throws Exception {
-                var builder = http.getSharedObject(AuthenticationManagerBuilder.class);
-                builder.authenticationProvider(customDaoAuthenticationProvider());
-                builder.authenticationProvider(adAuthenticationProvider());
-                initLdapAuthenticationProvider(builder.ldapAuthentication());
-                return builder.build();
+                return http.getSharedObject(AuthenticationManagerBuilder.class).build();
         }
 
-        @Order(1)
-        @Bean("authenticationManager")
-        @Profile("p-auth-std")
-        public AuthenticationManager stdAuthenticationManager(HttpSecurity http)
-                        throws Exception {
-                var builder = http.getSharedObject(AuthenticationManagerBuilder.class);
-                builder.authenticationProvider(customDaoAuthenticationProvider());
-                return builder.build();
-        }
+        @Autowired
+        @Profile({ "p-auth-std", "p-auth-ldap", "p-auth-ad" })
+        public void configure(AuthenticationManagerBuilder builder) throws Exception {
+                var activeProfiles = Arrays.asList(environment.getActiveProfiles());
+                if (activeProfiles.contains("p-auth-std"))
+                        builder.authenticationProvider(customDaoAuthenticationProvider());
+                if (activeProfiles.contains("p-auth-ldap"))
+                        initLdapAuthenticationProvider(builder.ldapAuthentication());
+                if (activeProfiles.contains("p-auth-ad"))
+                        builder.authenticationProvider(adAuthenticationProvider());
 
-        @Order(1)
-        @Bean("authenticationManager")
-        @Profile("p-auth-std-ldap")
-        public AuthenticationManager stdAndLdapAuthenticationManager(HttpSecurity http)
-                        throws Exception {
-                var builder = http.getSharedObject(AuthenticationManagerBuilder.class);
-                builder.authenticationProvider(customDaoAuthenticationProvider());
-                initLdapAuthenticationProvider(builder.ldapAuthentication());
-                return builder.build();
-        }
-
-        @Order(1)
-        @Bean("authenticationManager")
-        @Profile("p-auth-ad")
-        public AuthenticationManager adAuthenticationManager(HttpSecurity http)
-                        throws Exception {
-                var builder = http.getSharedObject(AuthenticationManagerBuilder.class);
-                builder.authenticationProvider(adAuthenticationProvider());
-                return builder.build();
-        }
-
-        @Order(1)
-        @Bean("authenticationManager")
-        @Profile("p-auth-ldap")
-        public AuthenticationManager ldapAuthenticationManager(HttpSecurity http)
-                        throws Exception {
-                var builder = http.getSharedObject(AuthenticationManagerBuilder.class);
-                initLdapAuthenticationProvider(builder.ldapAuthentication());
-                return builder.build();
         }
 
         @Bean
-        @Profile({ "p-auth-all", "p-auth-std-ldap", "p-auth-std" })
+        @Profile("p-auth-std")
         public DaoAuthenticationProvider customDaoAuthenticationProvider() {
                 var dao = new CustomerDaoAuthenticationProvider();
-                dao.setUserDetailsService(userDetailsService(dataSource, authenticationManager));
+                dao.setUserDetailsService(userDetailsService());
                 dao.setPasswordEncoder(passwordEncoder);
                 return dao;
         }
 
         @Bean
-        @Profile({ "p-auth-all", "p-auth-std-ldap", "p-auth-std" })
-        public UserDetailsManager userDetailsService(DataSource dataSource, AuthenticationManager manager) {
+        @Profile("p-auth-std")
+        public UserDetailsManager userDetailsService() {
                 var userDetailsService = new JdbcUserDetailsManager(dataSource);
                 userDetailsService.setUsersByUsernameQuery(
                                 SELECT_DT_LOGIN_AS_USERNAME_DT_PASSWORD_AS_PASSWORD_DT_ENABLED_AS_ENABLE_FROM_USER_WHERE_1_DT_CONNEX);
                 userDetailsService.setAuthoritiesByUsernameQuery(
                                 SELECT_USER_DT_LOGIN_AS_USERNAME_ROLE_DT_TYPE_FROM_USER_ROLE_USER_ROLE_WHERE_USER_ROLE_FI_USER_USER);
-
-                userDetailsService.setAuthenticationManager(manager);
-
+                userDetailsService.setAuthenticationManager(authenticationManager);
                 return userDetailsService;
         }
 
         @Bean
-        @Profile({ "p-auth-all", "p-auth-std-ad", "p-auth-ad" })
+        @Profile("p-auth-ad")
         public AuthenticationProvider adAuthenticationProvider() {
                 var authenticationProvider = new ActiveDirectoryLdapAuthenticationProvider(
                                 environment.getRequiredProperty("app.settings.ldap.server.manager_dn"),
@@ -132,17 +96,7 @@ public class AuthenticationConfig {
         }
 
         @Bean
-        @Profile({ "p-auth-all", "p-auth-std-ldap", "p-auth-ldap" })
-        public BaseLdapPathContextSource contextSource() {
-                var contextSource = new DefaultSpringSecurityContextSource(
-                                environment.getRequiredProperty("app.settings.ldap.server.url"));
-                contextSource.setUserDn(environment.getRequiredProperty("app.settings.ldap.server.manager_dn"));
-                contextSource.setPassword(environment.getRequiredProperty("app.settings.ldap.server.manager_password"));
-                return contextSource;
-        }
-
-        @Bean
-        @Profile({ "p-auth-all", "p-auth-std-ad", "p-auth-ad", "p-auth-std-ldap", "p-auth-ldap" })
+        @Profile({ "p-auth-ad", "p-auth-ldap" })
         public TRICKLdapUserDetailsMapper userDetailsContextMapper() {
                 var userDetailsContextMapper = new TRICKLdapUserDetailsMapper();
 
@@ -183,16 +137,24 @@ public class AuthenticationConfig {
 
         private void initLdapAuthenticationProvider(
                         LdapAuthenticationProviderConfigurer<?> ldap) {
-                ldap.userDetailsContextMapper(userDetailsContextMapper());
-                ldap.userDnPatterns(environment.getRequiredProperty("app.settings.ldap.user_dn_pattern"));
-                ldap.userSearchBase(environment.getRequiredProperty("app.settings.ldap.user_search_base"));
-                ldap.userSearchFilter(environment.getRequiredProperty("app.settings.ldap.user_search_filter"));
-                ldap.groupRoleAttribute(environment.getRequiredProperty(
-                                "app.settings.ldap.group_role_attribute"));
-                ldap.groupSearchBase(environment.getRequiredProperty(
-                                "app.settings.ldap.group_search_base"));
-                ldap.groupSearchFilter(environment.getRequiredProperty(
-                                "app.settings.ldap.group_search_filter"));
+
+                ldap.userDetailsContextMapper(userDetailsContextMapper())
+                                .contextSource().url(environment.getRequiredProperty("app.settings.ldap.server.url"))
+                                .managerDn(environment.getRequiredProperty("app.settings.ldap.server.manager_dn"))
+                                .managerPassword(environment
+                                                .getRequiredProperty("app.settings.ldap.server.manager_password"))
+                                .and()
+                                .userDnPatterns(environment.getRequiredProperty("app.settings.ldap.user_dn_pattern"))
+                                .userSearchBase(environment.getRequiredProperty("app.settings.ldap.user_search_base"))
+                                .userSearchFilter(
+                                                environment.getRequiredProperty("app.settings.ldap.user_search_filter"))
+
+                                .groupRoleAttribute(environment.getRequiredProperty(
+                                                "app.settings.ldap.group_role_attribute"))
+                                .groupSearchBase(environment.getRequiredProperty(
+                                                "app.settings.ldap.group_search_base"))
+                                .groupSearchFilter(environment.getRequiredProperty(
+                                                "app.settings.ldap.group_search_filter"));
 
         }
 

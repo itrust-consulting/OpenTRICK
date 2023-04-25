@@ -58,10 +58,10 @@ public class MeasureProperties extends SecurityCriteria {
 	 * Sets the "soaReference" field with a value
 	 * 
 	 * @param soaReference
-	 *            The value to set the SOA Reference
+	 *                     The value to set the SOA Reference
 	 */
 	public void setSoaReference(String soaReference) {
-		this.soaReference = soaReference;
+		this.soaReference = soaReference == null ? "" : soaReference;
 	}
 
 	/**
@@ -80,10 +80,10 @@ public class MeasureProperties extends SecurityCriteria {
 	 * Sets the "soaComment" field with a value
 	 * 
 	 * @param soaComment
-	 *            The value to set the SOA Comment
+	 *                   The value to set the SOA Comment
 	 */
 	public void setSoaComment(String soaComment) {
-		this.soaComment = soaComment;
+		this.soaComment = soaComment == null ? "" : soaComment;
 	}
 
 	/**
@@ -102,10 +102,10 @@ public class MeasureProperties extends SecurityCriteria {
 	 * Sets the "soaRisk" field with a value
 	 * 
 	 * @param soaRisk
-	 *            The value to set the SOA Risk
+	 *                The value to set the SOA Risk
 	 */
 	public void setSoaRisk(String soaRisk) {
-		this.soaRisk = soaRisk;
+		this.soaRisk = soaRisk == null ? "" : soaRisk;
 	}
 
 	/**
@@ -124,12 +124,13 @@ public class MeasureProperties extends SecurityCriteria {
 	 * Sets the "fmeasure" field with a value
 	 * 
 	 * @param measure
-	 *            The value to set the Measure Strength
+	 *                The value to set the Measure Strength
 	 * @throws TrickException
 	 */
 	public void setFMeasure(int measure) throws TrickException {
 		if (measure < 0 || measure > 10) {
-			throw new TrickException("error.measure_property.measure.strenght", "Measure strenght needs to be between 0 and 10!");
+			throw new TrickException("error.measure_property.measure.strenght",
+					"Measure strenght needs to be between 0 and 10!");
 		}
 		this.fmeasure = measure;
 	}
@@ -150,12 +151,13 @@ public class MeasureProperties extends SecurityCriteria {
 	 * Sets the "fSectoral" field with a value
 	 * 
 	 * @param fSectoral
-	 *            The value to set the Sectoral Strength
+	 *                  The value to set the Sectoral Strength
 	 * @throws TrickException
 	 */
 	public void setFSectoral(int fSectoral) throws TrickException {
 		if ((fSectoral < 0) || (fSectoral > 4))
-			throw new TrickException("error.measure_property.sectoral.strenght", "Sectoral strenght needs to be between 0 and 4!");
+			throw new TrickException("error.measure_property.sectoral.strenght",
+					"Sectoral strenght needs to be between 0 and 4!");
 		this.fsectoral = fSectoral;
 	}
 
@@ -164,7 +166,7 @@ public class MeasureProperties extends SecurityCriteria {
 	 * Sets the "preventive" field with a value
 	 * 
 	 * @param preventive
-	 *            The value to set the Preventive
+	 *                   The value to set the Preventive
 	 * @throws TrickException
 	 */
 	@Override
@@ -179,7 +181,7 @@ public class MeasureProperties extends SecurityCriteria {
 	 * Sets the "detective" field with a value
 	 * 
 	 * @param detective
-	 *            The value to set the Detective
+	 *                  The value to set the Detective
 	 * @throws TrickException
 	 */
 	@Override
@@ -194,7 +196,7 @@ public class MeasureProperties extends SecurityCriteria {
 	 * Sets the "limitative" field with a value
 	 * 
 	 * @param limitative
-	 *            The value to set the Limitative
+	 *                   The value to set the Limitative
 	 * @throws TrickException
 	 */
 	@Override
@@ -209,7 +211,7 @@ public class MeasureProperties extends SecurityCriteria {
 	 * Sets the "corrective" field with a value
 	 * 
 	 * @param corrective
-	 *            The value to set the Corrective
+	 *                   The value to set the Corrective
 	 * @throws TrickException
 	 */
 	@Override
@@ -224,7 +226,7 @@ public class MeasureProperties extends SecurityCriteria {
 	 * Sets the "intentional" field with a value
 	 * 
 	 * @param intentional
-	 *            The value to set the Intentional
+	 *                    The value to set the Intentional
 	 * @throws TrickException
 	 */
 	@Override
@@ -240,7 +242,7 @@ public class MeasureProperties extends SecurityCriteria {
 	 * Sets the "accidental" field with a value
 	 * 
 	 * @param accidental
-	 *            The value to set the Accidental
+	 *                   The value to set the Accidental
 	 * @throws TrickException
 	 */
 	@Override
@@ -255,13 +257,14 @@ public class MeasureProperties extends SecurityCriteria {
 	 * Sets the "environmental" field with a value
 	 * 
 	 * @param environmental
-	 *            The value to set the Environmental
+	 *                      The value to set the Environmental
 	 * @throws TrickException
 	 */
 	@Override
 	public void setEnvironmental(int environmental) throws TrickException {
 		if (!isValidValue(environmental))
-			throw new TrickException("error.measure_property.environmental", "Environmental needs to be between 0 and 4!");
+			throw new TrickException("error.measure_property.environmental",
+					"Environmental needs to be between 0 and 4!");
 		super.setEnvironmental(environmental);
 	}
 
@@ -270,13 +273,14 @@ public class MeasureProperties extends SecurityCriteria {
 	 * Sets the "internalthreat" field with a value
 	 * 
 	 * @param internalthreat
-	 *            The value to set the Internal Threat
+	 *                       The value to set the Internal Threat
 	 * @throws TrickException
 	 */
 	@Override
 	public void setInternalThreat(int internalthreat) throws TrickException {
 		if (!isValidValue(internalthreat))
-			throw new TrickException("error.measure_property.internal_threat", "Internal threat needs to be between 0 and 4!");
+			throw new TrickException("error.measure_property.internal_threat",
+					"Internal threat needs to be between 0 and 4!");
 		super.setInternalThreat(internalthreat);
 	}
 
@@ -285,13 +289,14 @@ public class MeasureProperties extends SecurityCriteria {
 	 * Sets the "externalthreat" field with a value
 	 * 
 	 * @param externalthreat
-	 *            The value to set the External Threat
+	 *                       The value to set the External Threat
 	 * @throws TrickException
 	 */
 	@Override
 	public void setExternalThreat(int externalthreat) throws TrickException {
 		if (!isValidValue(externalthreat))
-			throw new TrickException("error.measure_property.extternal_threat", "External threat needs to be between 0 and 4!");
+			throw new TrickException("error.measure_property.extternal_threat",
+					"External threat needs to be between 0 and 4!");
 		super.setExternalThreat(externalthreat);
 	}
 
@@ -333,7 +338,8 @@ public class MeasureProperties extends SecurityCriteria {
 	@Override
 	protected int valueFixer(String category, int value) throws TrickException {
 		if (value < 0 || value > 4)
-			throw new TrickException("error.security_criteria.category.invalid", String.format("'%s' is not valid!", category), category);
+			throw new TrickException("error.security_criteria.category.invalid",
+					String.format("'%s' is not valid!", category), category);
 		return value;
 	}
 }

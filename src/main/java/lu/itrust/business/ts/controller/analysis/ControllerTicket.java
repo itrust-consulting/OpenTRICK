@@ -116,7 +116,7 @@ public class ControllerTicket extends AbstractController {
 				projects = client.findProjects();
 			model.addAttribute("projects", projects);
 			model.addAttribute("analysis", analysis);
-			return String.format("analyses/all/forms/ticketing_%s_link",
+			return String.format("jsp/analyses/all/forms/ticketing_%s_link",
 					model.asMap().get(TICKETING_NAME).toString().toLowerCase());
 		} catch (ResourceNotFoundException e) {
 			throw e;
@@ -407,7 +407,7 @@ public class ControllerTicket extends AbstractController {
 				model.addAttribute("parameters", parameters);
 				model.addAttribute("tasks", tasks);
 			}
-			return String.format("analyses/single/components/ticketing/%s/forms/synchronise",
+			return String.format("jsp/analyses/single/components/ticketing/%s/forms/synchronise",
 					model.asMap().get(TICKETING_NAME).toString().toLowerCase());
 		} catch (ResourceNotFoundException e) {
 			throw e;

@@ -66,7 +66,8 @@ public class SecurityConfig {
                         .realmName("TRICK Service application"))
                 .authorizeHttpRequests(authz -> authz.anyRequest().hasAuthority(Constant.ROLE_IDS))
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .requiresChannel(ch -> ch.requestMatchers(API_IDS).requiresSecure()).csrf(csrf -> csrf.disable()).cors(e -> e.and())
+                .requiresChannel(ch -> ch.requestMatchers(API_IDS).requiresSecure()).csrf(csrf -> csrf.disable())
+                .cors(e -> e.and())
                 .addFilterAt(apiAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
@@ -97,7 +98,7 @@ public class SecurityConfig {
                 e -> e.requestMatchers(
                         "/favicon.ico", "/css/**", "/fonts/**", "/js/**", "/images/**",
                         "/IsAuthenticate", "/Success/**", "/Error/**", "/Unlock-account/**", "/Login/**",
-                        "/Signout/**",
+                        "/Signout/**","/Signin/**",
                         "/ResetPassword/**", "/ChangePassword/**", "/Api/**" /**
                                                                               * This filterchain will not be used to
                                                                               * protect Api
@@ -130,6 +131,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(
                         e -> e.requestMatchers("/Admin/**").hasAnyAuthority(Constant.ROLE_ADMIN,
                                 Constant.ROLE_SUPERVISOR))
+                .authorizeHttpRequests(
+                        e -> e.requestMatchers("/Patch/**").hasAuthority(Constant.ROLE_SUPERVISOR))
                 .authorizeHttpRequests(e -> e.anyRequest().authenticated())
                 .exceptionHandling(e -> e.authenticationEntryPoint(loginUrlAuthenticationEntryPoint()))
 
@@ -139,7 +142,7 @@ public class SecurityConfig {
                         UsernamePasswordAuthenticationFilter.class)
                 .addFilterAt(otpAuthenticationProcessingFilter(),
                         UsernamePasswordAuthenticationFilter.class)
-
+                 
                 .logout(e -> e.logoutUrl("/Signout").invalidateHttpSession(true).logoutSuccessUrl("/Home")
                         .deleteCookies("TS_SESSION_ID"))
                 .authenticationManager(apiAuthenticationManager())
@@ -156,6 +159,7 @@ public class SecurityConfig {
     }
 
     @Bean
+    @Order(99)
     public ApiAuthenticationManager apiAuthenticationManager() {
         return new ApiAuthenticationManager();
     }
@@ -205,7 +209,7 @@ public class SecurityConfig {
 
     @Bean
     public CustomUsernamePasswordAuthenticationFilter usernamePasswordAuthenticationFilter() {
-        var filter = new CustomUsernamePasswordAuthenticationFilter("/Login");
+        var filter = new CustomUsernamePasswordAuthenticationFilter("/Signin");
         var isEnable2FA = environment.getRequiredProperty("app.settings.otp.enable", Boolean.class);
         filter.setEnable2FA(isEnable2FA);
         filter.setPostOnly(true);
@@ -224,7 +228,7 @@ public class SecurityConfig {
 
     @Bean
     OTPAuthenticationFilter otpAuthenticationFilter() {
-        return new OTPAuthenticationFilter("/Login", "/OTP");
+        return new OTPAuthenticationFilter("/Signin", "/OTP");
     }
 
     @Bean
