@@ -14,9 +14,11 @@
 <spring:message code="label.measure.status.m" var="statusM" />
 <spring:message code="label.measure.status.ap" var="statusAP" />
 <spring:message code="label.measure.status.ex" var="statusEX" />
+<spring:message code="label.measure.status.op" var="statusOP" />
 <spring:message code="label.measure.status.na" var="statusNA" />
 <spring:message code="label.title.measure.status.m" var="titleStatusM" />
 <spring:message code="label.title.measure.status.ap" var="titleStatusAP" />
+<spring:message code="label.title.measure.status.op" var="titleStatusOP" />
 <spring:message code="label.title.measure.status.ex" var="titleStatusEX" />
 <spring:message code="label.title.measure.status.na" var="titleStatusNA" />
 <c:forEach begin="1" step="1" end="3" var="impValue">
@@ -269,14 +271,17 @@
 												</c:otherwise>
 											</c:choose></td>
 										<td ${popoverRef}><spring:message text="${!empty measureDescriptionText? measureDescriptionText.domain : ''}" /></td>
-										<td ${css} data-trick-field="status" data-trick-choose="M,AP,EX,NA" data-trick-choose-translate="${statusM},${statusAP},${statusEX},${statusNA}"
-											data-trick-choose-title='${titleStatusM},${titleStatusAP},${titleStatusEX},${titleStatusNA}' data-trick-field-type="string" onclick="return editField(this);"
+										<td ${css} data-trick-field="status" data-trick-choose="M,AP,OP,EX,NA" data-trick-choose-translate="${statusM},${statusAP},${statusOP},${statusEX},${statusNA}"
+											data-trick-choose-title='${titleStatusM},${titleStatusAP},${titleStatusOP},${titleStatusEX},${titleStatusNA}' data-trick-field-type="string" onclick="return editField(this);"
 											data-trick-callback="reloadMeasureAndCompliance('${standardid}','${measure.id}')"><c:choose>
 												<c:when test="${measure.status=='NA'}">
 													${statusNA}
 												</c:when>
 												<c:when test="${measure.status=='AP'}">
 													${statusAP}
+												</c:when>
+												<c:when test="${measure.status=='OP'}">
+													${statusOP}
 												</c:when>
 												<c:when test="${measure.status=='EX'}">
 													${statusEX}

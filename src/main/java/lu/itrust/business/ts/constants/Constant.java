@@ -202,10 +202,10 @@ public class Constant {
 	public static final String REGEXP_VALID_MATURITY_CATEGORY = "Policies|Procedure|Implementation|Test|Integration";
 
 	/** Status regular expression */
-	public static final String REGEXP_VALID_MEASURE_STATUS = "AP|NA|M|EX";
+	public static final String REGEXP_VALID_MEASURE_STATUS = "AP|NA|M|EX|OP";
 
 	/** Status regular expression */
-	public static final String REGEXP_VALID_STANDARD_MEASURE_STATUS = "AP|NA|M|EX";
+	public static final String REGEXP_VALID_STANDARD_MEASURE_STATUS = "AP|NA|M|EX|OP";
 
 	/** Status regular expression */
 	public static final String REGEXP_VALID_MATURITY_MEASURE_STATUS = "M|NA";
@@ -297,6 +297,7 @@ public class Constant {
 	public static final String MEASURE_STATUS_APPLICABLE = "AP";
 	public static final String MEASURE_STATUS_MANDATORY = "M";
 	public static final String MEASURE_STATUS_EXCLUDE = "EX";
+	public static final String MEASURE_STATUS_OPTIONAL = "OP";
 	public static final String MEASURE_STATUS_NOT_APPLICABLE = "NA";
 
 	/** Maturity Tasks and Categories */

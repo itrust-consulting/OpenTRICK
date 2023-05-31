@@ -517,8 +517,9 @@ public class ControllerAnalysis extends AbstractController {
 			if (setting != null && setting.isSupported(analysisType))
 				analysis.setSetting(setting.name(), Analysis.findSetting(setting, value));
 		});
-		final boolean hasChange = (boolean)analysis.findSetting(AnalysisSetting.ALLOW_FULL_COST_RELATED_TO_MEASURE) != isFullCostRelatedOld;
-		if(hasChange)
+		final boolean hasChange = (boolean) analysis
+				.findSetting(AnalysisSetting.ALLOW_FULL_COST_RELATED_TO_MEASURE) != isFullCostRelatedOld;
+		if (hasChange)
 			computeMeasureCost(analysis);
 		serviceAnalysis.saveOrUpdate(analysis);
 		return JsonMessage.Success(messageSource.getMessage("success.update.analysis.settings", null, locale));
@@ -605,9 +606,12 @@ public class ControllerAnalysis extends AbstractController {
 					analysis.findParameter(PARAMETERTYPE_TYPE_SINGLE_NAME, SOA_THRESHOLD, 100.0));
 			model.addAttribute("soas",
 					analysis.getAnalysisStandards().values().stream().filter(AnalysisStandard::isSoaEnabled)
-							.collect(Collectors.toMap(analysisStandard -> analysisStandard.getStandard(),
+							.collect(Collectors.toMap(AnalysisStandard::getStandard,
 									analysisStandard -> measuresByStandard
-											.get(analysisStandard.getStandard().getName()),
+											.get(analysisStandard.getStandard().getName()).stream()
+											.filter(b -> !(b.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE)
+													|| b.getStatus().equals(Constant.MEASURE_STATUS_OPTIONAL)))
+											.toList(),
 									(e1, e2) -> e1, LinkedHashMap::new)));
 			model.addAttribute("measuresByStandard", measuresByStandard);
 			model.addAttribute("show_uncertainty", analysis.isUncertainty());
@@ -646,7 +650,7 @@ public class ControllerAnalysis extends AbstractController {
 						.Split(analysis.getRiskInformations());
 				riskInformations.computeIfAbsent(Constant.RI_TYPE_RISK, k -> Collections.emptyList());
 				riskInformations.computeIfAbsent(Constant.RI_TYPE_VUL, k -> Collections.emptyList());
-	            riskInformations.computeIfAbsent(Constant.RI_TYPE_THREAT, k -> Collections.emptyList());
+				riskInformations.computeIfAbsent(Constant.RI_TYPE_THREAT, k -> Collections.emptyList());
 				model.addAttribute("riskInformationSplited", riskInformations);
 			}
 			analysis.getAssets().sort(Comparators.ASSET());
@@ -975,7 +979,6 @@ public class ControllerAnalysis extends AbstractController {
 					m.setCost(cost > 0D ? cost : 0D);
 				});
 	}
-
 
 	private Map<String, Map<String, List<Measure>>> spliteMeasureByChapter(
 			Map<String, List<Measure>> measuresByStandard) {

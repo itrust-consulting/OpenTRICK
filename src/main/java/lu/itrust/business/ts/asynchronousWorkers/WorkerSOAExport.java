@@ -250,7 +250,12 @@ public class WorkerSOAExport extends WorkerImpl {
 				analysisStandard.getMeasures()
 						.sort((e1, e2) -> NaturalOrderComparator.compareTo(e1.getMeasureDescription().getReference(),
 								e2.getMeasureDescription().getReference()));
-				Tbl tbl = generateTable(analysisStandard.getMeasures(), handler, factory, soaThreshold, progressing);
+
+				var measures = analysisStandard.getMeasures().stream()
+						.filter(e -> !(e.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE)
+								|| e.getStatus().equals(Constant.MEASURE_STATUS_OPTIONAL)))
+						.toList();
+				Tbl tbl = generateTable(measures, handler, factory, soaThreshold, progressing);
 				document.getContent().add(tbl);
 			}
 			getServiceTaskFeedback().send(getId(), new MessageHandler("info.saving.soa", "Saving soa", 95));

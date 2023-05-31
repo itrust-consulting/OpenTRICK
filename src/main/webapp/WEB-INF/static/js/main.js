@@ -468,13 +468,14 @@ function hasScrollBar(element) {
 }
 
 function sortTable(type, element, number) {
+	const sorter = natsort({ insensitive: true }); 
 	var previousIndexes = [], $table = $(element).closest("table"), $tbody = $("tbody", $table), $trs = $("tr", $tbody), order = element == undefined ? undefined : element.getAttribute("data-order") == "0" ? -1 : 1, selector = "td[data-trick-field='" + type + "']";
 	if ($trs.length && order !== undefined) {
 		$trs.each((i, e) => previousIndexes[e] = i);
 		$trs.sort((a, b) => {
-			var oldA = previousIndexes[a], oldB = previousIndexes[b];
-			var value1 = $(selector, a).text(), value2 = $(selector, b).text();
-			var result = (number ? naturalSort(value1.replace(/\s+/g, ""), value2.replace(/\s+/g, "")) : naturalSort(value1, value2)) * order;
+			let oldA = previousIndexes[a], oldB = previousIndexes[b];
+			let value1 = $(selector, a).text(), value2 = $(selector, b).text();
+			let result = (number ? sorter(value1.replace(/\s+/g, ""), value2.replace(/\s+/g, "")) : sorter(value1, value2)) * order;
 			return !result ? oldA > oldB ? 1 : -1 : result;
 		}).detach().appendTo($tbody);
 		var $tr = $(element).closest("tr"), $thead = $tr.closest("thead");
@@ -575,13 +576,13 @@ $.fn.serializeJSON = function () {
 
 function convertFormToJSON(form) {
 	return $(form)
-	  .serializeArray()
-	  .reduce(function (json, { name, value }) {
-		json[name] = value;
-		return json;
-	  }, {});
-  }
-  
+		.serializeArray()
+		.reduce(function (json, { name, value }) {
+			json[name] = value;
+			return json;
+		}, {});
+}
+
 
 function permissionError() {
 	return showDialog("#alert-dialog", MessageResolver("error.not_authorized", "Insufficient permissions!"));
@@ -626,9 +627,11 @@ function canManageAccess() {
 }
 
 function selectElement(elm) {
-	var $input = $(elm).find("input,textarea,select");
+	const $input = $(elm).find("input,textarea,select");
 	if ($input.length == 1) {
-		$input.filter("input[type='checkbox']:not(:hover):not(:focus)")[0].click();
+		const $checkbox = $input.filter("input[type='checkbox']:not(:hover):not(:focus)");
+		if ($checkbox.length)
+			$checkbox[0].click();
 	}
 	return false;
 }

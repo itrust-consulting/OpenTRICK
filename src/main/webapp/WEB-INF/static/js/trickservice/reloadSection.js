@@ -1,10 +1,14 @@
+
+
+
 // load sections
+
 function loadPanelBodiesOfSection(section, refreshOnly) {
-	if (refreshOnly===null || refreshOnly == "")
+	if (refreshOnly === null || refreshOnly == "")
 		refreshOnly = false
-	var $section = $("#" + section);
+	let $section = $("#" + section);
 	if ($section.is(":visible")) {
-		var controller = findControllerBySection(section);
+		let controller = findControllerBySection(section);
 		if (controller == null || controller == undefined)
 			return false;
 		$
@@ -14,12 +18,12 @@ function loadPanelBodiesOfSection(section, refreshOnly) {
 				async: true,
 				contentType: "application/json;charset=UTF-8",
 				success: function (response, textStatus, jqXHR) {
-					var $newSection = $("*[id = '" + section + "']", new DOMParser().parseFromString(response, "text/html")), smartUpdate = new SectionSmartUpdate(section,
+					let $newSection = $("*[id = '" + section + "']", new DOMParser().parseFromString(response, "text/html")), smartUpdate = new SectionSmartUpdate(section,
 						$newSection);
 					if (smartUpdate.Update())
 						$section.replaceWith($newSection);
 					if (!refreshOnly) {
-						var callback = callbackBySection(section);
+						let callback = callbackBySection(section);
 						if ($.isFunction(callback))
 							callback();
 					}
@@ -33,15 +37,15 @@ function loadPanelBodiesOfSection(section, refreshOnly) {
 }
 
 // reload sections
-function reloadSection(section, subSection, refreshOnly,prepend) {
+function reloadSection(section, subSection, refreshOnly, prepend) {
 	if (subSection === null || subSection == "")
 		subSection = undefined;
 	if (refreshOnly === null || refreshOnly == "")
 		refreshOnly = false
-	if(!(prepend===true || prepend ==='true'))
+	if (!(prepend === true || prepend === 'true'))
 		prepend = undefined;
 	if (Array.isArray(section)) {
-		for (var i = 0; i < section.length; i++) {
+		for (let i = 0; i < section.length; i++) {
 			if (Array.isArray(section[i]))
 				reloadSection(section[i][0], section[i][1], refreshOnly, prepend);
 			else
@@ -49,33 +53,33 @@ function reloadSection(section, subSection, refreshOnly,prepend) {
 		}
 	} else if (section == "section_chart")
 		reloadCharts();
-	else if(!staticReload(section)) {
-		var sectionName = section.replace("section_admin","section"), $section = $("#" + sectionName);
+	else if (!staticReload(section)) {
+		let sectionName = section.replace("section_admin", "section"), $section = $("#" + sectionName);
 		if ($section.is(":visible")) {
-			var controller = findControllerBySection(section, subSection);
+			let controller = findControllerBySection(section, subSection);
 			if (controller == null || controller == undefined)
 				return false;
-			var $progress = $("#loading-indicator").show();
+			let $progress = $("#loading-indicator").show();
 			$.ajax({
 				url: context + controller,
 				contentType: "application/json;charset=UTF-8",
 				success: function (response, textStatus, jqXHR) {
 					if (subSection !== undefined)
 						sectionName += "_" + subSection;
-					var content = new DOMParser().parseFromString(response, "text/html"), $newSection = $("*[id = '" + sectionName + "']", content);
+					let content = new DOMParser().parseFromString(response, "text/html"), $newSection = $("*[id = '" + sectionName + "']", content);
 					if ($newSection.length) {
-						var smartUpdate = new SectionSmartUpdate(sectionName, $newSection,prepend);
+						let smartUpdate = new SectionSmartUpdate(sectionName, $newSection, prepend);
 						if (smartUpdate.Update()) {
 							$("#" + sectionName).replaceWith($newSection);
 							fixTableHeader($("table.table-fixed-header,table.table-fixed-header-analysis", $newSection));
 						}
 					} else {
-						var $tabsSection = $(content).find(".tab-pane");
-						for (var i = 0; i < $tabsSection.length; i++)
+						let $tabsSection = $(content).find(".tab-pane");
+						for (let i = 0; i < $tabsSection.length; i++)
 							$("#" + $($tabsSection[i]).attr("id")).html($($tabsSection[i]).html());
 					}
 					if (!refreshOnly) {
-						var callback = callbackBySection(section);
+						let callback = callbackBySection(section);
 						if ($.isFunction(callback))
 							callback();
 					}
@@ -86,28 +90,28 @@ function reloadSection(section, subSection, refreshOnly,prepend) {
 				$progress.hide();
 			});
 		} else if (section != undefined) {
-			var $container = section.startsWith("section_standard_") ? $section : $section.closest(".tab-pane");
+			let $container = section.startsWith("section_standard_") ? $section : $section.closest(".tab-pane");
 			$container.attr("data-update-required", true);
 			$container.attr("data-trigger", 'reloadSection');
-			$container.attr("data-parameters", [section, subSection, refreshOnly,prepend]);
+			$container.attr("data-parameters", [section, subSection, refreshOnly, prepend]);
 		}
 	}
 	return false;
 }
 
-function staticReload(key){
+function staticReload(key) {
 	switch (key) {
-	case "section_standard":
-	case "SETTING_ALLOWED_TICKETING_SYSTEM_LINK":
-		setTimeout(() => location.reload(), 10);
-		return true;
-	default:
-		return false;
+		case "section_standard":
+		case "SETTING_ALLOWED_TICKETING_SYSTEM_LINK":
+			setTimeout(() => location.reload(), 10);
+			return true;
+		default:
+			return false;
 	}
 }
 
 function findControllerBySection(section, subSection) {
-	var controllers = {
+	let controllers = {
 		"section_asset": "/Analysis/Asset/Section",
 		"section_scenario": "/Analysis/Scenario/Section",
 		"section_phase": "/Analysis/Phase/Section",
@@ -127,11 +131,11 @@ function findControllerBySection(section, subSection) {
 		"section_kb_scale_type": "/KnowledgeBase/ScaleType",
 		"section_parameter": "/Analysis/Parameter/Section",
 		"section_parameter_impact_probability": "/Analysis/Parameter/Impact-probability/Section",
-		"section_risk-information_risk":"/Analysis/Risk-information/Section/Risk",
-		"section_risk-information_vul":"/Analysis/Risk-information/Section/Vul",
-		"section_risk-information_threat":"/Analysis/Risk-information/Section/Threat",
-		"section_credential":"/Account/Credential/Section"
-		
+		"section_risk-information_risk": "/Analysis/Risk-information/Section/Risk",
+		"section_risk-information_vul": "/Analysis/Risk-information/Section/Vul",
+		"section_risk-information_threat": "/Analysis/Risk-information/Section/Threat",
+		"section_credential": "/Account/Credential/Section"
+
 	};
 
 	if (section.match("^section_standard_")) {
@@ -149,7 +153,7 @@ function findControllerBySection(section, subSection) {
 }
 
 function callbackBySection(section) {
-	var callbacks = {
+	let callbacks = {
 		"section_asset": function () {
 			reloadSection("section_scenario", undefined, true);
 			if (application.analysisType.isQualitative())
@@ -181,7 +185,7 @@ function callbackBySection(section) {
 		"section_language": function () {
 			rebuildMeasureLanguage();
 			reloadSection("section_kb_scale_type");
-			
+
 		},
 		"section_phase": function () {
 			if (application["estimation-helper"]) {// See risk-estimation
@@ -190,11 +194,11 @@ function callbackBySection(section) {
 					// manage measure
 					application["standard-caching"].clear();
 			}
-		},"section_parameter" : () =>{
-			if(application.analysisType.isQualitative())
+		}, "section_parameter": () => {
+			if (application.analysisType.isQualitative())
 				reloadRiskChart(true);
 		}, "section_parameter_impact_probability": () => {
-			if(application.analysisType.isQualitative())
+			if (application.analysisType.isQualitative())
 				reloadRiskChart(true);
 		}
 	};
@@ -218,8 +222,9 @@ SectionSmartUpdate.prototype = {
 			case "section_phase":
 			case "section_scenario":
 				return this.__generic_update(this.data, "#" + this.sectionName, 1);
-			case "section_ids":
 			case "section_soa":
+				return this.__multiTab_update(this.data, "#" + this.sectionName, -1, { type: "string", index: 0 });
+			case "section_ids":
 			case "section_user":
 			case "section_analysis":
 			case "section_standard":
@@ -236,19 +241,32 @@ SectionSmartUpdate.prototype = {
 		}
 		return true;
 	},
-	__generic_update: function (src, dest, indexColnum) {
+	__multiTab_update: function (data, section, indexColnum, sort) {
+		let $sources = $("table", data);
+		let $targets = $("table", section);
+		if ($sources.length != $targets.length)
+			return true;
+		let result = false;
+		for (let i = 0; i < $sources.length; i++) {
+			result |= this.__generic_update($($sources[i]).parent(), $($targets[i]).parent(), indexColnum, sort);
+		}
+
+		return result;
+	}
+	,
+	__generic_update: function (src, dest, indexColnum, sort) {
 		try {
-			var $dest = $(dest), $src = $(src), $tableDestTrs = $("tbody>tr", dest);
+			let $dest = $(dest), $src = $(src), $tableDestTrs = $("tbody>tr", dest);
 			if (!$tableDestTrs.length)
 				throw "tbody cannot be found";
 			if ($("td", $tableDestTrs[0]).length != $("tbody>tr:first>td", $src).length)
 				throw "Table header has been changed";
-			for (var i = 0; i < $tableDestTrs.length; i++) {
-				var trickId = $($tableDestTrs[i]).attr("data-trick-id");
+			for (let i = 0; i < $tableDestTrs.length; i++) {
+				let trickId = $($tableDestTrs[i]).attr("data-trick-id");
 				if (trickId == undefined)
 					throw "data-trick-id cannot be found";
-				var $check = $("td:first-child>input:checked", $tableDestTrs[i]);
-				var $tr = $("tbody tr[data-trick-id='" + trickId + "']", $src);
+				let $check = $("td:first-child>input:checked", $tableDestTrs[i]);
+				let $tr = $("tbody tr[data-trick-id='" + trickId + "']", $src);
 				if ($tr.length) {
 					if ($check.length)
 						$("td:first-child>input", $tr).prop("checked", true);
@@ -259,33 +277,46 @@ SectionSmartUpdate.prototype = {
 					$($tableDestTrs[i]).remove();
 				}
 			}
-			var $tbody = $("tbody", $dest);
-			var $tableSourceTrs = $("tbody>tr[data-trick-id]", $src);
-			for (var i = 0; i < $tableSourceTrs.length; i++) {
-				var trickId = $($tableSourceTrs[i]).attr("data-trick-id");
-				var $tr = $("tbody>tr[data-trick-id='" + trickId + "']", $dest);
-				if (!$tr.length){
-					if(this.prepend)
+			let hasNewTr = false;
+			let $tbody = $("tbody", $dest);
+			let $tableSourceTrs = $("tbody>tr[data-trick-id]", $src);
+			for (let i = 0; i < $tableSourceTrs.length; i++) {
+				let trickId = $($tableSourceTrs[i]).attr("data-trick-id");
+				let $tr = $("tbody>tr[data-trick-id='" + trickId + "']", $dest);
+				if (!$tr.length) {
+					if (this.prepend)
 						$($tableSourceTrs[i]).prependTo($tbody);
 					else $($tableSourceTrs[i]).appendTo($tbody);
+					hasNewTr |= true;
 				}
 			}
 
-			var $tfooter = $("tfoot", $dest);
+			if (hasNewTr && sort !== undefined) {
+				let index = sort["index"];
+				let selector = "td:eq(" + index + ")";
+				let compare = natsort();
+				$tbody.find("tr").sort((e1, e2) => {
+					let value1 = $($(e1).find(selector)).text();
+					let value2 = $($(e2).find(selector)).text();
+					return compare(value1, value2);
+				}).detach().appendTo($tbody);
+			}
+
+			let $tfooter = $("tfoot", $dest);
 			if ($tfooter.length) {
 				// replaceWith does not work, fix with this following code
-				var $parent = $tfooter.parent();
+				let $parent = $tfooter.parent();
 				$tfooter.remove();
 				$("tfoot", $src).appendTo($parent);
 			}
 
-			var $checked = $("td:first-child>input", $tbody);
+			let $checked = $("td:first-child>input", $tbody);
 			if ($checked.length)
 				$checked.change();
 			if (indexColnum >= 0) {
-				var $tableDestTrs = $("tbody>tr", $dest);
-				for (var i = 0; i < $tableDestTrs.length; i++) {
-					var $td = $("td", $tableDestTrs[i]);
+				let $tableDestTrs = $("tbody>tr", $dest);
+				for (let i = 0; i < $tableDestTrs.length; i++) {
+					let $td = $("td", $tableDestTrs[i]);
 					if (!$td.length || $td.length < indexColnum)
 						throw "Index out of bound";
 					$($td[indexColnum]).html(i + 1);

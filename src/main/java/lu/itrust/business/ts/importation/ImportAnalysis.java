@@ -1610,7 +1610,8 @@ public class ImportAnalysis {
 			} else {
 				resultSet = sqlite.query("Select * From impact_type");
 				while (resultSet.next()) {
-					String name = resultSet.getString("name"), acronym = resultSet.getString("acronym");
+					String name = resultSet.getString("name");
+					String acronym = resultSet.getString("acronym");
 					ScaleType type = daoScaleType.findOne(name);
 					if (type == null) {
 						type = new ScaleType(name.toUpperCase(), generateAcronym(name, acronym.toLowerCase()));
@@ -1720,8 +1721,8 @@ public class ImportAnalysis {
 			rs.close();
 			// Add missing scope
 			for (String scopeName : extendedScopes) {
-				if (!this.analysis.getItemInformations().stream()
-						.anyMatch(itemInformation -> itemInformation.getDescription().equals(scopeName)))
+				if (this.analysis.getItemInformations().stream()
+						.noneMatch(itemInformation -> itemInformation.getDescription().equals(scopeName)))
 					this.analysis.add(new ItemInformation(scopeName, Constant.ITEMINFORMATION_SCOPE, ""));
 			}
 			setCurrentSqliteTable("organisation");
@@ -1790,16 +1791,14 @@ public class ImportAnalysis {
 		ResultSet rs = null;
 		int numPhase = 0;
 		String chapter = "";
-
 		double cost = 0;
 		AnalysisStandard analysisStandard = null;
 		Phase tempPhase = null;
-		String status = "";
 		Standard standard = null;
 		MeasureDescription mesDesc = null;
 		MeasureDescriptionText mesText = null;
 		IParameter implementationRateParameter = null;
-		double implementationRate = 0;
+		/// double implementationRate = 0;
 		MaturityMeasure maturityMeasure = null;
 		Integer standardVersion = 2005;
 		boolean standardComputable = true;
@@ -1972,7 +1971,7 @@ public class ImportAnalysis {
 				// ****************************************************************
 
 				// add parameters
-				status = rs.getString(Constant.MEASURE_STATUS);
+				// String status = rs.getString(Constant.MEASURE_STATUS);
 
 				// set status and by default not applicable (NA)
 				/*
@@ -2018,20 +2017,18 @@ public class ImportAnalysis {
 				// ****************************************************************
 				// * create parameter for implementation rate
 				// ****************************************************************
-				implementationRate = rs.getDouble(Constant.MATURITY_RATE) * 100;
+				double implementationRate = rs.getDouble(Constant.MATURITY_RATE) * 100;
 
 				// System.out.println(implementationRate);
 
 				// parse implmentation rate parameters
 				for (SimpleParameter parameter : analysis.getSimpleParameters()) {
-
 					// find implementation rate parameter and wanted value
-					if (parameter.getTypeName().equals(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME)) {
-						if (parameter.getValue() == implementationRate) {
-							// retrieve object
-							implementationRateParameter = parameter;
-							break;
-						}
+					if (parameter.getValue() == implementationRate
+							&& parameter.getTypeName().equals(Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME)) {
+						// retrieve object
+						implementationRateParameter = parameter;
+						break;
 					}
 				}
 
@@ -2431,10 +2428,9 @@ public class ImportAnalysis {
 				measure.setImportance(getInt(rs, "importance", 2));
 				measure.setStatus(rs.getString(Constant.MEASURE_STATUS));
 				if (measure instanceof AbstractNormalMeasure)
-					((AbstractNormalMeasure) measure).setToCheck(rs.getString(Constant.MEASURE_REVISION) == null ? ""
-							: rs.getString(Constant.MEASURE_REVISION));
+					measure.setToCheck(getStringOrEmpty(rs, Constant.MEASURE_REVISION));
 
-				measure.setToDo(rs.getString(Constant.MEASURE_TODO));
+				measure.setToDo(getStringOrEmpty(rs,Constant.MEASURE_TODO));
 
 				measure.setResponsible(getStringOrEmpty(rs, Constant.MEASURE_RESPONSIBLE));
 

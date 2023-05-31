@@ -656,7 +656,12 @@ public class ControllerStandard extends AbstractController {
 				.map(analysisStandard -> {
 					analysisStandard.getMeasures().sort(comparator);
 					return analysisStandard;
-				}).collect(Collectors.toMap(AnalysisStandard::getStandard, AnalysisStandard::getMeasures,
+				})
+				.collect(Collectors.toMap(AnalysisStandard::getStandard,
+						e -> e.getMeasures().stream()
+								.filter(b -> !(b.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE)
+										|| b.getStatus().equals(Constant.MEASURE_STATUS_OPTIONAL)))
+								.toList(),
 						(e1, e2) -> e1, LinkedHashMap::new)));
 
 		return "jsp/analyses/single/components/soa/home";

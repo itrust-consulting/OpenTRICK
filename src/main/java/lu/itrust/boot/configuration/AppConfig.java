@@ -161,6 +161,7 @@ public class AppConfig {
 	@Bean
 	public ServletContextInitializer initializer() {
 		return servletContext -> {
+			System.out.println(servletContext.getRealPath("/"));
 			try (InputStream inputStream = servletContext.getResourceAsStream("/WEB-INF/web.xml")) {
 				if (inputStream == null)
 					throw new TrickException("error.web.xml.load", "Web XML cannot be load");

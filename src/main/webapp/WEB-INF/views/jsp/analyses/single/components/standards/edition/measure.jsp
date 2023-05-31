@@ -79,10 +79,12 @@
 			</c:if>
 			<spring:message code="label.measure.status.m" var="statusM" />
 			<spring:message code="label.measure.status.ap" var="statusAP" />
+			<spring:message code="label.measure.status.op" var="statusOP" />
 			<spring:message code="label.measure.status.ex" var="statusEX" />
 			<spring:message code="label.measure.status.na" var="statusNA" />
 			<spring:message code="label.title.measure.status.m" var="titleStatusM" />
 			<spring:message code="label.title.measure.status.ap" var="titleStatusAP" />
+			<spring:message code="label.title.measure.status.op" var="titleStatusOP" />
 			<spring:message code="label.title.measure.status.ex" var="titleStatusEX" />
 			<spring:message code="label.title.measure.status.na" var="titleStatusNA" />
 
@@ -126,10 +128,11 @@
 							<c:when test="${measureDescription.computable}">
 								<tr>
 									<td><select class='form-control' name="status" data-trick-value='${selectedMeasure.status}' data-trick-type='string'>
-											<option value='NA' ${selectedMeasure.status=='NA'?'selected' : ''} title='${titleStatusNA}'>${statusNA}</option>
-											<option value='AP' ${selectedMeasure.status=='AP'?'selected' : ''} title='${titleStatusAP}'>${statusAP}</option>
-											<option value='EX' ${selectedMeasure.status=='EX'?'selected' : ''} title='${titleStatusEX}'>${statusEX}</option>
 											<option value='M' ${selectedMeasure.status=='M'?'selected' : ''} title='${titleStatusM}'>${statusM}</option>
+											<option value='AP' ${selectedMeasure.status=='AP'?'selected' : ''} title='${titleStatusAP}'>${statusAP}</option>
+											<option value='OP' ${selectedMeasure.status=='OP'?'selected' : ''} title='${titleStatusOP}'>${statusOP}</option>
+											<option value='EX' ${selectedMeasure.status=='EX'?'selected' : ''} title='${titleStatusEX}'>${statusEX}</option>
+											<option value='NA' ${selectedMeasure.status=='NA'?'selected' : ''} title='${titleStatusNA}'>${statusNA}</option>
 									</select></td>
 									<td style="border-right: 1px solid #ddd"><div class="input-group">
 											<span class="input-group-addon">%</span> ${implementationRate}

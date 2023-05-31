@@ -173,7 +173,7 @@
 													</c:choose>
 												</c:when>
 												<c:otherwise>
-													<spring:message text="${ape.measure.measureDescription.reference}" />
+													<spring:message text="${ape.order}" />
 												</c:otherwise>
 											</c:choose></td>
 										<td><spring:message text="${ape.measure.measureDescription.standard.name}" /></td>

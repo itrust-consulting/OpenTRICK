@@ -74,7 +74,7 @@ function register(e) {
 			if (!$(".label-danger", $form).length) {
 				let token = $("meta[name='_csrf']").attr("content");
 				let header = $("meta[name='_csrf_header']").attr("content");
-				$('body').load(context + "/Login", {
+				$('body').load(context + "/Signin", {
 					"registerSuccess": true,
 					"username": $("#login", $form).val(),
 					"password": $("#password", $form).val(),

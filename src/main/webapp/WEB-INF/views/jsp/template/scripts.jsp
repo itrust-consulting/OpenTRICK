@@ -20,7 +20,7 @@
 	<script src="<c:url value="/js/jquery.serializeToJson.min.js" />"></script>
 	<script src="<c:url value="/js/bootstrap/bootstrap-notify.min.js" />"></script>
 	<script src="<c:url value="/js/dom-parser.js" />"></script>
-	<script src="<c:url value="/js/naturalSort.js" />"></script>
+	<script src="<c:url value="/js/natsort.min.js" />"></script>
 	<script src="<c:url value="/js/bootstrap/stickyTableHeaders.js" />"></script>
 	<script src="<c:url value="/js/jquery.idle.js" />"></script>
 	<script src="<c:url value="/js/main.js" />"></script>
@@ -28,15 +28,18 @@
 	<script src="<c:url value="/js/trickservice/taskmanager.js" />"></script>
 	<script src="<c:url value="/js/trickservice/progressbar.js" />"></script>
 	<script src="<c:url value="/js/trickservice/modal.js" />"></script>
+
 	<!-- 
 		<script src="<c:url value="/js/web-socket/sockjs.min.js" />"></script>
 	 -->
 	 
 	<script src="<c:url value="/js/web-socket/stomp.umd.min.js" />"></script>
+
 	<sec:authorize access="hasAnyRole('ROLE_SUPERVISOR')">
 		<script src="<c:url value="/js/trickservice/patch.js" />"></script>
 	</sec:authorize>
 	<script type="text/javascript">
+
 	<!--
 		resolveMessage("error.504.message", "<spring:message code='error.504.message' />");
 		resolveMessage("error.503.message", "<spring:message code='error.503.message' />");
