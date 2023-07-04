@@ -10,10 +10,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.MissingResourceException;
 
-import jakarta.annotation.Nonnull;
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
-
 import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,6 +27,9 @@ import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
+import jakarta.annotation.Nonnull;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import lu.itrust.business.ts.component.TrickLogManager;
 import lu.itrust.business.ts.database.dao.DAOUser;
 import lu.itrust.business.ts.database.service.ServiceEmailSender;

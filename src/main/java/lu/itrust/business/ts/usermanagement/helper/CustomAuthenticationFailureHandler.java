@@ -1,4 +1,5 @@
 package lu.itrust.business.ts.usermanagement.helper;
+
 import static lu.itrust.business.ts.constants.Constant.ANONYMOUS;
 
 import java.io.IOException;
@@ -21,6 +22,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 
 import lu.itrust.business.ts.component.TrickLogManager;
+import lu.itrust.business.ts.constants.Constant;
 import lu.itrust.business.ts.database.service.AccountLockerManager;
 import lu.itrust.business.ts.exception.TrickException;
 import lu.itrust.business.ts.exception.TrickOtpException;
@@ -47,7 +49,6 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
 	@Autowired
 	private AccountLockerManager accountLockerManager;
 
-    
 	public CustomAuthenticationFailureHandler() {
 	}
 
@@ -56,44 +57,56 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
 	}
 
 	@Override
-	public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
-		String stringdate = dateFormat.format(new Date()), remoteaddr = AccountLockerManager.getIP(request), username = request.getParameter("username");
+	public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
+			AuthenticationException exception) throws IOException, ServletException {
+		String stringdate = dateFormat.format(new Date()), remoteaddr = AccountLockerManager.getIP(request),
+				username = request.getParameter("username");
 		if (exception instanceof BadCredentialsException
-				|| exception instanceof InternalAuthenticationServiceException && !(allowedLDAPAutnetication || exception.getCause() instanceof CannotGetJdbcConnectionException)) {
-			lockAccount(request, stringdate, remoteaddr, username, null);
+				|| exception instanceof InternalAuthenticationServiceException && !(allowedLDAPAutnetication
+						|| exception.getCause() instanceof CannotGetJdbcConnectionException)) {
+			lockAccount(request, remoteaddr, username, null);
 			/**
 			 * Log
 			 */
-			System.err.println(stringdate + " CustomAuthenticationFailureHandler - ERROR: User '" + username + "' does not exist! Requesting IP: " + remoteaddr);
-			TrickLogManager.Persist(LogLevel.WARNING, LogType.AUTHENTICATION, "log.user.bad.credential", String.format("%s attempts to connect from %s", username, remoteaddr),
+			System.err.println(stringdate + " CustomAuthenticationFailureHandler - ERROR: User '" + username
+					+ "' does not exist! Requesting IP: " + remoteaddr);
+			TrickLogManager.Persist(LogLevel.WARNING, LogType.AUTHENTICATION, "log.user.bad.credential",
+					String.format("%s attempts to connect from %s", username, remoteaddr),
 					ANONYMOUS, LogAction.AUTHENTICATE, username, remoteaddr);
 
 		} else if (exception instanceof DisabledException) {
-			System.err.println(stringdate + " CustomAuthenticationFailureHandler -  ERROR: User '" + username + "' is disabled! Requesting IP: " + remoteaddr);
+			System.err.println(stringdate + " CustomAuthenticationFailureHandler -  ERROR: User '" + username
+					+ "' is disabled! Requesting IP: " + remoteaddr);
 			request.getSession().setAttribute("LOGIN_ERROR", "error.account.disabled");
 			/**
 			 * Log
 			 */
 			TrickLogManager.Persist(LogLevel.WARNING, LogType.AUTHENTICATION, "log.user.account.disabled",
-					String.format("%s's account is disabled but he tries to connect from %s", username, remoteaddr), ANONYMOUS, LogAction.AUTHENTICATE, username, remoteaddr);
+					String.format("%s's account is disabled but he tries to connect from %s", username, remoteaddr),
+					ANONYMOUS, LogAction.AUTHENTICATE, username, remoteaddr);
 		} else if (exception.getCause() instanceof TrickException) {
 			TrickException e = (TrickException) exception.getCause();
 			System.err.println(
-					String.format("%s CustomAuthenticationFailureHandler -  ERROR: User %s, Requesting IP: %s, Cause: %s", stringdate, username, remoteaddr, e.getMessage()));
+					String.format(
+							"%s CustomAuthenticationFailureHandler -  ERROR: User %s, Requesting IP: %s, Cause: %s",
+							stringdate, username, remoteaddr, e.getMessage()));
 			/**
 			 * Log
 			 */
 			TrickLogManager.Persist(LogLevel.ERROR, LogType.AUTHENTICATION, "log.user.account.processing",
-					String.format("User: %s from %s, Error: %s", username, remoteaddr, e.getMessage()), ANONYMOUS, LogAction.AUTHENTICATE, username, remoteaddr, e.getMessage());
+					String.format("User: %s from %s, Error: %s", username, remoteaddr, e.getMessage()), ANONYMOUS,
+					LogAction.AUTHENTICATE, username, remoteaddr, e.getMessage());
 			request.getSession().setAttribute("LOGIN_ERROR_EXCEPTION", e);
 		} else if (exception instanceof TrickOtpException) {
-			lockAccount(request, stringdate, remoteaddr, username, exception);
+			lockAccount(request, remoteaddr, username, exception);
 			/**
 			 * Log
 			 */
-			System.err.println(stringdate + " CustomAuthenticationFailureHandler - ERROR: User '" + username + "' one time password failed! Requesting IP: " + remoteaddr);
+			System.err.println(stringdate + " CustomAuthenticationFailureHandler - ERROR: User '" + username
+					+ "' one time password failed! Requesting IP: " + remoteaddr);
 			TrickLogManager.Persist(LogLevel.ERROR, LogType.AUTHENTICATION, "log.user.otp.failure",
-					String.format("%s attempts to connect from %s but one time password failed", username, remoteaddr), username, LogAction.AUTHENTICATE, username, remoteaddr);
+					String.format("%s attempts to connect from %s but one time password failed", username, remoteaddr),
+					username, LogAction.AUTHENTICATE, username, remoteaddr);
 		} else if (exception instanceof LockedException) {
 			AccountLocker locker = accountLockerManager.lock(username, remoteaddr);
 			if (locker == null)
@@ -101,7 +114,8 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
 			else
 				request.getSession().setAttribute("LOGIN_ERROR_HANDLER",
 						new MessageHandler("error.wait.account.locked",
-								new Object[] { DateFormat.getTimeInstance(DateFormat.MEDIUM, request.getLocale()).format(locker.getLockTime()) },
+								new Object[] { DateFormat.getTimeInstance(DateFormat.MEDIUM, request.getLocale())
+										.format(locker.getLockTime()) },
 								"Your account has been locked, please try later"));
 		} else if (exception instanceof InternalAuthenticationServiceException) {
 			System.err.println(stringdate + " CustomAuthenticationFailureHandler -  ERROR: " + exception.getMessage());
@@ -110,14 +124,20 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
 		super.onAuthenticationFailure(request, response, exception);
 	}
 
-	private void lockAccount(HttpServletRequest request, String stringDate, String remoteaddr, String username, AuthenticationException exception) {
+	private void lockAccount(HttpServletRequest request, String remoteaddr, String username,
+			AuthenticationException exception) {
 		AccountLocker locker = accountLockerManager.lock(username, remoteaddr);
 		if (locker == null || !locker.isLocked())
-			request.getSession().setAttribute("LOGIN_ERROR", exception == null ? "error.bad.credential" : exception.getMessage());
-		else
+			request.getSession().setAttribute("LOGIN_ERROR",
+					exception == null ? "error.bad.credential" : exception.getMessage());
+		else {
+			if (request.isUserInRole(Constant.ROLE_OTP_NAME))
+				request.getSession().invalidate();
 			request.getSession().setAttribute("LOGIN_ERROR_HANDLER",
 					new MessageHandler("error.wait.account.locked",
-							new Object[] { DateFormat.getTimeInstance(DateFormat.MEDIUM, request.getLocale()).format(locker.getLockTime()) },
+							new Object[] { DateFormat.getTimeInstance(DateFormat.MEDIUM, request.getLocale())
+									.format(locker.getLockTime()) },
 							"Your account has been locked, please try later"));
+		}
 	}
 }
