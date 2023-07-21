@@ -686,7 +686,7 @@ public class ControllerFieldEditor {
 			// retrieve analysis id
 			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 			// get parameter object
-			MaturityParameter parameter = (MaturityParameter) serviceMaturityParameter.findOne(elementID, idAnalysis);
+			MaturityParameter parameter = serviceMaturityParameter.findOne(elementID, idAnalysis);
 			// validate parameter
 			ValidatorField validator = serviceDataValidation.findByClass(parameter.getClass());
 			if (validator == null)

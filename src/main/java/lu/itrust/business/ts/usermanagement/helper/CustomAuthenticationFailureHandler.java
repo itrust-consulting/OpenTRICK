@@ -41,6 +41,11 @@ import lu.itrust.business.ts.model.general.LogType;
  */
 public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationFailureHandler {
 
+	/**
+	 *
+	 */
+	private static final String OTP_AUTHORISE = "/OTP/Authorise";
+
 	@Value("${app.settings.ldap.allowed.authentication}")
 	private boolean allowedLDAPAutnetication;
 
@@ -131,8 +136,10 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
 			request.getSession().setAttribute("LOGIN_ERROR",
 					exception == null ? "error.bad.credential" : exception.getMessage());
 		else {
-			if (request.isUserInRole(Constant.ROLE_OTP_NAME))
-				request.getSession().invalidate();
+			
+			if (request.getServletPath().equalsIgnoreCase(OTP_AUTHORISE))
+			  request.getSession().invalidate();
+
 			request.getSession().setAttribute("LOGIN_ERROR_HANDLER",
 					new MessageHandler("error.wait.account.locked",
 							new Object[] { DateFormat.getTimeInstance(DateFormat.MEDIUM, request.getLocale())

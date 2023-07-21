@@ -512,15 +512,16 @@ function MaturityMeasureFieldEditor(element) {
 	this.implementations = [];
 
 	MaturityMeasureFieldEditor.prototype.LoadData = function() {
+		this.implementations = [];
 		var $implementationRates = $("#Maturity_implementation_rate tr[data-trick-class='SimpleParameter']");
 		if (!$implementationRates.length)
 			return true;
 		for (var i = 0; i < $implementationRates.length; i++) {
 			var $implementationRate = $($implementationRates[i]);
-			this.implementations[i] = {
+			this.implementations.push( {
 				'id' : $implementationRate.attr('data-trick-id'),
 				'value' : $implementationRate.find("td[data-trick-field='value']").text()
-			};
+			});
 		}
 		return !this.implementations.length;
 	};
@@ -541,11 +542,11 @@ function MaturityMeasureFieldEditor(element) {
 		this.fieldEditor.setAttribute("style", "padding: 4px; margin-left:auto; width:80px; position:absolute; z-index:2; margin-right:auto;");
 		this.fieldEditor.setAttribute("placeholder", this.realValue != null && this.realValue != undefined ? this.realValue : this.defaultValue);
 
-		for ( let item in this.implementations) {
+		for ( let item of this.implementations) {
 			var option = document.createElement("option"), $option = $(option);
 			option.setAttribute("value", item.value);
 			option.setAttribute("data-trick-id", item.id);
-			if (this.defaultValue == item.value)
+			if (this.defaultValue === item.value)
 				option.setAttribute("selected", true);
 			$option.text(item.value);
 			$option.appendTo($fieldEditor);

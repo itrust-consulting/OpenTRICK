@@ -145,7 +145,7 @@ public class SecurityConfig {
                  
                 .logout(e -> e.logoutUrl("/Signout").invalidateHttpSession(true).logoutSuccessUrl("/Home")
                         .deleteCookies("TS_SESSION_ID"))
-                .authenticationManager(apiAuthenticationManager())
+                .authenticationManager(authenticationManager)
                 .sessionManagement(e -> e.sessionFixation().migrateSession()
                         .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED));
 
@@ -222,6 +222,7 @@ public class SecurityConfig {
                 new RequestAttributeSecurityContextRepository(),
                 new HttpSessionSecurityContextRepository()));
         filter.setForce2FA(environment.getRequiredProperty("app.settings.otp.force", Boolean.class));
+        filter.afterPropertiesSet();
         return filter;
 
     }
@@ -239,6 +240,7 @@ public class SecurityConfig {
         filter.setSecurityContextRepository(new DelegatingSecurityContextRepository(
                 new RequestAttributeSecurityContextRepository(),
                 new HttpSessionSecurityContextRepository()));
+        filter.afterPropertiesSet();
         return filter;
     }
 
