@@ -1284,6 +1284,7 @@ public class Analysis implements Cloneable {
 	}
 
 	/**
+	 * 
 	 * getParameter: <br>
 	 * Returns the SimpleParameter value of a given SimpleParameter.
 	 * 

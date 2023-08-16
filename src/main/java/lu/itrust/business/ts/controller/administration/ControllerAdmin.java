@@ -234,7 +234,7 @@ public class ControllerAdmin {
 		}
 		model.put("status", getStatus());
 
-		if (customers != null && customers.size() > 0) {
+		if (!(customers == null || customers.isEmpty())) {
 			model.put("customers", customers);
 			List<Analysis> analyses = Collections.emptyList();
 			if (customerID != null) {
@@ -383,7 +383,7 @@ public class ControllerAdmin {
 				return "redirect:/Error";
 			}
 			model.addAttribute("analysis", analysis);
-			Map<User, AnalysisRight> userAnalysisRights = new LinkedHashMap<User, AnalysisRight>();
+			Map<User, AnalysisRight> userAnalysisRights = new LinkedHashMap<>();
 			analysis.getUserRights()
 					.forEach(userRight -> userAnalysisRights.put(userRight.getUser(), userRight.getRight()));
 			serviceUser.getAllOthers(userAnalysisRights.keySet()).forEach(user -> userAnalysisRights.put(user, null));

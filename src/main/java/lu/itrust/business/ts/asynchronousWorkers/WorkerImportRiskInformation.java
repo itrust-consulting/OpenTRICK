@@ -226,10 +226,11 @@ public class WorkerImportRiskInformation extends WorkerImpl {
 
 		for (Object[] mapper : RI_SHEET_MAPPERS) {
 
-			final String category = mapper[0].toString().toLowerCase();
+			final String category = mapper[0].toString();
 
-			final MessageHandler messageHandler = new MessageHandler("info.risk.information.process.sheet." + category,
-					String.format("Processing of %s in progress", category),
+			final MessageHandler messageHandler = new MessageHandler(
+					"info.risk.information.process.sheet." + category.toLowerCase(),
+					String.format("Processing of %s in progress", category.toLowerCase()),
 					progress);
 
 			getServiceTaskFeedback().send(getId(), messageHandler);
@@ -239,13 +240,13 @@ public class WorkerImportRiskInformation extends WorkerImpl {
 				throw new TrickException("error.risk.information.sheet.not.found",
 						String.format("Something wrong with file: Sheet `%s` cannot be found", mapper[1].toString()),
 						mapper[1].toString());
-			final TablePart tablePart = findTable(sheet, mapper[0] + "Table");
+			final TablePart tablePart = findTable(sheet, category + "Table");
 			if (tablePart == null)
 				throw new TrickException("error.risk.information.table.not.found",
 						String.format("Something wrong with sheet `%s` : Table `%s` cannot be found",
-								mapper[1].toString(), mapper[0] + "Table"),
+								mapper[1].toString(), category + "Table"),
 						mapper[1].toString(),
-						mapper[0] + "Table");
+						category + "Table");
 			final AddressRef address = AddressRef.parse(tablePart.getContents().getRef());
 			final int maxProgress = progress + (multi * indexProgress);
 			final int minProgress = progress;
@@ -258,7 +259,7 @@ public class WorkerImportRiskInformation extends WorkerImpl {
 
 				final Row row = sheet.getRow().get(i);
 
-				final String chapter = getString(row, colIndex++, formatter);
+				final String chapter = trim(getString(row, colIndex++, formatter));
 
 				if (!StringUtils.hasText(chapter))
 					emptyCellError(mapper[1].toString(), i, colIndex);
@@ -268,44 +269,42 @@ public class WorkerImportRiskInformation extends WorkerImpl {
 					chapterIndexer.put(chapter, true);
 
 				RiskInformation riskInformation = riskInformations
-						.remove(RiskInformation.key(mapper[0].toString(), chapter));
+						.remove(RiskInformation.key(category, chapter));
 				if (riskInformation == null)
 					analysis.getRiskInformations().add(riskInformation = new RiskInformation(chapter));
 
-				if (mapper[0].equals(RI_TYPE_RISK)) {
+				if (RI_TYPE_RISK.equalsIgnoreCase(category)) {
 					if (compareTo(chapter, "7") < 0)
 						riskInformation.setCategory(RI_TYPE_RISK_TBS);
 					else
 						riskInformation.setCategory(RI_TYPE_RISK_TBA);
 				} else if (riskInformation.getId() < 1)
-					riskInformation.setCategory(mapper[0].toString());
+					riskInformation.setCategory(category);
 
-				final String name = getString(row, colIndex++, formatter);
+				final String name = trim(getString(row, colIndex++, formatter));
 
 				if (!StringUtils.hasText(name))
 					emptyCellError(mapper[1].toString(), i, colIndex);
 
-				final String cleanName = name.trim();
-
 				if (!riskInformation.isCustom() && riskInformation.getId() > 0) {
-					final String label = getOrignalLabel(locale, riskInformation);
-					if ((label == null || label.trim().equals(cleanName))) {
-						riskInformation.setLabel(cleanName);
+					final String label = trim(getOrignalLabel(locale, riskInformation));
+					if ((label == null || label.equalsIgnoreCase(name))) {
+						riskInformation.setLabel(name);
 						riskInformation.setCustom(true);
 					}
 				} else {
-					riskInformation.setLabel(cleanName);
+					riskInformation.setLabel(name);
 					riskInformation.setCustom(true);
 				}
 
 				if (mapper[0].equals(RI_TYPE_THREAT))
 					riskInformation.setAcronym(getString(row, colIndex++, formatter));
 
-				final String exposed = getString(row, colIndex++, formatter);
-				if (!StringUtils.hasText(exposed) || exposurePattern.matcher(exposed.trim()).matches())
+				final String exposed = trim(getString(row, colIndex++, formatter));
+				if (!StringUtils.hasText(exposed) || exposurePattern.matcher(exposed).matches())
 					riskInformation.setExposed(exposed);
 				else
-					errorInvalidValue(mapper[0].toString(), i, colIndex);
+					errorInvalidValue(category, i, colIndex);
 
 				riskInformation.setOwner(getString(row, colIndex++, formatter));
 
@@ -330,6 +329,10 @@ public class WorkerImportRiskInformation extends WorkerImpl {
 		daoAnalysis.saveOrUpdate(analysis);
 		getServiceTaskFeedback().send(getId(),
 				new MessageHandler("info.delete.removed.entry", "Delete removed entries", max + 3));
+	}
+
+	private String trim(String value) {
+		return value == null ? value : value.trim();
 	}
 
 	private void duplicateCellError(String sheet, int i, int colIndex) {
