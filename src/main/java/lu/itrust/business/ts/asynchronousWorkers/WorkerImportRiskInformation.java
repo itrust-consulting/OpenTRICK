@@ -142,7 +142,8 @@ public class WorkerImportRiskInformation extends WorkerImpl {
 				setCurrent(Thread.currentThread());
 			}
 
-			getServiceTaskFeedback().send(getId(), new MessageHandler("info.risk.information.initialise", "Initialise data", 2));
+			getServiceTaskFeedback().send(getId(),
+					new MessageHandler("info.risk.information.initialise", "Initialise data", 2));
 
 			session = getSessionFactory().openSession();
 
@@ -154,31 +155,37 @@ public class WorkerImportRiskInformation extends WorkerImpl {
 
 			importRiskInformation(analysis);
 
-			getServiceTaskFeedback().send(getId(), new MessageHandler("info.commit.transcation", "Commit transaction", 95));
+			getServiceTaskFeedback().send(getId(),
+					new MessageHandler("info.commit.transcation", "Commit transaction", 95));
 
 			transaction.commit();
 
-			final MessageHandler messageHandler = new MessageHandler("success.import.risk.information", "Brainstorming was successfully imported", 100);
+			final MessageHandler messageHandler = new MessageHandler("success.import.risk.information",
+					"Brainstorming was successfully imported", 100);
 			messageHandler.setAsyncCallbacks(new AsyncCallback("reloadSection", "section_risk-information_risk"),
-					new AsyncCallback("reloadSection", "section_risk-information_vul"), new AsyncCallback("reloadSection", "section_risk-information_threat"));
+					new AsyncCallback("reloadSection", "section_risk-information_vul"),
+					new AsyncCallback("reloadSection", "section_risk-information_threat"));
 
 			getServiceTaskFeedback().send(getId(), messageHandler);
 			/**
 			 * Log
 			 */
-			final String username = getServiceTaskFeedback().findUsernameById(this.getId());
 			TrickLogManager.Persist(LogType.ANALYSIS, "log.import.risk.information",
-					String.format("Brainstorming data has been overwritten, Analysis: %s, version: %s", analysis.getIdentifier(), analysis.getVersion()), username,
+					String.format("Brainstorming data has been overwritten, Analysis: %s, version: %s",
+							analysis.getIdentifier(), analysis.getVersion()),
+					username,
 					LogAction.IMPORT, analysis.getIdentifier(), analysis.getVersion());
 		} catch (TrickException e) {
 			setError(e);
-			getServiceTaskFeedback().send(getId(), new MessageHandler(e.getCode(), e.getParameters(), e.getMessage(), e));
+			getServiceTaskFeedback().send(getId(),
+					new MessageHandler(e.getCode(), e.getParameters(), e.getMessage(), e));
 			TrickLogManager.Persist(e);
-			if (transaction != null && transaction.getStatus().canRollback())
+			if (!(session == null || transaction == null) && transaction.getStatus().canRollback())
 				session.getTransaction().rollback();
 		} catch (Exception e) {
 			setError(e);
-			getServiceTaskFeedback().send(getId(), new MessageHandler("error.import.risk.information", "Import of risk information failed!", e));
+			getServiceTaskFeedback().send(getId(),
+					new MessageHandler("error.import.risk.information", "Import of risk information failed!", e));
 			TrickLogManager.Persist(e);
 			if (transaction != null && transaction.getStatus().canRollback())
 				transaction.rollback();
@@ -204,37 +211,49 @@ public class WorkerImportRiskInformation extends WorkerImpl {
 	}
 
 	private void importRiskInformation(Analysis analysis) throws Exception {
-		final Map<String, RiskInformation> riskInformations = analysis.getRiskInformations().stream().collect(Collectors.toMap(RiskInformation::getKey, Function.identity()));
+		final Map<String, RiskInformation> riskInformations = analysis.getRiskInformations().stream()
+				.collect(Collectors.toMap(RiskInformation::getKey, Function.identity()));
 		final SpreadsheetMLPackage mlPackage = SpreadsheetMLPackage.load(getServiceStorage().loadAsFile(getFilename()));
 		final WorkbookPart workbook = mlPackage.getWorkbookPart();
 		final DataFormatter formatter = new DataFormatter();
 		final Locale locale = new Locale(analysis.getLanguage().getAlpha2());
 		final Pattern exposurePattern = Pattern.compile(REGEXP_VALID_RISKINFORMATION_EXPOSED);
-		final int min = 2, max = 90;
-		int multi = (max - min) / 3, progress = min, indexProgress = 1;
+		final int min = 2;
+		final int max = 90;
+		int multi = (max - min) / 3;
+		int progress = min;
+		int indexProgress = 1;
+
 		for (Object[] mapper : RI_SHEET_MAPPERS) {
 
 			final String category = mapper[0].toString().toLowerCase();
 
-			final MessageHandler messageHandler = new MessageHandler("info.risk.information.process.sheet." + category, String.format("Processing of %s in progress", category),
+			final MessageHandler messageHandler = new MessageHandler("info.risk.information.process.sheet." + category,
+					String.format("Processing of %s in progress", category),
 					progress);
 
 			getServiceTaskFeedback().send(getId(), messageHandler);
 
 			final SheetData sheet = findSheet(workbook, mapper[1].toString());
 			if (sheet == null)
-				throw new TrickException("error.risk.information.sheet.not.found", String.format("Something wrong with file: Sheet `%s` cannot be found", mapper[1].toString()),
+				throw new TrickException("error.risk.information.sheet.not.found",
+						String.format("Something wrong with file: Sheet `%s` cannot be found", mapper[1].toString()),
 						mapper[1].toString());
 			final TablePart tablePart = findTable(sheet, mapper[0] + "Table");
 			if (tablePart == null)
 				throw new TrickException("error.risk.information.table.not.found",
-						String.format("Something wrong with sheet `%s` : Table `%s` cannot be found", mapper[1].toString(), mapper[0] + "Table"), mapper[1].toString(),
+						String.format("Something wrong with sheet `%s` : Table `%s` cannot be found",
+								mapper[1].toString(), mapper[0] + "Table"),
+						mapper[1].toString(),
 						mapper[0] + "Table");
 			final AddressRef address = AddressRef.parse(tablePart.getContents().getRef());
-			final int maxProgress = progress + (multi * indexProgress), minProgress = progress, size = Math.min(address.getEnd().getRow() + 1, sheet.getRow().size());
+			final int maxProgress = progress + (multi * indexProgress);
+			final int minProgress = progress;
+			final int size = Math.min(address.getEnd().getRow() + 1, sheet.getRow().size());
 			final Map<String, Boolean> chapterIndexer = new HashMap<>(size);
 
 			for (int i = address.getBegin().getRow() + 1; i < size; i++) {
+
 				int colIndex = 0;
 
 				final Row row = sheet.getRow().get(i);
@@ -248,7 +267,8 @@ public class WorkerImportRiskInformation extends WorkerImpl {
 				else
 					chapterIndexer.put(chapter, true);
 
-				RiskInformation riskInformation = riskInformations.remove(RiskInformation.key(mapper[0].toString(), chapter));
+				RiskInformation riskInformation = riskInformations
+						.remove(RiskInformation.key(mapper[0].toString(), chapter));
 				if (riskInformation == null)
 					analysis.getRiskInformations().add(riskInformation = new RiskInformation(chapter));
 
@@ -265,14 +285,16 @@ public class WorkerImportRiskInformation extends WorkerImpl {
 				if (!StringUtils.hasText(name))
 					emptyCellError(mapper[1].toString(), i, colIndex);
 
+				final String cleanName = name.trim();
+
 				if (!riskInformation.isCustom() && riskInformation.getId() > 0) {
 					final String label = getOrignalLabel(locale, riskInformation);
-					if (!label.trim().equals(name.trim())) {
-						riskInformation.setLabel(name);
+					if ((label == null || label.trim().equals(cleanName))) {
+						riskInformation.setLabel(cleanName);
 						riskInformation.setCustom(true);
 					}
 				} else {
-					riskInformation.setLabel(name);
+					riskInformation.setLabel(cleanName);
 					riskInformation.setCustom(true);
 				}
 
@@ -289,7 +311,7 @@ public class WorkerImportRiskInformation extends WorkerImpl {
 
 				riskInformation.setComment(getString(row, colIndex++, formatter));
 
-				riskInformation.setHiddenComment(getString(row, colIndex++, formatter));
+				riskInformation.setHiddenComment(getString(row, colIndex, formatter));
 
 				messageHandler.setProgress((int) (minProgress + ((i / (double) size) * maxProgress)));
 			}
@@ -297,26 +319,34 @@ public class WorkerImportRiskInformation extends WorkerImpl {
 		}
 
 		getServiceTaskFeedback().send(getId(), new MessageHandler("info.save.analysis", "Saving analysis", max));
-		
-		if(isOverwrite()){
+
+		if (isOverwrite()) {
 			analysis.getRiskInformations().removeAll(riskInformations.values());
 			daoRiskInformation.delete(riskInformations.values());
-		}else riskInformations.clear();
+		}
+
+		riskInformations.clear();
 
 		daoAnalysis.saveOrUpdate(analysis);
-		getServiceTaskFeedback().send(getId(), new MessageHandler("info.delete.removed.entry", "Delete removed entries", max + 3));
+		getServiceTaskFeedback().send(getId(),
+				new MessageHandler("info.delete.removed.entry", "Delete removed entries", max + 3));
 	}
 
 	private void duplicateCellError(String sheet, int i, int colIndex) {
-		final String colValue = numToColString(colIndex - 1), rowValue = (i + 1) + "";
-		throw new TrickException("error.import.risk.information.duplicate", String.format("An entry is duplicated in sheet: %s, row: %s, column: %s", sheet, rowValue, colValue),
+		final String colValue = numToColString(colIndex - 1);
+		final String rowValue = (i + 1) + "";
+		throw new TrickException("error.import.risk.information.duplicate",
+				String.format("An entry is duplicated in sheet: %s, row: %s, column: %s", sheet, rowValue, colValue),
 				sheet, rowValue, colValue);
 
 	}
 
 	private void errorInvalidValue(String sheet, int i, int colIndex) {
-		final String colValue = numToColString(colIndex - 1), rowValue = (i + 1) + "";
-		throw new TrickException("error.import.risk.information.cell", String.format("Invalid value in sheet: %s, row: %s, column: %s", sheet, rowValue, colValue), sheet, rowValue,
+		final String colValue = numToColString(colIndex - 1);
+		final String rowValue = (i + 1) + "";
+		throw new TrickException("error.import.risk.information.cell",
+				String.format("Invalid value in sheet: %s, row: %s, column: %s", sheet, rowValue, colValue), sheet,
+				rowValue,
 				colValue);
 	}
 
@@ -326,12 +356,19 @@ public class WorkerImportRiskInformation extends WorkerImpl {
 
 	private String getOrignalLabel(final Locale locale, String chapter, String category, String label) {
 		switch (category) {
-		case RI_TYPE_RISK_TBA:
-			return getMessageSource().getMessage(String.format("label.risk_information.risk_tba.", chapter.replace(".", "_")), null, label, locale);
-		case RI_TYPE_RISK_TBS:
-			return getMessageSource().getMessage(String.format("label.risk_information.risk_tbs.", chapter.replace(".", "_")), null, label, locale);
-		default:
-			return getMessageSource().getMessage(String.format("label.risk_information.%s.", category.toLowerCase(), chapter.replace(".", "_")), null, label, locale);
+			case RI_TYPE_RISK_TBA:
+				return getMessageSource().getMessage(
+						String.format("label.risk_information.risk_tba.%s", chapter.replace(".", "_")), null, label,
+						locale);
+			case RI_TYPE_RISK_TBS:
+				return getMessageSource().getMessage(
+						String.format("label.risk_information.risk_tbs.%s", chapter.replace(".", "_")), null, label,
+						locale);
+			default:
+				return getMessageSource().getMessage(
+						String.format("label.risk_information.%s.%s", category.toLowerCase(),
+								chapter.replace(".", "_")),
+						null, label, locale);
 		}
 	}
 
@@ -345,7 +382,8 @@ public class WorkerImportRiskInformation extends WorkerImpl {
 	 */
 	private void emptyCellError(String sheet, int row, int col) {
 		String colValue = numToColString(col - 1), rowValue = (row + 1) + "";
-		throw new TrickException("error.import.risk.information.cell.empty", String.format("Cell cannot be empty. Sheet: %s, row: %s, column: %s", sheet, rowValue, colValue),
+		throw new TrickException("error.import.risk.information.cell.empty",
+				String.format("Cell cannot be empty. Sheet: %s, row: %s, column: %s", sheet, rowValue, colValue),
 				sheet, rowValue, colValue);
 	}
 

@@ -105,7 +105,7 @@ public class RiskInformation implements Cloneable {
 
 	/**
 	 * @param owner
-	 *            the owner to set
+	 *              the owner to set
 	 */
 	public void setOwner(String owner) {
 		this.owner = cleanUpValue(owner);
@@ -126,14 +126,14 @@ public class RiskInformation implements Cloneable {
 	 * Sets the "acronym" field with a value
 	 * 
 	 * @param acro
-	 *            The value to set the Acronym
+	 *             The value to set the Acronym
 	 */
 	public void setAcronym(String acro) {
 		this.acronym = cleanUpValue(acro);
 	}
 
 	private String cleanUpValue(String value) {
-		return value == null? "" : value.trim();
+		return value == null ? "" : value.trim();
 	}
 
 	/**
@@ -151,7 +151,7 @@ public class RiskInformation implements Cloneable {
 	 * Sets the "label" field with a value
 	 * 
 	 * @param label
-	 *            The value to set the Label
+	 *              The value to set the Label
 	 */
 	public void setLabel(String label) {
 		this.label = cleanUpValue(label);
@@ -172,7 +172,7 @@ public class RiskInformation implements Cloneable {
 	 * Sets the "exposed" field with a value
 	 * 
 	 * @param expo
-	 *            The value to set the Exposed value
+	 *             The value to set the Exposed value
 	 */
 	public void setExposed(String expo) {
 		this.exposed = cleanUpValue(expo);
@@ -193,7 +193,7 @@ public class RiskInformation implements Cloneable {
 	 * Sets the "comment" field with a value
 	 * 
 	 * @param comment
-	 *            The value to set the Comment
+	 *                The value to set the Comment
 	 */
 	public void setComment(String comment) {
 		this.comment = cleanUpValue(comment);
@@ -214,7 +214,7 @@ public class RiskInformation implements Cloneable {
 	 * Sets the "hiddenComment" field with a value
 	 * 
 	 * @param hiddenComment
-	 *            The value to set the Hidden Comment
+	 *                      The value to set the Hidden Comment
 	 */
 	public void setHiddenComment(String hiddenComment) {
 		this.hiddenComment = cleanUpValue(hiddenComment);
@@ -235,7 +235,7 @@ public class RiskInformation implements Cloneable {
 	 * Sets the "category" field with a value
 	 * 
 	 * @param category
-	 *            The value to set the Category
+	 *                 The value to set the Category
 	 * @throws TrickException
 	 */
 	public void setCategory(String category) throws TrickException {
@@ -259,7 +259,7 @@ public class RiskInformation implements Cloneable {
 	 * Sets the "chapter" field with a value
 	 * 
 	 * @param chapter
-	 *            The value to set the Chapter
+	 *                The value to set the Chapter
 	 */
 	public void setChapter(String chapter) {
 		this.chapter = cleanUpValue(chapter);
@@ -280,7 +280,7 @@ public class RiskInformation implements Cloneable {
 	 * Sets the Field "id" with a value.
 	 * 
 	 * @param id
-	 *            The Value to set the id field
+	 *           The Value to set the id field
 	 */
 	public void setId(int id) {
 		this.id = id;
@@ -327,7 +327,7 @@ public class RiskInformation implements Cloneable {
 	 * Sets the Field "editable" with a value.
 	 * 
 	 * @param editable
-	 *            The Value to set the editable field
+	 *                 The Value to set the editable field
 	 */
 	public void setEditable(boolean editable) {
 		this.editable = editable;
@@ -342,7 +342,7 @@ public class RiskInformation implements Cloneable {
 
 	/**
 	 * @param custom
-	 *            the custom to set
+	 *               the custom to set
 	 */
 	public void setCustom(boolean custom) {
 		this.custom = custom;
@@ -357,12 +357,14 @@ public class RiskInformation implements Cloneable {
 	}
 
 	public static String key(String category, String chapter) {
-		return ((category == null ? "" : category.startsWith(Constant.RI_TYPE_RISK) ? Constant.RI_TYPE_RISK : category) + "__risk-information__" + chapter).toLowerCase();
+		return ((category == null ? "" : category.startsWith(Constant.RI_TYPE_RISK) ? Constant.RI_TYPE_RISK : category)
+				+ "__risk-information__" + chapter).toLowerCase();
 	}
 
 	public boolean isMatch(String category) {
-		return category == null || this.category == null ? this.category == category
-				: category.equalsIgnoreCase(Constant.RI_TYPE_RISK) ? this.category.startsWith(Constant.RI_TYPE_RISK) : this.category.equalsIgnoreCase(category);
+		return category == null || this.category == null ? this.category  == category //ignored warning as check null
+				: category.equalsIgnoreCase(Constant.RI_TYPE_RISK) ? this.category.startsWith(Constant.RI_TYPE_RISK)
+						: this.category.equalsIgnoreCase(category);
 	}
 
 	/**
