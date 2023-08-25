@@ -15,9 +15,9 @@ import lu.itrust.business.ts.asynchronousWorkers.helper.AsyncCallback;
 import lu.itrust.business.ts.component.TrickLogManager;
 import lu.itrust.business.ts.constants.Constant;
 import lu.itrust.business.ts.database.dao.DAOAnalysis;
-import lu.itrust.business.ts.database.dao.DAOReportTemplate;
+import lu.itrust.business.ts.database.dao.DAOTrickTemplate;
 import lu.itrust.business.ts.database.dao.hbm.DAOAnalysisHBM;
-import lu.itrust.business.ts.database.dao.hbm.DAOReportTemplateHBM;
+import lu.itrust.business.ts.database.dao.hbm.DAOTrickTemplateHBM;
 import lu.itrust.business.ts.database.dao.hbm.DAOUserHBM;
 import lu.itrust.business.ts.database.dao.hbm.DAOWordReportHBM;
 import lu.itrust.business.ts.exception.TrickException;
@@ -29,7 +29,7 @@ import lu.itrust.business.ts.model.analysis.Analysis;
 import lu.itrust.business.ts.model.analysis.ExportFileName;
 import lu.itrust.business.ts.model.general.LogAction;
 import lu.itrust.business.ts.model.general.LogType;
-import lu.itrust.business.ts.model.general.document.impl.ReportTemplate;
+import lu.itrust.business.ts.model.general.document.impl.TrickTemplate;
 import lu.itrust.business.ts.model.general.document.impl.WordReport;
 import lu.itrust.business.ts.model.general.helper.Utils;
 import lu.itrust.business.ts.usermanagement.User;
@@ -98,9 +98,9 @@ public class WorkerExportWordReport extends WorkerImpl {
 				throw new TrickException("error.analysis.no_data", "Empty analysis cannot be exported");
 			getServiceTaskFeedback().send(getId(), new MessageHandler("info.export.report.prepare.document",
 					"Please wait while preparing word document", 0));
-			final DAOReportTemplate daoReportTemplate = new DAOReportTemplateHBM(session);
-			final ReportTemplate reportTemplate = exportReport.getFile() != null ? null
-					: daoReportTemplate.findByIdAndCustomerOrDefault(idTemplate, analysis.getCustomer().getId());
+			final DAOTrickTemplate daoTrickTemplate = new DAOTrickTemplateHBM(session);
+			final TrickTemplate reportTemplate = exportReport.getFile() != null ? null
+					: daoTrickTemplate.findByIdAndCustomerOrDefault(idTemplate, analysis.getCustomer().getId());
 			if (exportReport.getFile() == null) {
 				if (reportTemplate == null)
 					throw new TrickException("error.report.template.not.found", "Report template cannot be found");

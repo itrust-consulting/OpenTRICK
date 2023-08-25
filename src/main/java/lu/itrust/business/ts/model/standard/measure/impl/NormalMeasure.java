@@ -49,7 +49,7 @@ public class NormalMeasure extends AbstractNormalMeasure {
 	 **********************************************************************************************/
 
 	/** The List of AssetTypeValues */
-	private List<AssetTypeValue> assetTypeValues = new ArrayList<AssetTypeValue>();
+	private List<AssetTypeValue> assetTypeValues = new ArrayList<>();
 
 	
 	public NormalMeasure() {

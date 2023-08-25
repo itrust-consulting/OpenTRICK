@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import lu.itrust.business.ts.asynchronousWorkers.Worker;
 import lu.itrust.business.ts.asynchronousWorkers.WorkerTSInstallation;
-import lu.itrust.business.ts.component.DefaultReportTemplateLoader;
+import lu.itrust.business.ts.component.DefaultTemplateLoader;
 import lu.itrust.business.ts.component.TrickLogManager;
 import lu.itrust.business.ts.constants.Constant;
 import lu.itrust.business.ts.database.service.ServiceCustomer;
@@ -65,7 +65,7 @@ public class ControllerIntstallation {
 	private ServiceStorage serviceStorage;
 
 	@Autowired
-	private DefaultReportTemplateLoader defaultReportTemplateLoader;
+	private DefaultTemplateLoader defaultReportTemplateLoader;
 
 	@Value("${app.settings.version}")
 	private String version;

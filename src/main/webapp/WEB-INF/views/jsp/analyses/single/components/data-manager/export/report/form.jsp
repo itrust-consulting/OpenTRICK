@@ -20,8 +20,8 @@
 			<select name='template' class="form-control" id="exportWord.template.${nameControl}" required="required" style="width: 100%">
 				<option value="-1" selected="selected" disabled="disabled"><spring:message code="label.action.choose" text="Choose..." /></option>
 				<c:forEach items="${templates}" var="template">
-					<c:if test="${template.type == item.name}">
-						<option value="${template.id}" class='${template.outToDate?"text-danger":""}' data-trick-type='${template.type}'>
+					<c:if test="${template.analysisType == item.name}">
+						<option value="${template.id}" class='${template.outToDate?"text-danger":""}' data-trick-type='${template.analysisType}'>
 							<spring:message text="${template.label}" /> - V
 							<spring:message text="${template.version}" />
 						</option>

@@ -16,7 +16,7 @@ import lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ColorSet;
 import lu.itrust.business.ts.helper.InstanceManager;
 import lu.itrust.business.ts.helper.Task;
 import lu.itrust.business.ts.model.analysis.Analysis;
-import lu.itrust.business.ts.model.general.document.impl.ReportTemplate;
+import lu.itrust.business.ts.model.general.document.impl.TrickTemplate;
 import lu.itrust.business.ts.model.parameter.helper.ValueFactory;
 
 /**
@@ -73,7 +73,7 @@ public interface ExportReport {
 
 	String getZeroCostColor();
 
-	ReportTemplate getTemplate();
+	TrickTemplate getTemplate();
 
 	Object getDefaultTableStyle();
 
@@ -115,6 +115,6 @@ public interface ExportReport {
 		return getMessageSource().getMessage(code, parameters, defaultMessage, locale);
 	}
 
-	void export(ReportTemplate template, Task task, Analysis analysis, ServiceTaskFeedback serviceTaskFeedback);
+	void export(TrickTemplate template, Task task, Analysis analysis, ServiceTaskFeedback serviceTaskFeedback);
 
 }

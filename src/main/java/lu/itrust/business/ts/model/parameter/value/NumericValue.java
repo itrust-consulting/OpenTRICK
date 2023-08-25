@@ -21,14 +21,14 @@ public abstract class NumericValue extends AbstractValue {
 	/**
 	 * 
 	 */
-	public NumericValue() {
+	protected NumericValue() {
 	}
 
 	/**
 	 * @param value
 	 * @param parameter
 	 */
-	public NumericValue(Number value, ILevelParameter parameter) {
+	protected NumericValue(Number value, ILevelParameter parameter) {
 		super(parameter);
 		this.number = value;
 	}

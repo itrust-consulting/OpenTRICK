@@ -6,27 +6,30 @@ package lu.itrust.business.ts.form;
 import org.springframework.web.multipart.MultipartFile;
 
 import lu.itrust.business.ts.model.analysis.AnalysisType;
+import lu.itrust.business.ts.model.general.document.impl.TrickTemplateType;
 
 /**
  * @author eomar
  *
  */
-public class ReportTemplateForm {
-	
+public class TemplateForm {
+
 	private long id;
-	
+
 	private int customer;
-	
+
 	private int language;
-	
-	private AnalysisType type;
-	
+
+	private TrickTemplateType type;
+
+	private AnalysisType analysisType;
+
 	private String label;
-	
+
 	private String version;
-	
+
 	private String filename;
-	
+
 	private MultipartFile file;
 
 	public long getId() {
@@ -85,12 +88,20 @@ public class ReportTemplateForm {
 		this.file = file;
 	}
 
-	public AnalysisType getType() {
+	public TrickTemplateType getType() {
 		return type;
 	}
 
-	public void setType(AnalysisType type) {
+	public void setType(TrickTemplateType type) {
 		this.type = type;
+	}
+
+	public AnalysisType getAnalysisType() {
+		return analysisType;
+	}
+
+	public void setAnalysisType(AnalysisType analysisType) {
+		this.analysisType = analysisType;
 	}
 
 }

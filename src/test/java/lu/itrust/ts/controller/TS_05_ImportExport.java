@@ -73,7 +73,8 @@ import lu.itrust.business.ts.model.analysis.Analysis;
 import lu.itrust.business.ts.model.analysis.AnalysisType;
 import lu.itrust.business.ts.model.cssf.RiskRegisterItem;
 import lu.itrust.business.ts.model.general.Language;
-import lu.itrust.business.ts.model.general.document.impl.ReportTemplate;
+import lu.itrust.business.ts.model.general.document.impl.TrickTemplate;
+import lu.itrust.business.ts.model.general.document.impl.TrickTemplateType;
 import lu.itrust.business.ts.model.standard.measure.Measure;
 import lu.itrust.business.ts.model.standard.measuredescription.MeasureDescription;
 import lu.itrust.business.ts.model.standard.measuredescription.MeasureDescriptionText;
@@ -502,7 +503,7 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 		Integer idAnalysis = getInteger(ANALYSIS_KEY);
 		notNull(idAnalysis, "Analysis cannot be found");
 
-		List<ReportTemplate> templates = (List<ReportTemplate>) this.mockMvc
+		List<TrickTemplate> templates = (List<TrickTemplate>) this.mockMvc
 				.perform(
 						get("/Analysis/Data-manager/Report/Export-form/" + idAnalysis).with(csrf())
 								.with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN"))
@@ -511,8 +512,8 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 
 		notEmpty(templates, "No template can be found");
 
-		Long idTemplate = templates.stream().filter(p -> p.getType() == AnalysisType.QUANTITATIVE)
-				.map(ReportTemplate::getId).findAny().orElse(-1L);
+		Long idTemplate = templates.stream().filter(p -> p.getAnalysisType() == AnalysisType.QUANTITATIVE)
+				.map(TrickTemplate::getId).findAny().orElse(-1L);
 
 		assertTrue("Template cannot be found", idTemplate > 0);
 

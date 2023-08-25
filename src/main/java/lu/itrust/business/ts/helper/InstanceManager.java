@@ -3,14 +3,20 @@
  */
 package lu.itrust.business.ts.helper;
 
+import java.io.File;
+
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 
+import lu.itrust.business.ts.component.DefaultTemplateLoader;
 import lu.itrust.business.ts.database.service.ServiceEmailSender;
 import lu.itrust.business.ts.database.service.ServiceStorage;
 import lu.itrust.business.ts.database.service.ServiceTaskFeedback;
 import lu.itrust.business.ts.database.service.WorkersPoolManager;
+import lu.itrust.business.ts.model.general.Customer;
+import lu.itrust.business.ts.model.general.Language;
+import lu.itrust.business.ts.model.general.document.impl.TrickTemplateType;
 
 /**
  * @author eomar
@@ -18,7 +24,7 @@ import lu.itrust.business.ts.database.service.WorkersPoolManager;
  */
 public class InstanceManager {
 
-	private volatile static InstanceManager instance = null;
+	private static InstanceManager instance = null;
 
 	@Autowired
 	private ServiceStorage serviceStorage;
@@ -30,15 +36,16 @@ public class InstanceManager {
 	private ServiceEmailSender serviceEmailSender;
 
 	@Autowired
+	private DefaultTemplateLoader defaultTemplateLoader;
+
+	@Autowired
 	private WorkersPoolManager workersPoolManager;
 
 	@Autowired
 	private SessionFactory sessionFactory;
-	
+
 	@Autowired
 	private MessageSource messageSource;
-
-	
 
 	private InstanceManager() {
 		setInstance(this);
@@ -62,7 +69,7 @@ public class InstanceManager {
 		return manager;
 	}
 
-	public static ServiceEmailSender getServiceEmailSender(){
+	public static ServiceEmailSender getServiceEmailSender() {
 		return getInstance().serviceEmailSender;
 	}
 
@@ -84,6 +91,14 @@ public class InstanceManager {
 
 	public static MessageSource getMessageSource() {
 		return getInstance().messageSource;
+	}
+
+	public static File loadTemplate(Customer customer, TrickTemplateType type, Language language) {
+		return getInstance().defaultTemplateLoader.loadFile(customer, type, language);
+	}
+
+	public static File loadTemplate(int customerId, TrickTemplateType type, Language language) {
+		return getInstance().defaultTemplateLoader.loadFile(customerId, type, language);
 	}
 
 }

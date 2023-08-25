@@ -3,7 +3,7 @@
  */
 package lu.itrust.business.ts.asynchronousWorkers;
 
-import static lu.itrust.business.ts.constants.Constant.CLEAN_UP_FILE_NAME;
+import static lu.itrust.business.ts.helper.InstanceManager.loadTemplate;
 
 import java.io.File;
 import java.sql.Timestamp;
@@ -47,6 +47,7 @@ import lu.itrust.business.ts.model.analysis.ExportFileName;
 import lu.itrust.business.ts.model.assessment.helper.Estimation;
 import lu.itrust.business.ts.model.cssf.RiskProbaImpact;
 import lu.itrust.business.ts.model.cssf.RiskStrategy;
+import lu.itrust.business.ts.model.general.document.impl.TrickTemplateType;
 import lu.itrust.business.ts.model.general.document.impl.WordReport;
 import lu.itrust.business.ts.model.general.helper.Utils;
 import lu.itrust.business.ts.model.parameter.helper.ValueFactory;
@@ -57,10 +58,6 @@ import lu.itrust.business.ts.usermanagement.User;
  *
  */
 public class WorkerExportRiskRegister extends WorkerImpl {
-
-	public static String FR_TEMPLATE;
-
-	public static String ENG_TEMPLATE;
 
 	private String username;
 
@@ -206,7 +203,8 @@ public class WorkerExportRiskRegister extends WorkerImpl {
 			throw new TrickException("error.user.not_found", "User cannot be found");
 		int progress = 2, max = 90, size, index = 0;
 		MessageHandler messageHandler = null;
-		final File workFile = InstanceManager.getServiceStorage().createTmpFile();
+		final File workFile = loadTemplate(analysis.getCustomer(), TrickTemplateType.RISK_REGISTER,
+				analysis.getLanguage());
 		try {
 			getServiceTaskFeedback().send(getId(),
 					new MessageHandler("info.risk_register.compute", "Computing risk register", progress += 5));
@@ -214,20 +212,19 @@ public class WorkerExportRiskRegister extends WorkerImpl {
 			final Locale locale = new Locale(analysis.getLanguage().getAlpha2());
 			final List<Estimation> estimations = Estimation.GenerateEstimation(analysis,
 					new ValueFactory(analysis.getParameters()), Estimation.IdComparator());
-			final String template = String.format("docx/%s.docx",
-					locale.getLanguage().equalsIgnoreCase("fr") ? FR_TEMPLATE : ENG_TEMPLATE);
+
 			getServiceTaskFeedback().send(getId(), new MessageHandler("info.loading.risk_register.template",
 					"Loading risk register template", progress += 5));
-			InstanceManager.getServiceStorage().copy(template, workFile.getName());
+
 			final WordprocessingMLPackage wordMLPackage = WordprocessingMLPackage.load(workFile);
 			final Document document = wordMLPackage.getMainDocumentPart().getContents();
 			getServiceTaskFeedback().send(getId(), messageHandler = new MessageHandler("info.generating.risk_register",
 					"Generating risk register", progress += 8));
 
-			final Tbl table = (Tbl) document.getContent().parallelStream().map(tb -> XmlUtils.unwrap(tb))
+			final Tbl table = (Tbl) document.getContent().parallelStream().map(XmlUtils::unwrap)
 					.filter(tb -> tb instanceof Tbl).findFirst().orElse(null);
 			if (table == null)
-				throw new IllegalArgumentException(String.format("Please check risk register template: %s", template));
+				throw new IllegalArgumentException("Please check risk register template");
 			if (!showRawColumn) {
 				table.getContent().parallelStream().map(p -> XmlUtils.unwrap(p)).filter(p -> p instanceof Tr)
 						.map(tr -> (Tr) tr).forEach(tr -> {

@@ -245,12 +245,11 @@ public class ImportCustomStandard {
 		final Row data = infoSheet.getRow().get(addressRef.getEnd().getRow());
 		final int labelIndex = data.getC().size() == 4 ? addressRef.getBegin().getCol()
 				: addressRef.getBegin().getCol() + 1;
-		final String label = StringUtils.trimWhitespace(getString(data.getC().get(labelIndex), formatter));
+		final String label = getString(data.getC().get(labelIndex), formatter).strip();
 		final int version = getInt(data.getC().get(labelIndex + 1), formatter);
 
-		final String name = StringUtils
-				.trimWhitespace(!StringUtils.hasText(this.standardName) ? (data.getC().size() == 4 ? label
-						: getString(data.getC().get(addressRef.getBegin().getCol()), formatter)) : this.standardName);
+		final String name = (!StringUtils.hasText(this.standardName) ? (data.getC().size() == 4 ? label
+				: getString(data.getC().get(addressRef.getBegin().getCol()), formatter)) : this.standardName).strip();
 
 		if (isEmpty(label))
 			throw new TrickException("error.standard.label.empty", "Standard internal name cannot be empty");

@@ -10,10 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import lu.itrust.business.ts.database.dao.DAOReportTemplate;
-import lu.itrust.business.ts.database.service.ServiceReportTemplate;
+import lu.itrust.business.ts.database.dao.DAOTrickTemplate;
+import lu.itrust.business.ts.database.service.ServiceTrickTemplate;
 import lu.itrust.business.ts.model.analysis.AnalysisType;
-import lu.itrust.business.ts.model.general.document.impl.ReportTemplate;
+import lu.itrust.business.ts.model.general.document.impl.TrickTemplate;
 
 /**
  * @author eomar
@@ -21,33 +21,33 @@ import lu.itrust.business.ts.model.general.document.impl.ReportTemplate;
  */
 @Service
 @Transactional(readOnly = true)
-public class ServiceReportTemplateImpl implements ServiceReportTemplate {
+public class ServiceTrickTemplateImpl implements ServiceTrickTemplate {
 	
 	@Autowired
-	private DAOReportTemplate daoReportTemplate;
+	private DAOTrickTemplate daoTrickTemplate;
 
 	/* (non-Javadoc)
 	 * @see lu.itrust.business.ts.database.template.TemplateReportTemplate#findByIdAndCustomer(long, int)
 	 */
 	@Override
-	public ReportTemplate findByIdAndCustomer(long id, int customerId) {
-		return daoReportTemplate.findByIdAndCustomer(id, customerId);
+	public TrickTemplate findByIdAndCustomer(long id, int customerId) {
+		return daoTrickTemplate.findByIdAndCustomer(id, customerId);
 	}
 
 	/* (non-Javadoc)
 	 * @see lu.itrust.business.ts.database.template.TemplateReportTemplate#findByCustomer(int)
 	 */
 	@Override
-	public List<ReportTemplate> findByCustomer(int customerId) {
-		return daoReportTemplate.findByCustomer(customerId);
+	public List<TrickTemplate> findByCustomer(int customerId) {
+		return daoTrickTemplate.findByCustomer(customerId);
 	}
 
 	/* (non-Javadoc)
 	 * @see lu.itrust.business.ts.database.template.TemplateReportTemplate#findByCustomerAndType(int, lu.itrust.business.ts.model.analysis.AnalysisType)
 	 */
 	@Override
-	public List<ReportTemplate> findByCustomerAndType(int customerId, AnalysisType type) {
-		return daoReportTemplate.findByCustomerAndType(customerId, type);
+	public List<TrickTemplate> findByCustomerAndType(int customerId, AnalysisType type) {
+		return daoTrickTemplate.findByCustomerAndType(customerId, type);
 	}
 
 	/* (non-Javadoc)
@@ -55,7 +55,7 @@ public class ServiceReportTemplateImpl implements ServiceReportTemplate {
 	 */
 	@Override
 	public long count() {
-		return daoReportTemplate.count();
+		return daoTrickTemplate.count();
 	}
 
 	/* (non-Javadoc)
@@ -63,8 +63,8 @@ public class ServiceReportTemplateImpl implements ServiceReportTemplate {
 	 */
 	@Transactional
 	@Override
-	public void delete(Collection<? extends ReportTemplate> entities) {
-		daoReportTemplate.delete(entities);
+	public void delete(Collection<? extends TrickTemplate> entities) {
+		daoTrickTemplate.delete(entities);
 	}
 
 	/* (non-Javadoc)
@@ -73,7 +73,7 @@ public class ServiceReportTemplateImpl implements ServiceReportTemplate {
 	@Transactional
 	@Override
 	public void delete(Long id) {
-		daoReportTemplate.delete(id);
+		daoTrickTemplate.delete(id);
 	}
 
 	/* (non-Javadoc)
@@ -81,8 +81,8 @@ public class ServiceReportTemplateImpl implements ServiceReportTemplate {
 	 */
 	@Transactional
 	@Override
-	public void delete(ReportTemplate entity) {
-		daoReportTemplate.delete(entity);
+	public void delete(TrickTemplate entity) {
+		daoTrickTemplate.delete(entity);
 	}
 
 	/* (non-Javadoc)
@@ -91,7 +91,7 @@ public class ServiceReportTemplateImpl implements ServiceReportTemplate {
 	@Transactional
 	@Override
 	public void deleteAll() {
-		daoReportTemplate.deleteAll();
+		daoTrickTemplate.deleteAll();
 	}
 
 	/* (non-Javadoc)
@@ -99,31 +99,31 @@ public class ServiceReportTemplateImpl implements ServiceReportTemplate {
 	 */
 	@Override
 	public boolean exists(Long id) {
-		return daoReportTemplate.exists(id);
+		return daoTrickTemplate.exists(id);
 	}
 
 	/* (non-Javadoc)
 	 * @see lu.itrust.business.ts.database.TemplateDAOService#findAll()
 	 */
 	@Override
-	public List<ReportTemplate> findAll() {
-		return daoReportTemplate.findAll();
+	public List<TrickTemplate> findAll() {
+		return daoTrickTemplate.findAll();
 	}
 
 	/* (non-Javadoc)
 	 * @see lu.itrust.business.ts.database.TemplateDAOService#findAll(java.util.List)
 	 */
 	@Override
-	public List<ReportTemplate> findAll(List<Long> ids) {
-		return daoReportTemplate.findAll(ids);
+	public List<TrickTemplate> findAll(List<Long> ids) {
+		return daoTrickTemplate.findAll(ids);
 	}
 
 	/* (non-Javadoc)
 	 * @see lu.itrust.business.ts.database.TemplateDAOService#findOne(java.io.Serializable)
 	 */
 	@Override
-	public ReportTemplate findOne(Long id) {
-		return daoReportTemplate.findOne(id);
+	public TrickTemplate findOne(Long id) {
+		return daoTrickTemplate.findOne(id);
 	}
 
 	/* (non-Javadoc)
@@ -131,8 +131,8 @@ public class ServiceReportTemplateImpl implements ServiceReportTemplate {
 	 */
 	@Transactional
 	@Override
-	public ReportTemplate merge(ReportTemplate entity) {
-		return daoReportTemplate.merge(entity);
+	public TrickTemplate merge(TrickTemplate entity) {
+		return daoTrickTemplate.merge(entity);
 	}
 
 	/* (non-Javadoc)
@@ -140,8 +140,8 @@ public class ServiceReportTemplateImpl implements ServiceReportTemplate {
 	 */
 	@Transactional
 	@Override
-	public List<Long> save(List<ReportTemplate> entities) {
-		return daoReportTemplate.save(entities);
+	public List<Long> save(List<TrickTemplate> entities) {
+		return daoTrickTemplate.save(entities);
 	}
 
 	/* (non-Javadoc)
@@ -149,8 +149,8 @@ public class ServiceReportTemplateImpl implements ServiceReportTemplate {
 	 */
 	@Transactional
 	@Override
-	public Long save(ReportTemplate entity) {
-		return daoReportTemplate.save(entity);
+	public Long save(TrickTemplate entity) {
+		return daoTrickTemplate.save(entity);
 	}
 
 	/* (non-Javadoc)
@@ -158,8 +158,8 @@ public class ServiceReportTemplateImpl implements ServiceReportTemplate {
 	 */
 	@Transactional
 	@Override
-	public void saveOrUpdate(List<ReportTemplate> entities) {
-		daoReportTemplate.saveOrUpdate(entities);
+	public void saveOrUpdate(List<TrickTemplate> entities) {
+		daoTrickTemplate.saveOrUpdate(entities);
 	}
 
 	/* (non-Javadoc)
@@ -167,28 +167,28 @@ public class ServiceReportTemplateImpl implements ServiceReportTemplate {
 	 */
 	@Transactional
 	@Override
-	public void saveOrUpdate(ReportTemplate entity) {
-		daoReportTemplate.saveOrUpdate(entity);
+	public void saveOrUpdate(TrickTemplate entity) {
+		daoTrickTemplate.saveOrUpdate(entity);
 	}
 
 	@Override
-	public List<ReportTemplate> findDefault() {
-		return daoReportTemplate.findDefault();
+	public List<TrickTemplate> findDefault() {
+		return daoTrickTemplate.findDefault();
 	}
 
 	@Override
-	public ReportTemplate findByIdAndCustomerOrDefault(Long id, Integer customerId) {
-		return daoReportTemplate.findByIdAndCustomerOrDefault(id, customerId);
+	public TrickTemplate findByIdAndCustomerOrDefault(Long id, Integer customerId) {
+		return daoTrickTemplate.findByIdAndCustomerOrDefault(id, customerId);
 	}
 
 	@Override
 	public boolean isUseAuthorised(Long id, Integer customerId) {
-		return daoReportTemplate.isUseAuthorised(id, customerId);
+		return daoTrickTemplate.isUseAuthorised(id, customerId);
 	}
 
 	@Override
 	public AnalysisType findTypeById(Long id) {
-		return daoReportTemplate.findTypeById(id);
+		return daoTrickTemplate.findTypeById(id);
 	}
 
 }

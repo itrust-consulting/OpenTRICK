@@ -15,8 +15,8 @@
 			</div>
 			<div class="modal-body">
 				<div class='tab-content'>
-					<jsp:include page="manage-template.jsp" />
-					<jsp:include page="add-template.jsp" />
+					<jsp:include page="manage.jsp" />
+					<jsp:include page="form.jsp" />
 				</div>
 			</div>
 			<div class="modal-footer">

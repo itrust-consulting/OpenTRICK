@@ -19,7 +19,7 @@ import org.hibernate.annotations.CascadeType;
 
 import lu.itrust.business.ts.constants.Constant;
 import lu.itrust.business.ts.exception.TrickException;
-import lu.itrust.business.ts.model.general.document.impl.ReportTemplate;
+import lu.itrust.business.ts.model.general.document.impl.TrickTemplate;
 
 /**
  * Customer: <br>
@@ -91,7 +91,7 @@ public class Customer {
 	@Cascade(CascadeType.ALL)
 	@JoinColumn(name="fiCustomer")
 	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-	private List<ReportTemplate> templates;
+	private List<TrickTemplate> templates;
 
 	/***********************************************************************************************
 	 * Getters and Setters
@@ -331,7 +331,7 @@ public class Customer {
 	 * Word Template
 	 * @return templates
 	 */
-	public List<ReportTemplate> getTemplates() {
+	public List<TrickTemplate> getTemplates() {
 		return templates;
 	}
 
@@ -339,7 +339,7 @@ public class Customer {
 	 * Update word templates
 	 * @param templates
 	 */
-	public void setTemplates(List<ReportTemplate> templates) {
+	public void setTemplates(List<TrickTemplate> templates) {
 		this.templates = templates;
 	}
 

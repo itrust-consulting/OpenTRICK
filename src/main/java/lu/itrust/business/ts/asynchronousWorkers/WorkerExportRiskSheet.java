@@ -3,14 +3,15 @@
  */
 package lu.itrust.business.ts.asynchronousWorkers;
 
-import static lu.itrust.business.ts.constants.Constant.CLEAN_UP_FILE_NAME;
 import static lu.itrust.business.ts.exportation.word.impl.docx4j.Docx4jReportImpl.mergeCell;
 import static lu.itrust.business.ts.exportation.word.impl.docx4j.Docx4jReportImpl.verticalMergeCell;
 import static lu.itrust.business.ts.exportation.word.impl.docx4j.formatting.Docx4jFormatter.updateRow;
 import static lu.itrust.business.ts.exportation.word.impl.docx4j.formatting.Docx4jMeasureFormatter.sum;
 import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.createRow;
+import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.findNextSheetNumberAndId;
 import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.getAddress;
-import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.*;
+import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.setValue;
+import static lu.itrust.business.ts.helper.InstanceManager.loadTemplate;
 
 import java.io.File;
 import java.math.BigInteger;
@@ -20,8 +21,6 @@ import java.text.SimpleDateFormat;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
-
-import jakarta.xml.bind.JAXBElement;
 
 import org.docx4j.jaxb.Context;
 import org.docx4j.model.table.TblFactory;
@@ -55,6 +54,7 @@ import org.xlsx4j.sml.ObjectFactory;
 import org.xlsx4j.sml.Row;
 import org.xlsx4j.sml.Worksheet;
 
+import jakarta.xml.bind.JAXBElement;
 import lu.itrust.business.ts.asynchronousWorkers.helper.AsyncCallback;
 import lu.itrust.business.ts.component.TrickLogManager;
 import lu.itrust.business.ts.constants.Constant;
@@ -78,6 +78,7 @@ import lu.itrust.business.ts.model.cssf.RiskProbaImpact;
 import lu.itrust.business.ts.model.cssf.RiskProfile;
 import lu.itrust.business.ts.model.cssf.RiskStrategy;
 import lu.itrust.business.ts.model.cssf.helper.CSSFFilter;
+import lu.itrust.business.ts.model.general.document.impl.TrickTemplateType;
 import lu.itrust.business.ts.model.general.document.impl.WordReport;
 import lu.itrust.business.ts.model.general.helper.ExportType;
 import lu.itrust.business.ts.model.general.helper.Utils;
@@ -95,15 +96,9 @@ import lu.itrust.business.ts.usermanagement.User;
  */
 public class WorkerExportRiskSheet extends WorkerImpl {
 
-	public static volatile String ENG_TEMPLATE;
-
-	public static volatile String FR_TEMPLATE;
-
 	public static volatile String P_STYLE = "BodyOfText";
 
 	public static volatile String TC_P_STYLE = "TabText2";
-
-	public static volatile String DEFAULT_EXCEL_TEMPLATE;
 
 	public static volatile String DEFAULT_EXCEL_TABLE;
 
@@ -185,9 +180,9 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 		Session session = null;
 		try {
 			synchronized (this) {
-				if (getWorkersPoolManager() != null && !getWorkersPoolManager().exist(getId()))
-					if (!getWorkersPoolManager().add(this))
-						return;
+				if (getWorkersPoolManager() != null && !getWorkersPoolManager().exist(getId())
+						&& !getWorkersPoolManager().add(this))
+					return;
 				if (isCanceled() || isWorking())
 					return;
 				setWorking(true);
@@ -299,7 +294,7 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 		this.username = username;
 	}
 
-	private void addEstimation(Worksheet worksheet, ObjectFactory factory, List<Estimation> estimations,
+	private void addEstimation(Worksheet worksheet, List<Estimation> estimations,
 			List<ScaleType> types) {
 		int size = 16 + types.size() * 3;
 		for (Estimation estimation : estimations) {
@@ -596,13 +591,15 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 	}
 
 	private long exportData() throws Exception {
-		final File file = InstanceManager.getServiceStorage().createTmpFileOf(DEFAULT_EXCEL_TEMPLATE);
+		final Analysis analysis = daoAnalysis.get(idAnalysis);
+		final File file = loadTemplate(analysis.getCustomer(), TrickTemplateType.DEFAULT_EXCEL,
+				analysis.getLanguage());
 		try {
 			getServiceTaskFeedback().send(getId(),
 					new MessageHandler("info.preparing.risk_sheet.data", "Preparing risk sheet template", 2));
 			final ObjectFactory factory = org.xlsx4j.jaxb.Context.getsmlObjectFactory();
 			final SpreadsheetMLPackage spreadsheetMLPackage = SpreadsheetMLPackage.load(file);
-			final Analysis analysis = daoAnalysis.get(idAnalysis);
+
 			final List<ScaleType> scaleTypes = analysis.findImpacts();
 			final CSSFFilter cssfFilter = cssfExportForm.getFilter();
 			final int[] indexes = findNextSheetNumberAndId(spreadsheetMLPackage);
@@ -634,15 +631,15 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 			getServiceTaskFeedback().send(getId(),
 					new MessageHandler("info.generating.risk_sheet", "Generating risk sheet", 12));
 			if (!directs.isEmpty())
-				addEstimation(worksheetPart.getContents(), factory, directs, scaleTypes);
+				addEstimation(worksheetPart.getContents(), directs, scaleTypes);
 			getServiceTaskFeedback().send(getId(),
 					new MessageHandler("info.generating.risk_sheet", "Generating risk sheet", 50));
 			if (!indirects.isEmpty())
-				addEstimation(worksheetPart.getContents(), factory, indirects, scaleTypes);
+				addEstimation(worksheetPart.getContents(), indirects, scaleTypes);
 			getServiceTaskFeedback().send(getId(),
 					new MessageHandler("info.generating.risk_sheet", "Generating risk sheet", 80));
 			if (!cias.isEmpty())
-				addEstimation(worksheetPart.getContents(), factory, cias, scaleTypes);
+				addEstimation(worksheetPart.getContents(), cias, scaleTypes);
 			getServiceTaskFeedback().send(getId(),
 					new MessageHandler("info.saving.risk_sheet", "Saving risk sheet", 90));
 
@@ -676,9 +673,12 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 		if (user == null)
 			throw new TrickException("error.user.not_found", "User cannot be found");
 		int progress = 2, max = 60, index = 0;
+
 		setLocale(new Locale(analysis.getLanguage().getAlpha2()));
+
 		dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-		final File workFile = InstanceManager.getServiceStorage().createTmpFile();
+		final File workFile = loadTemplate(analysis.getCustomer(), TrickTemplateType.RISK_SHEET,
+				analysis.getLanguage());
 		Document document = null;
 		MessageHandler messageHandler = null;
 		boolean isFirst = true;
@@ -692,10 +692,6 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 			getServiceTaskFeedback().send(getId(),
 					messageHandler = new MessageHandler("info.loading.risk_sheet.template",
 							"Loading risk sheet template", progress += 5));
-
-			final String templatePath = String.format("docx/%s.docx",
-					analysis.getLanguage().getAlpha2().equalsIgnoreCase("fr") ? FR_TEMPLATE : ENG_TEMPLATE);
-			InstanceManager.getServiceStorage().copy(templatePath, workFile.getName());
 			WordprocessingMLPackage wordprocessingMLPackage = WordprocessingMLPackage.load(workFile);
 			getServiceTaskFeedback().send(getId(), messageHandler = new MessageHandler("info.preparing.risk_sheet.data",
 					"Preparing risk sheet template", progress += 8));

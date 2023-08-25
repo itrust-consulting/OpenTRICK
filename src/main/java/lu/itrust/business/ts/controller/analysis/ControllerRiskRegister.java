@@ -5,8 +5,6 @@ import static lu.itrust.business.ts.constants.Constant.ACCEPT_APPLICATION_JSON_C
 import java.security.Principal;
 import java.util.Map;
 
-import jakarta.servlet.http.HttpSession;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -14,7 +12,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import lu.itrust.business.ts.asynchronousWorkers.WorkerExportRiskRegister;
+import jakarta.servlet.http.HttpSession;
 import lu.itrust.business.ts.asynchronousWorkers.WorkerExportRiskSheet;
 import lu.itrust.business.ts.constants.Constant;
 import lu.itrust.business.ts.database.service.ServiceAnalysis;
@@ -90,8 +88,6 @@ public class ControllerRiskRegister {
 	// *****************************************************************
 	// * compute risk register
 	// *****************************************************************
-
-	
 	private void loadAnalysisSettings(Map<String, Object> model, Analysis analysis) {
 		AnalysisSetting rawSetting = AnalysisSetting.ALLOW_RISK_ESTIMATION_RAW_COLUMN, hiddenCommentSetting = AnalysisSetting.ALLOW_RISK_HIDDEN_COMMENT;
 		model.put("showHiddenComment", analysis.findSetting(hiddenCommentSetting));
@@ -99,26 +95,6 @@ public class ControllerRiskRegister {
 		model.put("showDynamicAnalysis", analysis.findSetting(AnalysisSetting.ALLOW_DYNAMIC_ANALYSIS));
 	}
 
-	@Value("${app.settings.risk_sheet.french.template.name}")
-	public void setRiskSheetFrTemplate(String template) {
-		WorkerExportRiskSheet.FR_TEMPLATE = template;
-	}
-
-	@Value("${app.settings.risk_sheet.english.template.name}")
-	public void setRiskSheetEnTemplate(String template) {
-		WorkerExportRiskSheet.ENG_TEMPLATE = template;
-	}
-
-	@Value("${app.settings.risk_regsiter.french.template.name}")
-	public void setRiskRegisterFrTemplate(String template) {
-		WorkerExportRiskRegister.FR_TEMPLATE = template;
-	}
-
-	@Value("${app.settings.risk_regsiter.english.template.name}")
-	public void setRiskRegisterEnTemplate(String template) {
-		WorkerExportRiskRegister.ENG_TEMPLATE = template;
-	}
-	
 	@Value("${app.settings.excel.default.table.style}")
 	public void setRiskRegisterExcelTable(String table) {
 		WorkerExportRiskSheet.DEFAULT_EXCEL_TABLE = table;
@@ -129,9 +105,6 @@ public class ControllerRiskRegister {
 		WorkerExportRiskSheet.EXCEL_HEADER_FOOTER_SHEET_NAME = name;
 	}
 	
-	@Value("${app.settings.excel.default.template.path}")
-	public void setRiskRegisterExcelTemplate(String template) {
-		WorkerExportRiskSheet.DEFAULT_EXCEL_TEMPLATE = template;
-	}
+
 	
 }

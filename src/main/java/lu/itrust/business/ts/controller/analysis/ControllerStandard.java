@@ -333,7 +333,7 @@ public class ControllerStandard extends AbstractController {
 	public @ResponseBody Object createStandardForm(@RequestBody String value, HttpSession session, Principal principal,
 			Model model, RedirectAttributes attributes, Locale locale)
 			throws Exception {
-		Map<String, String> errors = new LinkedHashMap<String, String>();
+		Map<String, String> errors = new LinkedHashMap<>();
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		try {
 			final Analysis analysis = serviceAnalysis.get(idAnalysis);
@@ -1093,7 +1093,7 @@ public class ControllerStandard extends AbstractController {
 		if (analysisStandard == null)
 			return null;
 		final Analysis analysis = serviceAnalysis.get(idAnalysis);
-		final List<Standard> standards = new ArrayList<Standard>(1);
+		final List<Standard> standards = new ArrayList<>(1);
 		final Map<String, List<Measure>> measuresByStandard = new HashMap<>(1);
 		final ValueFactory factory = new ValueFactory(serviceDynamicParameter.findByAnalysisId(idAnalysis));
 		final boolean allowedTicketing = loadUserSettings(principal, analysis.getCustomer().getTicketingSystem(),
@@ -1136,16 +1136,6 @@ public class ControllerStandard extends AbstractController {
 		loadAnalysisSettings(model, idAnalysis);
 
 		return "analyses/single/components/standards/standard/standards";
-	}
-
-	@Value("${app.settings.soa.english.template.name}")
-	public void setSoaEnglishTemplate(String template) {
-		WorkerSOAExport.ENG_TEMPLATE = template;
-	}
-
-	@Value("${app.settings.soa.french.template.name}")
-	public void setSoaFrenchTemplate(String template) {
-		WorkerSOAExport.FR_TEMPLATE = template;
 	}
 
 	@RequestMapping(value = "/Update/Cost", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)

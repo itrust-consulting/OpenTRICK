@@ -3,6 +3,7 @@ package lu.itrust.business.ts.controller.administration;
 import static lu.itrust.business.ts.constants.Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.security.Principal;
 import java.sql.Timestamp;
 import java.util.Collections;
@@ -18,6 +19,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
+import org.apache.commons.compress.utils.FileNameUtils;
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
@@ -48,7 +51,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lu.itrust.business.ts.component.CustomDelete;
 import lu.itrust.business.ts.component.CustomerManager;
-import lu.itrust.business.ts.component.DefaultReportTemplateLoader;
+import lu.itrust.business.ts.component.DefaultTemplateLoader;
 import lu.itrust.business.ts.component.TrickLogManager;
 import lu.itrust.business.ts.constants.Constant;
 import lu.itrust.business.ts.database.service.ServiceAnalysis;
@@ -57,7 +60,7 @@ import lu.itrust.business.ts.database.service.ServiceDataValidation;
 import lu.itrust.business.ts.database.service.ServiceIDS;
 import lu.itrust.business.ts.database.service.ServiceLanguage;
 import lu.itrust.business.ts.database.service.ServiceMessageNotifier;
-import lu.itrust.business.ts.database.service.ServiceReportTemplate;
+import lu.itrust.business.ts.database.service.ServiceTrickTemplate;
 import lu.itrust.business.ts.database.service.ServiceRole;
 import lu.itrust.business.ts.database.service.ServiceTSSetting;
 import lu.itrust.business.ts.database.service.ServiceTrickLog;
@@ -68,7 +71,7 @@ import lu.itrust.business.ts.exception.TrickException;
 import lu.itrust.business.ts.form.AnalysisRightForm;
 import lu.itrust.business.ts.form.CustomerForm;
 import lu.itrust.business.ts.form.NotificationForm;
-import lu.itrust.business.ts.form.ReportTemplateForm;
+import lu.itrust.business.ts.form.TemplateForm;
 import lu.itrust.business.ts.helper.JsonMessage;
 import lu.itrust.business.ts.helper.SwitchAnalysisOwnerHelper;
 import lu.itrust.business.ts.model.TrickService;
@@ -87,7 +90,8 @@ import lu.itrust.business.ts.model.general.TSSetting;
 import lu.itrust.business.ts.model.general.TSSettingName;
 import lu.itrust.business.ts.model.general.TicketingSystem;
 import lu.itrust.business.ts.model.general.TicketingSystemType;
-import lu.itrust.business.ts.model.general.document.impl.ReportTemplate;
+import lu.itrust.business.ts.model.general.document.impl.TrickTemplate;
+import lu.itrust.business.ts.model.general.document.impl.TrickTemplateType;
 import lu.itrust.business.ts.model.general.helper.EmailTemplateForm;
 import lu.itrust.business.ts.model.general.helper.Notification;
 import lu.itrust.business.ts.model.general.helper.TrickLogFilter;
@@ -172,10 +176,10 @@ public class ControllerAdmin {
 	private ServiceLanguage serviceLanguage;
 
 	@Autowired
-	private ServiceReportTemplate serviceReportTemplate;
+	private ServiceTrickTemplate serviceTrickTemplate;
 
 	@Autowired
-	private DefaultReportTemplateLoader defaultReportTemplateLoader;
+	private DefaultTemplateLoader defaultTemplateLoader;
 
 	@Value("${app.settings.otp.enable}")
 	private boolean enabledOTP = true;
@@ -985,7 +989,7 @@ public class ControllerAdmin {
 		}
 	}
 
-	@GetMapping(value = "Customer/{customerId}/Report-template/Manage", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@GetMapping(value = "Customer/{customerId}/Template/Manage", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public String reportTemplateForm(@PathVariable("customerId") int customerId, Model model, Principal principal,
 			Locale locale) {
 		final Customer customer = serviceCustomer.get(customerId);
@@ -993,22 +997,23 @@ public class ControllerAdmin {
 			throw new AccessDeniedException(
 					messageSource.getMessage("error.customer.not_exist", null, "Customer does not exist", locale));
 		model.addAttribute("customer", customer);
-		model.addAttribute("reportTemplates", defaultReportTemplateLoader.findAll());
-		model.addAttribute("types", AnalysisType.values());
+		model.addAttribute("templates", defaultTemplateLoader.findAll());
+		model.addAttribute("analysisTypes", AnalysisType.values());
+		model.addAttribute("types", TrickTemplateType.values());
 		model.addAttribute("languages", serviceLanguage.getByAlpha3("ENG", "FRA"));
 		model.addAttribute("maxFileSize", Math.min(maxUploadFileSize, maxTemplateSize));
-		return "jsp/knowledgebase/customer/form/report-template";
+		return "jsp/knowledgebase/customer/template/home";
 	}
 
-	@PostMapping(value = "Customer/{customerId}/Report-template/Save", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PostMapping(value = "Customer/{customerId}/Template/Save", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody Object reportTemplateSave(@PathVariable("customerId") int customerId,
-			@ModelAttribute ReportTemplateForm templateForm, Model model, Principal principal,
+			@ModelAttribute TemplateForm templateForm, Model model, Principal principal,
 			Locale locale) {
 		Customer customer = serviceCustomer.get(customerId);
 		if (customer == null || customer.isCanBeUsed())
 			throw new AccessDeniedException(
 					messageSource.getMessage("error.customer.not_exist", null, "Customer does not exist", locale));
-		ReportTemplate template = serviceReportTemplate.findByIdAndCustomer(templateForm.getId(), customerId);
+		TrickTemplate template = serviceTrickTemplate.findByIdAndCustomer(templateForm.getId(), customerId);
 		if (template == null)
 			return JsonMessage.Error(
 					messageSource.getMessage("error.customer.not_exist", null, "Customer does not exist", locale));
@@ -1022,7 +1027,7 @@ public class ControllerAdmin {
 				template.setName(templateForm.getFile().getOriginalFilename());
 				template.setData(templateForm.getFile().getBytes());
 				template.setLength(templateForm.getFile().getSize());
-				if (!DefaultReportTemplateLoader.isDocx(templateForm.getFile().getInputStream()))
+				if (!DefaultTemplateLoader.isDocx(templateForm.getFile().getInputStream()))
 					result.put("file",
 							messageSource.getMessage("error.file.no.docx", null, "Docx file is excepted", locale));
 			}
@@ -1038,7 +1043,7 @@ public class ControllerAdmin {
 		if (result.isEmpty()) {
 			template.setEditable(false);
 			template.setCreated(new Timestamp(System.currentTimeMillis()));
-			serviceReportTemplate.saveOrUpdate(template);
+			serviceTrickTemplate.saveOrUpdate(template);
 			return JsonMessage.Success(messageSource.getMessage("success.report.template.update", null, locale));
 		}
 		return result;
@@ -1054,14 +1059,14 @@ public class ControllerAdmin {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping("Customer/Report-template/{id}/Download")
+	@RequestMapping("Customer/Template/{id}/Download")
 	public String downloadReport(@PathVariable Long id, Principal principal, HttpServletResponse response,
 			Locale locale) throws Exception {
 
-		ReportTemplate reportTemplate = serviceReportTemplate.findOne(id);
+		TrickTemplate template = serviceTrickTemplate.findOne(id);
 
 		// if file could not be found retrun 404 error
-		if (reportTemplate == null)
+		if (template == null)
 			return "jsp/errors/404";
 
 		Customer customer = serviceCustomer.findByReportTemplateId(id);
@@ -1073,32 +1078,46 @@ public class ControllerAdmin {
 			throw new AccessDeniedException(
 					messageSource.getMessage("error.permission_denied", null, "Permission denied!", locale));
 
+		final String extension = FileNameUtils.getExtension(template.getName());
+
 		// set response contenttype to sqlite
-		response.setContentType("docx");
+		response.setContentType(extension);
 
 		// set response header with location of the filename
 		response.setHeader("Content-Disposition", "attachment; filename=\""
-				+ String.format("%s_v%s.docx", reportTemplate.getLabel(), reportTemplate.getVersion()) + "\"");
+				+ String.format("%s_v%s.%s", template.getLabel(), template.getVersion(), extension) + "\"");
 
 		// set sqlite file size as response size
-		response.setContentLength((int) reportTemplate.getLength());
+		response.setContentLength((int) template.getLength());
 
 		// return the sqlite file (as copy) to the response outputstream ( whihc
 		// creates on the
 		// client side the sqlite file)
-		FileCopyUtils.copy(reportTemplate.getData(), response.getOutputStream());
+		FileCopyUtils.copy(template.getData(), response.getOutputStream());
 		/**
 		 * Log
 		 */
-		TrickLogManager.Persist(LogType.ANALYSIS, "log.customer.report.template.download",
-				String.format("Customer: %s, Template: %s, version: %s, created at: %s, type: %s, Language: %s",
-						customer.getContactPerson(), reportTemplate.getLabel(),
-						reportTemplate.getVersion(), reportTemplate.getCreated(), reportTemplate.getType(),
-						reportTemplate.getLanguage().getAlpha3()),
-				principal.getName(), LogAction.DOWNLOAD, customer.getContactPerson(), reportTemplate.getLabel(),
-				reportTemplate.getVersion(),
-				String.valueOf(reportTemplate.getCreated()), String.valueOf(reportTemplate.getType()),
-				reportTemplate.getLanguage().getAlpha3());
+		if (template.getType() == TrickTemplateType.REPORT) {
+			TrickLogManager.Persist(LogType.ANALYSIS, "log.customer.report.template.download",
+					String.format("Customer: %s, Template: %s, version: %s, created at: %s, type: %s, Language: %s",
+							customer.getContactPerson(), template.getLabel(),
+							template.getVersion(), template.getCreated(), template.getAnalysisType(),
+							template.getLanguage().getAlpha3()),
+					principal.getName(), LogAction.DOWNLOAD, customer.getContactPerson(), template.getLabel(),
+					template.getVersion(),
+					String.valueOf(template.getCreated()), String.valueOf(template.getAnalysisType()),
+					template.getLanguage().getAlpha3());
+		} else {
+			TrickLogManager.Persist(LogType.ANALYSIS, "log.customer.template.download",
+					String.format("Customer: %s, Template: %s, version: %s, created at: %s, type: %s, Language: %s",
+							customer.getContactPerson(), template.getLabel(),
+							template.getVersion(), template.getCreated(), template.getType(),
+							template.getLanguage().getAlpha3()),
+					principal.getName(), LogAction.DOWNLOAD, customer.getContactPerson(), template.getLabel(),
+					template.getVersion(),
+					String.valueOf(template.getCreated()), String.valueOf(template.getType()),
+					template.getLanguage().getAlpha3());
+		}
 
 		// return
 		return null;

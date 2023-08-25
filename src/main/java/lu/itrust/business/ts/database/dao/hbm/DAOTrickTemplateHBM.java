@@ -11,61 +11,65 @@ import java.util.stream.Collectors;
 import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
 
-import lu.itrust.business.ts.database.dao.DAOReportTemplate;
+import lu.itrust.business.ts.database.dao.DAOTrickTemplate;
 import lu.itrust.business.ts.model.analysis.AnalysisType;
-import lu.itrust.business.ts.model.general.document.impl.ReportTemplate;
+import lu.itrust.business.ts.model.general.document.impl.TrickTemplate;
 
 /**
  * @author eomar
  *
  */
 @Repository
-public class DAOReportTemplateHBM extends DAOHibernate implements DAOReportTemplate {
-	
-	public DAOReportTemplateHBM() {
+public class DAOTrickTemplateHBM extends DAOHibernate implements DAOTrickTemplate {
+
+	public DAOTrickTemplateHBM() {
 		super();
 	}
 
-	public DAOReportTemplateHBM(Session session) {
+	public DAOTrickTemplateHBM(Session session) {
 		super(session);
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see lu.itrust.business.ts.database.template.TemplateReportTemplate#
+	 * @see lu.itrust.business.ts.database.template.TemplateTrickTemplate#
 	 * findByIdAndCustomer(long, int)
 	 */
 	@Override
-	public ReportTemplate findByIdAndCustomer(long id, int customerId) {
-		return getSession().createQuery("Select template From Customer customer inner join customer.templates as template where template.id = :id and customer.id = :customerId",
-				ReportTemplate.class).setParameter("id", id).setParameter("customerId", customerId).uniqueResult();
+	public TrickTemplate findByIdAndCustomer(long id, int customerId) {
+		return getSession().createQuery(
+				"Select template From Customer customer inner join customer.templates as template where template.id = :id and customer.id = :customerId",
+				TrickTemplate.class).setParameter("id", id).setParameter("customerId", customerId).uniqueResult();
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * lu.itrust.business.ts.database.template.TemplateReportTemplate#findByCustomer
+	 * lu.itrust.business.ts.database.template.TemplateTrickTemplate#findByCustomer
 	 * (int)
 	 */
 	@Override
-	public List<ReportTemplate> findByCustomer(int customerId) {
-		return getSession().createQuery("Select template From Customer customer inner join customer.templates as template where customer.id = :customerId", ReportTemplate.class)
+	public List<TrickTemplate> findByCustomer(int customerId) {
+		return getSession().createQuery(
+				"Select template From Customer customer inner join customer.templates as template where customer.id = :customerId",
+				TrickTemplate.class)
 				.setParameter("customerId", customerId).list();
 	}
 
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see lu.itrust.business.ts.database.template.TemplateReportTemplate#
+	 * @see lu.itrust.business.ts.database.template.TemplateTrickTemplate#
 	 * findByCustomerAndType(int, lu.itrust.business.ts.model.analysis.AnalysisType)
 	 */
 	@Override
-	public List<ReportTemplate> findByCustomerAndType(int customerId, AnalysisType type) {
+	public List<TrickTemplate> findByCustomerAndType(int customerId, AnalysisType type) {
 		return getSession()
-				.createQuery("Select template From Customer customer inner join customer.templates as template where customer.id = :customerId and template.type = :type",
-						ReportTemplate.class)
+				.createQuery(
+						"Select template From Customer customer inner join customer.templates as template where customer.id = :customerId and template.type = :type",
+						TrickTemplate.class)
 				.setParameter("customerId", customerId).setParameter("type", type).list();
 	}
 
@@ -76,7 +80,7 @@ public class DAOReportTemplateHBM extends DAOHibernate implements DAOReportTempl
 	 */
 	@Override
 	public long count() {
-		return getSession().createQuery("Select count(*) From ReportTemplate", Long.class).uniqueResult();
+		return getSession().createQuery("Select count(*) From TrickTemplate", Long.class).uniqueResult();
 	}
 
 	/*
@@ -86,7 +90,7 @@ public class DAOReportTemplateHBM extends DAOHibernate implements DAOReportTempl
 	 * Collection)
 	 */
 	@Override
-	public void delete(Collection<? extends ReportTemplate> entities) {
+	public void delete(Collection<? extends TrickTemplate> entities) {
 		entities.forEach(entity -> delete(entity));
 	}
 
@@ -98,7 +102,8 @@ public class DAOReportTemplateHBM extends DAOHibernate implements DAOReportTempl
 	 */
 	@Override
 	public void delete(Long id) {
-		getSession().createQuery("Delete ReportTemplate where id = :id").setParameter("id", id).executeUpdate();
+		getSession().createQuery("Delete TrickTemplate where id = :id", Integer.class).setParameter("id", id)
+				.executeUpdate();
 	}
 
 	/*
@@ -108,8 +113,8 @@ public class DAOReportTemplateHBM extends DAOHibernate implements DAOReportTempl
 	 * lu.itrust.business.ts.database.TemplateDAOService#delete(java.lang.Object)
 	 */
 	@Override
-	public void delete(ReportTemplate entity) {
-		getSession().delete(entity);
+	public void delete(TrickTemplate entity) {
+		getSession().remove(entity);
 	}
 
 	/*
@@ -119,7 +124,7 @@ public class DAOReportTemplateHBM extends DAOHibernate implements DAOReportTempl
 	 */
 	@Override
 	public void deleteAll() {
-		getSession().createQuery("Delete ReportTemplate").executeUpdate();
+		getSession().createQuery("Delete TrickTemplate",Integer.class).executeUpdate();
 	}
 
 	/*
@@ -130,7 +135,8 @@ public class DAOReportTemplateHBM extends DAOHibernate implements DAOReportTempl
 	 */
 	@Override
 	public boolean exists(Long id) {
-		return getSession().createQuery("Select count(*)> 0 From ReportTemplate where id = :id", Boolean.class).setParameter("id", id).uniqueResult();
+		return getSession().createQuery("Select count(*)> 0 From TrickTemplate where id = :id", Boolean.class)
+				.setParameter("id", id).uniqueResult();
 	}
 
 	/*
@@ -139,8 +145,8 @@ public class DAOReportTemplateHBM extends DAOHibernate implements DAOReportTempl
 	 * @see lu.itrust.business.ts.database.TemplateDAOService#findAll()
 	 */
 	@Override
-	public List<ReportTemplate> findAll() {
-		return getSession().createQuery("From ReportTemplate", ReportTemplate.class).list();
+	public List<TrickTemplate> findAll() {
+		return getSession().createQuery("From TrickTemplate", TrickTemplate.class).list();
 	}
 
 	/*
@@ -150,8 +156,10 @@ public class DAOReportTemplateHBM extends DAOHibernate implements DAOReportTempl
 	 * lu.itrust.business.ts.database.TemplateDAOService#findAll(java.util.List)
 	 */
 	@Override
-	public List<ReportTemplate> findAll(List<Long> ids) {
-		return ids.isEmpty() ? Collections.emptyList() : getSession().createQuery("From ReportTemplate where id in :ids", ReportTemplate.class).setParameterList("ids", ids).list();
+	public List<TrickTemplate> findAll(List<Long> ids) {
+		return ids.isEmpty() ? Collections.emptyList()
+				: getSession().createQuery("From TrickTemplate where id in :ids", TrickTemplate.class)
+						.setParameterList("ids", ids).list();
 	}
 
 	/*
@@ -161,8 +169,8 @@ public class DAOReportTemplateHBM extends DAOHibernate implements DAOReportTempl
 	 * Serializable)
 	 */
 	@Override
-	public ReportTemplate findOne(Long id) {
-		return getSession().get(ReportTemplate.class, id);
+	public TrickTemplate findOne(Long id) {
+		return getSession().get(TrickTemplate.class, id);
 	}
 
 	/*
@@ -172,8 +180,8 @@ public class DAOReportTemplateHBM extends DAOHibernate implements DAOReportTempl
 	 * lu.itrust.business.ts.database.TemplateDAOService#merge(java.lang.Object)
 	 */
 	@Override
-	public ReportTemplate merge(ReportTemplate entity) {
-		return (ReportTemplate) getSession().merge(entity);
+	public TrickTemplate merge(TrickTemplate entity) {
+		return (TrickTemplate) getSession().merge(entity);
 	}
 
 	/*
@@ -182,7 +190,7 @@ public class DAOReportTemplateHBM extends DAOHibernate implements DAOReportTempl
 	 * @see lu.itrust.business.ts.database.TemplateDAOService#save(java.util.List)
 	 */
 	@Override
-	public List<Long> save(List<ReportTemplate> entities) {
+	public List<Long> save(List<TrickTemplate> entities) {
 		return entities.stream().map(e -> save(e)).collect(Collectors.toList());
 	}
 
@@ -192,8 +200,9 @@ public class DAOReportTemplateHBM extends DAOHibernate implements DAOReportTempl
 	 * @see lu.itrust.business.ts.database.TemplateDAOService#save(java.lang.Object)
 	 */
 	@Override
-	public Long save(ReportTemplate entity) {
-		return (Long) getSession().save(entity);
+	public Long save(TrickTemplate entity) {
+		 getSession().persist(entity);
+		 return entity.getId();
 	}
 
 	/*
@@ -204,7 +213,7 @@ public class DAOReportTemplateHBM extends DAOHibernate implements DAOReportTempl
 	 * List)
 	 */
 	@Override
-	public void saveOrUpdate(List<ReportTemplate> entities) {
+	public void saveOrUpdate(List<TrickTemplate> entities) {
 		entities.forEach(e -> saveOrUpdate(e));
 	}
 
@@ -216,21 +225,23 @@ public class DAOReportTemplateHBM extends DAOHibernate implements DAOReportTempl
 	 * Object)
 	 */
 	@Override
-	public void saveOrUpdate(ReportTemplate entity) {
+	public void saveOrUpdate(TrickTemplate entity) {
 		getSession().saveOrUpdate(entity);
 	}
 
 	@Override
-	public List<ReportTemplate> findDefault() {
-		return getSession().createQuery("Select template From Customer customer inner join customer.templates as template where customer.canBeUsed = false", ReportTemplate.class)
+	public List<TrickTemplate> findDefault() {
+		return getSession().createQuery(
+				"Select template From Customer customer inner join customer.templates as template where customer.canBeUsed = false",
+				TrickTemplate.class)
 				.list();
 	}
 
 	@Override
-	public ReportTemplate findByIdAndCustomerOrDefault(Long id, Integer customerId) {
+	public TrickTemplate findByIdAndCustomerOrDefault(Long id, Integer customerId) {
 		return getSession().createQuery(
 				"Select template From Customer customer inner join customer.templates as template where template.id = :id and (customer.id = :customerId or customer.canBeUsed = false)",
-				ReportTemplate.class).setParameter("id", id).setParameter("customerId", customerId).uniqueResult();
+				TrickTemplate.class).setParameter("id", id).setParameter("customerId", customerId).uniqueResult();
 	}
 
 	@Override
@@ -242,7 +253,8 @@ public class DAOReportTemplateHBM extends DAOHibernate implements DAOReportTempl
 
 	@Override
 	public AnalysisType findTypeById(Long id) {
-		return getSession().createQuery("Select type From ReportTemplate where id = :id", AnalysisType.class).setParameter("id", id).uniqueResult();
+		return getSession().createQuery("Select type From TrickTemplate where id = :id", AnalysisType.class)
+				.setParameter("id", id).uniqueResult();
 	}
 
 }

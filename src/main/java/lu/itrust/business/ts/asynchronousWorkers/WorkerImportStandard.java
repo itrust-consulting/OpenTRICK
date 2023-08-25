@@ -8,6 +8,7 @@ import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHel
 import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.getString;
 import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.isEmpty;
 
+
 import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.LinkedList;

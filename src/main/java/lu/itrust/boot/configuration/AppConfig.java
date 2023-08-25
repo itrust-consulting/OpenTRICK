@@ -15,12 +15,14 @@ import org.apache.tomcat.util.descriptor.web.ServletDef;
 import org.apache.tomcat.util.descriptor.web.WebXml;
 import org.apache.tomcat.util.descriptor.web.WebXmlParser;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.web.servlet.ServletContextInitializer;
 import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Scope;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.ClassPathResource;
@@ -67,11 +69,13 @@ public class AppConfig {
 	}
 
 	@Bean
+	@Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
 	public InstanceManager instanceManager() {
 		return InstanceManager.getInstance();
 	}
 
 	@Bean
+	@Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
 	public TrickLogManager trickLogManager() {
 		return TrickLogManager.getInstance();
 	}

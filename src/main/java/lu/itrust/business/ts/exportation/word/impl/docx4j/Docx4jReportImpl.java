@@ -17,16 +17,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import jakarta.xml.bind.JAXBElement;
-import jakarta.xml.bind.JAXBException;
 
 import org.docx4j.TraversalUtil;
 import org.docx4j.XmlUtils;
@@ -91,6 +88,8 @@ import org.docx4j.wml.Text;
 import org.docx4j.wml.Tr;
 import org.jvnet.jaxb2_commons.ppp.Child;
 
+import jakarta.xml.bind.JAXBElement;
+import jakarta.xml.bind.JAXBException;
 import lu.itrust.business.ts.component.ChartGenerator;
 import lu.itrust.business.ts.constants.Constant;
 import lu.itrust.business.ts.database.service.ServiceTaskFeedback;
@@ -114,7 +113,7 @@ import lu.itrust.business.ts.model.assessment.Assessment;
 import lu.itrust.business.ts.model.asset.Asset;
 import lu.itrust.business.ts.model.asset.AssetType;
 import lu.itrust.business.ts.model.general.Phase;
-import lu.itrust.business.ts.model.general.document.impl.ReportTemplate;
+import lu.itrust.business.ts.model.general.document.impl.TrickTemplate;
 import lu.itrust.business.ts.model.parameter.helper.ValueFactory;
 import lu.itrust.business.ts.model.scenario.ScenarioType;
 import lu.itrust.business.ts.model.standard.AnalysisStandard;
@@ -140,7 +139,7 @@ public class Docx4jReportImpl implements Docx4jReport {
 
 	private Analysis analysis;
 
-	private ReportTemplate template;
+	private TrickTemplate template;
 
 	private AtomicLong drawingIndex;
 
@@ -291,17 +290,18 @@ public class Docx4jReportImpl implements Docx4jReport {
 
 	public void cleanup(RangeFinder finder) throws Docx4JException {
 		final List<CTRelId> refs = new LinkedList<>();
-		final Map<BigInteger, BookmarkClean> bookmarks = new LinkedHashMap<>();
+		final Map<BigInteger, BookmarkClean> myBookmarks = new LinkedHashMap<>();
 
 		finder.getStarts().stream().filter(c -> c.getName().startsWith("_Tsr"))
-				.forEach(c -> bookmarks.put(c.getId(), new BookmarkClean(c)));
-		finder.getEnds().stream().filter(c -> bookmarks.containsKey(c.getId()))
-				.forEach(c -> bookmarks.get(c.getId()).update(c));
+				.forEach(c -> myBookmarks.put(c.getId(), new BookmarkClean(c)));
+		finder.getEnds().stream().filter(c -> myBookmarks.containsKey(c.getId()))
+				.forEach(c -> myBookmarks.get(c.getId()).update(c));
 
-		bookmarks.values().stream().forEach(c -> {
+		myBookmarks.values().stream().forEach(c -> {
 			if (c.hasContent()) {
 
-				int startIndex = findIndexLoop(c.getStart()), endIndex = findIndexLoop(c.getEnd());
+				int startIndex = findIndexLoop(c.getStart());
+				int endIndex = findIndexLoop(c.getEnd());
 
 				if (!(startIndex == -1 || endIndex == -1)) {
 					final List<Object> contents = getDocument().getContent().subList(
@@ -548,8 +548,10 @@ public class Docx4jReportImpl implements Docx4jReport {
 	}
 
 	@Override
-	public void export(ReportTemplate template, Task task, Analysis analysis, ServiceTaskFeedback serviceTaskFeedback) {
-		internalReportExport(task, analysis, template, serviceTaskFeedback);
+	public void export(TrickTemplate template, Task task, Analysis analysis, ServiceTaskFeedback serviceTaskFeedback) {
+		if (!(template == null || template instanceof TrickTemplate))
+			throw new TrickException("error.wrong.template.type", "The given template is not supported");
+		internalReportExport(task, analysis, (TrickTemplate) template, serviceTaskFeedback);
 	}
 
 	public Part findChart(CTBookmark bookmark) throws InvalidFormatException {
@@ -875,7 +877,7 @@ public class Docx4jReportImpl implements Docx4jReport {
 	}
 
 	@Override
-	public ReportTemplate getTemplate() {
+	public TrickTemplate getTemplate() {
 		return template;
 	}
 
@@ -1151,7 +1153,7 @@ public class Docx4jReportImpl implements Docx4jReport {
 	/**
 	 * @param template the template to set
 	 */
-	public void setTemplate(ReportTemplate template) {
+	public void setTemplate(TrickTemplate template) {
 		this.template = template;
 	}
 
@@ -1314,7 +1316,7 @@ public class Docx4jReportImpl implements Docx4jReport {
 	}
 
 	protected synchronized void internalReportExport(final Task task, final Analysis analysis,
-			final ReportTemplate template, final ServiceTaskFeedback serviceTaskFeedback) {
+			final TrickTemplate template, final ServiceTaskFeedback serviceTaskFeedback) {
 		try {
 			if (getMutex().get())
 				throw new TrickException("error.export.already.start", "Export is already started!");
@@ -1427,7 +1429,7 @@ public class Docx4jReportImpl implements Docx4jReport {
 		updateALEAndAssetTypeProperties();
 
 		if (template != null)
-			setCustomProperty(PROPERTY_REPORT_TYPE, template.getType());
+			setCustomProperty(PROPERTY_REPORT_TYPE, template.getAnalysisType());
 	}
 
 	private void updateALEAndAssetTypeProperties() throws Docx4JException {
@@ -1532,8 +1534,8 @@ public class Docx4jReportImpl implements Docx4jReport {
 
 	private AnalysisType getType() {
 		try {
-			if (!(getTemplate() == null || getTemplate().getType() == null))
-				return getTemplate().getType();
+			if (!(getTemplate() == null || getTemplate().getAnalysisType() == null))
+				return getTemplate().getAnalysisType();
 			String type = getPropertyString(PROPERTY_REPORT_TYPE);
 			return type == null ? getAnalysis().getType() : AnalysisType.valueOf(type);
 		} catch (Exception e) {

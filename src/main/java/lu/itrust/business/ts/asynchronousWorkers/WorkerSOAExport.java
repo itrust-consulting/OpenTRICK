@@ -6,6 +6,7 @@ package lu.itrust.business.ts.asynchronousWorkers;
 import static lu.itrust.business.ts.exportation.word.impl.docx4j.Docx4jReportImpl.mergeCell;
 import static lu.itrust.business.ts.exportation.word.impl.docx4j.formatting.Docx4jFormatter.updateRow;
 import static lu.itrust.business.ts.exportation.word.impl.docx4j.formatting.Docx4jMeasureFormatter.sum;
+import static lu.itrust.business.ts.helper.InstanceManager.loadTemplate;
 
 import java.io.File;
 import java.math.BigInteger;
@@ -50,6 +51,7 @@ import lu.itrust.business.ts.messagehandler.MessageHandler;
 import lu.itrust.business.ts.messagehandler.TaskName;
 import lu.itrust.business.ts.model.analysis.Analysis;
 import lu.itrust.business.ts.model.analysis.ExportFileName;
+import lu.itrust.business.ts.model.general.document.impl.TrickTemplateType;
 import lu.itrust.business.ts.model.general.document.impl.WordReport;
 import lu.itrust.business.ts.model.general.helper.Utils;
 import lu.itrust.business.ts.model.parameter.helper.ValueFactory;
@@ -65,10 +67,6 @@ import lu.itrust.business.ts.usermanagement.User;
 public class WorkerSOAExport extends WorkerImpl {
 
 	public static final String DEFAULT_PARAGRAHP_STYLE = "TabText1";
-
-	public static String FR_TEMPLATE;
-
-	public static String ENG_TEMPLATE;
 
 	private String username;
 
@@ -215,17 +213,17 @@ public class WorkerSOAExport extends WorkerImpl {
 	}
 
 	protected long proccessing(User user, Analysis analysis) throws Exception {
-		final File workFile = InstanceManager.getServiceStorage().createTmpFile();
+		final int[] progressing = { 2, 95, 0, 0 };
+		final File workFile = loadTemplate(analysis.getCustomer(), TrickTemplateType.SOA,
+				analysis.getLanguage());
 		try {
 			// progress, max, size, index
-			int[] progressing = { 2, 95, 0, 0 };
+
 			locale = new Locale(analysis.getLanguage().getAlpha2().toLowerCase());
 			format = new SimpleDateFormat("dd/MM/yyyy");
 			getServiceTaskFeedback().send(getId(),
 					new MessageHandler("info.loading.soa.template", "Loading soa sheet template", progressing[0] += 3));
-			final String doctemplate = String.format("docx/%s.docx",
-					locale.getLanguage().equals("fr") ? FR_TEMPLATE : ENG_TEMPLATE);
-			InstanceManager.getServiceStorage().copy(doctemplate, workFile.getName());
+
 			final WordprocessingMLPackage wordMLPackage = WordprocessingMLPackage.load(workFile);
 			final Document document = wordMLPackage.getMainDocumentPart().getContents();
 			final ValueFactory factory = new ValueFactory(analysis.getParameters());

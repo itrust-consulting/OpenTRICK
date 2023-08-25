@@ -5,29 +5,46 @@
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
-<div id="form_customer_template" class="tab-pane" style="height: 500px; overflow-y: auto; overflow-x: hidden; margin-top: -10px">
+<div id="form_customer_template" class="tab-pane" style="height: 490px; overflow-y: auto; overflow-x: hidden;">
 	<form name="reportTemplate" class="form form-horizontal" id="reportTemplate-form" method="post" enctype="multipart/form-data">
 		<input type="hidden" value="-1" name="id" id="reportTemplate.id"> <input type="hidden" value="${customer.id}" name="customer" id="reportTemplate.customer.id">
+		
 		<div class="form-group">
-			<label class="control-label col-sm-3" data-helper-content='<spring:message code="help.report.template.type" />'><spring:message code="label.type" /></label>
-			<div class="col-sm-9 text-center" data-trick-info='type'>
+			<label class="control-label col-sm-3" data-helper-content='<spring:message code="help.report.template.type" />'><spring:message code="label.category" /></label>
+			<div class="col-sm-9 text-center" data-trick-info='analysisType'>
 				<div class="btn-group" data-toggle="buttons">
-					<c:forEach items="${types}" var="type" varStatus="status">
-						<c:set var="typeValue" value="${fn:toLowerCase(type)}" />
-						<label class="btn btn-default ${status.index==0 ?'active':''} ${customer.canBeUsed?'': 'disabled'}" data-trick-real-value='${type}'><spring:message code="label.analysis.type.${typeValue}"
-								text="${typeValue}" /> <c:if test="${customer.canBeUsed}">
-								<input ${status.index==0? 'checked' :''} name="type" type="radio" value="${type}">
+					<c:forEach items="${analysisTypes}" var="analysisType" varStatus="status">
+						<c:set var="analysisTypeValue" value="${fn:toLowerCase(analysisType)}" />
+						<label class="btn btn-default ${status.index==0 ?'active':''} ${customer.canBeUsed?'': 'disabled'}" data-trick-real-value='${analysisType}'><spring:message code="label.analysis.type.${analysisTypeValue}"
+								text="${analysisTypeValue}" /> <c:if test="${customer.canBeUsed}">
+								<input ${status.index==0? 'checked' :''} name="analysisType" type="radio" value="${analysisType}">
 							</c:if> </label>
 					</c:forEach>
 				</div>
 			</div>
 		</div>
+
+		<div class="form-group">
+			<label class="control-label col-sm-3" data-helper-content='<spring:message code="help.template.type" />'><spring:message code="label.type" /></label>
+			<div class="col-sm-9 text-center" data-trick-info='type'>
+				<select class="form-control" name="type" ${customer.canBeUsed?'': 'disabled'}" >
+					<option selected disabled><spring:message code="label.action.choose" />
+                     <c:forEach items="${types}" var="type" varStatus="status">
+						<c:set var="typeValue" value="${fn:toLowerCase(type)}" />
+						<option value="${type}"><spring:message code="label.template.type.${typeValue}" text="${typeValue}" /></option>
+					</c:forEach>
+				</select>
+			</div>
+		</div>
+
+		
 		<div class="form-group">
 			<label for="language" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.report.template.language" />'><spring:message code="label.language"
 					text="Language" /></label>
 			<div class="col-sm-9" data-trick-info='language'>
 				<select name="language" class="form-control" required="required" ${customer.canBeUsed?'': 'readonly disabled'}>
 					<option value="-1" selected="selected" disabled="disabled"><spring:message code="label.action.choose" text="Choose..." /></option>
+					<option value="-2" selected="selected"><spring:message code="label.all" text="ALL" /></option>
 					<c:forEach items="${languages}" var="language">
 						<option value="${language.id}"><spring:message text="${language.name}" /></option>
 					</c:forEach>

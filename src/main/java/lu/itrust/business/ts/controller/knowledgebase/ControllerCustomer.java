@@ -4,6 +4,7 @@ import static lu.itrust.business.ts.constants.Constant.ACCEPT_APPLICATION_JSON_C
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.security.Principal;
 import java.sql.Timestamp;
 import java.util.LinkedHashMap;
@@ -18,6 +19,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
+import org.apache.commons.compress.utils.FileNameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
@@ -40,23 +42,24 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import lu.itrust.business.ts.component.CustomDelete;
 import lu.itrust.business.ts.component.CustomerManager;
-import lu.itrust.business.ts.component.DefaultReportTemplateLoader;
+import lu.itrust.business.ts.component.DefaultTemplateLoader;
 import lu.itrust.business.ts.component.TrickLogManager;
 import lu.itrust.business.ts.constants.Constant;
 import lu.itrust.business.ts.database.service.ServiceCustomer;
 import lu.itrust.business.ts.database.service.ServiceLanguage;
-import lu.itrust.business.ts.database.service.ServiceReportTemplate;
+import lu.itrust.business.ts.database.service.ServiceTrickTemplate;
 import lu.itrust.business.ts.database.service.ServiceUser;
 import lu.itrust.business.ts.exception.TrickException;
 import lu.itrust.business.ts.form.CustomerForm;
-import lu.itrust.business.ts.form.ReportTemplateForm;
+import lu.itrust.business.ts.form.TemplateForm;
 import lu.itrust.business.ts.helper.JsonMessage;
 import lu.itrust.business.ts.helper.NaturalOrderComparator;
 import lu.itrust.business.ts.model.analysis.AnalysisType;
 import lu.itrust.business.ts.model.general.Customer;
 import lu.itrust.business.ts.model.general.LogAction;
 import lu.itrust.business.ts.model.general.LogType;
-import lu.itrust.business.ts.model.general.document.impl.ReportTemplate;
+import lu.itrust.business.ts.model.general.document.impl.TrickTemplate;
+import lu.itrust.business.ts.model.general.document.impl.TrickTemplateType;
 import lu.itrust.business.ts.usermanagement.User;
 
 /**
@@ -91,10 +94,10 @@ public class ControllerCustomer {
 	private ServiceLanguage serviceLanguage;
 
 	@Autowired
-	private ServiceReportTemplate serviceReportTemplate;
+	private ServiceTrickTemplate serviceTrickTemplate;
 
 	@Autowired
-	private DefaultReportTemplateLoader defaultReportTemplateLoader;
+	private DefaultTemplateLoader defaultReportTemplateLoader;
 
 	private Long maxTemplateSize;
 
@@ -196,158 +199,172 @@ public class ControllerCustomer {
 		}
 	}
 
-	@GetMapping(value = "/{customerId}/Report-template/Manage", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public String reportTemplateForm(@PathVariable("customerId") int customerId, Model model, Principal principal,
+	@GetMapping(value = "/{customerId}/Template/Manage", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public String templateForm(@PathVariable("customerId") int customerId, Model model, Principal principal,
 			Locale locale) {
 		final Customer customer = serviceCustomer.getFromUsernameAndId(principal.getName(), customerId);
 		if (customer == null || !customer.isCanBeUsed())
 			throw new AccessDeniedException(
 					messageSource.getMessage("error.customer.not_exist", null, "Customer does not exist", locale));
-		final List<ReportTemplate> reportTemplates = new LinkedList<>(defaultReportTemplateLoader.findAll());
-		final Map<String, String> versions = reportTemplates.stream()
-				.collect(Collectors.toMap(ReportTemplate::getKey, ReportTemplate::getVersion));
+		final List<TrickTemplate> templates = new LinkedList<>(defaultReportTemplateLoader.findAll());
+		final Map<String, String> versions = templates.stream()
+				.collect(Collectors.toMap(TrickTemplate::getKey, TrickTemplate::getVersion));
 		customer.getTemplates().stream()
 				.sorted((p1, p2) -> NaturalOrderComparator.compareTo(p1.getVersion(), p2.getVersion())).forEach(p -> {
-					reportTemplates.add(p);
+					templates.add(p);
 					p.setOutToDate(!p.getVersion().equalsIgnoreCase(versions.get(p.getKey())));
 				});
 		model.addAttribute("customer", customer);
 		model.addAttribute("versions", versions.values().stream()
-				.sorted((v1, v2) -> NaturalOrderComparator.compareTo(v1, v2)).collect(Collectors.toList()));
-		model.addAttribute("reportTemplates", reportTemplates);
-		model.addAttribute("types", AnalysisType.values());
+				.sorted(NaturalOrderComparator::compareTo).collect(Collectors.toList()));
+		model.addAttribute("templates", templates);
+		model.addAttribute("analysisTypes", AnalysisType.values());
+		model.addAttribute("types", TrickTemplateType.values());
 		model.addAttribute("languages", serviceLanguage.getByAlpha3("ENG", "FRA"));
 		model.addAttribute("maxFileSize", Math.min(maxUploadFileSize, maxTemplateSize));
-		return "jsp/knowledgebase/customer/form/report-template";
+		return "jsp/knowledgebase/customer/template/home";
 	}
 
-	@PostMapping(value = "/{customerId}/Report-template/Save", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public @ResponseBody Object reportTemplateSave(@PathVariable("customerId") int customerId,
-			@ModelAttribute ReportTemplateForm templateForm, Model model, Principal principal,
+	@PostMapping(value = "/{customerId}/Template/Save", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public @ResponseBody Object templateSave(@PathVariable("customerId") int customerId,
+			@ModelAttribute TemplateForm templateForm, Model model, Principal principal,
 			Locale locale) {
 		final Customer customer = serviceCustomer.getFromUsernameAndId(principal.getName(), customerId);
 		if (customer == null || !customer.isCanBeUsed())
 			throw new AccessDeniedException(
 					messageSource.getMessage("error.customer.not_exist", null, "Customer does not exist", locale));
-		ReportTemplate template = templateForm.getId() > 0
-				? serviceReportTemplate.findByIdAndCustomer(templateForm.getId(), customerId)
-				: new ReportTemplate();
-		if (template == null)
-			return JsonMessage.Error(
-					messageSource.getMessage("error.customer.not_exist", null, "Customer does not exist", locale));
 
-		Map<String, Object> result = new LinkedHashMap<>();
+		final Map<String, Object> result = new LinkedHashMap<>();
 
-		template.setVersion(templateForm.getVersion());
+		if (templateForm.getType() == null) {
+			result.put("type",
+					messageSource.getMessage("error.report.template.type", null, "Type cannot be empty", locale));
+		} else {
+			final TrickTemplate template;
 
-		if (!templateForm.getFile().isEmpty()) {
-
-			try {
-				long maxSize = Math.min(maxUploadFileSize, maxTemplateSize);
-				if (templateForm.getFile().getSize() > maxSize)
-					result.put("file", messageSource.getMessage("error.file.too.large", new Object[] { maxSize },
-							"File is to large", locale));
-				else {
-					template.setName(templateForm.getFile().getOriginalFilename());
-					template.setLength(templateForm.getFile().getSize());
-					if (DefaultReportTemplateLoader.isDocx(templateForm.getFile().getInputStream()))
-						template.setData(templateForm.getFile().getBytes());
+			if (templateForm.getId() > 0)
+				template = serviceTrickTemplate.findByIdAndCustomer(templateForm.getId(), customerId);
+			else {
+				template = new TrickTemplate(templateForm.getType());
+				if (templateForm.getType() == TrickTemplateType.REPORT) {
+					if (templateForm.getAnalysisType() != null)
+						template.setAnalysisType(templateForm.getAnalysisType());
 					else
-						result.put("file",
-								messageSource.getMessage("error.file.no.docx", null, "Docx file is excepted", locale));
+						result.put("analysisType",
+								messageSource.getMessage("error.template.analysis.type", null,
+										"Analysis type cannot be empty",
+										locale));
 				}
-			} catch (IOException e) {
-				result.put("file",
-						messageSource.getMessage("error.file.not.updated", null, "File cannot be loaded", locale));
 			}
-		}
 
-		if (template.getData() == null || template.getData().length == 0)
-			result.put("file",
-					messageSource.getMessage("error.report.template.file.empty", null, "File cannot be empty", locale));
+			if (template == null)
+				return JsonMessage.Error(
+						messageSource.getMessage("error.customer.not_exist", null, "Customer does not exist", locale));
 
-		if (!StringUtils.hasText(templateForm.getLabel()))
-			result.put("label", messageSource.getMessage("error.report.template.label.empty", null,
-					"Title cannot be empty", locale));
-		else {
-			try {
+			template.setVersion(templateForm.getVersion());
+
+			if (!templateForm.getFile().isEmpty()) {
+
+				try {
+					long maxSize = Math.min(maxUploadFileSize, maxTemplateSize);
+					if (templateForm.getFile().getSize() > maxSize)
+						result.put("file", messageSource.getMessage("error.file.too.large", new Object[] { maxSize },
+								"File is to large", locale));
+					else {
+						template.setName(templateForm.getFile().getOriginalFilename());
+						template.setLength(templateForm.getFile().getSize());
+						if (DefaultTemplateLoader.checkTemplate(templateForm.getFile().getInputStream(),
+								templateForm.getType()))
+							template.setData(templateForm.getFile().getBytes());
+						else
+							result.put("file",
+									messageSource.getMessage("error.file.no.docx", null, "Docx file is excepted",
+											locale));
+					}
+				} catch (IOException e) {
+					result.put("file",
+							messageSource.getMessage("error.file.not.updated", null, "File cannot be loaded", locale));
+				}
+			}
+
+			if (template.getData() == null || template.getData().length == 0)
+				result.put("file",
+						messageSource.getMessage("error.report.template.file.empty", null, "File cannot be empty",
+								locale));
+
+			if (!StringUtils.hasText(templateForm.getLabel()))
+				result.put("label", messageSource.getMessage("error.report.template.label.empty", null,
+						"Title cannot be empty", locale));
+			else {
 				templateForm.setLabel(templateForm.getLabel().trim());
 				if (templateForm.getLabel().length() == 0)
 					result.put("label", messageSource.getMessage("error.report.template.label.empty", null,
 							"Title cannot be empty", locale));
-				else if (templateForm.getLabel().getBytes("UTF-8").length > 255)
+				else if (templateForm.getLabel().getBytes(StandardCharsets.UTF_8).length > 255)
 					result.put("label", messageSource.getMessage("error.report.template.label.too.long", null,
 							"Title is to long.", locale));
 				else
 					template.setLabel(templateForm.getLabel());
-			} catch (UnsupportedEncodingException e) {
-				result.put("customer",
-						messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 			}
-		}
 
-		if (!StringUtils.hasText(templateForm.getVersion()))
-			result.put("version", messageSource.getMessage("error.report.template.version.empty", null,
-					"Version cannot be empty", locale));
-		else {
-			try {
+			if (!StringUtils.hasText(templateForm.getVersion()))
+				result.put("version", messageSource.getMessage("error.report.template.version.empty", null,
+						"Version cannot be empty", locale));
+			else {
 				templateForm.setVersion(templateForm.getVersion().trim());
 				if (templateForm.getVersion().length() == 0)
 					result.put("version", messageSource.getMessage("error.report.template.version.empty", null,
 							"Version cannot be empty", locale));
-				else if (templateForm.getVersion().getBytes("UTF-8").length > 255)
+				else if (templateForm.getVersion().getBytes(StandardCharsets.UTF_8).length > 255)
 					result.put("version", messageSource.getMessage("error.report.template.version.too.long", null,
 							"Version is to long", locale));
 				else
 					template.setVersion(templateForm.getVersion());
-			} catch (UnsupportedEncodingException e) {
-				result.put("customer",
-						messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 			}
-		}
 
-		if (templateForm.getType() != null)
-			template.setType(templateForm.getType());
-		else
-			result.put("type",
-					messageSource.getMessage("error.report.template.type", null, "Type cannot be empty", locale));
+			if (templateForm.getLanguage() == -2)
+				template.setLanguage(null);
+			else {
+				template.setLanguage(serviceLanguage.get(templateForm.getLanguage()));
+				if (template.getLanguage() == null)
+					result.put("language",
+							messageSource.getMessage("error.language.not.found", null, "Lnaguage cannot be found",
+									locale));
+			}
 
-		template.setLanguage(serviceLanguage.get(templateForm.getLanguage()));
-
-		if (template.getLanguage() == null)
-			result.put("language",
-					messageSource.getMessage("error.language.not.found", null, "Lnaguage cannot be found", locale));
-
-		if (result.isEmpty()) {
-			if (template.getId() < 1)
-				customer.getTemplates().add(template);
-			template.setEditable(true);
-			template.setCreated(new Timestamp(System.currentTimeMillis()));
-			serviceCustomer.saveOrUpdate(customer);
-			return templateForm.getId() > 0
-					? JsonMessage.Success(messageSource.getMessage("success.report.template.update", null, locale))
-					: JsonMessage.Success(messageSource.getMessage("success.report.template.save", null, locale));
+			if (result.isEmpty()) {
+				if (template.getId() < 1)
+					customer.getTemplates().add(template);
+				template.setEditable(true);
+				template.setCreated(new Timestamp(System.currentTimeMillis()));
+				serviceCustomer.saveOrUpdate(customer);
+				return templateForm.getId() > 0
+						? JsonMessage.Success(messageSource.getMessage("success.report.template.update", null, locale))
+						: JsonMessage.Success(messageSource.getMessage("success.report.template.save", null, locale));
+			}
 		}
 
 		return result;
 	}
 
-	@DeleteMapping(value = "/{customerId}/Report-template", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public @ResponseBody Object deleteReportTemplate(@PathVariable("customerId") int customerId, Principal principal,
+	@DeleteMapping(value = "/{customerId}/Template", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public @ResponseBody Object deleteTemplate(@PathVariable("customerId") int customerId, Principal principal,
 			@RequestBody List<Long> ids, Locale locale) {
 		Customer customer = serviceCustomer.getFromUsernameAndId(principal.getName(), customerId);
 		if (customer == null)
 			throw new AccessDeniedException(
 					messageSource.getMessage("error.customer.not_exist", null, "Customer does not exist", locale));
-		final ReportTemplate emptyTempalte = new ReportTemplate();
-		Map<Long, ReportTemplate> templates = ids.parallelStream()
+
+		final TrickTemplate emptyTempalte = new TrickTemplate();
+		final Map<Long, TrickTemplate> templates = ids.parallelStream()
 				.collect(Collectors.toMap(Function.identity(), i -> emptyTempalte));
+
 		customer.getTemplates()
 				.removeIf(p -> templates.containsKey(p.getId()) && emptyTempalte.equals(templates.put(p.getId(), p)));
 		templates.entrySet().removeIf(e -> e.getValue().equals(emptyTempalte));
 		if (!templates.isEmpty()) {
 			serviceCustomer.saveOrUpdate(customer);
-			serviceReportTemplate.delete(templates.values());
+			serviceTrickTemplate.delete(templates.values());
 		}
 		return JsonMessage.Success(
 				messageSource.getMessage("success.report.template.delete", new Object[] { ids.size() }, locale));
@@ -363,14 +380,14 @@ public class ControllerCustomer {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping("/Report-template/{id}/Download")
+	@RequestMapping("/Template/{id}/Download")
 	public String downloadReport(@PathVariable Long id, Principal principal, HttpServletResponse response,
 			Locale locale) throws Exception {
 
-		ReportTemplate reportTemplate = serviceReportTemplate.findOne(id);
+		TrickTemplate template = serviceTrickTemplate.findOne(id);
 
 		// if file could not be found retrun 404 error
-		if (reportTemplate == null)
+		if (template == null)
 			return "jsp/errors/404";
 
 		Customer customer = serviceCustomer.findByReportTemplateId(id);
@@ -382,32 +399,47 @@ public class ControllerCustomer {
 			throw new AccessDeniedException(
 					messageSource.getMessage("error.permission_denied", null, "Permission denied!", locale));
 
-		// set response contenttype to sqlite
-		response.setContentType("docx");
+		final String extension = FileNameUtils.getExtension(template.getName());
+
+		// set response contenttype to extension
+		response.setContentType(extension);
 
 		// set response header with location of the filename
 		response.setHeader("Content-Disposition", "attachment; filename=\""
-				+ String.format("%s_v%s.docx", reportTemplate.getLabel(), reportTemplate.getVersion()) + "\"");
+				+ String.format("%s_v%s.%s", template.getLabel(), template.getVersion(), extension) + "\"");
 
 		// set sqlite file size as response size
-		response.setContentLength((int) reportTemplate.getLength());
+		response.setContentLength((int) template.getLength());
 
 		// return the sqlite file (as copy) to the response outputstream ( whihc
 		// creates on the
 		// client side the sqlite file)
-		FileCopyUtils.copy(reportTemplate.getData(), response.getOutputStream());
+		FileCopyUtils.copy(template.getData(), response.getOutputStream());
 		/**
 		 * Log
 		 */
-		TrickLogManager.Persist(LogType.ANALYSIS, "log.customer.report.template.download",
-				String.format("Customer: %s, Template: %s, version: %s, created at: %s, type: %s, Language: %s",
-						customer.getContactPerson(), reportTemplate.getLabel(),
-						reportTemplate.getVersion(), reportTemplate.getCreated(), reportTemplate.getType(),
-						reportTemplate.getLanguage().getAlpha3()),
-				principal.getName(), LogAction.DOWNLOAD, customer.getContactPerson(), reportTemplate.getLabel(),
-				reportTemplate.getVersion(),
-				String.valueOf(reportTemplate.getCreated()), String.valueOf(reportTemplate.getType()),
-				reportTemplate.getLanguage().getAlpha3());
+
+		if (template.getType() == TrickTemplateType.REPORT) {
+			TrickLogManager.Persist(LogType.ANALYSIS, "log.customer.report.template.download",
+					String.format("Customer: %s, Template: %s, version: %s, created at: %s, type: %s, Language: %s",
+							customer.getContactPerson(), template.getLabel(),
+							template.getVersion(), template.getCreated(), template.getAnalysisType(),
+							template.getLanguage().getAlpha3()),
+					principal.getName(), LogAction.DOWNLOAD, customer.getContactPerson(), template.getLabel(),
+					template.getVersion(),
+					String.valueOf(template.getCreated()), String.valueOf(template.getAnalysisType()),
+					template.getLanguage().getAlpha3());
+		} else {
+			TrickLogManager.Persist(LogType.ANALYSIS, "log.customer.template.download",
+					String.format("Customer: %s, Template: %s, version: %s, created at: %s, type: %s, Language: %s",
+							customer.getContactPerson(), template.getLabel(),
+							template.getVersion(), template.getCreated(), template.getType(),
+							template.getLanguage().getAlpha3()),
+					principal.getName(), LogAction.DOWNLOAD, customer.getContactPerson(), template.getLabel(),
+					template.getVersion(),
+					String.valueOf(template.getCreated()), String.valueOf(template.getType()),
+					template.getLanguage().getAlpha3());
+		}
 
 		// return
 		return null;

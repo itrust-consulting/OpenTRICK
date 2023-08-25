@@ -15,6 +15,7 @@ import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHel
 import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.getWorksheetPart;
 import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.setFormula;
 import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.setValue;
+import static lu.itrust.business.ts.helper.InstanceManager.loadTemplate;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -40,6 +41,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.xml.bind.JAXBException;
 
+import org.apache.commons.compress.utils.FileNameUtils;
 import org.apache.commons.io.FileUtils;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.docx4j.openpackaging.exceptions.InvalidFormatException;
@@ -84,7 +86,7 @@ import lu.itrust.business.ts.asynchronousWorkers.WorkerImportMeasureData;
 import lu.itrust.business.ts.asynchronousWorkers.WorkerImportRiskInformation;
 import lu.itrust.business.ts.asynchronousWorkers.WorkerSOAExport;
 import lu.itrust.business.ts.component.AssessmentAndRiskProfileManager;
-import lu.itrust.business.ts.component.DefaultReportTemplateLoader;
+import lu.itrust.business.ts.component.DefaultTemplateLoader;
 import lu.itrust.business.ts.component.MeasureManager;
 import lu.itrust.business.ts.component.TrickLogManager;
 import lu.itrust.business.ts.constants.Constant;
@@ -95,7 +97,7 @@ import lu.itrust.business.ts.database.service.ServiceAssetTypeValue;
 import lu.itrust.business.ts.database.service.ServiceCustomer;
 import lu.itrust.business.ts.database.service.ServiceImpactParameter;
 import lu.itrust.business.ts.database.service.ServiceLikelihoodParameter;
-import lu.itrust.business.ts.database.service.ServiceReportTemplate;
+import lu.itrust.business.ts.database.service.ServiceTrickTemplate;
 import lu.itrust.business.ts.database.service.ServiceRiskAcceptanceParameter;
 import lu.itrust.business.ts.database.service.ServiceScaleType;
 import lu.itrust.business.ts.database.service.ServiceSimpleParameter;
@@ -116,6 +118,7 @@ import lu.itrust.business.ts.form.ImportAnalysisForm;
 import lu.itrust.business.ts.form.ImportRRFForm;
 import lu.itrust.business.ts.helper.Column;
 import lu.itrust.business.ts.helper.ILRExport;
+import lu.itrust.business.ts.helper.InstanceManager;
 import lu.itrust.business.ts.helper.JsonMessage;
 import lu.itrust.business.ts.helper.NaturalOrderComparator;
 import lu.itrust.business.ts.helper.RRFExportImport;
@@ -135,10 +138,12 @@ import lu.itrust.business.ts.model.cssf.RiskProfile;
 import lu.itrust.business.ts.model.cssf.RiskStrategy;
 import lu.itrust.business.ts.model.cssf.helper.CSSFFilter;
 import lu.itrust.business.ts.model.general.Customer;
+import lu.itrust.business.ts.model.general.Language;
 import lu.itrust.business.ts.model.general.LogAction;
 import lu.itrust.business.ts.model.general.LogLevel;
 import lu.itrust.business.ts.model.general.LogType;
-import lu.itrust.business.ts.model.general.document.impl.ReportTemplate;
+import lu.itrust.business.ts.model.general.document.impl.TrickTemplate;
+import lu.itrust.business.ts.model.general.document.impl.TrickTemplateType;
 import lu.itrust.business.ts.model.general.helper.Utils;
 import lu.itrust.business.ts.model.ilr.AssetImpact;
 import lu.itrust.business.ts.model.ilr.AssetNode;
@@ -172,12 +177,6 @@ public class ControllerDataManager {
 	@Autowired
 	private AssessmentAndRiskProfileManager assessmentAndRiskProfileManager;
 
-	@Value("${app.settings.risk.information.template.path}")
-	private String brainstormingTemplate;
-
-	@Value("${app.settings.excel.default.template.path}")
-	private String defaultExcelTemplate;
-
 	@Value("${app.settings.excel.default.table.style}")
 	private String defaultExcelTableStyle;
 
@@ -185,7 +184,7 @@ public class ControllerDataManager {
 	private String headerFooterSheetName;
 
 	@Autowired
-	private DefaultReportTemplateLoader defaultReportTemplateLoader;
+	private DefaultTemplateLoader defaultTemplateLoader;
 
 	@Autowired
 	private TaskExecutor executor;
@@ -219,7 +218,7 @@ public class ControllerDataManager {
 	private ServiceLikelihoodParameter serviceLikelihoodParameter;
 
 	@Autowired
-	private ServiceReportTemplate serviceReportTemplate;
+	private ServiceTrickTemplate serviceTrickTemplate;
 
 	@Autowired
 	private ServiceRiskAcceptanceParameter serviceRiskAcceptanceParameter;
@@ -250,7 +249,7 @@ public class ControllerDataManager {
 	public void exportActionPlanRawProcess(HttpServletRequest request, HttpServletResponse response,
 			HttpSession session, Principal principal, Locale locale) throws Exception {
 		final Analysis analysis = serviceAnalysis.get((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS));
-		final File file = serviceStorage.createTmpFileOf(defaultExcelTemplate);
+		final File file = loadTemplate(analysis.getCustomer(), TrickTemplateType.DEFAULT_EXCEL, analysis.getLanguage());
 		try {
 			final SpreadsheetMLPackage spreadsheetMLPackage = SpreadsheetMLPackage.load(file);
 			exportRawActionPlan(analysis, spreadsheetMLPackage, new Locale(analysis.getLanguage().getAlpha2()));
@@ -282,7 +281,7 @@ public class ControllerDataManager {
 	public void exportAssetProcess(HttpServletRequest request, HttpServletResponse response, HttpSession session,
 			Principal principal, Locale locale) throws Exception {
 		final Analysis analysis = serviceAnalysis.get((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS));
-		final File file = serviceStorage.createTmpFileOf(defaultExcelTemplate);
+		final File file = loadTemplate(analysis.getCustomer(), TrickTemplateType.DEFAULT_EXCEL, analysis.getLanguage());
 		try {
 			final SpreadsheetMLPackage spreadsheetMLPackage = SpreadsheetMLPackage.load(file);
 			exportAsset(analysis, spreadsheetMLPackage);
@@ -418,7 +417,7 @@ public class ControllerDataManager {
 			Locale locale, Principal principal) throws Exception {
 		final Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		final Analysis analysis = serviceAnalysis.get(idAnalysis);
-		final File file = serviceStorage.createTmpFileOf(defaultExcelTemplate);
+		final File file = loadTemplate(analysis.getCustomer(), TrickTemplateType.DEFAULT_EXCEL, analysis.getLanguage());
 		try {
 			final SpreadsheetMLPackage mlPackage = SpreadsheetMLPackage.load(file);
 			final WorksheetPart worksheetPart = createWorkSheetPart(mlPackage, "Risk estimation");
@@ -662,7 +661,7 @@ public class ControllerDataManager {
 			HttpServletRequest request, HttpServletResponse response, HttpSession session,
 			Principal principal, Locale locale) throws Exception {
 		final Analysis analysis = serviceAnalysis.get((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS));
-		final File file = serviceStorage.createTmpFileOf(defaultExcelTemplate);
+		final File file = loadTemplate(analysis.getCustomer(), TrickTemplateType.DEFAULT_EXCEL, analysis.getLanguage());
 		try {
 			final SpreadsheetMLPackage mlPackage = SpreadsheetMLPackage.load(file);
 			final ValueFactory factory = new ValueFactory(analysis.getParameters());
@@ -702,15 +701,15 @@ public class ControllerDataManager {
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).EXPORT)")
 	public String exportReportForm(@PathVariable Integer analysisId, Principal principal, Model model, Locale locale) {
 		final Analysis analysis = serviceAnalysis.get(analysisId);
-		final List<ReportTemplate> reportTemplates = defaultReportTemplateLoader
-				.findByTypeAndLanguage(analysis.getType(), analysis.getLanguage().getAlpha3());
-		final Map<String, String> versions = reportTemplates.stream()
-				.collect(Collectors.toMap(ReportTemplate::getKey, ReportTemplate::getVersion));
+		final List<TrickTemplate> templates = defaultTemplateLoader
+				.findReportByTypeAndLanguage(analysis.getType(), analysis.getLanguage().getAlpha3());
+		final Map<String, String> versions = templates.stream()
+				.collect(Collectors.toMap(TrickTemplate::getKey, TrickTemplate::getVersion));
 		analysis.getCustomer().getTemplates().stream()
 				.filter(p -> p.getLanguage().equals(analysis.getLanguage()) && analysis.getType().isHybrid() ? true
-						: analysis.getType() == p.getType())
+						: analysis.getType() == p.getAnalysisType())
 				.sorted((p1, p2) -> NaturalOrderComparator.compareTo(p1.getVersion(), p2.getVersion())).forEach(p -> {
-					reportTemplates.add(p);
+					templates.add(p);
 					if (!p.getVersion().equalsIgnoreCase(versions.get(p.getKey())))
 						p.setOutToDate(true);
 				});
@@ -718,7 +717,7 @@ public class ControllerDataManager {
 		if (analysis.isHybrid())
 			model.addAttribute("types", AnalysisType.values());
 		model.addAttribute("analysis", analysis);
-		model.addAttribute("templates", reportTemplates);
+		model.addAttribute("templates", templates);
 		model.addAttribute("maxFileSize", Math.min(maxUploadFileSize, maxRefurbishReportSize));
 		return "jsp/analyses/single/components/data-manager/export/report/modal";
 	}
@@ -727,15 +726,17 @@ public class ControllerDataManager {
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).EXPORT)")
 	public String exportReportForm(Model model, HttpSession session, Principal principal, Locale locale) {
 		final Analysis analysis = serviceAnalysis.get((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS));
-		final List<ReportTemplate> reportTemplates = defaultReportTemplateLoader
-				.findByTypeAndLanguage(analysis.getType(), analysis.getLanguage().getAlpha3());
-		final Map<String, String> versions = reportTemplates.stream()
-				.collect(Collectors.toMap(ReportTemplate::getKey, ReportTemplate::getVersion));
+		final List<TrickTemplate> templates = new ArrayList<>(defaultTemplateLoader
+				.findReportByTypeAndLanguage(analysis.getType(), analysis.getLanguage().getAlpha3()));
+
+		final Map<String, String> versions = templates.stream()
+				.collect(Collectors.toMap(TrickTemplate::getKey, TrickTemplate::getVersion));
+
 		analysis.getCustomer().getTemplates().stream()
-				.filter(p -> p.getLanguage().equals(analysis.getLanguage()) && analysis.getType().isHybrid() ? true
-						: analysis.getType() == p.getType())
+				.filter(p -> p.getType() == TrickTemplateType.REPORT && analysis.getLanguage().equals(p.getLanguage())
+						&& (analysis.getType().isHybrid() || analysis.getType() == p.getAnalysisType()))
 				.sorted((p1, p2) -> NaturalOrderComparator.compareTo(p1.getVersion(), p2.getVersion())).forEach(p -> {
-					reportTemplates.add(p);
+					templates.add(p);
 					if (!p.getVersion().equalsIgnoreCase(versions.get(p.getKey())))
 						p.setOutToDate(true);
 				});
@@ -754,7 +755,7 @@ public class ControllerDataManager {
 					"/Analysis/Data-manager/Report/Export-process", ".docx"));
 
 		model.addAttribute("analysis", analysis);
-		model.addAttribute("templates", reportTemplates);
+		model.addAttribute("templates", templates);
 		model.addAttribute("maxFileSize", Math.min(maxUploadFileSize, maxRefurbishReportSize));
 		return "jsp/analyses/single/components/data-manager/export/report/home";
 	}
@@ -779,7 +780,7 @@ public class ControllerDataManager {
 		try {
 			final Integer customerId = serviceAnalysis.getCustomerIdByIdAnalysis(analysisId);
 			if (form.isInternal()) {
-				if (!serviceReportTemplate.isUseAuthorised(form.getTemplate(), customerId))
+				if (!serviceTrickTemplate.isUseAuthorised(form.getTemplate(), customerId))
 					throw new AccessDeniedException(
 							messageSource.getMessage("error.permission_denied", null, "Permission denied!", locale));
 			} else if (form.getFile() == null)
@@ -796,7 +797,7 @@ public class ControllerDataManager {
 				if (form.getFile().getSize() > maxSize)
 					return JsonMessage.Error(messageSource.getMessage("error.file.too.large", new Object[] { maxSize },
 							"File is to large", locale));
-				if (!DefaultReportTemplateLoader.isDocx(form.getFile().getInputStream()))
+				if (!DefaultTemplateLoader.isDocx(form.getFile().getInputStream()))
 					return JsonMessage.Error(
 							messageSource.getMessage("error.file.no.docx", null, "Docx file is excepted", locale));
 			}
@@ -868,9 +869,9 @@ public class ControllerDataManager {
 						.groupingBy(riskInformation -> riskInformation.getCategory().startsWith("Risk_TB") ? "Risk"
 								: riskInformation.getCategory()));
 
-		final File workFile = serviceStorage.createTmpFile();
+		final File workFile = InstanceManager.loadTemplate(analysis.getCustomer(), TrickTemplateType.RISK_INFORMATION,
+				analysis.getLanguage());
 		try {
-			serviceStorage.copy(brainstormingTemplate, workFile.getName());
 			final SpreadsheetMLPackage mlPackage = SpreadsheetMLPackage.load(workFile);
 			final WorkbookPart workbook = mlPackage.getWorkbookPart();
 			for (Object[] mapper : RI_SHEET_MAPPERS) {
@@ -1040,7 +1041,8 @@ public class ControllerDataManager {
 			HttpServletResponse response, Principal principal, Locale locale)
 			throws Exception {
 		final Analysis analysis = serviceAnalysis.get((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS));
-		final File file = serviceStorage.createTmpFileOf(defaultExcelTemplate);
+		final File file = InstanceManager.loadTemplate(analysis.getCustomer(), TrickTemplateType.DEFAULT_EXCEL,
+				analysis.getLanguage());
 		try {
 
 			final Consumer<SpreadsheetMLPackage> callback = (m) -> {
@@ -1078,7 +1080,8 @@ public class ControllerDataManager {
 	public void exportScenarioProcess(HttpServletRequest request, HttpServletResponse response, HttpSession session,
 			Principal principal, Locale locale) throws Exception {
 		final Analysis analysis = serviceAnalysis.get((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS));
-		final File file = serviceStorage.createTmpFileOf(defaultExcelTemplate);
+		final File file = InstanceManager.loadTemplate(analysis.getCustomer(), TrickTemplateType.DEFAULT_EXCEL,
+				analysis.getLanguage());
 		try {
 			final SpreadsheetMLPackage spreadsheetMLPackage = SpreadsheetMLPackage.load(file);
 			exportScenario(analysis, spreadsheetMLPackage);

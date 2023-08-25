@@ -23,8 +23,8 @@ function loadTargetContext() {
 	return context + (application['isAdministration'] ? "/Admin" : "/KnowledgeBase");
 }
 
-function canManageCustomerTemplate(){
-	return application['isAdministration'] ?  isCustomerProfile() : true;
+function canManageCustomerTemplate() {
+	return application['isAdministration'] ? isCustomerProfile() : true;
 }
 
 function getCustomerSection() {
@@ -174,8 +174,8 @@ function editSingleCustomer(customerId) {
 		let $this = $(this), $field = $("#customer_" + $(this).attr("data-trick-name")), value = $this.attr("data-real-value");
 		if (value == undefined)
 			$field.prop("value", $this.text().trim());
-		else if($field.hasClass("btn-group"))
-			$field.find("*input[value='"+value+"']").click();
+		else if ($field.hasClass("btn-group"))
+			$field.find("*input[value='" + value + "']").click();
 		else $field.prop("value", value);
 	});
 	$("#customer_id").prop("value", customerId);
@@ -200,21 +200,50 @@ function manageCustomerTemplate(customerId) {
 
 	let $progress = $("#loading-indicator").show();
 	$.ajax({
-		url: loadTargetContext() + "/Customer/" + customerId + "/Report-template/Manage",
+		url: loadTargetContext() + "/Customer/" + customerId + "/Template/Manage",
 		contentType: "application/json;charset=UTF-8",
 		success: function (response, textStatus, jqXHR) {
 			let $modal = $("#reportTemplateModal", new DOMParser().parseFromString(response, "text/html"));
 			if ($modal.length) {
 
-				let $tabs = $modal.find("#menu_manage_customer_template a[data-toggle='tab']"), $cancelBtn = $modal.find(".modal-footer button[name='cancel']"), $backBtn = $modal
-					.find(".modal-footer a[role='back'].btn"), $saveBtn = $modal.find(".modal-footer button[name='save']"), $btnSubmit = $("button[name='submit']", $modal);
+				let $tabs = $modal.find("#menu_manage_customer_template a[data-toggle='tab']");
+				let $cancelBtn = $modal.find(".modal-footer button[name='cancel']");
+				let $backBtn = $modal.find(".modal-footer a[role='back'].btn");
+				let $saveBtn = $modal.find(".modal-footer button[name='save']")
+				let $btnSubmit = $("button[name='submit']", $modal);
+				let $selectType = $("select[name='type']", $modal);
+				let $file = $("input[type='file']", $modal);
+				let $fileInfo = $("input[name='filename']", $modal);
+				let $browse = $("button[name='browse']", $modal);
 
-				let $file = $("input[type='file']", $modal), $fileInfo = $("input[name='filename']", $modal), $browse = $("button[name='browse']", $modal);
+				$selectType.on("change", (e) => {
+					switch (e.currentTarget.value) {
+						case "RISK_INFORMATION":
+						case "DEFAULT_EXCEL": {
+							$file.prop("accept", ".xls,.xlsm,.xlsx,.xlsxm");
+							$browse.prop("disabled", false);
+							break;
+						}
+						case "RISK_REGISTER":
+						case "RISK_SHEET":
+						case "REPORT":
+						case "SOA": {
+							$file.prop("accept", ".doc,.docm,.docx,.docx,.docxm");
+							$browse.prop("disabled", false);
+							break;
+						}
+						default: {
+							$file.prop("accept", "");
+							$browse.prop("disabled", true);
+						}
+					}
+				}).trigger("change");
 
 				$browse.on("click", (e) => $file.trigger("click"));
 
 				$file.on("change", (e) => {
 					let value = $file.val();
+
 					if (value.trim() === '')
 						$saveBtn.prop("disabled", $file.is(":required"));
 					else {
@@ -222,11 +251,12 @@ function manageCustomerTemplate(customerId) {
 						if ($file[0].files[0].size > size) {
 							showDialog("error", MessageResolver("error.file.too.large", undefined, size));
 							return false;
-						} else if (!checkExtention(value, ".docx", $saveBtn))
-							return false;
+						} /*else if (!checkExtention(value, ".docx", $saveBtn))
+							return false;*/
 					}
 
 					$fileInfo.val(value);
+					$saveBtn.prop("disabled",false);
 				});
 
 				$saveBtn.on("click", (e) => $btnSubmit.trigger("click"));
@@ -283,7 +313,7 @@ function manageCustomerTemplate(customerId) {
 function reloadReportTemplateTable(customerId, $modal) {
 	let $progress = $("#loading-indicator").show();
 	$.ajax({
-		url: loadTargetContext() + "/Customer/" + customerId + "/Report-template/Manage",
+		url: loadTargetContext() + "/Customer/" + customerId + "/Template/Manage",
 		type: "get",
 		contentType: "application/json;charset=UTF-8",
 		success: function (response, textStatus, jqXHR) {
@@ -304,9 +334,9 @@ function reloadReportTemplateTable(customerId, $modal) {
 
 function saveReportTemplate(e) {
 	let $modal = $(e.currentTarget).closest(".modal"), $form = $("#reportTemplate-form", $modal), $progress = $("#loading-indicator").show(), customerId = $("input[name='customer']", $form).val();
-	$("label.label-danger",$modal).remove();
+	$("label.label-danger", $modal).remove();
 	$.ajax({
-		url: loadTargetContext() + "/Customer/" + customerId + "/Report-template/Save",
+		url: loadTargetContext() + "/Customer/" + customerId + "/Template/Save",
 		type: 'POST',
 		data: new FormData($form[0]),
 		cache: false,
@@ -353,24 +383,29 @@ function editReportTemplate(e) {
 	let $current = $(e.currentTarget);
 	if ($current.parent().hasClass("disabled"))
 		return false;
-	let $modal = $current.closest(".modal"), $form = $("#reportTemplate-form",$modal);
+	let $modal = $current.closest(".modal"), $form = $("#reportTemplate-form", $modal);
 	let $tr = $("#section_manage_customer_template tbody>tr[data-trick-editable='true'] input:checked").closest("tr");
 	if (!$tr.length)
 		return false;
-	let type = $("td[data-trick-field='type']", $tr).attr("data-trick-real-value"),
-		idLanguage = $("td[data-trick-field='language']", $tr).attr("data-trick-real-value"), isProfile = $modal.attr("data-trick-is-profile")==="true";
+
+	let analysisType = $("td[data-trick-field='analysisType']", $tr).attr("data-trick-real-value");
+	let templateType = $("td[data-trick-field='type']", $tr).attr("data-trick-real-value");
+	let idLanguage = $("td[data-trick-field='language']", $tr).attr("data-trick-real-value");
+	let isProfile = $modal.attr("data-trick-is-profile") === "true";
+
 	$("select[name='language']", $form).val(idLanguage);
+	$("select[name='type']", $form).val(templateType).removeAttr("required").prop("disabled",true);
 	$("input[name='id']", $form).val($tr.attr("data-trick-id"));
-	
-	if(isProfile){
-		$("input[type='file']", $form).attr("required",true).trigger("reset").trigger("change");
-		$("label[data-trick-real-value].btn", $form).removeClass("active").filter("[data-trick-real-value='"+type+"']").addClass("active");
+
+	if (isProfile) {
+		$("input[type='file']", $form).attr("required", true).trigger("reset").trigger("change");
+		$("label[data-trick-real-value].btn", $form).removeClass("active").filter("[data-trick-real-value='" + analysisType + "']").addClass("active");
 	}
 	else {
 		$("input[type='file']", $form).removeAttr("required").trigger("reset").trigger("change");
-		$("input[name='type'][value='" + type + "']", $form).closest(".btn").trigger("click");
+		$("input[name='analysisType'][value='" + analysisType + "']", $form).closest(".btn").trigger("click");
 	}
-	
+
 	$("input[name='version']", $form).val($("td[data-trick-field='version']", $tr).text());
 	$("textarea[name='label']", $form).val($("td[data-trick-field='label']", $tr).text());
 
@@ -384,6 +419,7 @@ function addReportTemplate(e) {
 	let $form = $("#reportTemplate-form", $current.closest(".modal")).trigger("reset");
 	$("input[name='type'][value='QUANTITATIVE']", $form).closest(".btn").trigger("click");
 	$("input[type='file']", $form).attr("required", "required").trigger("change");
+	$("select>option:disabled", $form).prop("selected", true).parent().attr("required", "required").trigger("change");
 	$("input[name='id']", $form).val("-1");
 }
 function deleteReportTemplate(e) {
@@ -397,7 +433,7 @@ function deleteReportTemplate(e) {
 	$confirmModal.find(".modal-footer>button[name='yes']").one("click", function (e) {
 		let $progress = $("#loading-indicator").show();
 		$.ajax({
-			url: loadTargetContext() + "/Customer/" + customerId + "/Report-template",
+			url: loadTargetContext() + "/Customer/" + customerId + "/Template",
 			data: JSON.stringify(selections),
 			type: "delete",
 			contentType: "application/json;charset=UTF-8",
@@ -429,7 +465,16 @@ function downloadReportTemplate(e) {
 		return false;
 	if (selections.length > application["reportTemplateDownloadItemLimit"])
 		showDialog("error", MessageResolver("error.too.many.item.selected", undefined, application["reportTemplateDownloadItemLimit"]))
-	for (let id of selections)
-		showStaticDialog("download", MessageResolver("info.download.exported.file"), MessageResolver("label.title.export.report.template"), loadTargetContext() + "/Customer/Report-template/" + id + "/Download");
+
+	for (let i = 0; i < selections.length; i++) {
+		let id = selections[i];
+		if (!id) {
+			download(loadTargetContext() + "/Customer/Template/" + id + "/Download");
+		} else {
+			setTimeout(() => {
+				download(loadTargetContext() + "/Customer/Template/" + id + "/Download");
+			}, (i + 1) * 500);
+		}
+	}
 	return false;
 }

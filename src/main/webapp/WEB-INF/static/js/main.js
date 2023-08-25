@@ -447,13 +447,22 @@ function isLinked() {
 }
 
 function downloadWordReport(id) {
-	window.open(context + '/Account/Report/' + id + "/Download", "_blank");
+	download(context + '/Account/Report/' + id + "/Download");
 	return false;
 }
 
 function downloadExportedSqLite(id) {
-	window.open(context + '/Account/Sqlite/' + id + "/Download", "_blank");
+	download(context + '/Account/Sqlite/' + id + "/Download");
 	return false;
+}
+
+function download(url) {
+	if ($.fileDownload) {
+		$.fileDownload(url).done((e) => { }).fail((e) => { window.open(url, "_blank_" + Math.random()) });
+	} else {
+		window.open(url, "_blank_" + Math.random());
+	}
+
 }
 
 function switchTab(tabName) {
@@ -468,7 +477,7 @@ function hasScrollBar(element) {
 }
 
 function sortTable(type, element, number) {
-	const sorter = natsort({ insensitive: true }); 
+	const sorter = natsort({ insensitive: true });
 	var previousIndexes = [], $table = $(element).closest("table"), $tbody = $("tbody", $table), $trs = $("tr", $tbody), order = element == undefined ? undefined : element.getAttribute("data-order") == "0" ? -1 : 1, selector = "td[data-trick-field='" + type + "']";
 	if ($trs.length && order !== undefined) {
 		$trs.each((i, e) => previousIndexes[e] = i);
