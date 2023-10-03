@@ -504,6 +504,8 @@ public class ControllerDataManager {
 						"VLOOKUP(Risk_estimation[[#This Row],[Scenario]],Scenarios[[Name]:[Selected]],4,FALSE)");
 			}
 
+			ExcelHelper.applyHeaderAndFooter(headerFooterSheetName, "Risk estimation", mlPackage);
+
 			exportAsset(analysis, mlPackage, hiddenComment, isILR);
 
 			exportScenario(analysis, mlPackage);
@@ -622,6 +624,7 @@ public class ControllerDataManager {
 			}
 			sheetData.getRow().add(row);
 		}
+		ExcelHelper.applyHeaderAndFooter(headerFooterSheetName, "Dependency", mlPackage);
 	}
 
 	@Deprecated
@@ -1682,7 +1685,6 @@ public class ControllerDataManager {
 				? new ActionPlanMode[] { ActionPlanMode.APPN, ActionPlanMode.APQ }
 				: analysis.isQualitative() ? new ActionPlanMode[] { ActionPlanMode.APQ }
 						: new ActionPlanMode[] { ActionPlanMode.APPN };
-		final int currentIndex[] = findNextSheetNumberAndId(spreadsheetMLPackage);
 		for (int i = 0; i < types.length; i++) {
 			final ActionPlanMode type = types[i];
 			final int colCount = type == ActionPlanMode.APPN ? 21 : 19;
@@ -1691,9 +1693,7 @@ public class ControllerDataManager {
 				continue;
 			final String name = messageSource.getMessage("label.title.plan_type." + type.getName().toLowerCase(), null,
 					type.getName(), locale);
-			final WorksheetPart worksheetPart = spreadsheetMLPackage.createWorksheetPart(
-					new PartName("/xl/worksheets/sheet" + (i + currentIndex[0]) + ".xml"), name,
-					i + currentIndex[1]);
+			final WorksheetPart worksheetPart = createWorkSheetPart(spreadsheetMLPackage, name);
 			final SheetData sheet = worksheetPart.getContents().getSheetData();
 			final String title = messageSource.getMessage(
 					"label.title.export.plan_type." + type.getName().toLowerCase(), null, type.getName(), locale);

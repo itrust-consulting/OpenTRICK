@@ -7,10 +7,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.CannotGetJdbcConnectionException;
@@ -21,8 +17,10 @@ import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lu.itrust.business.ts.component.TrickLogManager;
-import lu.itrust.business.ts.constants.Constant;
 import lu.itrust.business.ts.database.service.AccountLockerManager;
 import lu.itrust.business.ts.exception.TrickException;
 import lu.itrust.business.ts.exception.TrickOtpException;

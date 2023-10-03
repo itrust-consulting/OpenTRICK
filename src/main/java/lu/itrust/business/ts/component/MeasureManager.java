@@ -429,13 +429,14 @@ public class MeasureManager {
 				continue;
 			String[] chapters = measure.getMeasureDescription().getReference().replace("M.", "").split("[.]");
 			boolean[] complainces = smls.computeIfAbsent(chapters[0], k -> new boolean[] { true, true, true, true, true });
-			if (!measure.getMeasureDescription().isComputable() || chapters.length != 3)
+			if (!measure.getMeasureDescription().isComputable() || chapters.length < 2)
 				continue;
 			MeasureDescriptionText descriptionText = measure.getMeasureDescription().findByAlph3("eng");
 			if (descriptionText == null || !mappedMaturityParameters.containsKey(descriptionText.getDomain()))
 				continue;
 			IMaturityParameter maturityMeasure = mappedMaturityParameters.get(descriptionText.getDomain());
 			double implementation = measure.getImplementationRateValue(factory) * 0.01;
+
 			switch (chapters[1]) {
 				case "1":
 					complainces[0] &= implementation >= maturityMeasure.getSMLLevel1();
@@ -447,7 +448,7 @@ public class MeasureManager {
 					complainces[2] &= implementation >= maturityMeasure.getSMLLevel3();
 					break;
 				case "4":
-					complainces[3] &= implementation >= maturityMeasure.getSMLLevel5();
+					complainces[3] &= implementation >= maturityMeasure.getSMLLevel4();
 					break;
 				case "5":
 					complainces[4] &= implementation >= maturityMeasure.getSMLLevel5();

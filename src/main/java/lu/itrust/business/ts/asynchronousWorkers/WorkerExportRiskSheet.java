@@ -8,7 +8,7 @@ import static lu.itrust.business.ts.exportation.word.impl.docx4j.Docx4jReportImp
 import static lu.itrust.business.ts.exportation.word.impl.docx4j.formatting.Docx4jFormatter.updateRow;
 import static lu.itrust.business.ts.exportation.word.impl.docx4j.formatting.Docx4jMeasureFormatter.sum;
 import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.createRow;
-import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.findNextSheetNumberAndId;
+import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.createWorkSheetPart;
 import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.getAddress;
 import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.setValue;
 import static lu.itrust.business.ts.helper.InstanceManager.loadTemplate;
@@ -26,7 +26,6 @@ import org.docx4j.jaxb.Context;
 import org.docx4j.model.table.TblFactory;
 import org.docx4j.openpackaging.packages.SpreadsheetMLPackage;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
-import org.docx4j.openpackaging.parts.PartName;
 import org.docx4j.openpackaging.parts.SpreadsheetML.WorksheetPart;
 import org.docx4j.wml.BooleanDefaultTrue;
 import org.docx4j.wml.CTVerticalJc;
@@ -602,7 +601,7 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 
 			final List<ScaleType> scaleTypes = analysis.findImpacts();
 			final CSSFFilter cssfFilter = cssfExportForm.getFilter();
-			final int[] indexes = findNextSheetNumberAndId(spreadsheetMLPackage);
+
 			final ValueFactory valueFactory = new ValueFactory(analysis.getParameters());
 
 			final List<Estimation> directs = new LinkedList<>(), indirects = new LinkedList<>(),
@@ -618,10 +617,7 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 			scaleTypes.removeIf(scale -> scale.getName().equals(Constant.DEFAULT_IMPACT_NAME));
 			final String name = getMessageSource().getMessage("label.raw.risk_sheet", null, "Raw risk sheet",
 					getLocale());
-			final WorksheetPart worksheetPart = spreadsheetMLPackage.createWorksheetPart(
-					new PartName(String.format("/xl/worksheets/sheet%d.xml", indexes[0])),
-					name,
-					indexes[1]);
+			final WorksheetPart worksheetPart = createWorkSheetPart(spreadsheetMLPackage, name);
 
 			Estimation.GenerateEstimation(analysis, cssfFilter, valueFactory, directs, indirects, cias);
 

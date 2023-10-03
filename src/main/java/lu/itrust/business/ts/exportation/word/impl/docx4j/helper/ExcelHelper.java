@@ -2,25 +2,24 @@ package lu.itrust.business.ts.exportation.word.impl.docx4j.helper;
 
 import java.net.URI;
 import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import org.apache.commons.io.filefilter.TrueFileFilter;
-import org.apache.commons.lang.ObjectUtils.Null;
+import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.docx4j.openpackaging.exceptions.InvalidFormatException;
 import org.docx4j.openpackaging.packages.SpreadsheetMLPackage;
-import org.docx4j.openpackaging.parts.Part;
 import org.docx4j.openpackaging.parts.PartName;
 import org.docx4j.openpackaging.parts.VMLPart;
-import org.docx4j.openpackaging.parts.SpreadsheetML.PrinterSettings;
 import org.docx4j.openpackaging.parts.SpreadsheetML.Styles;
 import org.docx4j.openpackaging.parts.SpreadsheetML.TablePart;
 import org.docx4j.openpackaging.parts.SpreadsheetML.WorkbookPart;
 import org.docx4j.openpackaging.parts.SpreadsheetML.WorksheetPart;
-import org.docx4j.openpackaging.parts.WordprocessingML.BinaryPart;
 import org.docx4j.relationships.Relationship;
 import org.springframework.util.StringUtils;
 import org.xlsx4j.jaxb.Context;
@@ -39,8 +38,6 @@ import org.xlsx4j.sml.STCellType;
 import org.xlsx4j.sml.Sheet;
 import org.xlsx4j.sml.SheetData;
 import org.xlsx4j.sml.Worksheet;
-
-import lu.itrust.business.ts.model.general.helper.Utils;
 
 public final class ExcelHelper {
 
@@ -175,7 +172,6 @@ public final class ExcelHelper {
 			if (thechar == ABSOLUTE_REFERENCE_MARKER) {
 				if (k != 0)
 					throw new IllegalArgumentException("Bad col ref format '" + ref + "'");
-				continue;
 			} else if (Character.isDigit(thechar))
 				break;
 			else
@@ -210,20 +206,44 @@ public final class ExcelHelper {
 	}
 
 	public static WorksheetPart createWorkSheetPart(SpreadsheetMLPackage mlPackage, String name) throws Exception {
-		final int[] indexes = findNextSheetNumberAndId(mlPackage);
+		final int indexe = findNextSheetNumberAndId(mlPackage);
+		final Set<Long> ids = mlPackage.getWorkbookPart().getContents().getSheets().getSheet().stream()
+				.map(Sheet::getSheetId).collect(Collectors.toSet());
+		final long id = getAvailableLong(ids);
 		final WorksheetPart part = mlPackage.createWorksheetPart(
-				new PartName(String.format("/xl/worksheets/sheet%d.xml", indexes[0])), name, indexes[1]);
+				new PartName(String.format("/xl/worksheets/sheet%d.xml", indexe)), name,
+				id);
 		part.getContents().getSheetData().setParent(part.getContents());
 		part.getContents().setParent(part);
 		return part;
 	}
 
 	public static TablePart createTablePart(WorksheetPart worksheetPart) throws Exception {
-		long id = worksheetPart.getPackage().getContentTypeManager().getOverrideContentType().values().parallelStream()
-				.filter(r -> r.getPartName().startsWith("/xl/tables/"))
-				.count() + 1;
-		return createTablePart(worksheetPart, new PartName(String.format("/xl/tables/table%d.xml", id)),
-				String.format("Table%d", id), id);
+		final var mlPackage = ((SpreadsheetMLPackage) worksheetPart.getPackage());
+		final int indexe = findNextPartNumber("/xl/tables/table", ".xml", mlPackage);
+		return createTablePart(worksheetPart, new PartName(String.format("/xl/tables/table%d.xml", indexe)),
+				String.format("Table%d", indexe),
+				getNextTableId(mlPackage));
+	}
+
+	public static long getNextTableId(final SpreadsheetMLPackage mlPackage) throws Docx4JException {
+		return getAvailableLong(mlPackage.getWorkbookPart().getContents().getSheets().getSheet().stream().map(e -> {
+			try {
+				var sheetData = findSheet(mlPackage.getWorkbookPart(), e);
+				if (sheetData == null)
+					return Collections.emptyList();
+				return findTable(sheetData);
+			} catch (Exception ex) {
+				return Collections.emptyList();
+			}
+		}).flatMap(e -> e.stream()).map(e -> {
+			try {
+				return ((TablePart) e).getContents().getId();
+			} catch (Docx4JException e1) {
+				return null;
+			}
+		}).filter(Objects::nonNull).collect(Collectors.toSet()));
+
 	}
 
 	private static TablePart createTablePart(WorksheetPart worksheetPart, PartName partName, String name, long id)
@@ -501,8 +521,18 @@ public final class ExcelHelper {
 					return table;
 			}
 		}
-
 		return null;
+	}
+
+	public static List<TablePart> findTable(SheetData sheetData) throws Exception {
+		final Worksheet worksheet = (Worksheet) sheetData.getParent();
+		final WorksheetPart worksheetPart = (WorksheetPart) worksheet.getParent();
+		if (worksheet.getTableParts() != null) {
+			return worksheet.getTableParts().getTablePart().stream()
+					.map(e -> worksheetPart.getRelationshipsPart().getPart(e.getId()))
+					.filter(TablePart.class::isInstance).map(TablePart.class::cast).collect(Collectors.toList());
+		}
+		return Collections.emptyList();
 	}
 
 	public static TablePart findTableNameStartWith(WorksheetPart worksheetPart, String name) throws Exception {
@@ -535,9 +565,9 @@ public final class ExcelHelper {
 
 		final var worksheetPartTarget = (WorksheetPart) targetSheet.getParent();
 
-		final var vmlIds = findNextPartNumberAndId("/xl/drawings/vmlDrawing", ".vml", mlPackage);
+		final var vmlId = findNextPartNumber("/xl/drawings/vmlDrawing", ".vml", mlPackage);
 
-		final VMLPart part = new VMLPart(new PartName(String.format("/xl/drawings/vmlDrawing%d.vml", vmlIds[0])));
+		final VMLPart part = new VMLPart(new PartName(String.format("/xl/drawings/vmlDrawing%d.vml", vmlId)));
 
 		part.setContents(myDrawning.getContents());
 
@@ -574,26 +604,47 @@ public final class ExcelHelper {
 	 * @param mlPackage
 	 * @return
 	 */
-	public static int[] findNextSheetNumberAndId(SpreadsheetMLPackage mlPackage) {
-		return findNextPartNumberAndId("/xl/worksheets/sheet", ".xml", mlPackage);
+	public static int findNextSheetNumberAndId(SpreadsheetMLPackage mlPackage) {
+		return findNextPartNumber("/xl/worksheets/sheet", ".xml", mlPackage);
 	}
 
-	public static int[] findNextPartNumberAndId(String path, String extension, SpreadsheetMLPackage mlPackage) {
+	public static int findNextPartNumber(String path, String extension, SpreadsheetMLPackage mlPackage) {
 		final var pattern = String.format("[%s]|[%s]", path, extension);
-		return new int[] { mlPackage.getParts().getParts().values().parallelStream()
-				.filter(p -> p.getPartName().getName().startsWith(path)).mapToInt(p -> {
+		final Set<Integer> ids = mlPackage.getParts().getParts().values().stream()
+				.filter(p -> p.getPartName().getName().startsWith(path)).map(p -> {
 					try {
 						return Integer
 								.parseInt(p.getPartName().getName().replaceAll(pattern, ""));
 					} catch (NumberFormatException e) {
 						return 0;
 					}
-				}).max().orElse(0) + 1,
-				Utils.parseInt(mlPackage.getWorkbookPart().getRelationshipsPart().getNextId().replace("rId", ""), 1) };
+				}).collect(Collectors.toSet());
+
+		return getAvailableInteger(ids);
 	}
 
 	public static boolean isEmptyOrWhiteSpace(String value) {
 		return isEmpty(value) || value.trim().length() == 0;
+	}
+
+	public static int getAvailableInteger(Set<Integer> ids) {
+		if (ids.isEmpty())
+			return 1;
+		for (int i = 1; i < ids.size(); i++) {
+			if (!ids.contains(i))
+				return i;
+		}
+		return ids.size() + 1;
+	}
+
+	public static long getAvailableLong(Set<Long> ids) {
+		if (ids.isEmpty())
+			return 1;
+		for (long i = 1; i < ids.size(); i++) {
+			if (!ids.contains(i))
+				return i;
+		}
+		return ids.size() + 1;
 	}
 
 }

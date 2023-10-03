@@ -283,7 +283,6 @@ public class ILRExport {
                     .forEach(m -> amv.addMeasure(m.getUuid()));
             if (!(riskProfile.getExpProbaImpact() == null || riskProfile.getRiskStrategy() == RiskStrategy.ACCEPT)) {
                 risk.setReductionAmount(
-
                         Math.min(Math.min(
                                 Math.max(Math.max(
                                         risk.getVulnerabilityRate()
