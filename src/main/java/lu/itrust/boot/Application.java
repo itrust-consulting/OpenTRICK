@@ -14,6 +14,7 @@ import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfigurat
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration;
 import org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration;
+import org.springframework.boot.autoconfigure.websocket.servlet.WebSocketServletAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 
 /**
@@ -24,7 +25,7 @@ import org.springframework.context.annotation.ComponentScan;
 @SpringBootApplication(exclude = { FlywayAutoConfiguration.class, DataSourceAutoConfiguration.class,
 		FreeMarkerAutoConfiguration.class, SecurityAutoConfiguration.class, TransactionAutoConfiguration.class,
 		DataSourceTransactionManagerAutoConfiguration.class, UserDetailsServiceAutoConfiguration.class,
-		HibernateJpaAutoConfiguration.class, LdapAutoConfiguration.class })
+		HibernateJpaAutoConfiguration.class, LdapAutoConfiguration.class,WebSocketServletAutoConfiguration.class })
 public class Application {
 	public static void main(String[] args) {
 		SpringApplication.run(Application.class, args);

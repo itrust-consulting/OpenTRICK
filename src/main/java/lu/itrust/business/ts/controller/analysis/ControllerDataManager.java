@@ -7,7 +7,6 @@ import static lu.itrust.business.ts.constants.Constant.ROLE_MIN_USER;
 import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.createHeader;
 import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.createRow;
 import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.createWorkSheetPart;
-import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.findNextSheetNumberAndId;
 import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.findSheet;
 import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.findTable;
 import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.getCell;
@@ -22,6 +21,7 @@ import java.nio.file.Files;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -33,20 +33,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
-import jakarta.xml.bind.JAXBException;
-
-import org.apache.commons.compress.utils.FileNameUtils;
-import org.apache.commons.io.FileUtils;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.docx4j.openpackaging.exceptions.InvalidFormatException;
 import org.docx4j.openpackaging.packages.SpreadsheetMLPackage;
-import org.docx4j.openpackaging.parts.PartName;
 import org.docx4j.openpackaging.parts.SpreadsheetML.TablePart;
 import org.docx4j.openpackaging.parts.SpreadsheetML.WorkbookPart;
 import org.docx4j.openpackaging.parts.SpreadsheetML.WorksheetPart;
@@ -75,6 +68,11 @@ import org.xlsx4j.sml.ObjectFactory;
 import org.xlsx4j.sml.Row;
 import org.xlsx4j.sml.SheetData;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import jakarta.xml.bind.JAXBException;
 import lu.itrust.business.ts.asynchronousWorkers.Worker;
 import lu.itrust.business.ts.asynchronousWorkers.WorkerAnalysisImport;
 import lu.itrust.business.ts.asynchronousWorkers.WorkerExportAnalysis;
@@ -97,13 +95,13 @@ import lu.itrust.business.ts.database.service.ServiceAssetTypeValue;
 import lu.itrust.business.ts.database.service.ServiceCustomer;
 import lu.itrust.business.ts.database.service.ServiceImpactParameter;
 import lu.itrust.business.ts.database.service.ServiceLikelihoodParameter;
-import lu.itrust.business.ts.database.service.ServiceTrickTemplate;
 import lu.itrust.business.ts.database.service.ServiceRiskAcceptanceParameter;
 import lu.itrust.business.ts.database.service.ServiceScaleType;
 import lu.itrust.business.ts.database.service.ServiceSimpleParameter;
 import lu.itrust.business.ts.database.service.ServiceStandard;
 import lu.itrust.business.ts.database.service.ServiceStorage;
 import lu.itrust.business.ts.database.service.ServiceTaskFeedback;
+import lu.itrust.business.ts.database.service.ServiceTrickTemplate;
 import lu.itrust.business.ts.database.service.ServiceUserAnalysisRight;
 import lu.itrust.business.ts.exception.TrickException;
 import lu.itrust.business.ts.exportation.word.ExportReport;
@@ -138,7 +136,6 @@ import lu.itrust.business.ts.model.cssf.RiskProfile;
 import lu.itrust.business.ts.model.cssf.RiskStrategy;
 import lu.itrust.business.ts.model.cssf.helper.CSSFFilter;
 import lu.itrust.business.ts.model.general.Customer;
-import lu.itrust.business.ts.model.general.Language;
 import lu.itrust.business.ts.model.general.LogAction;
 import lu.itrust.business.ts.model.general.LogLevel;
 import lu.itrust.business.ts.model.general.LogType;
@@ -153,6 +150,7 @@ import lu.itrust.business.ts.model.parameter.IBoundedParameter;
 import lu.itrust.business.ts.model.parameter.IImpactParameter;
 import lu.itrust.business.ts.model.parameter.IParameter;
 import lu.itrust.business.ts.model.parameter.helper.ValueFactory;
+import lu.itrust.business.ts.model.parameter.impl.LikelihoodParameter;
 import lu.itrust.business.ts.model.parameter.value.IValue;
 import lu.itrust.business.ts.model.riskinformation.RiskInformation;
 import lu.itrust.business.ts.model.riskinformation.helper.RiskInformationComparator;
@@ -171,6 +169,26 @@ import lu.itrust.business.ts.model.standard.measuredescription.MeasureDescriptio
 @Controller
 @RequestMapping("/Analysis/Data-manager")
 public class ControllerDataManager {
+
+	/**
+	 *
+	 */
+	private static final String ANALYSIS_DATA_MANAGER_RISK_ESTIMATION_EXPORT_PROCESS = "/Analysis/Data-manager/Risk-estimation/Export-process";
+
+	/**
+	 *
+	 */
+	private static final String ANALYSIS_DATA_MANAGER_REPORT_EXPORT_PROCESS = "/Analysis/Data-manager/Report/Export-process";
+
+	/**
+	 *
+	 */
+	private static final String ANALYSIS_DATA_MANAGER_RISK_SHEET_EXPORT_FORM = "/Analysis/Data-manager/Risk-sheet/Export-form";
+
+	/**
+	 *
+	 */
+	private static final String ANALYSIS_DATA_MANAGER_RISK_SHEET_EXPORT_PROCESS = "/Analysis/Data-manager/Risk-sheet/Export-process";
 
 	private static int ASSET_HIDDEN_COMMENT_CELL_INDEX = 5;
 
@@ -244,7 +262,7 @@ public class ControllerDataManager {
 	@Autowired
 	private ServiceAssetTypeValue serviceAssetTypeValue;
 
-	@RequestMapping(value = "/Action-plan-raw/Export-process", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@GetMapping(value = "/Action-plan-raw/Export-process", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).EXPORT)")
 	public void exportActionPlanRawProcess(HttpServletRequest request, HttpServletResponse response,
 			HttpSession session, Principal principal, Locale locale) throws Exception {
@@ -276,7 +294,7 @@ public class ControllerDataManager {
 
 	}
 
-	@RequestMapping(value = "/Asset/Export-process", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@GetMapping(value = "/Asset/Export-process", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).EXPORT)")
 	public void exportAssetProcess(HttpServletRequest request, HttpServletResponse response, HttpSession session,
 			Principal principal, Locale locale) throws Exception {
@@ -321,16 +339,23 @@ public class ControllerDataManager {
 		if (!analysis.getAnalysisStandards().isEmpty())
 			items.add(new DataManagerItem("measure", "/Analysis/Data-manager/Measure/Export-form", null, null));
 		items.add(new DataManagerItem("word-report", "/Analysis/Data-manager/Report/Export-form",
-				"/Analysis/Data-manager/Report/Export-process", null));
-		if (!analysis.getAssessments().isEmpty())
-			items.add(new DataManagerItem("risk-estimation", "/Analysis/Data-manager/Risk-estimation/Export-process"));
+				ANALYSIS_DATA_MANAGER_REPORT_EXPORT_PROCESS, null));
+		if (!analysis.getAssessments().isEmpty()) {
+			if (isILR)
+				items.add(new DataManagerItem("risk-estimation",
+						"/Analysis/Data-manager/Risk-estimation/Export-form",
+						ANALYSIS_DATA_MANAGER_RISK_ESTIMATION_EXPORT_PROCESS, ".csv"));
+			else
+				items.add(new DataManagerItem("risk-estimation",
+						ANALYSIS_DATA_MANAGER_RISK_ESTIMATION_EXPORT_PROCESS));
+		}
 		if (analysis.isQualitative()) {
 			if (!analysis.getRiskRegisters().isEmpty())
 				items.add(new DataManagerItem("risk-register", "/Analysis/Data-manager/Risk-register/Export-process",
 						true));
 			if (!analysis.getRiskProfiles().isEmpty())
-				items.add(new DataManagerItem("risk-sheet", "/Analysis/Data-manager/Risk-sheet/Export-form",
-						"/Analysis/Data-manager/Risk-sheet/Export-process", null));
+				items.add(new DataManagerItem("risk-sheet", ANALYSIS_DATA_MANAGER_RISK_SHEET_EXPORT_FORM,
+						ANALYSIS_DATA_MANAGER_RISK_SHEET_EXPORT_PROCESS, null));
 		}
 
 		if (analysis.isQuantitative())
@@ -360,6 +385,15 @@ public class ControllerDataManager {
 		model.addAttribute("item", new DataManagerItem("ilr", "/Analysis/Data-manager/ILR/Export-process"));
 		model.addAttribute("maxFileSize", maxUploadFileSize);
 		return "jsp/analyses/single/components/data-manager/export/ilr";
+	}
+
+	@GetMapping(value = "/Risk-estimation/Export-form", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).EXPORT)")
+	public String exportRiskEstimationForm(Model model, HttpSession session, Principal principal, Locale locale) {
+		model.addAttribute("item",
+				new DataManagerItem("risk-estimation", ANALYSIS_DATA_MANAGER_RISK_ESTIMATION_EXPORT_PROCESS));
+		model.addAttribute("maxFileSize", maxUploadFileSize);
+		return "jsp/analyses/single/components/data-manager/export/risk-estimation";
 	}
 
 	@PostMapping(value = "/ILR/Export-process", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
@@ -411,9 +445,12 @@ public class ControllerDataManager {
 
 	}
 
-	@GetMapping(value = "/Risk-estimation/Export-process", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@RequestMapping(value = "/Risk-estimation/Export-process", method = { RequestMethod.GET,
+			RequestMethod.POST }, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).EXPORT)")
-	public void exportEstimationProcess(HttpServletRequest request, HttpServletResponse response, HttpSession session,
+	public void exportEstimationProcess(
+			@RequestParam(value = "extrasFormula", required = false) MultipartFile extrasFormula,
+			HttpServletRequest request, HttpServletResponse response, HttpSession session,
 			Locale locale, Principal principal) throws Exception {
 		final Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		final Analysis analysis = serviceAnalysis.get(idAnalysis);
@@ -428,17 +465,27 @@ public class ControllerDataManager {
 			final boolean rowColumn = analysis.findSetting(AnalysisSetting.ALLOW_RISK_ESTIMATION_RAW_COLUMN);
 			final boolean uncertainty = analysis.isUncertainty();
 			final ValueFactory factory = new ValueFactory(analysis.getParameters());
+
 			assessmentAndRiskProfileManager.updateAssessment(analysis, factory);
+
+			final Map<String, String> extrasColumns = loadExtrasColumns(extrasFormula, isILR);
+
 			final List<ScaleType> scales = analysis.findImpacts();
+
 			final Map<String, RiskProfile> riskProfiles = analysis.getRiskProfiles().stream()
 					.collect(Collectors.toMap(RiskProfile::getKey, Function.identity()));
+
 			final Map<AssetType, String> assetTypes = serviceAssetType.getAll().stream()
 					.collect(Collectors.toMap(Function.identity(), e -> messageSource
 							.getMessage("label.asset_type." + e.getName().toLowerCase(), null, e.getName(), locale)));
-			final String[] columns = createTableHeader(scales, qualitative, hiddenComment, rowColumn,
+
+			final String[] columns = createTableHeader(scales, extrasColumns.keySet(), qualitative, hiddenComment,
+					rowColumn,
 					uncertainty);
+
 			createHeader(worksheetPart, "Risk_estimation", defaultExcelTableStyle, columns,
 					analysis.getAssessments().size());
+
 			analysis.getAssessments().sort((a1, a2) -> {
 				int v = NaturalOrderComparator.compareTo(a1.getAsset().getName(), a2.getAsset().getName());
 				if (v == 0) {
@@ -452,57 +499,9 @@ public class ControllerDataManager {
 				return v;
 			});
 
-			int rowIndex = 1;
-			for (Assessment assessment : analysis.getAssessments()) {
-				int cellIndex = 0;
-				Row row = getRow(sheetData, rowIndex++, columns.length);
-				RiskProfile profile = riskProfiles
-						.get(RiskProfile.key(assessment.getAsset(), assessment.getScenario()));
-				if (qualitative)
-					setValue(row, cellIndex++, profile.getIdentifier());
-				setValue(row, cellIndex++, assessment.getAsset().getName());
-				setValue(row, cellIndex++, assessment.getScenario().getName());
-				if (qualitative) {
-					setValue(row, cellIndex++,
-							(profile.getRiskStrategy() == null ? RiskStrategy.ACCEPT : profile.getRiskStrategy())
-									.getNameToLower());
-					if (rowColumn)
-						cellIndex += writeProbaImpact(row, cellIndex++, profile.getRawProbaImpact(), scales, false);
-					cellIndex += writeProbaImpact(row, cellIndex++, assessment, scales);
-					cellIndex += writeProbaImpact(row, cellIndex++, profile.getExpProbaImpact(), scales, true);
-				} else {
-					writeLikelihood(row, cellIndex++, assessment.getLikelihood());
-					setValue(row, cellIndex++, assessment.getVulnerability());
-					writeQuantitativeImpact(row, cellIndex++,
-							assessment.getImpact(Constant.PARAMETER_TYPE_IMPACT_NAME));
-				}
-
-				if (uncertainty)
-					setValue(row, cellIndex++, assessment.getUncertainty());
-				setValue(row, cellIndex++, assessment.getOwner());
-				setValue(row, cellIndex++, assessment.getComment());
-				if (hiddenComment)
-					setValue(row, cellIndex++, assessment.getHiddenComment());
-				if (qualitative) {
-					setValue(row, cellIndex++, profile.getRiskTreatment());
-					Map<String, String> measures = profile.getMeasures().stream().map(Measure::getMeasureDescription)
-							.sorted((m1, m2) -> NaturalOrderComparator.compareTo(m1.getReference(), m2.getReference()))
-							.collect(Collectors.groupingBy(m -> m.getStandard().getName(),
-									Collectors.mapping(MeasureDescription::getReference, Collectors.joining(";"))));
-					String value = measures.entrySet().stream()
-							.sorted((e1, e2) -> NaturalOrderComparator.compareTo(e1.getKey(), e2.getKey()))
-							.map(e -> e.getKey() + ": " + e.getValue()).collect(Collectors.joining("\n"));
-					setValue(row, cellIndex++, value);
-					setValue(row, cellIndex++, profile.getActionPlan());
-				}
-				setFormula(setValue(row, cellIndex++, assetTypes.get(assessment.getAsset().getAssetType())),
-						"VLOOKUP(Risk_estimation[[#This Row],[Asset]],Assets[[#All],[Name]:[Value]],2,FALSE)");
-				setFormula(setValue(row, cellIndex++, assessment.getAsset().isSelected()),
-						"VLOOKUP(Risk_estimation[[#This Row],[Asset]],Assets[[#All],[Name]:[Value]],3,FALSE)");
-
-				setFormula(setValue(row, cellIndex++, assessment.getAsset().isSelected()),
-						"VLOOKUP(Risk_estimation[[#This Row],[Scenario]],Scenarios[[Name]:[Selected]],4,FALSE)");
-			}
+			generateRiskEstimation(analysis, sheetData, hiddenComment, qualitative, rowColumn, uncertainty,
+					extrasColumns, scales,
+					riskProfiles, assetTypes, columns);
 
 			ExcelHelper.applyHeaderAndFooter(headerFooterSheetName, "Risk estimation", mlPackage);
 
@@ -511,8 +510,12 @@ public class ControllerDataManager {
 			exportScenario(analysis, mlPackage);
 
 			// Dependancy
-			if (isILR)
+			if (isILR) {
 				exportDependancy(analysis, mlPackage, locale);
+
+				if (!extrasColumns.isEmpty())
+					exportProbability(analysis, mlPackage);
+			}
 
 			response.setContentType("xlsx");
 
@@ -533,6 +536,128 @@ public class ControllerDataManager {
 							analysis.getVersion()),
 					principal.getName(), LogAction.EXPORT,
 					analysis.getIdentifier(), analysis.getVersion());
+		} finally {
+			serviceStorage.delete(file.getAbsolutePath());
+		}
+
+	}
+
+	private void exportProbability(Analysis analysis, SpreadsheetMLPackage mlPackage) throws Exception {
+		final String name = "Probabilty";
+		final ObjectFactory factory = Context.getsmlObjectFactory();
+		final String[] columns = new String[] { "Level", "Label", "ILR" };
+		final WorksheetPart worksheetPart = createWorkSheetPart(mlPackage, name);
+		final SheetData sheet = worksheetPart.getContents().getSheetData();
+		final List<LikelihoodParameter> parameters = analysis.getLikelihoodParameters();
+		createHeader(worksheetPart, name, defaultExcelTableStyle, columns, parameters.size());
+		parameters.sort((e1, e2) -> Integer.compare(e1.getLevel(), e2.getLevel()));
+		for (LikelihoodParameter parameter : parameters) {
+			Row row = factory.createRow();
+			for (int i = 0; i <= columns.length; i++) {
+				if (row.getC().size() < i)
+					row.getC().add(Context.smlObjectFactory.createCell());
+			}
+			setValue(row.getC().get(0), parameter.getAcronym());
+			setValue(row.getC().get(1),
+					parameter.getLabel());
+			setValue(row.getC().get(2), parameter.getIlrLevel());
+
+			sheet.getRow().add(row);
+		}
+		ExcelHelper.applyHeaderAndFooter(headerFooterSheetName, name, mlPackage);
+	}
+
+	private void generateRiskEstimation(final Analysis analysis, final SheetData sheetData, final boolean hiddenComment,
+			final boolean qualitative, final boolean rowColumn, final boolean uncertainty,
+			final Map<String, String> extrasColumns, final List<ScaleType> scales,
+			final Map<String, RiskProfile> riskProfiles, final Map<AssetType, String> assetTypes,
+			final String[] columns) {
+		int rowIndex = 1;
+		for (Assessment assessment : analysis.getAssessments()) {
+			int cellIndex = 0;
+			Row row = getRow(sheetData, rowIndex++, columns.length);
+			RiskProfile profile = riskProfiles
+					.get(RiskProfile.key(assessment.getAsset(), assessment.getScenario()));
+			if (qualitative)
+				setValue(row, cellIndex++, profile.getIdentifier());
+			setValue(row, cellIndex++, assessment.getAsset().getName());
+			setValue(row, cellIndex++, assessment.getScenario().getName());
+			if (qualitative) {
+				setValue(row, cellIndex++,
+						(profile.getRiskStrategy() == null ? RiskStrategy.ACCEPT : profile.getRiskStrategy())
+								.getNameToLower());
+				if (rowColumn)
+					cellIndex += writeProbaImpact(row, cellIndex++, profile.getRawProbaImpact(), scales, false);
+				cellIndex += writeProbaImpact(row, cellIndex++, assessment, scales);
+				cellIndex += writeProbaImpact(row, cellIndex++, profile.getExpProbaImpact(), scales, true);
+			} else {
+				writeLikelihood(row, cellIndex++, assessment.getLikelihood());
+				setValue(row, cellIndex++, assessment.getVulnerability());
+				writeQuantitativeImpact(row, cellIndex++,
+						assessment.getImpact(Constant.PARAMETER_TYPE_IMPACT_NAME));
+			}
+
+			if (uncertainty)
+				setValue(row, cellIndex++, assessment.getUncertainty());
+			setValue(row, cellIndex++, assessment.getOwner());
+			setValue(row, cellIndex++, assessment.getComment());
+			if (hiddenComment)
+				setValue(row, cellIndex++, assessment.getHiddenComment());
+
+			setValue(row, cellIndex++, assessment.getCockpit());
+
+			if (qualitative) {
+				setValue(row, cellIndex++, profile.getRiskTreatment());
+				Map<String, String> measures = profile.getMeasures().stream().map(Measure::getMeasureDescription)
+						.sorted((m1, m2) -> NaturalOrderComparator.compareTo(m1.getReference(), m2.getReference()))
+						.collect(Collectors.groupingBy(m -> m.getStandard().getName(),
+								Collectors.mapping(MeasureDescription::getReference, Collectors.joining(";"))));
+				String value = measures.entrySet().stream()
+						.sorted((e1, e2) -> NaturalOrderComparator.compareTo(e1.getKey(), e2.getKey()))
+						.map(e -> e.getKey() + ": " + e.getValue()).collect(Collectors.joining("\n"));
+				setValue(row, cellIndex++, value);
+				setValue(row, cellIndex++, profile.getActionPlan());
+			}
+			setFormula(setValue(row, cellIndex++, assetTypes.get(assessment.getAsset().getAssetType())),
+					"VLOOKUP(Risk_estimation[[#This Row],[Asset]],Assets[[#All],[Name]:[Value]],2,FALSE)");
+			setFormula(setValue(row, cellIndex++, assessment.getAsset().isSelected()),
+					"VLOOKUP(Risk_estimation[[#This Row],[Asset]],Assets[[#All],[Name]:[Value]],3,FALSE)");
+
+			setFormula(setValue(row, cellIndex++, assessment.getAsset().isSelected()),
+					"VLOOKUP(Risk_estimation[[#This Row],[Scenario]],Scenarios[[Name]:[Selected]],4,FALSE)");
+
+			for (String formula : extrasColumns.values()) {
+				if (formula.startsWith("VLOOKUP"))
+					setFormula(setValue(row, cellIndex++, ""), formula);
+				else
+					setFormula(getCell(row, cellIndex++), formula);
+			}
+		}
+	}
+
+	private Map<String, String> loadExtrasColumns(MultipartFile multipartFile, boolean isILR) {
+		if (!isILR || multipartFile == null || multipartFile.isEmpty())
+			return Collections.emptyMap();
+		final File file = InstanceManager.getServiceStorage().createTmpFile();
+		try {
+			final Pattern p1 = Pattern.compile("\\[@(\\w+)\\]");// replace [@column] by [[#This Row],[column]]
+			final Pattern p2 = Pattern.compile("\\[@(\\[\\w.*\\])");// replace [@[column]] by [[#This
+																	// Row],[column]]
+			InstanceManager.getServiceStorage().store(multipartFile, file.getAbsolutePath());
+			try (Stream<String> stream = Files.lines(file.toPath())) {
+				return stream.map(String::trim).map(e -> e.split(";", 2)).filter(e -> e.length == 2)
+						.collect(Collectors.toMap(e -> e[0].trim(),
+								e -> p2.matcher(p1.matcher(e[1].trim().replace(";", ","))
+										.replaceAll(m -> "[[#This Row],[%s]]".formatted(m.group(1))))
+										.replaceAll(m -> "[[#This Row],%s".formatted(m.group(1)))
+
+								,
+								(e1, e2) -> e1,
+								LinkedHashMap::new));
+			}
+		} catch (Exception e) {
+			TrickLogManager.Persist(e);
+			return Collections.emptyMap();
 		} finally {
 			serviceStorage.delete(file.getAbsolutePath());
 		}
@@ -748,14 +873,14 @@ public class ControllerDataManager {
 			model.addAttribute("items",
 					new DataManagerItem[] {
 							new DataManagerItem(AnalysisType.QUANTITATIVE.name(),
-									"/Analysis/Data-manager/Report/Export-process", ".docx"),
+									ANALYSIS_DATA_MANAGER_REPORT_EXPORT_PROCESS, ".docx"),
 							new DataManagerItem(AnalysisType.HYBRID.name(),
-									"/Analysis/Data-manager/Report/Export-process", ".docx"),
+									ANALYSIS_DATA_MANAGER_REPORT_EXPORT_PROCESS, ".docx"),
 							new DataManagerItem(AnalysisType.QUALITATIVE.name(),
-									"/Analysis/Data-manager/Report/Export-process", ".docx") });
+									ANALYSIS_DATA_MANAGER_REPORT_EXPORT_PROCESS, ".docx") });
 		else
 			model.addAttribute("item", new DataManagerItem(analysis.getType().name(),
-					"/Analysis/Data-manager/Report/Export-process", ".docx"));
+					ANALYSIS_DATA_MANAGER_REPORT_EXPORT_PROCESS, ".docx"));
 
 		model.addAttribute("analysis", analysis);
 		model.addAttribute("templates", templates);
@@ -989,9 +1114,9 @@ public class ControllerDataManager {
 		model.addAttribute("impacts", impacts);
 		model.addAttribute("probabilities", probabilities);
 		model.addAttribute("reportRiskSheetItem",
-				new DataManagerItem("risk-sheet-report", "/Analysis/Data-manager/Risk-sheet/Export-process"));
+				new DataManagerItem("risk-sheet-report", ANALYSIS_DATA_MANAGER_RISK_SHEET_EXPORT_PROCESS));
 		model.addAttribute("rawRiskSheetItem",
-				new DataManagerItem("risk-sheet-raw", "/Analysis/Data-manager/Risk-sheet/Export-process"));
+				new DataManagerItem("risk-sheet-raw", ANALYSIS_DATA_MANAGER_RISK_SHEET_EXPORT_PROCESS));
 		return "jsp/analyses/single/components/data-manager/export/risk-sheet/home";
 	}
 
@@ -1419,13 +1544,14 @@ public class ControllerDataManager {
 		return importRisEstimation(false, true, file, request, model, session, principal, locale);
 	}
 
-	private String[] createTableHeader(List<ScaleType> scales, boolean qualitative,
+	private String[] createTableHeader(List<ScaleType> scales, Collection<String> extrasColumns, boolean qualitative,
 			boolean hiddenComment, boolean rowColumn, boolean uncertainty) {
 		List<Column> columns = WorkerImportEstimation.generateColumns(scales, qualitative, hiddenComment, rowColumn,
 				uncertainty);
 		columns.add(new Column("Asset type"));
 		columns.add(new Column("Asset selected"));
 		columns.add(new Column("Scenario selected"));
+		extrasColumns.forEach(e -> columns.add(new Column(e)));
 
 		String[] result = new String[columns.size()];
 		for (int i = 0; i < columns.size(); i++)
@@ -1455,6 +1581,8 @@ public class ControllerDataManager {
 		if (hiddenComment)
 			myColumns.add("Hidden comment");
 
+		myColumns.add("Related name");
+
 		if (isILR) {
 			writeAssetILRImpacts(analysis, ilrImpactHeaders, myColumns, ilrAssetImpacts);
 			maxFormulas = ilrImpactHeaders.stream()
@@ -1481,8 +1609,13 @@ public class ControllerDataManager {
 
 			writeAssetDefaultCells(assetTypes, asset, row);
 
-			if (hiddenComment)
+			if (hiddenComment) {
 				setValue(row.getC().get(ASSET_HIDDEN_COMMENT_CELL_INDEX), asset.getHiddenComment());
+				setValue(row.getC().get(ASSET_HIDDEN_COMMENT_CELL_INDEX + 1), asset.getRelatedName());
+			} else {
+				setValue(row.getC().get(ASSET_HIDDEN_COMMENT_CELL_INDEX), asset.getRelatedName());
+			}
+
 			if (isILR)
 				writeAssetILRCells(hiddenComment, ilrImpactHeaders, ilrAssetImpacts, asset, row);
 			if (!maxFormulas.isEmpty()) {
@@ -1506,7 +1639,7 @@ public class ControllerDataManager {
 
 	private void writeAssetILRCells(final boolean hiddenComment, final List<String> ilrImpactHeaders,
 			final Map<String, Map<String, Integer>> ilrAssetImpacts, Asset asset, final Row row) {
-		final int currentColum = ASSET_HIDDEN_COMMENT_CELL_INDEX + (hiddenComment ? 1 : 0);
+		final int currentColum = ASSET_HIDDEN_COMMENT_CELL_INDEX + (hiddenComment ? 2 : 1);
 		final Map<String, Integer> assetImpacts = ilrAssetImpacts.get(asset.getName());
 
 		if (assetImpacts == null) {

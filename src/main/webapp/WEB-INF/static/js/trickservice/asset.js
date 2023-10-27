@@ -32,7 +32,7 @@ function selectAsset(assetId, value) {
 						return false;
 					},
 					error: unknowError
-				}).complete( ()  => $progress.hide());
+				}).complete(() => $progress.hide());
 			}
 		} else {
 			var $progress = $("#loading-indicator").show();
@@ -64,10 +64,10 @@ function deleteAsset() {
 		} else
 			$("#confirm-dialog .modal-body")
 				.html(
-				MessageResolver(
-					"confirm.delete.selected.asset",
-					"Are you sure, you want to delete the selected assets?<br/><b>ATTENTION:</b> This will delete all <b>Assessments</b> and complete <b>Action Plans</b> that depend on these assets!",
-					assetname));
+					MessageResolver(
+						"confirm.delete.selected.asset",
+						"Are you sure, you want to delete the selected assets?<br/><b>ATTENTION:</b> This will delete all <b>Assessments</b> and complete <b>Action Plans</b> that depend on these assets!",
+						assetname));
 		$("#confirm-dialog .btn-danger").one("click", function () {
 			$("#confirm-dialog").modal("hide");
 			var $progress = $("#loading-indicator").show(), hasChange = false;
@@ -106,7 +106,7 @@ function deleteAsset() {
 
 function editAsset(rowTrickId, isAdding) {
 	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
-		if (!isAdding && ( rowTrickId == null || rowTrickId == undefined)) {
+		if (!isAdding && (rowTrickId == null || rowTrickId == undefined)) {
 			var selectedScenario = $("#section_asset :checked");
 			if (selectedScenario.length != 1)
 				return false;
@@ -162,6 +162,10 @@ function saveAsset(form) {
 						case "hiddenComment":
 							$errorElement.appendTo($("#asset_hiddenComment", $form).parent());
 							break;
+						case "relatedName":
+							$errorElement.appendTo($("#asset_relatedName", $form).parent());
+							break;
+							
 					}
 				} else
 					showError($form.parent()[0], response.errors[error]);

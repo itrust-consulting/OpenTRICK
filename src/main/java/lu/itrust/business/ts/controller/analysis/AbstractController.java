@@ -43,7 +43,6 @@ import lu.itrust.business.ts.usermanagement.User;
  * @author eomar
  *
  */
-@PreAuthorize(ROLE_MIN_USER)
 public abstract class AbstractController {
 
 	@Autowired

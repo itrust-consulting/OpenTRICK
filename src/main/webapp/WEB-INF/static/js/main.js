@@ -239,11 +239,11 @@ function validateEmail(email) {
 }
 
 
-function checkExtention(value, extention, button) {
+function checkExtention(value, extention, button, optionnal) {
 	var extentions = extention.split(","), match = false;
 	for (var i = 0; i < extentions.length; i++)
 		match |= value.endsWith(extentions[i]);
-	if (button)
+	if (button && !optionnal)
 		$(button).prop("disabled", !match);
 	return match;
 }

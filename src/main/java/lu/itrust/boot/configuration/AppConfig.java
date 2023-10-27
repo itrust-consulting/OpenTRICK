@@ -29,6 +29,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -55,7 +56,6 @@ import lu.itrust.business.ts.usermanagement.listner.helper.PasswordEncryptionHel
  */
 
 @Configuration
-@EnableWebSecurity
 public class AppConfig {
 
 	@Bean

@@ -479,6 +479,12 @@ public class WorkerImportEstimation extends WorkerImpl {
 					case "hidden comment":
 						asset.setHiddenComment(getString(row, j, formatter));
 						break;
+					case "related":
+					case "Related":
+					case "related name":
+					case "Related name":
+						asset.setRelatedName(getString(row, j, formatter));
+						break;
 					case "comment":
 						asset.setComment(getString(row, j, formatter));
 						break;
@@ -771,6 +777,9 @@ public class WorkerImportEstimation extends WorkerImpl {
 						break;
 					case "Hidden comment":
 						assessment.setHiddenComment(value);
+						break;
+					case "Cockpit":
+						assessment.setCockpit(value);
 						break;
 					case "Security measures":
 						if (riskProfile == null)
@@ -1219,6 +1228,7 @@ public class WorkerImportEstimation extends WorkerImpl {
 		columns.add(new Column("Comment"));
 		if (hiddenComment)
 			columns.add(new Column("Hidden comment"));
+		columns.add(new Column("Cockpit"));
 		if (qualitative) {
 			columns.add(new Column("Security measures"));
 			columns.add(new Column("Measures"));

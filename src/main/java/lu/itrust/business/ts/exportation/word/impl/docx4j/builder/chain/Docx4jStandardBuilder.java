@@ -19,8 +19,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import jakarta.xml.bind.JAXBException;
-
 import org.docx4j.dml.CTRegularTextRun;
 import org.docx4j.dml.chart.CTNumVal;
 import org.docx4j.dml.chart.CTRadarChart;
@@ -36,7 +34,6 @@ import org.docx4j.openpackaging.parts.WordprocessingML.EmbeddedPackagePart;
 import org.docx4j.relationships.Relationship;
 import org.docx4j.wml.P;
 import org.docx4j.wml.PPrBase.TextAlignment;
-import org.docx4j.wml.STBrType;
 import org.docx4j.wml.Tbl;
 import org.docx4j.wml.Tc;
 import org.docx4j.wml.Tr;
@@ -45,6 +42,7 @@ import org.xlsx4j.sml.SheetData;
 
 import com.atlassian.util.concurrent.atomic.AtomicInteger;
 
+import jakarta.xml.bind.JAXBException;
 import lu.itrust.business.ts.component.ChartGenerator;
 import lu.itrust.business.ts.constants.Constant;
 import lu.itrust.business.ts.exception.TrickException;

@@ -147,6 +147,10 @@ public class Assessment implements Cloneable {
 	@Column(name = "dtOwner")
 	private String owner = "";
 
+	/** only for excel export */
+	@Column(name = "dtCockpit")
+	private String cockpit = "";
+
 	/** The scenario object reference */
 	@ManyToOne
 	@JoinColumn(name = "fiScenario", nullable = false)
@@ -647,6 +651,24 @@ public class Assessment implements Cloneable {
 	 */
 	public void setOwner(String owner) {
 		this.owner = owner;
+	}
+
+	/**
+	 * User for excel formulas
+	 * 
+	 * @return cockpit
+	 */
+	public String getCockpit() {
+		return cockpit;
+	}
+
+	/**
+	 * User for excel formulas
+	 * 
+	 * @param cockpit
+	 */
+	public void setCockpit(String cockpit) {
+		this.cockpit = (cockpit == null ? "" : cockpit).trim();
 	}
 
 	/**

@@ -1051,6 +1051,7 @@ public class ImportAnalysis {
 				tmpAssessment.setUncertainty(rs.getDouble(Constant.ASSESSMENT_UNCERTAINTY));
 				tmpAssessment.setComment(rs.getString(Constant.ASSESSMENT_COMMENT));
 				tmpAssessment.setHiddenComment(rs.getString(Constant.ASSESSMENT_HIDE_COMMENT));
+				tmpAssessment.setCockpit(getString(rs,Constant.ASSESSMENT_COCKPIT));
 				tmpAssessment.setOwner(getStringOrEmpty(rs, "owner"));
 
 				tmpAssessment.setSelected(
@@ -1217,6 +1218,7 @@ public class ImportAnalysis {
 				tempAsset.setValue(rs.getDouble(Constant.ASSET_VALUE_ASSET));
 				tempAsset.setComment(rs.getString(Constant.ASSET_COMMENT_ASSET));
 				tempAsset.setHiddenComment(rs.getString(Constant.ASSET_HIDE_COMMENT_ASSET));
+				tempAsset.setRelatedName(getString(rs, Constant.ASSET_RELATED_NAME));
 				tempAsset.setSelected(rs.getString(Constant.ASSET_SEL_ASSET).equalsIgnoreCase(Constant.ASSET_SELECTED));
 
 				// store asset to build assessment.
@@ -2430,7 +2432,7 @@ public class ImportAnalysis {
 				if (measure instanceof AbstractNormalMeasure)
 					measure.setToCheck(getStringOrEmpty(rs, Constant.MEASURE_REVISION));
 
-				measure.setToDo(getStringOrEmpty(rs,Constant.MEASURE_TODO));
+				measure.setToDo(getStringOrEmpty(rs, Constant.MEASURE_TODO));
 
 				measure.setResponsible(getStringOrEmpty(rs, Constant.MEASURE_RESPONSIBLE));
 

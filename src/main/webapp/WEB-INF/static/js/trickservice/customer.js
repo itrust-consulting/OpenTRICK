@@ -220,7 +220,7 @@ function manageCustomerTemplate(customerId) {
 					switch (e.currentTarget.value) {
 						case "RISK_INFORMATION":
 						case "DEFAULT_EXCEL": {
-							$file.prop("accept", ".xls,.xlsm,.xlsx,.xlsxm");
+							$file.prop("accept", ".xlsx");
 							$browse.prop("disabled", false);
 							break;
 						}
@@ -228,7 +228,7 @@ function manageCustomerTemplate(customerId) {
 						case "RISK_SHEET":
 						case "REPORT":
 						case "SOA": {
-							$file.prop("accept", ".doc,.docm,.docx,.docx,.docxm");
+							$file.prop("accept", ".docx");
 							$browse.prop("disabled", false);
 							break;
 						}
@@ -251,12 +251,11 @@ function manageCustomerTemplate(customerId) {
 						if ($file[0].files[0].size > size) {
 							showDialog("error", MessageResolver("error.file.too.large", undefined, size));
 							return false;
-						} /*else if (!checkExtention(value, ".docx", $saveBtn))
-							return false;*/
+						}
 					}
 
 					$fileInfo.val(value);
-					$saveBtn.prop("disabled",false);
+					$saveBtn.prop("disabled", false);
 				});
 
 				$saveBtn.on("click", (e) => $btnSubmit.trigger("click"));
@@ -394,7 +393,7 @@ function editReportTemplate(e) {
 	let isProfile = $modal.attr("data-trick-is-profile") === "true";
 
 	$("select[name='language']", $form).val(idLanguage);
-	$("select[name='type']", $form).val(templateType).removeAttr("required").prop("disabled",true);
+	$("select[name='type']", $form).val(templateType).removeAttr("required").prop("disabled", true);
 	$("input[name='id']", $form).val($tr.attr("data-trick-id"));
 
 	if (isProfile) {
@@ -417,7 +416,7 @@ function addReportTemplate(e) {
 	if ($current.parent().hasClass("disabled"))
 		return false;
 	let $form = $("#reportTemplate-form", $current.closest(".modal")).trigger("reset");
-	$("input[name='type'][value='QUANTITATIVE']", $form).closest(".btn").trigger("click");
+	$("input[name='type'][value='HYBRID']", $form).attr("required", "required").prop("disabled", false).closest(".btn").trigger("click");
 	$("input[type='file']", $form).attr("required", "required").trigger("change");
 	$("select>option:disabled", $form).prop("selected", true).parent().attr("required", "required").trigger("change");
 	$("input[name='id']", $form).val("-1");

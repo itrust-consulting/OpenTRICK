@@ -636,7 +636,7 @@ public class Duplicator {
 
 			copy.setAnalysisStandards(new ArrayList<>());
 			if (!standards.isEmpty()) {
-				Integer percentageperstandard = (int) 40 / standards.size();
+				Integer percentageperstandard = 40 / standards.size();
 
 				int copycounter = 0;
 				for (Integer standardID : standards) {

@@ -57,9 +57,12 @@
 							</c:otherwise>
 						</c:choose>
 					</c:if>
-					<th><spring:message code="label.asset.comment" /></th>
+					<th><a href="#" onclick="return sortTable('comment',this)" data-order='1'> <spring:message code="label.asset.comment" /></a></th>
 					<c:if test="${showHiddenComment}">
-						<th><spring:message code="label.asset.hidden_comment" /></th>
+						<th><a href="#" onclick="return sortTable('hiddenComment',this)" data-order='1'><spring:message code="label.asset.hidden_comment" /></a></th>
+					</c:if>
+					<c:if test="${isILR}">
+						<th style="width: 15%"><a href="#" onclick="return sortTable('relatedName',this)" data-order='1'> <spring:message code="label.asset.related_name" /></a></th>
 					</c:if>
 				</tr>
 			</thead>
@@ -95,6 +98,9 @@
 						<c:if test="${showHiddenComment}">
 							<td onclick="editField(this);" data-trick-field="hiddenComment" data-trick-field-type="string" data-trick-content="text"><spring:message text="${asset.hiddenComment}" /></td>
 						</c:if>
+						<c:if test="${isILR}">
+							<td onclick="editField(this);" data-trick-field="relatedName" data-trick-field-type="string" data-trick-content="text"><spring:message text="${asset.relatedName}" /></td>
+						</c:if>
 					</tr>
 				</c:forEach>
 			</tbody>
@@ -115,7 +121,7 @@
 							</c:otherwise>
 						</c:choose>
 					</c:if>
-					<td colspan="2"></td>
+					<td colspan="${(showHiddenComment? (isILR? 3: 2) : (isILR? 2: 1 ))}"></td>
 				</tr>
 			</tfoot>
 		</table>

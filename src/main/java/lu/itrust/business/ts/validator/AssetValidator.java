@@ -14,7 +14,7 @@ import lu.itrust.business.ts.validator.field.ValidatorFieldImpl;
 
 public class AssetValidator extends ValidatorFieldImpl implements Validator {
 
-	private Pattern editableField = Pattern.compile("comment|hiddenComment");
+	private Pattern editableField = Pattern.compile("comment|hiddenComment|relatedName");
 	
 	/* (non-Javadoc)
 	 * @see lu.itrust.business.ts.validator.field.ValidatorField#isEditable(java.lang.String)

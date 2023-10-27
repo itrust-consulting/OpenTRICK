@@ -591,6 +591,7 @@ public class Constant {
 
 	/** List of Constants for the Sqlite Table "assessment" */
 	public static final String ASSESSMENT_COMMENT = MEASURE_COMMENT;
+	public static final String ASSESSMENT_COCKPIT = "cockpit";
 	public static final String ASSESSMENT_HIDE_COMMENT = "comment_2";
 	public static final String ASSESSMENT_UNCERTAINTY = "uncertainty";
 	public static final String ASSESSMENT_IMPACT_REP = "impact_reputation";
@@ -660,6 +661,7 @@ public class Constant {
 	public static final String ASSET_SEL_ASSET = "sel_asset";
 	public static final String ASSET_COMMENT_ASSET = "comment_asset";
 	public static final String ASSET_HIDE_COMMENT_ASSET = "comment_asset_2";
+	public static final String ASSET_RELATED_NAME = "related_name";
 	public static final String ASSET_VALUE_ASSET = "value_asset";
 	public static final String ASSET_NAME_ASSET = "name_asset";
 	public static final String ASSET_ID_TYPE_ASSET = "id_type_asset";

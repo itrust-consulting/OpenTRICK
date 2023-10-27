@@ -123,6 +123,7 @@
 	<!--
 		application['analysisType'] = ANALYSIS_TYPE.valueOf('${type}');
 		application['isProfile'] = ${isProfile};
+		application['isILR'] = ${isILR};
 		application['openMode'] = OPEN_MODE.valueOf('${open}');
 		application['isLinkedToProject'] = ${isLinkedToProject};
 		application['hasMaturity'] = ${hasMaturity==true};

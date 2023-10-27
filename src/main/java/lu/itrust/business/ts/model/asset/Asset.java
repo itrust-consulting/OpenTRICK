@@ -1,5 +1,8 @@
 package lu.itrust.business.ts.model.asset;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
 import jakarta.persistence.Access;
 import jakarta.persistence.AccessType;
 import jakarta.persistence.Cacheable;
@@ -12,10 +15,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
-
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-
 import lu.itrust.business.ts.exception.TrickException;
 
 /**
@@ -66,6 +65,10 @@ public class Asset implements Cloneable {
 	/** The Asset Hidden Comment */
 	@Column(name = "dtHiddenComment", nullable = false, length = 16777216)
 	private String hiddenComment = "";
+
+	/** The Asset related name */
+	@Column(name = "dtRelatedName", nullable = false, length = 16777216)
+	private String relatedName = "";
 
 	/** The Flag to determine if the Asset is selected for calculations */
 	@Column(name = "dtSelected", nullable = false)
@@ -230,6 +233,22 @@ public class Asset implements Cloneable {
 			this.hiddenComment = "";
 		else
 			this.hiddenComment = hiddenComment;
+	}
+
+	/**
+	 * Related name
+	 * @return
+	 */
+	public String getRelatedName() {
+		return relatedName;
+	}
+
+	/**
+	 * Related name
+	 * @param relatedName
+	 */
+	public void setRelatedName(String relatedName) {
+		this.relatedName = (relatedName == null? "": relatedName).trim();
 	}
 
 	/**

@@ -6,8 +6,6 @@ package lu.itrust.business.ts.controller;
 import java.security.Principal;
 import java.util.Locale;
 
-import jakarta.servlet.http.HttpSession;
-
 import org.jboss.aerogear.security.otp.Totp;
 import org.jboss.aerogear.security.otp.api.Base32;
 import org.jboss.aerogear.security.otp.api.Clock;
@@ -21,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import jakarta.servlet.http.HttpSession;
 import lu.itrust.business.ts.constants.Constant;
 import lu.itrust.business.ts.database.service.ServiceEmailSender;
 import lu.itrust.business.ts.database.service.ServiceUser;

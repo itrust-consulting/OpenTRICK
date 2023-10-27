@@ -23,6 +23,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -301,29 +302,28 @@ public class ControllerAsset {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@GetMapping(value = "/Section", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).READ)")
 	public String section(Model model, HttpSession session, Principal principal, Locale locale) throws Exception {
 		// retrieve analysis id
 		final Integer integer = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		final AnalysisType type = serviceAnalysis.getAnalysisTypeById(integer);
-		final List<Asset> assets = serviceAsset.getAllFromAnalysis(integer);
-		final List<Assessment> assessments = serviceAssessment.getAllFromAnalysisAndSelected(integer);
-
+		final Analysis analysis = serviceAnalysis.get(integer);
+		final AnalysisType type = analysis.getType();
+		final List<Asset> assets = analysis.getAssets();
 		assets.sort(Comparators.ASSET());
 
 		loadAnalysisSettings(model, integer);
 		// load all assets of analysis to model
 		if (AnalysisType.isQuantitative(type))
-			model.addAttribute("assetALE", AssessmentAndRiskProfileManager.ComputeAssetALE(assets, assessments));
+			model.addAttribute("assetALE",
+					AssessmentAndRiskProfileManager.ComputeAssetALE(assets, analysis.findSelectedAssessments()));
 		model.addAttribute("assets", assets);
 		model.addAttribute("type", type);
 		model.addAttribute("isEditable", !OpenMode.isReadOnly((OpenMode) session.getAttribute(Constant.OPEN_MODE)));
-		model.addAttribute("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(integer));
+
+		model.addAttribute("show_uncertainty", analysis.isUncertainty());
 		return "jsp/analyses/single/components/asset/asset";
 	}
-
-	
 
 	/**
 	 * select: <br>
@@ -414,6 +414,8 @@ public class ControllerAsset {
 
 			asset.setHiddenComment(jsonNode.get("hiddenComment").asText("").trim());
 
+			asset.setRelatedName(jsonNode.get("relatedName").asText("").trim());
+
 			error = validator.validate(asset, "name", name);
 			if (error != null)
 				errors.put("name", serviceDataValidation.ParseError(error, messageSource, locale));
@@ -471,11 +473,13 @@ public class ControllerAsset {
 	}
 
 	private void loadAnalysisSettings(Model model, Integer integer) {
-		Map<String, String> settings = serviceAnalysis.getSettingsByIdAnalysis(integer);
-		AnalysisSetting rawSetting = AnalysisSetting.ALLOW_RISK_ESTIMATION_RAW_COLUMN,
-				hiddenCommentSetting = AnalysisSetting.ALLOW_RISK_HIDDEN_COMMENT;
+		final Map<String, String> settings = serviceAnalysis.getSettingsByIdAnalysis(integer);
+		final AnalysisSetting rawSetting = AnalysisSetting.ALLOW_RISK_ESTIMATION_RAW_COLUMN;
+		final AnalysisSetting hiddenCommentSetting = AnalysisSetting.ALLOW_RISK_HIDDEN_COMMENT;
 		model.addAttribute("showHiddenComment",
 				Analysis.findSetting(hiddenCommentSetting, settings.get(hiddenCommentSetting.name())));
 		model.addAttribute("showRawColumn", Analysis.findSetting(rawSetting, settings.get(rawSetting.name())));
+		model.addAttribute("isILR", Analysis.findSetting(AnalysisSetting.ALLOW_ILR_ANALYSIS,
+				settings.get(AnalysisSetting.ALLOW_ILR_ANALYSIS.name())));
 	}
 }

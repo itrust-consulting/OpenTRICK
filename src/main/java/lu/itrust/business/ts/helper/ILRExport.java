@@ -238,21 +238,21 @@ public class ILRExport {
             }
         }
 
-        if (StringUtils.hasText(assessment.getComment())) {
-            if (StringUtils.hasText(risk.getComment())) {
-                if (!risk.getComment().toLowerCase().contains(assessment.getComment().toLowerCase()))
-                    risk.setComment(risk.getComment() + ". " + assessment.getComment());
-            } else {
-                risk.setComment(assessment.getComment());
-            }
-        }
-
         final RiskProfile riskProfile = mappingProfiles
                 .get(RiskProfile.key(assessment.getAsset(), assessment.getScenario()));
 
         if (riskProfile == null)
             risk.setThreatRate(Math.max(risk.getThreatRate(), 0));
         else {
+
+            if (StringUtils.hasText(riskProfile.getRiskTreatment())) {
+                if (StringUtils.hasText(risk.getComment())) {
+                    if (!risk.getComment().toLowerCase().contains(riskProfile.getRiskTreatment().toLowerCase()))
+                        risk.setComment(risk.getComment() + ". " + riskProfile.getRiskTreatment());
+                } else {
+                    risk.setComment(riskProfile.getRiskTreatment());
+                }
+            }
 
             if (StringUtils.hasText(riskProfile.getActionPlan())) {
                 if (StringUtils.hasText(risk.getContext())) {
@@ -288,7 +288,8 @@ public class ILRExport {
                                         risk.getVulnerabilityRate()
                                                 - riskProfile.getExpProbaImpact().getVulnerability(),
                                         risk.getReductionAmount()),
-                                        0),//the maximun with 0 can be removed as reduction amount should be by default to 0.
+                                        0), // the maximun with 0 can be removed as reduction amount should be by
+                                            // default to 0.
                                 maxVulnerabilityScale), risk.getVulnerabilityRate()));
             }
 
@@ -358,7 +359,8 @@ public class ILRExport {
         analysis.getAnalysisStandards().forEach((n, a) -> {
             final List<MonarcMeasures> ilrMeasures = database
                     .searchMeasuresByReferentialLabel(
-                            stdToReferencials.getOrDefault(a.getStandard().getName().toLowerCase(), a.getStandard().getName()));
+                            stdToReferencials.getOrDefault(a.getStandard().getName().toLowerCase(),
+                                    a.getStandard().getName()));
             if (!ilrMeasures.isEmpty())
                 measureMappers.computeIfAbsent(a.getStandard().getName(),
                         b -> ilrMeasures.stream()
@@ -376,7 +378,8 @@ public class ILRExport {
                 .collect(Collectors.toMap(MonarcSoa::getMeasureId, Function.identity()));
 
         analysis.getAnalysisStandards().values().stream().filter(AnalysisStandard::isSoaEnabled).forEach(e -> {
-            final String name = stdToReferencials.getOrDefault(e.getStandard().getName().toLowerCase(), e.getStandard().getName());
+            final String name = stdToReferencials.getOrDefault(e.getStandard().getName().toLowerCase(),
+                    e.getStandard().getName());
             final List<MonarcMeasures> monarcMeasures = database.searchMeasuresByReferentialLabel(name);
             final Map<String, MonarcMeasures> measures = monarcMeasures.stream()
                     .collect(Collectors.toMap(MonarcMeasures::getCode, Function.identity()));

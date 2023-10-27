@@ -178,8 +178,8 @@ public class TS_03_CreateAnAnlysis extends SpringTestConfiguration {
 		this.mockMvc.perform(post("/Analysis/Asset/Save").with(csrf()).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")).accept(APPLICATION_JSON_CHARSET_UTF_8)
 				.sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
 				.content(String.format(
-						"{\"id\":\"-1\", \"name\":\"%s\" ,\"assetType\": {\"id\": \"%d\" }, \"value\": \"%s\", \"selected\":\"%s\", \"comment\":\"%s\", \"hiddenComment\":\"%s\"}",
-						"Trick service", 1, "687,688", false, "comment", "hiddenComment")))
+						"{\"id\":\"-1\", \"name\":\"%s\" ,\"assetType\": {\"id\": \"%d\" }, \"value\": \"%s\", \"selected\":\"%s\", \"comment\":\"%s\", \"hiddenComment\":\"%s\", \"relatedName\": \"%s\"}",
+						"Trick service", 1, "687,688", false, "comment", "hiddenComment","relatedName")))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.id").exists());
 	}
 
@@ -191,8 +191,9 @@ public class TS_03_CreateAnAnlysis extends SpringTestConfiguration {
 		put(ASSET_TRICK_SERVICE, asset.getId());
 		assertEquals("Bad Asset name", asset.getName(), "Trick service");
 		assertEquals("Bad Asset value", asset.getValue(), 687.688 * 1000, 1E-10);
-		assertEquals("Bad Asset comment", asset.getValue(), 687.688 * 1000, 1E-10);
-		assertEquals("Bad Asset hidden comment", asset.getValue(), 687.688 * 1000, 1E-10);
+		assertEquals("Bad Asset comment", asset.getComment(), "comment");
+		assertEquals("Bad Asset hidden comment", asset.getHiddenComment(), "hiddenComment");
+		assertEquals("Bad Asset related name", asset.getRelatedName(), "relatedName");
 		AssetType assetType = serviceAssetType.get(1);
 		notNull(assetType, "Asset type cannot be found");
 		assertEquals("Bad Asset asset-type", asset.getAssetType(), assetType);

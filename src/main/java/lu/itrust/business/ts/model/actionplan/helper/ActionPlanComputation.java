@@ -1073,7 +1073,7 @@ public class ActionPlanComputation {
 	}
 
 	private void setSOARisk(ActionPlanEntry entry, List<TMA> tmas) throws TrickException {
-
+		
 		if (!analysis.getAnalysisStandards().get(entry.getMeasure().getMeasureDescription().getStandard().getName())
 				.isSoaEnabled() || entry.getMeasure() instanceof MaturityMeasure)
 			return;

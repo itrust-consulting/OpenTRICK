@@ -1470,8 +1470,8 @@ public class ExportAnalysis {
 			// ****************************************************************
 
 			counter += prepareQuery(params,
-					"INSERT INTO assets SELECT ? as id_asset, ? as name_asset, ? as id_type_asset, ? as value_asset, ? as comment_asset, ? as comment_asset_2, ? as sel_asset, ? as total_ALE",
-					8, query, counter);
+					"INSERT INTO assets SELECT ? as id_asset, ? as name_asset, ? as id_type_asset, ? as value_asset, ? as comment_asset, ? as comment_asset_2, ? as related_name, ? as sel_asset, ? as total_ALE",
+					9, query, counter);
 
 			// add parameters
 			params.add(asset.getId());
@@ -1480,6 +1480,7 @@ public class ExportAnalysis {
 			params.add(asset.getValue());
 			params.add(asset.getComment());
 			params.add(asset.getHiddenComment());
+			params.add(asset.getRelatedName());
 			if (asset.isSelected()) {
 				params.add(Constant.ASSET_SELECTED);
 			} else {
@@ -1642,8 +1643,8 @@ public class ExportAnalysis {
 			totalALEs.put(key, totalALE);
 		}
 
-		String query = "", unionQuery = " UNION SELECT ?,?,?,?,?,?,?,?,?,?,?,?",
-				baseQuery = "INSERT INTO Assessment SELECT ? as id_asset, ? as id_threat,? as selected, ? as impact_hidden,? as potentiality,? as potentiality_hidden,? as vulnerability,? as comment,? as comment_2, ? as owner,"
+		String query = "", unionQuery = " UNION SELECT ?,?,?,?,?,?,?,?,?,?,?,?,?",
+				baseQuery = "INSERT INTO Assessment SELECT ? as id_asset, ? as id_threat,? as selected, ? as impact_hidden,? as potentiality,? as potentiality_hidden,? as vulnerability,? as comment,? as comment_2,? as cockpit, ? as owner,"
 						+ "? as total_ALE,? as uncertainty";
 		// ****************************************************************
 		// * export assessment
@@ -1653,7 +1654,7 @@ public class ExportAnalysis {
 		for (Assessment assessment : analysis.getAssessments()) {
 			if (query.isEmpty())
 				query = baseQuery;
-			else if (params.size() + 12 > 999) {
+			else if (params.size() + 13 > 999) {
 				sqlite.query(query, params);
 				query = baseQuery;
 				params.clear();
@@ -1673,6 +1674,7 @@ public class ExportAnalysis {
 			params.add(assessment.getVulnerability());
 			params.add(assessment.getComment());
 			params.add(assessment.getHiddenComment());
+			params.add(assessment.getCockpit());
 			params.add(assessment.getOwner());
 			params.add(totalALEs.get(key));
 			params.add(assessment.getUncertainty());

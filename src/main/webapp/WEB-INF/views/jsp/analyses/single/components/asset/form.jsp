@@ -89,7 +89,7 @@
 						<label for="comment" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.asset.comment" />'> <spring:message code="label.asset.comment" />
 						</label>
 						<div class="col-sm-9">
-							<textarea name="comment" class="form-control resize_vectical_only" id="asset_comment" rows="10"><spring:message text="${empty(asset)? '': asset.comment}" /></textarea>
+							<textarea name="comment" class="form-control resize_vectical_only" id="asset_comment" rows="9"><spring:message text="${empty(asset)? '': asset.comment}" /></textarea>
 						</div>
 					</div>
 					<div class="form-group">
@@ -97,7 +97,15 @@
 								code="label.asset.comment_hidden" />
 						</label>
 						<div class="col-sm-9">
-							<textarea name="hiddenComment" id="asset_hiddenComment" class="form-control resize_vectical_only" rows="8"><spring:message text="${empty(asset)? '': asset.hiddenComment}" /></textarea>
+							<textarea name="hiddenComment" id="asset_hiddenComment" class="form-control resize_vectical_only" rows="7"><spring:message text="${empty(asset)? '': asset.hiddenComment}" /></textarea>
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="relatedName" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.asset.related_name" />'> <spring:message
+								code="label.asset.related_name" />
+						</label>
+						<div class="col-sm-9">
+							<input name="relatedName" id="asset_relatedName" class="form-control" value='<spring:message text="${empty(asset)? '': asset.relatedName}" />'/>
 						</div>
 					</div>
 				</form>
