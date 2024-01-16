@@ -3,7 +3,6 @@ package lu.itrust.business.ts.controller.administration;
 import static lu.itrust.business.ts.constants.Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.security.Principal;
 import java.sql.Timestamp;
 import java.util.Collections;
@@ -15,12 +14,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
-
 import org.apache.commons.compress.utils.FileNameUtils;
-import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
@@ -49,6 +43,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import lu.itrust.business.ts.component.CustomDelete;
 import lu.itrust.business.ts.component.CustomerManager;
 import lu.itrust.business.ts.component.DefaultTemplateLoader;
@@ -60,11 +57,11 @@ import lu.itrust.business.ts.database.service.ServiceDataValidation;
 import lu.itrust.business.ts.database.service.ServiceIDS;
 import lu.itrust.business.ts.database.service.ServiceLanguage;
 import lu.itrust.business.ts.database.service.ServiceMessageNotifier;
-import lu.itrust.business.ts.database.service.ServiceTrickTemplate;
 import lu.itrust.business.ts.database.service.ServiceRole;
 import lu.itrust.business.ts.database.service.ServiceTSSetting;
 import lu.itrust.business.ts.database.service.ServiceTrickLog;
 import lu.itrust.business.ts.database.service.ServiceTrickService;
+import lu.itrust.business.ts.database.service.ServiceTrickTemplate;
 import lu.itrust.business.ts.database.service.ServiceUser;
 import lu.itrust.business.ts.exception.ResourceNotFoundException;
 import lu.itrust.business.ts.exception.TrickException;

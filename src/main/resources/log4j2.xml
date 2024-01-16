@@ -45,7 +45,7 @@
 
 		<logger name="lu.itrust.boot.Application" level="INFO"/>
 
-		<logger name="org.springframework.web.socket.config.WebSocketMessageBrokerStats" level="INFO"/>
+		<logger name="org.springframework.web.socket.config.WebSocketMessageBrokerStats" level="DEBUG"/>
 
 		<logger name="org.apache.coyote.http2.StreamProcessor" level="INFO"/>
 

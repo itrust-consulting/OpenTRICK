@@ -14,25 +14,20 @@ import lu.itrust.business.ts.constants.Constant;
 @EnableWebSocketSecurity
 public class WebSocketSecurityConfig {
 
-    @Bean
-    public AuthorizationManager<Message<?>> messageAuthorizationManager(
-            MessageMatcherDelegatingAuthorizationManager.Builder messages) {
-        messages.simpTypeMatchers(SimpMessageType.CONNECT, SimpMessageType.CONNECT_ACK,
-                SimpMessageType.DISCONNECT,
-                SimpMessageType.DISCONNECT_ACK, SimpMessageType.UNSUBSCRIBE)
-                .permitAll()
-                .simpDestMatchers("/User/**", "/Application/**").hasAnyAuthority(Constant.ROLE_USER,
-                        Constant.ROLE_CONSULTANT,
-                        Constant.ROLE_ADMIN,
-                        Constant.ROLE_SUPERVISOR)
-                .simpTypeMatchers(SimpMessageType.MESSAGE, SimpMessageType.SUBSCRIBE)
-                .hasAnyAuthority(Constant.ROLE_USER,
-                        Constant.ROLE_CONSULTANT,
-                        Constant.ROLE_ADMIN,
-                        Constant.ROLE_SUPERVISOR)
-                .anyMessage().denyAll();
+        @Bean
+        public AuthorizationManager<Message<?>> messageAuthorizationManager(
+                        MessageMatcherDelegatingAuthorizationManager.Builder messages) {
+                messages
+                                .nullDestMatcher().authenticated()
+                                .simpDestMatchers("/User/**", "/Application/**", "/Notification/**")
+                                .hasAnyAuthority(Constant.ROLE_USER,
+                                                Constant.ROLE_CONSULTANT,
+                                                Constant.ROLE_ADMIN,
+                                                Constant.ROLE_SUPERVISOR)
+                                .simpTypeMatchers(SimpMessageType.MESSAGE, SimpMessageType.SUBSCRIBE).denyAll()
+                                .anyMessage().denyAll();
 
-        return messages.build();
-    }
+                return messages.build();
+        }
 
 }

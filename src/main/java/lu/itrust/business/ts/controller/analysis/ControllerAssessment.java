@@ -220,6 +220,7 @@ public class ControllerAssessment {
 					.filter(e -> !e.getStandard().is(Constant.STANDARD_MATURITY))
 					.flatMap(e -> e.getMeasures().stream())
 					.filter(e -> !e.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE)
+							&& e.getMeasureDescription().isComputable()
 							&& e.getImplementationRateValue(factory) < 100
 							&& e.getPhase().getNumber() <= mandatoryPhase)
 					.filter(AbstractNormalMeasure.class::isInstance).forEach(e -> assessments.stream().forEach(ass -> {
