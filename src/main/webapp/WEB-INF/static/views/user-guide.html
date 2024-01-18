@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-	<title>TRICK Service 2.15 User Guide</title>
+	<title>TRICK Service 2.16 User Guide</title>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
 	<link rel="stylesheet" href="css/bootstrap-4.0.0.min.css" />
@@ -148,6 +148,18 @@
 		<figcaption class="figure-caption">Add or edit a report template for a customer.</figcaption><i-- updated, there was no mixed analysis option-->
 	</figure>
 	<p>In that dialog, you need to specify a type and a language. These specify to which risk analyses the template applies to; the template will only be available for export if the type and language match. The version that is specified is used to check if the template is outdated, or not. If the version specified here corresponds to the version of the template deployed by default, then it is considered to be up to date. Otherwise, it is considered to be obsolete (in which case you can still use the template, but a warning will be displayed). The uploaded file must be in DOCX format.</p>
+	<h4 id="customer-excel-templates">Custom Excel templates</h4>
+	<p> Staring release 2.16 onwards the tool also supports the excel templates which can be used to 
+		generate the following excel output files or reports by default.
+		Like the word templates these templates can similarly be updated or revised.
+		<ul>
+			<li>For exporting <strong>Risk Register</strong> Risks register report template is used</li>
+			<li>For exporting <strong>Brainstorming</strong> Brainstorming Excel template is used</li>
+			<li>For exporting <strong>SOA</strong> State Of Applicability report template is used</li>
+			<li>For exporting <strong>any other excel file</strong>: Default Excel template is used</li>
+		</ul>	
+	</p>
+
 	<h3 id="languages"><a id="knowledgebase-language"></a>Languages</h3>
 	<p>This table shows the different languages that are supported for translating the security measures of a standard. If you
 		add a language, you can define a translation in the newly added language for each security measure.</p>
@@ -428,10 +440,58 @@
 		over and the user has the possibility to choose which security measures collection should be included in the new profile:</p>
 	<p>After providing a name to the profile to create, you can add the new profile to the knowledge base by clicking on “Save”
 		the button.</p>
+	<p>The newly created profile can be viewed in <a href="#analysis-profiles">Analysis profiles</a> in the knowledge base</p>
 	<figure id="_FIG_31" class="figure">
 		<img src="img/Newanalysis.png" class="figure-img img-fluid" />
 		<figcaption class="figure-caption">Create new risk analysis profile.</figcaption>
 	</figure>
+	<h3 id="update-profile">Updating analysis profile</h3>
+	<p>
+		There are two ways to update an analysis profile:
+		<ul>
+			<li>Updating an analysis created from analysis profile</li>
+			<li>Exported as an SQLite file from the knowledge base</li>
+		</ul>
+		<h4>Updating an analysis created from analysis profile</h4>
+		<p> <strong>Create:</strong> A new analysis can directly be created from a risk profile by clicking “New analysis” in the analyses overview, 
+			and by choosing the desired profile from the select box in the dialog. See Figure <a href="#_FIG_32_0">[Figure]</a><br>
+
+			<strong>Modify:</strong> Once the profile is available as a risk analysis, it can be modified like any normal risk analysis. 
+			Set-up scenarios, adjust risk reduction factors (RRF), import measures.<br>
+			
+			<strong>Re-import as profile:</strong> When all modifications have been made, the risk analysis needs to be converted back to a profile. 
+			In the analyses overview, select the analysis that shall be converted, and select “New profile” from the menu – 
+			see Figure <a href="#_FIG_32_00">[Figure]</a>.
+			A dialog opens for setting up the profile. Type a name under which the profile shall be known as.
+			It is highly recommended to add a version number to the name, so as to distinguish it from older versions later on.
+			Indeed, neither the history nor the version of the underlying analysis will be copied over to the profile!
+			Tip: If for some reason you do not want or have version numbers in the name, first rename the old profile (e.g. name it “ … (old)”), and then create the new profile. The reason for that is because TRICK Service does not allow multiple profiles with the same name.
+			Then, select all measure collections that shall be imported by default in all risk analysis based on the profile. 
+			Note that it is preferred to include measure collections in the profile, as this will also include all RRF values 
+			associated to the measures! RRF values are stored in a risk analysis/profile, not in the knowledge base.<br>
+
+			<strong>Cleanup:</strong> When the profile has been successfully created, make sure to remove any older profiles from the knowledge base.<br><br>
+			<strong>Note:</strong> Profiles which have been set up as “default” cannot directly be deleted. First set the newly created profile as “default”, before the old one can be deleted.
+			It is recommended, however, to keep the underlying analysis (not profile) in TRICK Service.
+		</p>
+		<figure id="_FIG_32_00" class="figure">
+			<img src="img/save-analysis-as-rp.png" class="figure-img img-fluid" />
+			<figcaption class="figure-caption">Create a profile from a risk analysis.</figcaption>
+		</figure>
+		<figure id="_FIG_32_0" class="figure">
+			<img src="img/create-analysis-from-rp.png" class="figure-img img-fluid" />
+			<figcaption class="figure-caption">Choose a profile as a basis for a new risk analysis.</figcaption>
+		</figure>
+		<h4>Exported as an SQLite file from the knowledge base</h4>
+		<p>A profile can be exported as an SQLite file from the knowledge base – see Figure <a href="#_FIG_32_1">[Figure]</a>
+			That file can then be imported like a normal analysis into TRICK Service for editing. It will become an analysis after import.
+		</p>
+		<figure id="_FIG_32_1" class="figure">
+			<img src="img/export-profile.png" class="figure-img img-fluid" />
+			<figcaption class="figure-caption">Export risk analysis profile.</figcaption>
+		</figure>
+	</p>
+
 	<h3 id="import"><a id="import-analysis"></a>Import</h3>
 	<p>The Import page allows importing an SQLite database including a risk analysis into TRICK Service.</p>
 	<p>The selected file must be an SQLite database that has been previously exported from (any) TRICK Service instance. Backwards-compatibility is guaranteed.</p>
@@ -2355,6 +2415,31 @@
 	<h4 id="export--risk-estimations">Risk estimations</h4>
 	<p>By clicking on “Export”, you will get an Excel spreadsheet that contains all likelihood and impact estimations for all assets and scenarios.</p>
 	<p>In contrast to the risk sheet, this spreadsheet can be imported back into TRICK Service.</p> 
+	
+	<h5 id="export-risk-estimation-with-additional-columns">Export risk estimation with-additional columns</h5>
+	<p> Given that ILR analysis is enabled the tool allows the user to add additional columns to the risk estimation
+		exported file. The input can be provided using a dedicated CSV file in the file selection input box as below:
+		<figure class="figure" id="export-risk-estimations-csv-input">
+			<img src="img/export-risk-estimations-csv-input.png" alt="Export as JSON" class="figure-img img-fluid" />
+			<figcaption class="figure-caption">Export interface</figcaption>
+		</figure>
+
+		The input file if provided in the above dialog box should be a CSV file specifying the formulas 
+		relative to Risk estimation sheets.
+
+		<br>Example of one such input CSV file could be:<br>
+		<code>
+			Relative Name; VLOOKUP(Risk_estimation[@[Asset]];Assets[#All];7;0) <br>
+			Label Th.;Risk_estimation[@Scenario] <br>
+			Pr;VLOOKUP(Risk_estimation[@[RAW Probability]];Probabilty[#All];3;0) <br>
+		</code>
+		
+		The above file if provided will additionally add three columns 'Relative Name', 'Label Th.'' and 'Pr' in the exported risk estimation using 
+		the values in Tables 'Assets' and 'Probabilty' in the Risk Estimation file. <br>		
+		NOTE: This feature is only available when the Enable ILR analysis is Set in Manage analysis settings.
+	</p>
+	
+	
 	<h4 id="export--rrf">Risk reduction factors</h4>
 	<p>This option allows to export all RRF values of the different standards in Microsoft Excel format. This allows the user to modify more fast several RRF values. With the help of the Import option, the user can reimport and overwrite the RRF values again.</p>
 	<div class="alert alert-warning">
@@ -3649,6 +3734,13 @@
 	</table>
 
 	<h1 id="annex-d-changelog">Annex D – Changelog</h1>
+	<h2 id="whats-new-in-ts-2.16">What's new in TRICK Service 2.16</h2>
+	<ul>
+		<li> Support of customized excel templates for customers <a href="#customer-excel-templates">[Section]</a></li>
+		<li> Support for adding excel formula computing columns in risk estimations <a href="#export-risk-estimation-with-additional-columns">[Section]</a></li>
+		<li> Performance fixes: Slow save and update of risk analysis</li>
+	</ul>
+
 	<h2 id="whats-new-in-ts-2.15">What's new in TRICK Service 2.15</h2>
 	<ul>
 		<li> Admin feature for creating and managing customer email ticketing system(<a href="#customers--"></a>) </li>
@@ -3753,6 +3845,174 @@
 			</ul>
 		</li>
 	</ul>
+	<h1 id="annex-e-howtoguide">Annex E – How to </h1>
+	<h2 id="whats-new-in-ts-2.16">How to upgrade the measure collection to new version of standard</h2>
+
+	<h3>Preliminary Steps</h3>
+	<h4 id="import-security-standard">Import security standard</h4>
+	<p>In order to import a security standard into TRICK Service, a file with a special format has to be 
+		provided. A template for such a file can be obtained directly in TRICK Service, see <a href="#get-template-for-importing-new-std">[Figure]</a> 
+		Alternatively, another standard can also be exported, and the obtained file manipulated accordingly.
+		<div class="alert alert-warning">Either way, make sure that the [Name] and [Version] columns in the “NormInfo” sheet are 
+			changed appropriately! Otherwise, data from another security standard will be overwritten 
+			(if it has the same name/version) – which will also reflect on all analyses that use this standard!
+		</div>
+		
+		It is recommended to always have back-ups (obtained via export) of all standards in the knowledge base.
+		<figure id="get-template-for-importing-new-std" class="figure">
+			<img src="img/get-template-for-importing-new-std.png" class="figure-img img-fluid" />
+			<figcaption class="figure-caption">Getting the template for importing new security standards.</figcaption>
+		</figure>
+
+		Double-check that the content of the “NormInfo” sheet is correct. Then click the “Import” button to import the file into TRICK Service.
+
+		<div class="alert alert-warning">In order to avoid accidental data loss, the import will only 
+			append/update data – never delete data. If you accidentally import a
+		 bad measure through the import interface, there is no way for a normal user to remove it again 
+		 – only TRICK Service administrators are allowed to delete such measures (and risk data loss).
+		</div>
+
+	</p>
+	<h4 id="backup">Back-up</h4>
+	<p>As for any task that involves the manipulation of a lot of data, it is highly recommended to 
+		create a new version of the analysis that shall be migrated. It will serve as a back-up in case 
+		something goes wrong.
+	</p>
+	<figure id="create-new-version-ra" class="figure">
+		<img src="img/create-new-version-ra.png" class="figure-img img-fluid" />
+		<figcaption class="figure-caption">Create a new version of the analysis.</figcaption>
+	</figure>
+	
+	<h3>Upgrade risk analysis to use new standard </h3>
+	<p>The migration consists of the following steps</p>
+	<ul>
+		<li> exporting the data for the old standard <a href="#exporting-the-data-for-the-old-standard">[Section]</a></li>
+		<li> upgrading to the new standard in the risk analysis (structure only) <a href="#upgrading-to-the-new-standard-in-the-risk-analysis">[Section]</a></li>
+		<li> exporting a template for the new standard (structure only) <a href="#exporting-template-for-the-new-standard">[Section]</a></li>
+		<li> copying the values from the first export file to the second one in Excel <a href="#copying-the-values-from-the-first-export-file-to-the-second-one-in-Excel">[Section]</a></li>
+		<li> importing the second file back into the analysis <a href="#importing-the-second-file-back-into-the-analysis">[Section]</a></li>
+	</ul>
+	<p>	Note that due to technical limitations, it is not possible at the moment to reference multiple 
+		versions of the same standard in the same risk analysis. Therefore, when adding a new version 
+		of a standard to the risk analysis, the old version must be removed first.
+	</p>
+
+	<h4 id="exporting-the-data-for-the-old-standard">Exporting the data for the old standard</h4>
+	<p>
+		To export the estimations for a security standard, open the Advanced Menu (see <a href="#export-menu">Export menu</a>) and click “Export”. 
+		In the export interface, choose “Security Measures” and select the old standard, then export.
+		The exported Excel file contains all cost and workload estimations that have been entered into 
+		TRICK Service.
+	</p>
+	<figure id="export-menu" class="figure">
+		<img src="img/export-menu.png" class="figure-img img-fluid" />
+		<figcaption class="figure-caption">Export menu.</figcaption>
+	</figure>
+
+	<h4 id="upgrading-to-the-new-standard-in-the-risk-analysis">Upgrading to the new standard in the risk analysis (structure only)</h4>
+	<p>
+		If the new version of the standard has been imported into the knowledge base, 
+		then it can be added to the risk analysis.
+		Inside a risk analysis, click “Manage collections”, see Figure below.
+		<figure id="manage-collections" class="figure">
+			<img src="img/manage-collections.png" class="figure-img img-fluid" />
+			<figcaption class="figure-caption">Get list of references in use by the analysis.</figcaption>
+		</figure>
+		A pop-up will appear which shows all currently referenced security standards.
+		First, the old standard needs to be removed from the risk analysis. 
+		Note that this will also wipe all data (cost estimations etc) that is associated to it 
+		– which should have been exported by this point (<a href="#exporting-the-data-for-the-old-standard">[Section]</a>). 
+		This action will not affect the knowledge base!
+		Select the old standard from the list, click the “Delete” button, and confirm – see Figure below.
+
+		<figure id="remove-standard" class="figure">
+			<img src="img/remove-standard.png" class="figure-img img-fluid" />
+			<figcaption class="figure-caption">Remove a standard from a risk analysi.</figcaption>
+		</figure>
+
+		<figure id="add-ref-tostd" class="figure">
+			<img src="img/add-ref-tostd.png" class="figure-img img-fluid" />
+			<figcaption class="figure-caption">Add reference to a standard stored in the knowledge base.</figcaption>
+		</figure>
+	</p>
+	
+	<h4 id="exporting-template-for-the-new-standard">Exporting a template for the new standard (structure only)</h4>
+	<p>
+		The migration will be done manually in Excel by copying values from an export file to an import file.
+		The import file (or a template thereof) can be obtained by repeating the steps in (<a href="#exporting-the-data-for-the-old-standard">[Section]</a>),
+		but this time for the new standard.
+	</p>
+	<h4 id="copying-the-values-from-the-first-export-file-to-the-second-one-in-Excel">Copying the values from the first export file to the second one in Excel</h4>
+	<p>
+		When all steps have been carried out, the data can be migrated. At this point ensure the following:
+		<ul>
+			<li> The risk analysis should reference the new standard, but not the old one</li>
+			<li> Ensure to have an export file that contains all estimations for the old standard</li>		
+			<li> Ensure to have an export file for the new standard, which only contains empty and default values.</li>
+		</ul>
+		
+		Open the two exported files – one for the old standard, and one for the new standard – 
+		in two Excel windows side by side. 
+		In the following, the file representing the old standard is referred to as [OLD],
+		and the file representing the new standard is referred to as [NEW]. 
+		Then migrate the data as follows:
+		<ol type="a">
+			<li>Add a new column to the left of column A in [OLD].</li>
+			<li>Copy the column A from [NEW] to the newly added column in [OLD].</li>
+			<li>In [NEW], go through each line. Three cases can occur:
+			  <ol>
+				<li>The cells in columns A and B match: in that case, do nothing</li>
+				<li>The content of the cell in A does not occur in the entire column B: in that case,
+					 move down all rows of columns BCDEF… by one row, starting from the current row (see <a href="#move-match-a">[Figure]</a>).
+				</li>
+				<figure id="move-match-a" class="figure">
+					<img src="img/move-match-a.png" class="figure-img img-fluid" />
+					<figcaption class="figure-caption">Move down columns BCDEF… by one,
+						starting from row 39, to match column A.</figcaption>
+				</figure>
+				<li>The content of the cell in B does not occur in the entire column A: in that case,
+					 move down all rows of column A by one row,
+					 starting from the current row (see <a href="#move-match-b">[Figure]</a>).
+				</li>
+				<figure id="move-match-b" class="figure">
+					<img src="img/move-match-b.png" class="figure-img img-fluid" />
+					<figcaption class="figure-caption">Move down column A by one,
+						starting from row 27, to match column B.</figcaption>
+				</figure>
+
+			  </ol>			  
+			</li>
+			<li>Go through all rows R<sub>A</sub> that have an empty cell in column A; those represent the IDs present in the old standard, but no longer in the new one.</li>
+			<ol>
+				<li>Check if the security measure has obtained a different ID in the new standard, in which case there is a corresponding empty cell in some row R<sub>B</sub> in column B.</li>
+				<li>If yes, move the remaining cells on row R<sub>A</sub> (columns CDEF…) to the corresponding new row R<sub>B</sub>.</li>
+				<li>In any case, delete the row R<sub>A</sub>.</li>
+			</ol>	
+			<li>Go through all rows that have an empty cell in column B; those represent the IDs present in the new standard, but not yet in the old one</li>
+			<ol>
+				<li>
+					Insert default data into the cells in columns CDEF… This default data can for example be copied from [NEW].
+				</li>
+				<li>
+					Copy the content (that is, the ID) from the cell in column A to the cell in column B.
+				</li>
+			</ol>
+			<li>Copy the entire table from [OLD] to [NEW].</li>
+			<li>Save [NEW]. The changes in [OLD] can be discarded</li>
+		</ol>
+		
+	</p>
+	<h4 id="importing-the-second-file-back-into-the-analysis">Importing the second file back into the analysis</h4>
+	<p>
+		Once the manual migration is done, the [NEW] file can be imported into TRICK Service. 
+		Open the import interface (see <a href="#import-menu">[Figure]</a>), select “Measures”, pick the [NEW] file and upload it to
+		TRICK Service.
+
+	</p>
+	<figure id="import-menu" class="figure">
+		<img src="img/import-menu.png" class="figure-img img-fluid" />
+		<figcaption class="import-menu">Import menu.</figcaption>
+	</figure>
 </main>
 
 </div>
