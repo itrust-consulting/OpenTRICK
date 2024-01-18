@@ -112,6 +112,8 @@ public class SecurityConfig {
         public SecurityFilterChain webSecurityFilterChain(HttpSecurity http, MvcRequestMatcher.Builder mvc)
                         throws Exception {
                 http.securityContext(s -> s.securityContextRepository(delegatingSecurityContextRepository()))
+                                .csrf(e -> e.ignoringRequestMatchers(mvc.pattern("/Messaging/**")))
+                                .headers(e -> e.frameOptions(f -> f.sameOrigin()))
                                 .authorizeHttpRequests(
                                                 e -> e.requestMatchers(
                                                                 mvc.pattern("/favicon.ico"), mvc.pattern("/css/**"),
@@ -235,11 +237,6 @@ public class SecurityConfig {
         @Bean
         public SimpleRedirectSessionInformationExpiredStrategy redirectSessionInformationExpiredStrategy() {
                 return new SimpleRedirectSessionInformationExpiredStrategy("/Login?Error=25");
-        }
-
-        @Bean
-        public HttpFirewall firewall() {
-                return new StrictHttpFirewall();
         }
 
         @Bean

@@ -41,8 +41,8 @@ function TaskManager(title) {
 			var self = this;
 			var headers = {};
 
-			let url = new URL("/Messaging/", window.location.href);
-			url.protocol = url.protocol.replace('http', 'ws');
+			//let url = new URL("/Messaging/", window.location.href);
+			//url.protocol = url.protocol.replace('http', 'ws');
 
 			if (!(self.csrfHeader && self.csrfToken))
 				self.__loadCSRF();
@@ -52,9 +52,23 @@ function TaskManager(title) {
 			headers[self.csrfHeader] = self.csrfToken;
 			self.reconnecting = true;
 			self.stomp = new StompJs.Client({
-				brokerURL: url,
-				connectHeaders: headers
+				//brokerURL: url,
+				connectHeaders: headers,
+				reconnectDelay: 30000,
+				webSocketFactory: () => {
+					return new SockJS('/Messaging/');
+				},
+				debug: (str) => {
+					console.log(str);
+				}
 			});
+
+			/*self.stomp.webSocketFactory = function () {
+				// Note that the URL is different from the WebSocket URL
+				return new SockJS('/Messaging/');
+			};*/
+
+
 
 			self.stomp.onConnect = (e) => {
 				self.reconnecting = false;
@@ -68,16 +82,16 @@ function TaskManager(title) {
 							self.__process(task);
 					} else self.__process(tasks);
 					$(document).trigger("session:resquest:send");
-				});
+				}, headers);
 
 				self.stomp.subscribe("/Notification", (data) => {
 					self.__processSystemMessage(data);
 					$(document).trigger("session:resquest:send");
-				});
+				}, headers);
 				self.stomp.subscribe("/User/Notification", (data) => {
 					self.__processSystemMessage(data);
 					$(document).trigger("session:resquest:send");
-				});
+				}, headers);
 
 				self.__stopLegacyClient();
 
@@ -100,14 +114,20 @@ function TaskManager(title) {
 			};
 
 			self.stomp.onWebSocketError = (e) => {
-				if (!self.legacy && (self.disposing || self.reconnecting || self.subscribing))
+				if (!self.legacy && (self.disposing || self.reconnecting || self.subscribing)) {
 					self.__switchToLegacyClient();
+					self.stomp.deactivate();
+				}
 			}
 
 			self.stomp.activate();
 
 		} catch (e) {
 			self.__switchToLegacyClient();
+
+			if (self.stomp)
+				self.stomp.deactivate();
+
 			console.log(e);
 		}
 	};
