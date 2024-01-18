@@ -29,9 +29,7 @@
 	<script src="<c:url value="/js/trickservice/progressbar.js" />"></script>
 	<script src="<c:url value="/js/trickservice/modal.js" />"></script>
 
-	<!-- 
-		<script src="<c:url value="/js/web-socket/sockjs.min.js" />"></script>
-	 -->
+	<script src="<c:url value="/js/web-socket/sockjs.min.js" />"></script>
 	 
 	<script src="<c:url value="/js/web-socket/stomp.umd.min.js" />"></script>
 

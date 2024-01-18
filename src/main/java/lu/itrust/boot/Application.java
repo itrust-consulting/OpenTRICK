@@ -11,23 +11,30 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
 import org.springframework.boot.autoconfigure.ldap.LdapAutoConfiguration;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration;
 import org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration;
-import org.springframework.boot.autoconfigure.websocket.servlet.WebSocketServletAutoConfiguration;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.ComponentScan;
 
 /**
  * @author eomar
  *
  */
+
 @ComponentScan({ "lu.itrust.boot.configuration", "lu.itrust.business" })
 @SpringBootApplication(exclude = { FlywayAutoConfiguration.class, DataSourceAutoConfiguration.class,
-		FreeMarkerAutoConfiguration.class, SecurityAutoConfiguration.class, TransactionAutoConfiguration.class,
+		FreeMarkerAutoConfiguration.class, TransactionAutoConfiguration.class,
 		DataSourceTransactionManagerAutoConfiguration.class, UserDetailsServiceAutoConfiguration.class,
-		HibernateJpaAutoConfiguration.class, LdapAutoConfiguration.class,WebSocketServletAutoConfiguration.class })
-public class Application {
+		HibernateJpaAutoConfiguration.class, LdapAutoConfiguration.class })
+public class Application extends SpringBootServletInitializer {
 	public static void main(String[] args) {
 		SpringApplication.run(Application.class, args);
 	}
+
+	@Override
+	protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
+		return builder.sources(Application.class);
+	}
+
 }
