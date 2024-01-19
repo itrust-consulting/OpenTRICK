@@ -8,7 +8,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<org.apache.directory.server.version>2.0.0.AM26</org.apache.directory.server.version>
-		<spring-boot.version>3.1.5</spring-boot.version>
+		<spring-boot.version>3.1.7</spring-boot.version>
 		<java.version>17</java.version>
 	</properties>
 
@@ -370,7 +370,7 @@
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
-			<version>31.1-jre</version>
+			<version>33.0.0-jre</version>
 		</dependency>
 
 		<dependency>
