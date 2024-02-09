@@ -15,7 +15,7 @@
 		</Socket>
 	</Appenders>
 	<Loggers>
-		<Asynclogger name="TrickLogManager" level='DEBUG'>
+		<Asynclogger name="TrickLogManager" level='INFO'>
 			<AppenderRef ref="RemoteLogger" />
 		</Asynclogger>
 

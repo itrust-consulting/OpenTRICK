@@ -3,12 +3,12 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>lu.itrust</groupId>
 	<artifactId>trickservice</artifactId>
-	<version>2.16m</version>
+	<version>2.16n</version>
 	<packaging>war</packaging>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<org.apache.directory.server.version>2.0.0.AM26</org.apache.directory.server.version>
-		<spring-boot.version>3.1.7</spring-boot.version>
+		<spring-boot.version>3.1.8</spring-boot.version>
 		<java.version>17</java.version>
 	</properties>
 
@@ -82,14 +82,6 @@
 			<artifactId>jetty-alpn-conscrypt-server</artifactId>
 			<scope>runtime</scope>
 		</dependency>
-<!--
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-devtools</artifactId>
-			<optional>true</optional>
-		</dependency>
-
-	-->
 
 		<dependency>
 			<groupId>jakarta.servlet</groupId>

@@ -7,6 +7,8 @@ import static lu.itrust.business.ts.constants.Constant.ACCEPT_APPLICATION_JSON_C
 import static lu.itrust.business.ts.constants.Constant.ACCEPT_TEXT_PLAIN_CHARSET_UTF_8;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.security.Principal;
 import java.util.HashMap;
 import java.util.List;
@@ -45,6 +47,7 @@ import lu.itrust.business.ts.helper.NaturalOrderComparator;
 import lu.itrust.business.ts.model.general.CredentialType;
 import lu.itrust.business.ts.model.general.Customer;
 import lu.itrust.business.ts.model.general.TicketingSystem;
+import lu.itrust.business.ts.model.general.helper.Utils;
 import lu.itrust.business.ts.model.ticketing.builder.Client;
 import lu.itrust.business.ts.model.ticketing.builder.ClientBuilder;
 import lu.itrust.business.ts.usermanagement.User;
@@ -90,10 +93,14 @@ public class ControlerCredential {
 		else {
 			if (!StringUtils.hasText(form.getValue()))
 				result.put("value",
-						messageSource.getMessage(form.getType() == CredentialType.TOKEN ? "error.credential.token.empty" : "error.credential.password.empty", null, locale));
+						messageSource.getMessage(form.getType() == CredentialType.TOKEN ? "error.credential.token.empty"
+								: "error.credential.password.empty", null, locale));
 			if (!(StringUtils.hasText(form.getName()) || form.getType() == CredentialType.TOKEN))
 				result.put("name", messageSource.getMessage("error.credential.username.empty", null, locale));
 		}
+
+		if (Utils.hasText(form.getPublicUrl()) && !Utils.isValidURL(form.getPublicUrl()))
+			result.put("publicUrl", messageSource.getMessage("error.credential.public.url.invalid", null, locale));
 
 		if (result.isEmpty() && !isConnected(form, customer.getTicketingSystem())) {
 			if (form.getType() == CredentialType.PASSWORD) {
@@ -107,6 +114,7 @@ public class ControlerCredential {
 			credential.setType(form.getType());
 			credential.setName(form.getType() == CredentialType.TOKEN ? null : form.getName());
 			credential.setValue(form.getValue());
+			credential.setPublicUrl(form.getPublicUrl());
 			serviceUser.saveOrUpdate(user);
 			result.put("success", messageSource.getMessage("success.save.credential", null, locale));
 		}
@@ -116,13 +124,17 @@ public class ControlerCredential {
 	@GetMapping(value = "/Form", consumes = MediaType.TEXT_PLAIN_VALUE, headers = ACCEPT_TEXT_PLAIN_CHARSET_UTF_8, produces = MediaType.TEXT_HTML_VALUE)
 	public String add(Model model, Principal principal, Locale locale) {
 		final User user = serviceUser.get(principal.getName());
-		final UserCredentialForm form = model.containsAttribute("form") ? (UserCredentialForm) model.asMap().get("form") : new UserCredentialForm();
+		final UserCredentialForm form = model.containsAttribute("form") ? (UserCredentialForm) model.asMap().get("form")
+				: new UserCredentialForm();
 		model.addAttribute("customers",
 				user.getCustomers().stream()
 						.filter(c -> c.getTicketingSystem() != null
-								&& (form.getCustomer() == c.getId() || (form.getCustomer() < 1 && !user.getCredentials().containsKey(c.getTicketingSystem())))
+								&& (form.getCustomer() == c.getId() || (form.getCustomer() < 1
+										&& !user.getCredentials().containsKey(c.getTicketingSystem())))
 								&& c.getTicketingSystem().isEnabled())
-						.sorted((c1, c2) -> NaturalOrderComparator.compareTo(c1.getOrganisation(), c2.getOrganisation())).collect(Collectors.toList()));
+						.sorted((c1, c2) -> NaturalOrderComparator.compareTo(c1.getOrganisation(),
+								c2.getOrganisation()))
+						.collect(Collectors.toList()));
 		model.addAttribute("types", CredentialType.values());
 		model.addAttribute("form", form);
 		return "jsp/user/credential/form";
@@ -139,6 +151,9 @@ public class ControlerCredential {
 		form.setName(credential.getName());
 		if (credential.getType() == CredentialType.TOKEN)
 			form.setValue(credential.getValue());
+		if (StringUtils.hasText(credential.getPublicUrl()))
+			form.setPublicUrl(credential.getPublicUrl());
+
 		model.addAttribute("form", form);
 		return add(model, principal, locale);
 	}
@@ -146,7 +161,8 @@ public class ControlerCredential {
 	@DeleteMapping(value = "/{id}/Delete", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody boolean delete(@PathVariable long id, Principal principal, Locale locale) {
 		final User user = serviceUser.get(principal.getName());
-		boolean result = user.getCredentials().entrySet().removeIf(e -> e.getKey().isEnabled() && e.getValue().getId() == id);
+		boolean result = user.getCredentials().entrySet()
+				.removeIf(e -> e.getKey().isEnabled() && e.getValue().getId() == id);
 		if (result)
 			serviceUser.saveOrUpdate(user);
 		return result;
@@ -155,7 +171,7 @@ public class ControlerCredential {
 	@DeleteMapping(value = "/Delete", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody Map<Long, Boolean> delete(@RequestBody List<Long> ids, Principal principal, Locale locale) {
 		final User user = serviceUser.get(principal.getName());
-		final Map<Long, Boolean> results = new HashMap<Long, Boolean>();
+		final Map<Long, Boolean> results = new HashMap<>();
 		user.getCredentials().entrySet().removeIf(e -> {
 			if (e.getKey().isEnabled() && !ids.contains(e.getValue().getId()))
 				return false;
@@ -173,7 +189,7 @@ public class ControlerCredential {
 		return "jsp/user/credential/section";
 	}
 
-	private Boolean isConnected(UserCredentialForm credential, TicketingSystem ticketingSystem) {
+	private boolean isConnected(UserCredentialForm credential, TicketingSystem ticketingSystem) {
 		Client client = null;
 		try {
 			if (credential == null || ticketingSystem == null)
@@ -186,7 +202,8 @@ public class ControlerCredential {
 				settings.put("password", credential.getValue());
 			}
 			settings.put("url", ticketingSystem.getUrl());
-			return (client = ClientBuilder.Build(ticketingSystem.getType().name().toLowerCase())).connect(settings);
+			client = ClientBuilder.Build(ticketingSystem.getType().name().toLowerCase());
+			return client.connect(settings);
 		} catch (Exception e) {
 			TrickLogManager.Persist(e);
 			return false;

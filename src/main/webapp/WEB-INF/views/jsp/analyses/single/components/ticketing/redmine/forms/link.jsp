@@ -39,13 +39,13 @@
 					</div>
 				</div>
 				<div class="col-xs-6" style="height: 94.5%">
-					<div class="panel panel-warning" style="height: 40%;">
+					<div class="panel panel-warning" style="height: 42%;">
 						<div id="measure-viewer" class='panel-body' style="height: 100%; overflow-x: auto;">
 						</div>
 					</div>
-					<div class="text-center" style="height: 3%; margin-bottom: 16px; margin-top: -20px;">
-						<a href="#" id='measure-task-linker' title='<spring:message code='label.action.linked' text='Linked'/>' class="btn btn-link"><i class="fa fa-link fa-2x" style="transform: rotate(45deg)" aria-hidden="true"></i>
-						</a>
+					<div class="text-center" style="height: 3%; margin-bottom: 13px; margin-top: -16px;">
+						<button id='measure-task-linker' title='<spring:message code='label.action.linked' text='Linked'/>' class="btn btn-primary btn-sm"><i class="fa fa-link" aria-hidden="true"></i>
+						</button>
 					</div>
 					<div class='panel panel-info' style="height: 60%">
 						<div class='panel-body' id='task-viewer' style="height: 100%; overflow-x: auto;">

@@ -56,6 +56,13 @@
 							<input name="value" class="form-control" type="password" value='<spring:message text="${form.value}"/>' required="required" />
 						</div>
 					</div>
+					<div class="form-group">
+						<label for="publicUrl" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.credential.public.url" />'> <spring:message code="label.credential.public.url" />
+						</label>
+						<div class="col-sm-9">
+							<input name="publicUrl" class="form-control" type="url" value='<spring:message text="${form.publicUrl}"/>' />
+						</div>
+					</div>
 					<input type="submit" name="submit" class="hidden" id="btn-crdential-submit">
 				</form>
 			</div>

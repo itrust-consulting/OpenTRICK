@@ -377,10 +377,9 @@ function saveCredential(e, $view){
 					var $errorElement = $("<label class='label label-danger'/>").text(response[error]);
 					switch (error) {
 						case "name":
-							$errorElement.appendTo($("input[name='name']",$form).parent());
-							break;
 						case "value":
-							$errorElement.appendTo($("input[name='value']",$form).parent());
+						case "publicUrl":
+							$errorElement.appendTo($("input[name='"+error+"']",$form).parent());
 							break;
 						case "customer":
 							$errorElement.appendTo($("select[name='customer']",$form).parent());

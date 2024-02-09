@@ -14,6 +14,8 @@ public class UserCredentialForm {
 	private String name;
 	
 	private String value;
+
+	private String publicUrl;
 	
 	private int customer;
 	
@@ -50,4 +52,15 @@ public class UserCredentialForm {
 	public void setType(CredentialType type) {
 		this.type = type;
 	}
+
+	public String getPublicUrl() {
+		return publicUrl;
+	}
+
+	public void setPublicUrl(String publicUrl) {
+		this.publicUrl = publicUrl;
+	}
+
+
+	
 }

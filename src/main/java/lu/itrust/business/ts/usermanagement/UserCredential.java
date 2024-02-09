@@ -37,12 +37,23 @@ public class UserCredential extends Credential {
 	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	private TicketingSystem ticketingSystem;
 
+	@Column(name = "dtPublicURL")
+	private String publicUrl;
+
 	public TicketingSystem getTicketingSystem() {
 		return ticketingSystem;
 	}
 
 	public void setTicketingSystem(TicketingSystem ticketingSystem) {
 		this.ticketingSystem = ticketingSystem;
+	}
+
+	public String getPublicUrl() {
+		return publicUrl;
+	}
+
+	public void setPublicUrl(String publicUrl) {
+		this.publicUrl = publicUrl;
 	}
 
 }

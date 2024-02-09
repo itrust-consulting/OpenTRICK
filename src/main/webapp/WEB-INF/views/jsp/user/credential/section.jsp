@@ -39,7 +39,7 @@
 					<c:choose>
 						<c:when test="${fn:toLowerCase(credential.type) == 'token'}">
 							<td>-</td>
-							<td><spring:message text="${credential.value}" /></td>
+							<td>****************</td>
 						</c:when>
 						<c:otherwise>
 							<td><spring:message text="${credential.name}" /></td>
@@ -51,7 +51,15 @@
 							<td><spring:message text="${credential.ticketingSystem.customer.organisation}" /></td>
 							<td><spring:message code="label.ticketing.system.type.${fn:toLowerCase(credential.ticketingSystem.type)}" /></td>
 							<td><spring:message text="${credential.ticketingSystem.name}" /></td>
-							<td><spring:message text="${credential.ticketingSystem.url}" var="url" /> <a href="${url}" target="_blank">${url}</a></td>
+							<c:choose>
+								<c:when test="${not empty credential.publicUrl}">
+									<spring:message text="${credential.publicUrl}" var="url" />
+								</c:when>
+								<c:otherwise>
+									<spring:message text="${credential.ticketingSystem.url}" var="url" /> 
+								</c:otherwise>
+							</c:choose>
+							<td><a href="${url}" target="_blank">${url}</a></td>
 						</c:when>
 						<c:otherwise>
 							<td colspan="4" />

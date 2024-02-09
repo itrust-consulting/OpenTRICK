@@ -90,8 +90,13 @@ public abstract class AbstractController {
 
 				if (model != null) {
 
-					if (!ticketingSystem.getType().isNoClient() && StringUtils.hasText(ticketingSystem.getUrl()))
-						model.addAttribute(TICKETING_URL, ticketingSystem.getUrl());
+					if (!ticketingSystem.getType().isNoClient()) {
+						var credentials = user == null ? null : user.getCredentials().get(ticketingSystem);
+						if (credentials != null && StringUtils.hasText(credentials.getPublicUrl()))
+							model.addAttribute(TICKETING_URL, credentials.getPublicUrl());
+						else if (StringUtils.hasText(ticketingSystem.getUrl()))
+							model.addAttribute(TICKETING_URL, ticketingSystem.getUrl());
+					}
 
 					model.addAttribute(TICKETING_NAME,
 							StringUtils.capitalize(ticketingSystem.getType().name().toLowerCase()));

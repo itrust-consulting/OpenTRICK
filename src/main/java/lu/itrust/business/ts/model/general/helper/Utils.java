@@ -3,6 +3,10 @@
  */
 package lu.itrust.business.ts.model.general.helper;
 
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
+
 import org.springframework.util.StringUtils;
 
 import lu.itrust.business.ts.constants.Constant;
@@ -31,11 +35,20 @@ public final class Utils {
 		return index == -1 ? name : name.substring(0, index);
 	}
 
-	public static int parseInt(String value, int defaultValue){
+	public static int parseInt(String value, int defaultValue) {
 		try {
-            return Integer.parseInt(value);
-        } catch (NumberFormatException e) {
-            return defaultValue;
+			return Integer.parseInt(value);
+		} catch (NumberFormatException e) {
+			return defaultValue;
+		}
+	}
+
+	public static boolean isValidURL(String url) {
+		try {
+			new URL(url).toURI();
+			return true;
+		} catch (MalformedURLException | URISyntaxException e) {
+			return false;
 		}
 	}
 
