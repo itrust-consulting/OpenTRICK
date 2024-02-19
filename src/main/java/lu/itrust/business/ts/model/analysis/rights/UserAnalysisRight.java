@@ -210,7 +210,7 @@ public class UserAnalysisRight implements Cloneable {
 	 */
 	public UserAnalysisRight duplicate() throws CloneNotSupportedException {
 		UserAnalysisRight copy = (UserAnalysisRight) super.clone();
-		copy.setId(-1);
+		copy.setId(0);
 		return copy;
 	}
 

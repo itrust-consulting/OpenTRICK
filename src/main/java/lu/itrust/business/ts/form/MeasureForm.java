@@ -26,7 +26,7 @@ public class MeasureForm {
 
 	private int id = 0;
 
-	private int idStandard = -1;
+	private int idStandard = 0;
 
 	private String reference;
 

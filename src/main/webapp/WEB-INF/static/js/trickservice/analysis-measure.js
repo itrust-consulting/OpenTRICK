@@ -79,7 +79,7 @@ function saveMeasureData(e) {
 function loadMeasureData(id) {
 	var $currentUI = $("#measure-ui");
 	if (id == undefined)
-		$currentUI.attr("data-trick-id", "-1").empty();
+		$currentUI.attr("data-trick-id", "0").empty();
 	else if ($currentUI.attr("data-trick-id") != id || application["measure-view-invalidate"]) {
 		var $progress = $("#loading-indicator").show();
 		$.ajax({

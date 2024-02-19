@@ -38,7 +38,7 @@
 						</c:otherwise>
 					</c:choose>
 					<select name="asset" class="form-control">
-						<option value='-1' title="${allText}">${allText}</option>
+						<option value='0' title="${allText}">${allText}</option>
 						<c:forEach items="${assets}" var="asset" varStatus="assetStatus">
 							<spring:message text='${asset.name}' var="assetName" />
 							<spring:message text="${asset.assetType.id}" var="assetTypeId" />
@@ -73,7 +73,7 @@
 						</c:otherwise>
 					</c:choose>
 					<select name="scenario" class="form-control">
-						<option value='-1' title="${allText}">${allText}</option>
+						<option value='0' title="${allText}">${allText}</option>
 						<c:forEach items="${scenarios}" var="scenario">
 							<spring:message text="${scenario.name}" var="scenarioName" />
 							<spring:message text="${scenario.assetTypeIds()}" var="scenarioAssetTypeIds" />
@@ -92,7 +92,7 @@
 				</div>
 				<div class="form-group nav-chapter" data-trick-content='scenario'>
 					<div class='list-group'>
-						<a href="#" title="${scenarioText}" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" class="list-group-item active lead" data-trick-id='-1'>${scenarioText}</a>
+						<a href="#" title="${scenarioText}" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" class="list-group-item active lead" data-trick-id='0'>${scenarioText}</a>
 						<c:forEach items="${scenarios}" var="scenario">
 							<spring:message text="${scenario.name}" var="scenarioName" />
 							<spring:message text="${scenario.assetTypeIds()}" var="scenarioAssetTypeIds" />
@@ -112,7 +112,7 @@
 
 				<div class="form-group nav-chapter" style="display: none;" data-trick-content='asset'>
 					<div class='list-group'>
-						<a href="#" title="${assetText}" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" class="list-group-item active lead" data-trick-id='-1'>${assetText}</a>
+						<a href="#" title="${assetText}" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" class="list-group-item active lead" data-trick-id='0'>${assetText}</a>
 						<c:forEach items="${assets}" var="asset">
 							<spring:message text="${asset.name}" var="assetName" />
 							<spring:message text="${asset.assetType.id}" var="assetTypeId" />

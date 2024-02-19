@@ -26,7 +26,7 @@
 			</div>
 			<div class="modal-body">
 				<form name="measure" action="/Save?${_csrf.parameterName}=${_csrf.token}" class="form-horizontal" id="measure_form" method="post">
-					<input type="hidden" name="id" value="-1" id="measure_id">
+					<input type="hidden" name="id" value="0" id="measure_id">
 					<div class="form-group">
 						<label for="computable" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.measure.computable" />'> <spring:message
 								code="label.measure.computable" text="Computable" /></label>

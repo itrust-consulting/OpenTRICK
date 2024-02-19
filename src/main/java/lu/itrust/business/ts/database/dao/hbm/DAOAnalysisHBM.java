@@ -509,7 +509,7 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	@Override
 	public Integer getCustomerIdByIdAnalysis(int idAnalysis) {
 		return (Integer) getSession().createQuery("select analysis.customer.id from Analysis as analysis where analysis.id = :idAnalysis").setParameter("idAnalysis", idAnalysis)
-				.uniqueResultOptional().orElse(-1);
+				.uniqueResultOptional().orElse(0);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -552,7 +552,7 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	public int getDefaultProfileId(AnalysisType analysisType) {
 		return (int) getSession()
 				.createQuery("Select analysis.id From Analysis analysis where analysis.defaultProfile = true and analysis.profile = true and analysis.type = :type")
-				.setParameter("type", analysisType).uniqueResultOptional().orElse(-1);
+				.setParameter("type", analysisType).uniqueResultOptional().orElse(0);
 	}
 
 	@Override
@@ -634,7 +634,7 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	@Override
 	public Integer getIdFromIdentifierAndVersion(String identifier, String version) {
 		return (Integer) getSession().createQuery("select id from Analysis where identifier = :identifier and version = :version").setParameter("identifier", identifier)
-				.setParameter("version", version).uniqueResultOptional().orElse(-1);
+				.setParameter("version", version).uniqueResultOptional().orElse(0);
 	}
 
 	@SuppressWarnings("unchecked")

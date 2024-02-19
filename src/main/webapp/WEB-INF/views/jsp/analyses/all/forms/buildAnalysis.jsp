@@ -41,7 +41,7 @@
 									code="label.customer.organisation" text="Customer" /></label>
 							<div class="col-sm-10">
 								<select class="form-control" name="customer" required="required">
-									<option value="-1" selected="selected" disabled="disabled"><spring:message code="label.action.choose" text="Choose..." /></option>
+									<option value="0" selected="selected" disabled="disabled"><spring:message code="label.action.choose" text="Choose..." /></option>
 										<c:forEach items="${customers}" var="customer">
 											<option value="${customer.id}"><spring:message text="${customer.organisation}"/></option>
 										</c:forEach>
@@ -53,7 +53,7 @@
 									code="label.analysis.language" text="Language" /></label>
 							<div class="col-sm-10">
 								<select name="language" class="form-control" required="required">
-									<option value="-1" selected="selected" disabled="disabled"><spring:message code="label.action.choose" text="Choose..." /></option>
+									<option value="0" selected="selected" disabled="disabled"><spring:message code="label.action.choose" text="Choose..." /></option>
 										<c:forEach items="${languages}" var="language">
 											<option value="${language.id}"><spring:message text="${language.name}"/></option>
 										</c:forEach>
@@ -65,7 +65,7 @@
 									code="label.analysis.profile_analysis" text="Profile" /></label>
 							<div class="col-sm-10">
 								<select name="profile" id="analysis_profile" class="form-control" required="required">
-									<option value="-1" selected="selected" disabled="disabled"><spring:message code="label.action.choose.analysis_profile" text="Choose..." /></option>
+									<option value="0" selected="selected" disabled="disabled"><spring:message code="label.action.choose.analysis_profile" text="Choose..." /></option>
 									<c:forEach items="${profiles}" var="profile">
 										<option value="${profile.id }" data-type='${profile.type}'><spring:message text="${profile.label}" /></option>
 									</c:forEach>
@@ -115,7 +115,7 @@
 									code="label.analysis.impacts" text="Impacts" /></label>
 							<div class="col-sm-10">
 								<select name="impacts" id="analysis_impacts" class="form-control" multiple="multiple" style="resize: vertical;">
-									<option value="-1" selected="selected"><spring:message code="label.select.impact" text="From profile" /></option>
+									<option value="0" selected="selected"><spring:message code="label.select.impact" text="From profile" /></option>
 									<c:forEach items="${impacts}" var="impact">
 										<option value="${impact.id}"><spring:message code="label.impact.type.${fn:toLowerCase(impact.name)}"
 												text="${empty impact.translations[locale]? impact.displayName :  impact.translations[locale].name}" /></option>
@@ -146,7 +146,7 @@
 								<spring:message code="label.analysis.customers" text="Customers" />
 							</h4>
 							<select class="form-control" id="selector-customer">
-								<option value="-1" selected="selected"><spring:message code="label.action.choose" text="Choose..." /></option>
+								<option value="0" selected="selected"><spring:message code="label.action.choose" text="Choose..." /></option>
 									<c:forEach items="${customers}" var="customer">
 										<option value="${customer.id}"><spring:message text="${customer.organisation}" /></option>
 									</c:forEach>
@@ -155,7 +155,7 @@
 								<spring:message code="label.analyses" text="Analyses" />
 							</h4>
 							<select class="form-control" id="selector-analysis">
-								<option value="-1" selected="selected"><spring:message code="label.action.choose" text="Choose..." /></option>
+								<option value="0" selected="selected"><spring:message code="label.action.choose" text="Choose..." /></option>
 							</select>
 							<h4 data-helper-content='<spring:message code="help.analysis.advance.version" />'>
 								<spring:message code="label.analysis.versions" text="Versions" />
@@ -171,7 +171,7 @@
 									<div class="well well-sm" data-supported='HYBRID'>
 										<spring:message code="label.drop_here" text="Drop your analysis here" />
 									</div>
-									<input name="scope" value="-1" hidden="true">
+									<input name="scope" value="0" hidden="true">
 								</div>
 							</div>
 							<div class="form-group" >
@@ -181,7 +181,7 @@
 									<div class="well well-sm" data-supported='HYBRID'>
 										<spring:message code="label.drop_here" text="Drop your analysis here" />
 									</div>
-									<input name="riskInformation" value="-1" hidden="true">
+									<input name="riskInformation" value="0" hidden="true">
 								</div>
 							</div>
 							<div class="form-group">
@@ -191,7 +191,7 @@
 									<div class="well well-sm" data-supported='HYBRID'>
 										<spring:message code="label.drop_here" text="Drop your analysis here" />
 									</div>
-									<input name="parameter" value="-1" hidden="true">
+									<input name="parameter" value="0" hidden="true">
 								</div>
 							</div>
 							<div class="form-group">
@@ -201,7 +201,7 @@
 									<div class="well well-sm" data-supported='HYBRID'>
 										<spring:message code="label.drop_here" text="Drop your analysis here" />
 									</div>
-									<input name="asset" value="-1" hidden="true">
+									<input name="asset" value="0" hidden="true">
 								</div>
 							</div>
 							<div class="form-group">
@@ -211,7 +211,7 @@
 									<div class="well well-sm" data-supported='HYBRID'>
 										<spring:message code="label.drop_here" text="Drop your analysis here" />
 									</div>
-									<input name="scenario" value="-1" hidden="true">
+									<input name="scenario" value="0" hidden="true">
 								</div>
 							</div>
 							<div class="form-group">

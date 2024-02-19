@@ -7,7 +7,7 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <div id="form_customer_template" class="tab-pane" style="height: 490px; overflow-y: auto; overflow-x: hidden;">
 	<form name="reportTemplate" class="form form-horizontal" id="reportTemplate-form" method="post" enctype="multipart/form-data">
-		<input type="hidden" value="-1" name="id" id="reportTemplate.id"> <input type="hidden" value="${customer.id}" name="customer" id="reportTemplate.customer.id">
+		<input type="hidden" value="0" name="id" id="reportTemplate.id"> <input type="hidden" value="${customer.id}" name="customer" id="reportTemplate.customer.id">
 		
 		<div class="form-group">
 			<label class="control-label col-sm-3" data-helper-content='<spring:message code="help.report.template.type" />'><spring:message code="label.category" /></label>
@@ -43,7 +43,7 @@
 					text="Language" /></label>
 			<div class="col-sm-9" data-trick-info='language'>
 				<select name="language" class="form-control" required="required" ${customer.canBeUsed?'': 'readonly disabled'}>
-					<option value="-1" selected="selected" disabled="disabled"><spring:message code="label.action.choose" text="Choose..." /></option>
+					<option value="0" selected="selected" disabled="disabled"><spring:message code="label.action.choose" text="Choose..." /></option>
 					<option value="-2" selected="selected"><spring:message code="label.all" text="ALL" /></option>
 					<c:forEach items="${languages}" var="language">
 						<option value="${language.id}"><spring:message text="${language.name}" /></option>

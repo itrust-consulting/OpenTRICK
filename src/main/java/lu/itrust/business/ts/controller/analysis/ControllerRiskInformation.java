@@ -121,7 +121,7 @@ public class ControllerRiskInformation {
 
 			if (riskInformation.isCustom()) {
 				if (persisted == null) {
-					riskInformation.setId(-1);
+					riskInformation.setId(0);
 					analysis.getRiskInformations().add(riskInformation);
 				} else {
 					persisted.setChapter(riskInformation.getChapter());

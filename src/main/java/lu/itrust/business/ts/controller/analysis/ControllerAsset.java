@@ -404,7 +404,7 @@ public class ControllerAsset {
 
 			JsonNode node = jsonNode.get("assetType");
 
-			AssetType assetType = serviceAssetType.get(node.get("id").asInt(-1));
+			AssetType assetType = serviceAssetType.get(node.get("id").asInt(0));
 
 			Double value = getDouble(jsonNode);
 

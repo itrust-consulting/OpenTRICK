@@ -139,7 +139,7 @@ function importNewStandard() {
 function newStandard() {
 	$("#addStandardModel .label-danger").remove();
 	$("#addStandardModel #addstandardbutton").prop("disabled", false);
-	$("#standard_id").prop("value", "-1");
+	$("#standard_id").prop("value", "0");
 	$("#standard_name").prop("value", "");
 	$("#standard_label").prop("value", "");
 	$("#standard_version").prop("value", "");

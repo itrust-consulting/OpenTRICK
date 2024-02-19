@@ -188,7 +188,7 @@ public class DAOAnalysisStandardHBM extends DAOHibernate implements DAOAnalysisS
 		return (Integer) getSession()
 				.createQuery(
 						"SELECT analysis.id From Analysis analysis inner join analysis.analysisStandards analysisStandard where analysisStandard.id = :analysisstandard")
-				.setParameter("analysisstandard", analysisStandard).uniqueResultOptional().orElse(-1);
+				.setParameter("analysisstandard", analysisStandard).uniqueResultOptional().orElse(0);
 	}
 
 	/**

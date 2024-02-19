@@ -213,7 +213,7 @@ public class DAOScenarioHBM extends DAOHibernate implements DAOScenario {
 	@Override
 	public Integer getAnalysisIdFromScenario(Integer scenarioId)  {
 		return (Integer) getSession().createQuery("SELECT analysis.id From Analysis analysis join analysis.scenarios scenario where scenario.id = :scenarioId")
-				.setParameter("scenarioId", scenarioId).uniqueResultOptional().orElse(-1);
+				.setParameter("scenarioId", scenarioId).uniqueResultOptional().orElse(0);
 	}
 
 	/**

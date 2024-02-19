@@ -7,7 +7,7 @@
 <%@ taglib uri="jakarta.tags.functions" prefix="fn"%>
 
 <form name="importStandardFromFile" method="post" action="/Import?${_csrf.parameterName}=${_csrf.token}" class="form-inline" id="importStandardFromFile" enctype="multipart/form-data">
-	<input type="hidden" value="-1" name="id" id="importStandardFromFileId">
+	<input type="hidden" value="0" name="id" id="importStandardFromFileId">
 	<fieldset style="margin-bottom: 10px">
 		<legend data-helper-content='<spring:message code="help.norm.type" />' ><spring:message code="label.norm.standard_type" /></legend>
 		<div class='col-sm-12' data-trick-info="type">

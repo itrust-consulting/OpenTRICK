@@ -25,7 +25,7 @@ public class SummaryValues {
 	 * Fields declaration
 	 **********************************************************************************************/
 
-	public Map<String, SummaryStandardHelper> conformanceHelper = new HashMap<String, SummaryStandardHelper>();
+	public Map<String, SummaryStandardHelper> conformanceHelper = new HashMap<>();
 
 	/** The 27001 AnalysisStandard Object with all 27001 Measures */
 	public NormalStandard standard27001 = null;
@@ -37,13 +37,13 @@ public class SummaryValues {
 	public NormalStandard standardCustom = null;
 
 	/** Measures that are to use as 100% Implemented 27001 AnalysisStandard Measures */
-	public List<NormalMeasure> conformance27001measures = new ArrayList<NormalMeasure>();
+	public List<NormalMeasure> conformance27001measures = new ArrayList<>();
 
 	/** Measures that are to use as 100% Implemented 27002 AnalysisStandard Measures */
-	public List<NormalMeasure> conformance27002measures = new ArrayList<NormalMeasure>();
+	public List<NormalMeasure> conformance27002measures = new ArrayList<>();
 
 	/** Measures that are to use as 100% Implemented Custom AnalysisStandard Measures */
-	public List<NormalMeasure> conformanceCustommeasures = new ArrayList<NormalMeasure>();
+	public List<NormalMeasure> conformanceCustommeasures = new ArrayList<>();
 
 	public SummaryStage previousStage = null;
 

@@ -150,7 +150,7 @@ public class MeasureAssetValue implements Cloneable {
 	public MeasureAssetValue duplicate() throws CloneNotSupportedException, TrickException {
 		MeasureAssetValue assetValue = (MeasureAssetValue) super.clone();
 		assetValue.id = 0;
-		assetValue.asset.setId(-1);
+		assetValue.asset.setId(0);
 		return assetValue;
 	}
 	

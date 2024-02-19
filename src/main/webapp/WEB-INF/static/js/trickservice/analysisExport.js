@@ -373,14 +373,14 @@ let DataManagerExport = {
 				$type.on("change", (e) => {
 					if (e.currentTarget.checked) {
 						$("option[data-trick-type][data-trick-type='" + e.currentTarget.value + "']", $template).show();
-						$("option[data-trick-type][data-trick-type!='" + e.currentTarget.value + "']", $template.val("-1")).hide();
+						$("option[data-trick-type][data-trick-type!='" + e.currentTarget.value + "']", $template.val("0")).hide();
 						DataManagerExport["report"].updateStatus($view, $tab);
 					}
 				}).trigger("change");
 			}
 
 			$template.on("change", (e) => {
-				if (e.currentTarget.value != "-1" && $inputFile[0].value !== "") {
+				if (e.currentTarget.value != "0" && $inputFile[0].value !== "") {
 					$inputFile[0].value = "";
 					$inputFile.trigger("change");
 				} else DataManagerExport["report"].updateStatus($view, $tab);
@@ -392,7 +392,7 @@ let DataManagerExport = {
 					DataManagerExport["report"].updateStatus($view, $tab);
 				else {
 					let size = parseInt($inputFile.attr("maxlength"))
-					$template.prop("required", false).val("-1");
+					$template.prop("required", false).val("0");
 					if ($inputFile[0].files[0].size > size) {
 						showDialog("error", MessageResolver("error.file.too.large", undefined, size));
 						return false;
@@ -411,7 +411,7 @@ let DataManagerExport = {
 		process: ($view, $tab) => $("button[name='submit']", $tab).click(),
 		updateStatus: ($view, $tab) => {
 			let fileValue = $("input[name='filename']", $tab).val(), templateValue = $("select[name='template']", $tab).val();
-			$("button[name='export']", $view).prop("disabled", (templateValue === "-1" || !templateValue) && (fileValue === "" || !fileValue));
+			$("button[name='export']", $view).prop("disabled", (templateValue === "0" || !templateValue) && (fileValue === "" || !fileValue));
 		},
 		postProcess: ($view, $tab) => {
 			let $progress = $("#loading-indicator").show(), $form = $("form", $tab);

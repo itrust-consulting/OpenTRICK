@@ -15,7 +15,7 @@
 			</div>
 			<div class="modal-body">
 				<form name="standard" action="/Save?${_csrf.parameterName}=${_csrf.token}" class="form-horizontal" id="standard_form" method="post">
-					<input type="hidden" name="id" value="-1" id="standard_id">
+					<input type="hidden" name="id" value="0" id="standard_id">
 
 					<div class="form-group">
 						<label class="col-sm-3 control-label" data-helper-content='<spring:message code="help.norm.kb.type" />' ><spring:message code="label.norm.standard_type" text="Standard Type" /></label>

@@ -1059,7 +1059,7 @@ function manageRiskAcceptance() {
 							.on(
 								"click",
 								function () {
-									let $this = $(this), $trParent = $this.closest("tr"), maxValue = $trParent.attr("data-trick-max-value"), $tr = $("<tr data-trick-id='-1' />"), $div = $("<div class='range-group' />"), $rangeInfo = $(
+									let $this = $(this), $trParent = $this.closest("tr"), maxValue = $trParent.attr("data-trick-max-value"), $tr = $("<tr data-trick-id='0' />"), $div = $("<div class='range-group' />"), $rangeInfo = $(
 										"<span class='range-text'>0</span>").appendTo($div), $range = $(
 											"<input type='range' min='1' max='" + maxValue + "'  name='value' value='0' class='range-input'>").appendTo($div), $removeBtn = $("<button class='btn btn-danger outline' type='button' name='delete'><i class='fa fa-remove'></i></button>"), $inputColor = $("<input name='color' type='color' value='#fada91' class='form-control form-control-static'>");
 									$removeBtn.appendTo($("<td/>").appendTo($tr));
@@ -1149,7 +1149,7 @@ function manageIlrSoaScale() {
 							.on(
 								"click",
 								function () {
-									let $this = $(this), $trParent = $this.closest("tr"), $tr = $("<tr data-trick-id='-1' />"), $div = $("<div class='range-group' />"), $rangeInfo = $(
+									let $this = $(this), $trParent = $this.closest("tr"), $tr = $("<tr data-trick-id='0' />"), $div = $("<div class='range-group' />"), $rangeInfo = $(
 										"<span class='range-text'>0</span>").appendTo($div), $range = $(
 											"<input type='range' min='-1' max='100'  name='value' value='0' class='range-input'>").appendTo($div), $removeBtn = $("<button class='btn btn-danger outline' type='button' name='delete'><i class='fa fa-remove'></i></button>"), $inputColor = $("<input name='color' type='color' value='#fada91' class='form-control form-control-static'>");
 									$removeBtn.appendTo($("<td/>").appendTo($tr));
@@ -1500,19 +1500,19 @@ function parseRiskInformationData(category, $trs) {
 }
 
 function addNewRiskInformtion(e) {
-	let $this = $(this), $currentTr = $this.closest("tr"), $tr = $("<tr data-trick-id='-1' />");
+	let $this = $(this), $currentTr = $this.closest("tr"), $tr = $("<tr data-trick-id='0' />");
 	addNewRiskInformation($currentTr, $tr, $("#risk-information-btn", $this.closest(".modal")), true);
 	return false;
 }
 
 function addNewRiskInformtionChapter(e) {
-	let $this = $(this), $currentTr = $this.closest("tr"), $tr = $("<tr data-trick-id='-1'/>");
+	let $this = $(this), $currentTr = $this.closest("tr"), $tr = $("<tr data-trick-id='0'/>");
 	addNewRiskInformation($currentTr, $tr, $("#risk-information-btn", $this.closest(".modal")), false);
 	return false;
 }
 
 function addNewRiskInformation($currentTr, $tr, $buttons, after) {
-	$("<td><input type='hidden' name='id' value='-1' /><input name='chapter' required class='form-control'><input type='hidden' name='custom' value='true' /></td>").appendTo($tr);
+	$("<td><input type='hidden' name='id' value='0' /><input name='chapter' required class='form-control'><input type='hidden' name='custom' value='true' /></td>").appendTo($tr);
 	$("<td><input class='form-control' type='text' name='label' placeholder='' required ></td>").appendTo($tr);
 	$("<td />").html($buttons.html()).appendTo($tr);
 	$("button[name='delete']", $tr).on("click", removeRiskInformtion);

@@ -77,7 +77,7 @@ function newMeasure(idStandard) {
 	var $modal = $("#addMeasureModel"), $progress = $("#loading-indicator").show();
 	$(".label-danger", $modal).remove();
 	$("#addmeasurebutton", $modal).prop("disabled", false);
-	$("#measure_id", $modal).prop("value", "-1");
+	$("#measure_id", $modal).prop("value", "0");
 	$("#measure_reference", $modal).prop("value", "");
 	$("#measure_computable input[value='true']", $modal).parent().button("toggle");
 	$("#measure_form", $modal).prop("action", context + "/KnowledgeBase/Standard/" + idStandard + "/Measures/Save");

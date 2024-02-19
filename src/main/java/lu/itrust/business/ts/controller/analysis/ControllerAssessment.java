@@ -94,7 +94,7 @@ public class ControllerAssessment {
 	@RequestMapping(value = "/Asset/{idAsset}/Load", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #idAsset, 'Asset', #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).READ)")
 	public String loadAssetAssessment(@PathVariable int idAsset,
-			@RequestParam(value = "idScenario", defaultValue = "-1") int idScenario, Model model, HttpSession session,
+			@RequestParam(value = "idScenario", defaultValue = "0") int idScenario, Model model, HttpSession session,
 			Principal principal, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		Analysis analysis = serviceAnalysis.get(idAnalysis);
@@ -132,7 +132,7 @@ public class ControllerAssessment {
 	@RequestMapping(value = "/Scenario/{idScenario}/Load", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #idScenario, 'Scenario', #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).READ)")
 	public String loadSceanrioAssessment(@PathVariable int idScenario,
-			@RequestParam(value = "idAsset", defaultValue = "-1") int idAsset, Model model, HttpSession session,
+			@RequestParam(value = "idAsset", defaultValue = "0") int idAsset, Model model, HttpSession session,
 			Principal principal, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		Analysis analysis = serviceAnalysis.get(idAnalysis);

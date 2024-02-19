@@ -29,7 +29,7 @@
 					</ul>
 				</c:if>
 				<form name="scenario" action="${pageContext.request.contextPath}/Scenario/Save?${_csrf.parameterName}=${_csrf.token}" class="form-horizontal tab-content" id="scenario_form">
-					<input type="hidden" name="id" value="${!empty(scenario)?scenario.id:'-1'}" id="scenario_id">
+					<input type="hidden" name="id" value="${!empty(scenario)?scenario.id:'0'}" id="scenario_id">
 					<div id="tab_scenario_general" class="tab-pane active" style="padding-top: ${type=='QUANTITATIVE'? '8px':'3px'};">
 						<div class="form-group">
 							<label for="type" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.scenario.asset_linked"/>'><spring:message
@@ -59,14 +59,14 @@
 								<select name="scenarioType" class="form-control" id="scenario_scenariotype_id">
 									<c:choose>
 										<c:when test="${!empty(scenariotypes)}">
-											<option value='-1'><spring:message code="label.scenario.type.select" /></option>
+											<option value='0'><spring:message code="label.scenario.type.select" /></option>
 											<c:forEach items="${scenariotypes}" var="scenariotype">
 												<option value="${scenariotype.value}" ${scenario.type == scenariotype?'selected':''}><spring:message
 														code="label.scenario.type.${fn:toLowerCase(fn:replace(scenariotype.name,'-','_'))}" /></option>
 											</c:forEach>
 										</c:when>
 										<c:otherwise>
-											<option value='-1'><spring:message code="label.scenario.type.loading" /></option>
+											<option value='0'><spring:message code="label.scenario.type.loading" /></option>
 										</c:otherwise>
 									</c:choose>
 								</select>
@@ -101,7 +101,7 @@
 								<c:choose>
 									<c:when test="${!empty(scenario)}">
 										<select name="assetTypeValues" multiple="multiple" class="form-control resize_vectical_only">
-											<option value="-1">${typeChooseText}</option>
+											<option value="0">${typeChooseText}</option>
 											<c:forEach items="${assetTypeValues.keySet()}" var="assetType" varStatus="status">
 												<option ${assetTypeValues[assetType] > 0 ? 'selected' : ''} value="${assetType.id}"><spring:message code="label.asset_type.${fn:toLowerCase(assetType.name)}" /></option>
 											</c:forEach>
@@ -109,7 +109,7 @@
 									</c:when>
 									<c:when test="${!empty(assetTypeValues)}">
 										<select name="assetTypeValues" multiple="multiple" class="form-control resize_vectical_only">
-											<option value="-1">${typeChooseText}</option>
+											<option value="0">${typeChooseText}</option>
 											<c:forEach items="${assetTypeValues.keySet()}" var="assetType" varStatus="status">
 												<option value="${assetType.id}"><spring:message code="label.asset_type.${fn:toLowerCase(assetType.name)}" /></option>
 											</c:forEach>
@@ -126,7 +126,7 @@
 								<c:choose>
 									<c:when test="${!empty(scenario)}">
 										<select name="assetValues" multiple="multiple" class="form-control resize_vectical_only">
-											<option value="-1">${assetChooseText}</option>
+											<option value="0">${assetChooseText}</option>
 											<c:forEach items="${assetValues.keySet()}" var="asset" varStatus="status">
 												<option ${assetValues[asset] > 0 ? 'selected' : ''} value="${asset.id}"><spring:message text="${asset.name}" /></option>
 											</c:forEach>
@@ -134,7 +134,7 @@
 									</c:when>
 									<c:when test="${!empty(assetValues)}">
 										<select name="assetValues" multiple="multiple" class="form-control resize_vectical_only">
-											<option value="-1">${assetChooseText}</option>
+											<option value="0">${assetChooseText}</option>
 											<c:forEach items="${assetValues.keySet()}" var="asset" varStatus="status">
 												<option value="${asset.id}"><spring:message text="${asset.name}" /></option>
 											</c:forEach>

@@ -144,7 +144,7 @@ function deleteCustomer(customerId, organisation) {
 function newCustomer() {
 	$("#addCustomerModel .label-danger").remove();
 	$("#addCustomerModel #addcustomerbutton").prop("disabled", false);
-	$("#customer_id").prop("value", "-1");
+	$("#customer_id").prop("value", "0");
 	$("#customer_organisation").prop("value", "");
 	$("#customer_contactPerson").prop("value", "");
 	$("#customer_phoneNumber").prop("value", "");
@@ -419,7 +419,7 @@ function addReportTemplate(e) {
 	$("input[name='type'][value='HYBRID']", $form).attr("required", "required").prop("disabled", false).closest(".btn").trigger("click");
 	$("input[type='file']", $form).attr("required", "required").trigger("change");
 	$("select>option:disabled", $form).prop("selected", true).parent().attr("required", "required").trigger("change");
-	$("input[name='id']", $form).val("-1");
+	$("input[name='id']", $form).val("0");
 }
 function deleteReportTemplate(e) {
 	let $current = $(e.currentTarget);

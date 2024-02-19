@@ -182,8 +182,7 @@ public class RedmineClient implements Client {
 				tracker = project.getTrackers().stream().findFirst().orElse(null);
 			Issue issue = new Issue(manager.getTransport(), project.getId(), task.getName());
 			issue.setDescription(task.getDescription());
-			if (task.getAssignee() != null)
-				issue.setAssigneeName(task.getAssignee());
+			assignedTicket(project, task.getAssignee(), issue);
 			if (task.getDue() != null)
 				issue.setDueDate(task.getDue());
 			if (task.getProgress() > 0)
@@ -247,6 +246,7 @@ public class RedmineClient implements Client {
 					issue.setEstimatedHours((float) ((measure.getInternalWL() + measure.getExternalWL()) * 8.0));
 					issue.setStartDate(measure.getPhase().getBeginDate());
 					issue.setDueDate(measure.getPhase().getEndDate());
+					assignedTicket(project, measure.getResponsible(), issue);
 					measure.setTicket(issue.create().getId().toString());
 				}
 				handler.setProgress(min + (int) ((++current / (double) size) * (maxProgess - min)));
@@ -276,6 +276,7 @@ public class RedmineClient implements Client {
 						issue.setStartDate(measure.getPhase().getBeginDate());
 						issue.setDueDate(measure.getPhase().getEndDate());
 						issue.setTransport(manager.getTransport());
+						assignedTicket(project, measure.getResponsible(), issue);
 						issue.update();
 					}
 					handler.setProgress(min + (int) ((++current / (double) size) * (maxProgess - min)));
@@ -291,6 +292,24 @@ public class RedmineClient implements Client {
 			throw new TrickException(ERROR_TASK_AUTHORISATION, PLEASE_CHECK_YOUR_HAVE_PROPER_PERSMISSIONS, e);
 		} catch (RedmineException e) {
 			throw new TrickException(ERROR_TASK_EXTERNAL, SOMETHING_WRONG_WITH_THE_TICKETING_SYSTEM, e);
+		}
+	}
+
+	private void assignedTicket(final Project project, String assignee, final Issue issue) throws RedmineException {
+		if (StringUtils.isEmpty(issue.getAssigneeName())
+				&& !StringUtils.isEmpty(assignee)) {
+			manager.getProjectManager().getProjectMembers(project.getIdentifier()).stream()
+					.filter(e -> assignee.equalsIgnoreCase(e.getGroupName())
+							|| assignee.equalsIgnoreCase(e.getUserName()))
+					.forEach(e -> {
+						if (e.getUserId() == null) {
+							issue.setAssigneeId(e.getGroupId());
+							issue.setAssigneeName(e.getGroupName());
+						} else {
+							issue.setAssigneeId(e.getUserId());
+							issue.setAssigneeName(e.getUserName());
+						}
+					});
 		}
 	}
 

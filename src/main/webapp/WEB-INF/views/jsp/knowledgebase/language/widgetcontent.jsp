@@ -15,7 +15,7 @@
 			</div>
 			<div class="modal-body">
 				<form name="language" action="Language/Save?${_csrf.parameterName}=${_csrf.token}" class="form-horizontal" id="language_form">
-					<input type="hidden" name="id" value="-1" id="language_id">
+					<input type="hidden" name="id" value="0" id="language_id">
 					<div class="form-group">
 						<label for="alpha3" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.language.alpha3" />' > <spring:message code="label.language.alpha3" text="Alpha3 code" />
 						</label>

@@ -76,7 +76,7 @@ function deleteLanguage(languageId, name) {
 function newLanguage() {
 	$("#addLanguageModel .label-danger").remove();
 	$("#addLanguageModel #addlanguagebutton").prop("disabled", false);
-	$("#language_id").prop("value", "-1");
+	$("#language_id").prop("value", "0");
 	$("#language_alpha3").prop("value", "");
 	$("#language_name").prop("value", "");
 	$("#language_altName").prop("value", "");

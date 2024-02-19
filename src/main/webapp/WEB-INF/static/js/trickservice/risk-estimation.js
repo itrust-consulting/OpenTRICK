@@ -152,7 +152,7 @@ function updateEstimationSelect(type, elements, status) {
 	return false;
 }
 
-function updateEstimationIteam(type, item) {
+function updateEstimationIteam(type, item,status) {
 	let $tabSection = $("#tab-risk-estimation"), $selector = $("select[name='" + type + "']", $tabSection), $option = $("option[data-trick-type][value='" + item.id + "']", $selector), $link = undefined;
 	if ($option.length)
 		$link = $("div[data-trick-content='" + type + "'] a[data-trick-type][data-trick-id='" + item.id + "'][data-trick-selected!='" + status + "']", $tabSection);
@@ -272,7 +272,7 @@ function AssessmentHelder() {
 		asset: this.asset.find("option[data-trick-selected='true']:first").val(),
 		scenario: this.scenario.find("option[data-trick-selected='true']:first").val()
 	};
-	this.switchControl(this.asset.val() == "-1" ? "scenario" : "asset");
+	this.switchControl(this.asset.val() == "0" ? "scenario" : "asset");
 
 }
 
@@ -288,7 +288,7 @@ AssessmentHelder.prototype = {
 		return name == "asset" ? 'scenario' : 'asset';
 	},
 	setLastSelected: function (name, id) {
-		if (id == "-1")
+		if (id == "0")
 			return false;
 		this.lastSelected[name] = id;
 	}, isValid: function (idAsset, idScanerio) {
@@ -428,7 +428,7 @@ AssessmentHelder.prototype = {
 		}
 	}, reload: function (id) {
 		if (id == undefined)
-			id = "-1";
+			id = "0";
 		if (this.$tabSection.is(":visible")) {
 			let $currentUI = $(this.section), idAsset = -3, idScenario = -3;
 			if (activeSelector == "asset") {
@@ -927,7 +927,7 @@ function manageRiskProfileMeasure(idAsset, idScenario, e) {
 					} else standardCaching.update($standardSelector, $measureManager, $selectedMeasures, $standardMeasures, $messageContainer);
 
 					$standardSelector.on("change", function () {
-						if (this.value == "-1")
+						if (this.value == "0")
 							standardCaching.clearStandardMeasureUI();
 						else
 							standardCaching.load(this.value);
@@ -1034,10 +1034,10 @@ function initialiseRiskEstimation() {
 
 	let updateSelector = function (e) {
 		let $target = $(e.currentTarget), value = $target.val(), name = $target.attr("name"), other = application["estimation-helper"].getOtherName(name);
-		if (value == '-1')
+		if (value == '0')
 			application["estimation-helper"].switchControl(other).getCurrent(other).find("option[data-trick-selected='true'][value='" + helper.getLastSelected(other) + "']:first").prop('selected', true);
-		else if (helper.getCurrent(other).val() != "-1")
-			application["estimation-helper"].switchControl(name).getCurrent(other).find("option[value='-1']").prop('selected', true);
+		else if (helper.getCurrent(other).val() != "0")
+			application["estimation-helper"].switchControl(name).getCurrent(other).find("option[value='0']").prop('selected', true);
 		else
 			application["estimation-helper"].setLastSelected(name, value);
 

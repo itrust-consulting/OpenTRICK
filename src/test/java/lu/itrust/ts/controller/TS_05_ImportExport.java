@@ -1,9 +1,5 @@
 package lu.itrust.ts.controller;
 
-import static lu.itrust.ts.controller.TS_02_InstallApplication.ME_CUSTOMER;
-import static lu.itrust.ts.helper.TestSharingData.getInteger;
-import static lu.itrust.ts.helper.TestSharingData.getLong;
-import static lu.itrust.ts.helper.TestSharingData.put;
 import static lu.itrust.business.ts.model.actionplan.summary.helper.ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COMPLIANCE;
 import static lu.itrust.business.ts.model.actionplan.summary.helper.ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COUNT_MEASURE_IMPLEMENTED;
 import static lu.itrust.business.ts.model.actionplan.summary.helper.ActionPlanSummaryManager.LABEL_CHARACTERISTIC_COUNT_MEASURE_PHASE;
@@ -22,13 +18,17 @@ import static lu.itrust.business.ts.model.actionplan.summary.helper.ActionPlanSu
 import static lu.itrust.business.ts.model.actionplan.summary.helper.ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_INVESTMENT;
 import static lu.itrust.business.ts.model.actionplan.summary.helper.ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_RECURRENT_INVESTMENT;
 import static lu.itrust.business.ts.model.actionplan.summary.helper.ActionPlanSummaryManager.LABEL_RESOURCE_PLANNING_TOTAL_PHASE_COST;
+import static lu.itrust.ts.controller.TS_02_InstallApplication.ME_CUSTOMER;
+import static lu.itrust.ts.helper.TestSharingData.getInteger;
+import static lu.itrust.ts.helper.TestSharingData.getLong;
+import static lu.itrust.ts.helper.TestSharingData.put;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -74,7 +74,6 @@ import lu.itrust.business.ts.model.analysis.AnalysisType;
 import lu.itrust.business.ts.model.cssf.RiskRegisterItem;
 import lu.itrust.business.ts.model.general.Language;
 import lu.itrust.business.ts.model.general.document.impl.TrickTemplate;
-import lu.itrust.business.ts.model.general.document.impl.TrickTemplateType;
 import lu.itrust.business.ts.model.standard.measure.Measure;
 import lu.itrust.business.ts.model.standard.measuredescription.MeasureDescription;
 import lu.itrust.business.ts.model.standard.measuredescription.MeasureDescriptionText;

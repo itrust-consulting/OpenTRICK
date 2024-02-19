@@ -143,7 +143,7 @@ var DataManagerImport = {
 							$analyses.on("change", function (e) {
 								var value = $(e.target).val();
 								if (value == undefined)
-									value = -1;
+									value = 0;
 								$standards.find("option[data-trick-id!='" + value + "']").hide().prop("selected", false);
 								$standards.find("option[data-trick-id='" + value + "']").show();
 								$standards.trigger("change");

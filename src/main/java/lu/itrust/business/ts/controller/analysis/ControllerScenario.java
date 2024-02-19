@@ -450,7 +450,7 @@ public class ControllerScenario {
 
 			JsonNode jsonNode = mapper.readTree(source);
 
-			int idScenario = jsonNode.get("id").asInt(-1);
+			int idScenario = jsonNode.get("id").asInt(0);
 
 			Scenario scenario = null;
 
@@ -511,7 +511,7 @@ public class ControllerScenario {
 			scenario.getAssetTypeValues().forEach(assetTypeValue -> assetTypeValue.setValue(0));
 
 			for (JsonNode assetTypeNoe : assetTypesValues)
-				scenario.addApplicable(assetTypes.get(assetTypeNoe.asInt(-1)));
+				scenario.addApplicable(assetTypes.get(assetTypeNoe.asInt(0)));
 
 			scenario.getLinkedAssets().clear();
 
@@ -521,7 +521,7 @@ public class ControllerScenario {
 				throw new TrickException("error.scenario.assets.empty", "Asset values cannot be found");
 
 			for (JsonNode assetNode : assetValues)
-				scenario.addApplicable(serviceAsset.get(assetNode.asInt(-1)));
+				scenario.addApplicable(serviceAsset.get(assetNode.asInt(0)));
 
 			if (isQuantitative) {
 				scenario.setAccidental(jsonNode.get("accidental").asInt());

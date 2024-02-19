@@ -37,15 +37,12 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.testng.annotations.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.PersistenceContextType;
 import lu.itrust.ts.helper.TestConstant;
 import lu.itrust.business.ts.asynchronousWorkers.Worker;
 import lu.itrust.business.ts.asynchronousWorkers.WorkerImportStandard;
@@ -149,7 +146,7 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 				.contentType(APPLICATION_JSON_CHARSET_UTF_8)
 				.accept(APPLICATION_JSON_CHARSET_UTF_8)
 				.content(String.format(
-						"{\"id\":\"-1\", \"organisation\":\"%s\", \"contactPerson\":\"%s\", \"phoneNumber\":\"%s\", \"email\":\"%s\", \"address\":\"%s\", \"city\":\"%s\", \"zipCode\":\"%s\", \"country\":\"%s\"}",
+						"{\"id\":\"0\", \"organisation\":\"%s\", \"contactPerson\":\"%s\", \"phoneNumber\":\"%s\", \"email\":\"%s\", \"address\":\"%s\", \"city\":\"%s\", \"zipCode\":\"%s\", \"country\":\"%s\"}",
 						CUSTOMER_NAME, CUSTOMER_NAME, CUSTOMER_NAME, CUSTOMER_EMAIL, CUSTOMER_NAME, CUSTOMER_NAME,
 						CUSTOMER_NAME, CUSTOMER_NAME)))
 				.andExpect(content().contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk())
@@ -158,7 +155,7 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 		this.mockMvc
 				.perform(post("/KnowledgeBase/Language/Save").with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")).with(csrf())
 						.accept(APPLICATION_JSON_CHARSET_UTF_8).content(
-								String.format("{\"id\":\"-1\", \"alpha3\":\"%s\", \"name\":\"%s\",\"altName\":\"%s\"}",
+								String.format("{\"id\":\"0\", \"alpha3\":\"%s\", \"name\":\"%s\",\"altName\":\"%s\"}",
 										LANGUAGE_DEU_ALPHA_3, LANGUAGE_DEU_NAME, LANGUAGE_DEU_ALT_NAME)))
 				.andExpect(content().contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk())
 				.andExpect(content().string("{}"));
@@ -270,7 +267,7 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 				.sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
 				.sessionAttr(Constant.SELECTED_ANALYSIS, getInteger(ANALYSIS_PROFILE_ID))
 				.content(String.format(
-						"{\"id\":\"-1\", \"name\":\"%s\" ,\"assetType\": {\"id\": \"%d\" }, \"value\": \"%s\", \"selected\":\"%s\", \"comment\":\"%s\", \"hiddenComment\":\"%s\"}",
+						"{\"id\":\"0\", \"name\":\"%s\" ,\"assetType\": {\"id\": \"%d\" }, \"value\": \"%s\", \"selected\":\"%s\", \"comment\":\"%s\", \"hiddenComment\":\"%s\"}",
 						"Trick service", 1, "687,688", false, "comment", "hiddenComment")))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.errors.asset").exists());
 
@@ -331,7 +328,7 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 		this.mockMvc.perform(post("/KnowledgeBase/Standard/Save").with(csrf()).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN"))
 				.accept(APPLICATION_JSON_CHARSET_UTF_8)
 				.content(String.format(
-						"{\"id\":\"-1\", \"label\":\"%s\",\"name\": \"%s\",\"description\": \"%s\", \"type\": \"%s\", \"version\":\"%d\", \"computable\": \"%s\"}",
+						"{\"id\":\"0\", \"label\":\"%s\",\"name\": \"%s\",\"description\": \"%s\", \"type\": \"%s\", \"version\":\"%d\", \"computable\": \"%s\"}",
 						TEST_STANDARD, TEST_STANDARD, "test standard description", "NORMAL", 2015, "on")))
 				.andExpect(status().isOk()).andExpect(content().string("{}"));
 		Session session = null;
@@ -368,7 +365,7 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 							getInteger(LANGUAGE_DEU_ID))).with(csrf())
 							.with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")).accept(APPLICATION_JSON_CHARSET_UTF_8)
 							.content(String.format(
-									"{\"id\":\"-1\",  \"reference\": \"%s\", \"level\":%d, \"computable\": \"%s\" %s}",
+									"{\"id\":\"0\",  \"reference\": \"%s\", \"level\":%d, \"computable\": \"%s\" %s}",
 									"1", 1, "", domainAndDescription)))
 					.andExpect(status().isOk()).andExpect(content().string("{}"));
 
@@ -377,7 +374,7 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 							getInteger(LANGUAGE_DEU_ID))).with(csrf())
 							.with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")).accept(APPLICATION_JSON_CHARSET_UTF_8)
 							.content(String.format(
-									"{\"id\":\"-1\",  \"reference\": \"%s\", \"level\":%d, \"computable\": \"%s\" %s}",
+									"{\"id\":\"0\",  \"reference\": \"%s\", \"level\":%d, \"computable\": \"%s\" %s}",
 									"1.1", 2, "", domainAndDescription)))
 					.andExpect(status().isOk()).andExpect(content().string("{}"));
 
@@ -387,7 +384,7 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 									getInteger(LANGUAGE_DEU_ID))).with(csrf())
 									.with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")).accept(APPLICATION_JSON_CHARSET_UTF_8)
 									.content(String
-											.format("{\"id\":\"-1\",  \"reference\": \"%s\", \"level\":%d, \"computable\": \"%s\" %s}",
+											.format("{\"id\":\"0\",  \"reference\": \"%s\", \"level\":%d, \"computable\": \"%s\" %s}",
 													"1.1.1", 3, "on", domainAndDescription)))
 					.andExpect(status().isOk()).andExpect(content().string("{}"));
 

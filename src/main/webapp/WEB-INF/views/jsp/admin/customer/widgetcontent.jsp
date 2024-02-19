@@ -21,7 +21,7 @@
 						<legend style="font-size: 15px">
 							<spring:message code='label.contact' text='Contact' />
 						</legend>
-						<input type="hidden" name="id" value="-1" id="customer_id">
+						<input type="hidden" name="id" value="0" id="customer_id">
 						<input type="hidden" name="canBeUsed" value="true" id="customer_canBeUsed">
 						<div class="form-group">
 							<label for="organisation" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.customer.organisation" />'> <spring:message

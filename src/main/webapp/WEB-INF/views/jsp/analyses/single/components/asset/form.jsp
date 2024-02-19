@@ -27,7 +27,7 @@
 							<input name="id" value="${asset.id}" type="hidden">
 						</c:when>
 						<c:otherwise>
-							<input name="id" value="-1" type="hidden">
+							<input name="id" value="0" type="hidden">
 						</c:otherwise>
 					</c:choose>
 					<div class="form-group">
@@ -44,13 +44,13 @@
 							<select name="assetType" class="form-control" id="asset_assettype_id">
 								<c:choose>
 									<c:when test="${!empty(assettypes)}">
-										<option value='-1'><spring:message code="label.asset.type.select" /></option>
+										<option value='0'><spring:message code="label.asset.type.select" /></option>
 										<c:forEach items="${assettypes}" var="assettype">
 											<option value="${assettype.id}" ${asset.assetType == assettype?'selected':''}><spring:message code="label.asset_type.${fn:toLowerCase(assettype.name)}" /></option>
 										</c:forEach>
 									</c:when>
 									<c:otherwise>
-										<option value='-1'><spring:message code="label.asset.type.loading" /></option>
+										<option value='0'><spring:message code="label.asset.type.loading" /></option>
 									</c:otherwise>
 								</c:choose>
 							</select>

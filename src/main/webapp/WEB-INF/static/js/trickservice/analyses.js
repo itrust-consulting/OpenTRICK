@@ -491,7 +491,7 @@ function customAnalysis(element) {
 								$phaseInput.prop("disabled", true).prop("checked", false);
 							else {
 								$phaseInput.prop("disabled", false);
-								var idAnalysis = -1;
+								var idAnalysis = 0;
 								for (var i = 0; i < $standards.length; i++) {
 									var currentIdAnalysis = $($standards[i]).attr("data-trick-id");
 									if (i == 0)
@@ -530,7 +530,7 @@ function customAnalysis(element) {
 							
 							
 							
-							$modalBody.find("select[name='profile']").val("-1").find("option[value!='-1']").each(function () {
+							$modalBody.find("select[name='profile']").val("0").find("option[value!='0']").each(function () {
 								if (type.isSupported(this.getAttribute("data-type")))
 									this.removeAttribute("hidden");
 								else
@@ -578,7 +578,7 @@ function customAnalysis(element) {
 							return this;
 						},
 						changeImpactState: function (enable) {
-							$impacts.val('-1').prop("disabled", enable).trigger("change");
+							$impacts.val('0').prop("disabled", enable).trigger("change");
 							return this;
 						},
 						isCustomSupported : function(value, target) {
@@ -647,7 +647,7 @@ function customAnalysis(element) {
 
 					$impacts.on("change", function () {
 						var options = this.selectedOptions;
-						if (options[0].value == "-1") {
+						if (options[0].value == "0") {
 							$(options[0]).prop("selected", options.length < 2);
 							$impactLevelMaxValue.prop("disabled", options.length < 2);
 						} else
@@ -683,7 +683,7 @@ function customAnalysis(element) {
 										$newParent.removeAttr("title");
 										$newParent.removeClass("success");
 										$newParent.text($emptyText);
-										$newParent.parent().find('input[name]').attr("value", '-1');
+										$newParent.parent().find('input[name]').attr("value", '0');
 										analysesCaching.applyCallback(callback);
 										return false;
 									});

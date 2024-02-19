@@ -178,7 +178,7 @@ public class TS_03_CreateAnAnlysis extends SpringTestConfiguration {
 		this.mockMvc.perform(post("/Analysis/Asset/Save").with(csrf()).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")).accept(APPLICATION_JSON_CHARSET_UTF_8)
 				.sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
 				.content(String.format(
-						"{\"id\":\"-1\", \"name\":\"%s\" ,\"assetType\": {\"id\": \"%d\" }, \"value\": \"%s\", \"selected\":\"%s\", \"comment\":\"%s\", \"hiddenComment\":\"%s\", \"relatedName\": \"%s\"}",
+						"{\"id\":\"0\", \"name\":\"%s\" ,\"assetType\": {\"id\": \"%d\" }, \"value\": \"%s\", \"selected\":\"%s\", \"comment\":\"%s\", \"hiddenComment\":\"%s\", \"relatedName\": \"%s\"}",
 						"Trick service", 1, "687,688", false, "comment", "hiddenComment","relatedName")))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.id").exists());
 	}
@@ -212,7 +212,7 @@ public class TS_03_CreateAnAnlysis extends SpringTestConfiguration {
 		this.mockMvc.perform(post("/Analysis/Scenario/Save").with(csrf()).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")).accept(APPLICATION_JSON_CHARSET_UTF_8)
 				.sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID).sessionAttr(Constant.OPEN_MODE, OpenMode.EDIT)
 				.content(String.format(
-						"{\"id\":\"-1\", \"name\":\"%s\", \"scenarioType\": {\"id\": %d},\"selected\":\"%s\", \"description\":\"%s\", \"assetTypeValues\" : [%s] ,\"assetValues\" : [], \"assetLinked\" : false, \"preventive\": 1.0, \"detective\": 0 , \"limitative\": 0, \"corrective\": 0, \"intentional\": 1, \"accidental\": 0, \"environmental\": 0, \"internalThreat\": 0, \"externalThreat\": 0}",
+						"{\"id\":\"0\", \"name\":\"%s\", \"scenarioType\": {\"id\": %d},\"selected\":\"%s\", \"description\":\"%s\", \"assetTypeValues\" : [%s] ,\"assetValues\" : [], \"assetLinked\" : false, \"preventive\": 1.0, \"detective\": 0 , \"limitative\": 0, \"corrective\": 0, \"intentional\": 1, \"accidental\": 0, \"environmental\": 0, \"internalThreat\": 0, \"externalThreat\": 0}",
 						"Scenario test", 1, false, "Test scenario", SCENARIO_ASSET_TYPE_VALUE)))
 				.andExpect(status().isOk()).andExpect(jsonPath("$.id").exists());
 	}

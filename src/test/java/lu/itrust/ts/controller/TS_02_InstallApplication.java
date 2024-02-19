@@ -135,7 +135,7 @@ public class TS_02_InstallApplication extends SpringTestConfiguration {
 				.accept(APPLICATION_JSON_CHARSET_UTF_8)
 				.contentType(APPLICATION_JSON_CHARSET_UTF_8)
 				.content(String.format(
-						"{\"id\":\"-1\", \"organisation\":\"%s\", \"contactPerson\":\"%s\", \"phoneNumber\":\"%s\", \"email\":\"%s\", \"address\":\"%s\", \"city\":\"%s\", \"zipCode\":\"%s\", \"country\":\"%s\"}",
+						"{\"id\":\"0\", \"organisation\":\"%s\", \"contactPerson\":\"%s\", \"phoneNumber\":\"%s\", \"email\":\"%s\", \"address\":\"%s\", \"city\":\"%s\", \"zipCode\":\"%s\", \"country\":\"%s\"}",
 						CUSTOMER_OTHER_FIELDS, CUSTOMER_OTHER_FIELDS, CUSTOMER_OTHER_FIELDS, CUSTOMER_EMAIL,
 						CUSTOMER_OTHER_FIELDS, CUSTOMER_OTHER_FIELDS, CUSTOMER_OTHER_FIELDS,
 						CUSTOMER_OTHER_FIELDS))

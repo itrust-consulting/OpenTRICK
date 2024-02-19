@@ -35,7 +35,7 @@ $(document).ready(function () {
 			$versions.find("option[value!='-']").remove();
 			if (application["risk-evolution"].analyses) {
 				application["risk-evolution"].analyses = [];
-				application["risk-evolution"].customer = -1;
+				application["risk-evolution"].customer = 0;
 			}
 			$versions.first().trigger("change");
 			$progress.hide();

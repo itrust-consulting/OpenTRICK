@@ -41,7 +41,7 @@
 								<label class="control-label text-right col-sm-4"><spring:message code="label.analysis.standards" /></label>
 								<div class="col-sm-5">
 									<select name="standard" id="riskProfileStandardSelector" class="form-control">
-										<option disabled="disabled" value="-1" selected="selected" data-trick-custom='false'><spring:message code="label.action.choose" /></option>
+										<option disabled="disabled" value="0" selected="selected" data-trick-custom='false'><spring:message code="label.action.choose" /></option>
 										<c:forEach items="${standards}" var="standard">
 											<option value="${standard.id}" data-trick-custom='${standard.analysisOnly}'><spring:message text="${standard.name}" /></option>
 										</c:forEach>

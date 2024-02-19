@@ -56,7 +56,7 @@ public class TS_08_Administration extends SpringTestConfiguration {
 		this.mockMvc
 				.perform(post("/Admin/User/Save").with(csrf()).accept(APPLICATION_JSON_CHARSET_UTF_8).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN"))
 						.content(String.format(
-								"{ \"id\":\"-1\", \"connexionType\": \"0\" ,\"login\": \"%s\",\"ROLE_USER\":\"on\", \"password\": \"%s\",\"repeatPassword\": \"%s\",\"firstName\": \"%s\",\"lastName\": \"%s\",\"email\": \"%s\",\"locale\": \"%s\", \"using2FA\": \"%s\"}",
+								"{ \"id\":\"0\", \"connexionType\": \"0\" ,\"login\": \"%s\",\"ROLE_USER\":\"on\", \"password\": \"%s\",\"repeatPassword\": \"%s\",\"firstName\": \"%s\",\"lastName\": \"%s\",\"email\": \"%s\",\"locale\": \"%s\", \"using2FA\": \"%s\"}",
 								"user", "user.Pass-20", "user.Pass-20", "First name", "Last name", "email@itrust.lu", "fr", false)))
 				.andExpect(status().isOk()).andExpect(content().contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(jsonPath("$.success").exists());
 		Session session = null;
@@ -74,7 +74,7 @@ public class TS_08_Administration extends SpringTestConfiguration {
 		this.mockMvc
 				.perform(post("/KnowledgeBase/Customer/Save").with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")).with(csrf()).contentType(APPLICATION_JSON_CHARSET_UTF_8).accept(APPLICATION_JSON_CHARSET_UTF_8)
 						.content(String.format(
-								"{\"id\":\"-1\", \"organisation\":\"%s\", \"contactPerson\":\"%s\", \"phoneNumber\":\"%s\", \"email\":\"%s\", \"address\":\"%s\", \"city\":\"%s\", \"zipCode\":\"%s\", \"country\":\"%s\"}",
+								"{\"id\":\"0\", \"organisation\":\"%s\", \"contactPerson\":\"%s\", \"phoneNumber\":\"%s\", \"email\":\"%s\", \"address\":\"%s\", \"city\":\"%s\", \"zipCode\":\"%s\", \"country\":\"%s\"}",
 								CUSTOMER_NAME, CUSTOMER_NAME, CUSTOMER_PHONE, CUSTOMER_EMAIL, CUSTOMER_NAME, CUSTOMER_NAME, CUSTOMER_CITY, CUSTOMER_NAME))
 						.with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")))
 				.andExpect(content().contentType(APPLICATION_JSON_CHARSET_UTF_8)).andExpect(status().isOk()).andExpect(content().string("{}"));

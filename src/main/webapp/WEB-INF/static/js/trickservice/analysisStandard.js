@@ -91,7 +91,7 @@ function manageStandard() {
 								case "import-file":
 									$this.on('show.bs.tab', () => {
 										$standardModal.find("#importStandardFromFile")[0].reset();
-										$standardModal.find("#importStandardFromFile input[name='id']").prop("value", "-1");
+										$standardModal.find("#importStandardFromFile input[name='id']").prop("value", "0");
 										$standardModal.find("#importStandardFromFile select[name='type']").prop("disabled", false);
 										$standardModal.find("#importStandardFromFile input[name='name']").prop("value", name).prop("disabled", false);
 									});
@@ -280,7 +280,7 @@ function addStandard(e) {
 	if ($(e.currentTarget).parent().hasClass("disabled"))
 		return false;
 	var $form = $("#standard_form")
-	$("#standard_formId", $form).prop("value", "-1");
+	$("#standard_formId", $form).prop("value", "0");
 	$("#standard_name", $form).prop("value", "");
 	$("#standard_label", $form).prop("value", "");
 	$("#standard_version", $form).prop("value", "");
@@ -630,7 +630,7 @@ function deleteSingleMeasure($progress, idStandard, idMeasure, last) {
 }
 
 function manageSOA() {
-	var idAnalysis = -1;
+	var idAnalysis = 0;
 	if (userCan(idAnalysis = findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
 		var $progress = $("#loading-indicator").show();
 		$.ajax({
