@@ -57,10 +57,10 @@ function TaskManager(title) {
 				reconnectDelay: 30000,
 				webSocketFactory: () => {
 					return new SockJS('/Messaging/');
-				},
+				}/*,
 				debug: (str) => {
 					console.log(str);
-				}
+				}*/
 			});
 
 			/*self.stomp.webSocketFactory = function () {
