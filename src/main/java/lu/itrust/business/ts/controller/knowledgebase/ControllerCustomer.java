@@ -3,7 +3,6 @@ package lu.itrust.business.ts.controller.knowledgebase;
 import static lu.itrust.business.ts.constants.Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.security.Principal;
 import java.sql.Timestamp;
@@ -14,10 +13,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 
 import org.apache.commons.compress.utils.FileNameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +35,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import lu.itrust.business.ts.component.CustomDelete;
 import lu.itrust.business.ts.component.CustomerManager;
 import lu.itrust.business.ts.component.DefaultTemplateLoader;
@@ -236,7 +234,7 @@ public class ControllerCustomer {
 
 		final Map<String, Object> result = new LinkedHashMap<>();
 
-		if (templateForm.getType() == null) {
+		if (templateForm.getType() == null && templateForm.getId() < 1) {
 			result.put("type",
 					messageSource.getMessage("error.report.template.type", null, "Type cannot be empty", locale));
 		} else {
@@ -259,7 +257,7 @@ public class ControllerCustomer {
 
 			if (template == null)
 				return JsonMessage.Error(
-						messageSource.getMessage("error.customer.not_exist", null, "Customer does not exist", locale));
+						messageSource.getMessage("error.template.not_exist", null, "Template does not exist", locale));
 
 			template.setVersion(templateForm.getVersion());
 

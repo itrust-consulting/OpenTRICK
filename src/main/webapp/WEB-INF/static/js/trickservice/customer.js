@@ -220,7 +220,7 @@ function manageCustomerTemplate(customerId) {
 					switch (e.currentTarget.value) {
 						case "RISK_INFORMATION":
 						case "DEFAULT_EXCEL": {
-							$file.prop("accept", ".xlsx");
+							$file.prop("accept", ".xlsx,.xlsm");
 							$browse.prop("disabled", false);
 							break;
 						}
@@ -416,9 +416,10 @@ function addReportTemplate(e) {
 	if ($current.parent().hasClass("disabled"))
 		return false;
 	let $form = $("#reportTemplate-form", $current.closest(".modal")).trigger("reset");
+
 	$("input[name='type'][value='HYBRID']", $form).attr("required", "required").prop("disabled", false).closest(".btn").trigger("click");
 	$("input[type='file']", $form).attr("required", "required").trigger("change");
-	$("select>option:disabled", $form).prop("selected", true).parent().attr("required", "required").trigger("change");
+	$("select>option:disabled", $form).prop("selected", true).parent().prop("disabled", false).attr("required", "required").trigger("change");
 	$("input[name='id']", $form).val("0");
 }
 function deleteReportTemplate(e) {

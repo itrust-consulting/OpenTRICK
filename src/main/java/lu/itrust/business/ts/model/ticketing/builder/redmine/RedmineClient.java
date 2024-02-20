@@ -17,7 +17,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 
@@ -298,9 +298,10 @@ public class RedmineClient implements Client {
 	private void assignedTicket(final Project project, String assignee, final Issue issue) throws RedmineException {
 		if (StringUtils.isEmpty(issue.getAssigneeName())
 				&& !StringUtils.isEmpty(assignee)) {
+			final String cleanedAssignee = StringUtils.stripAccents(assignee);
 			manager.getProjectManager().getProjectMembers(project.getIdentifier()).stream()
-					.filter(e -> assignee.equalsIgnoreCase(e.getGroupName())
-							|| assignee.equalsIgnoreCase(e.getUserName()))
+					.filter(e -> cleanedAssignee.equalsIgnoreCase(StringUtils.stripAccents(e.getGroupName()))
+							|| cleanedAssignee.equalsIgnoreCase(StringUtils.stripAccents(e.getUserName())))
 					.forEach(e -> {
 						if (e.getUserId() == null) {
 							issue.setAssigneeId(e.getGroupId());

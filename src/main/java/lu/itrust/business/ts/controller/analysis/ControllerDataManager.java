@@ -37,6 +37,9 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.docx4j.openpackaging.contenttype.ContentTypes;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.docx4j.openpackaging.exceptions.InvalidFormatException;
 import org.docx4j.openpackaging.packages.SpreadsheetMLPackage;
@@ -68,6 +71,7 @@ import org.xlsx4j.sml.ObjectFactory;
 import org.xlsx4j.sml.Row;
 import org.xlsx4j.sml.SheetData;
 
+import jakarta.activation.MimetypesFileTypeMap;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -271,13 +275,14 @@ public class ControllerDataManager {
 		try {
 			final SpreadsheetMLPackage spreadsheetMLPackage = SpreadsheetMLPackage.load(file);
 			exportRawActionPlan(analysis, spreadsheetMLPackage, new Locale(analysis.getLanguage().getAlpha2()));
-			response.setContentType("xlsx");
+			final String extension = getExtension(spreadsheetMLPackage);
+			response.setContentType(extension);
 			// set response header with location of the filename
 			final String filename = String.format(Constant.ITR_FILE_NAMING,
 					Utils.cleanUpFileName(analysis.findSetting(ExportFileName.ACTION_PLAN)),
 					Utils.cleanUpFileName(analysis.getCustomer().getOrganisation()),
 					Utils.cleanUpFileName(analysis.getLabel()), "ActionPlan", analysis.getVersion(),
-					"xlsx");
+					extension);
 			response.setHeader("Content-Disposition", "attachment; filename=\""
 					+ filename + "\"");
 			updateTokenCookie(request, response);
@@ -302,13 +307,14 @@ public class ControllerDataManager {
 		final File file = loadTemplate(analysis.getCustomer(), TrickTemplateType.DEFAULT_EXCEL, analysis.getLanguage());
 		try {
 			final SpreadsheetMLPackage spreadsheetMLPackage = SpreadsheetMLPackage.load(file);
+			final String extension = getExtension(spreadsheetMLPackage);
 			exportAsset(analysis, spreadsheetMLPackage);
-			response.setContentType("xlsx");
+			response.setContentType(extension);
 			final String filename = String.format(Constant.ITR_FILE_NAMING,
 					Utils.cleanUpFileName(analysis.findSetting(ExportFileName.ASSET)),
 					Utils.cleanUpFileName(analysis.getCustomer().getOrganisation()),
 					Utils.cleanUpFileName(analysis.getLabel()), "Asset", analysis.getVersion(),
-					"xlsx");
+					extension);
 			// set response header with location of the filename
 			response.setHeader("Content-Disposition", "attachment; filename=\""
 					+ filename + "\"");
@@ -322,6 +328,19 @@ public class ControllerDataManager {
 					analysis.getIdentifier(), analysis.getVersion());
 		} finally {
 			serviceStorage.delete(file.getAbsolutePath());
+		}
+	}
+
+	private String getExtension(final SpreadsheetMLPackage spreadsheetMLPackage) {
+		switch (spreadsheetMLPackage.getWorkbookPart().getContentType()) {
+			case ContentTypes.SPREADSHEETML_WORKBOOK_MACROENABLED:
+				return "xlsm";
+			case ContentTypes.SPREADSHEETML_TEMPLATE_MACROENABLED:
+				return "xltm";
+			case ContentTypes.SPREADSHEETML_TEMPLATE:
+				return "xltx";
+			default:
+				return "xlsx";
 		}
 	}
 
@@ -517,13 +536,15 @@ public class ControllerDataManager {
 					exportProbability(analysis, mlPackage);
 			}
 
-			response.setContentType("xlsx");
+			final String extension = getExtension(mlPackage);
+
+			response.setContentType(extension);
 
 			final String filename = String.format(Constant.ITR_FILE_NAMING,
 					Utils.cleanUpFileName(analysis.findSetting(ExportFileName.RISK_ESTIMATION)),
 					Utils.cleanUpFileName(analysis.getCustomer().getOrganisation()),
 					Utils.cleanUpFileName(analysis.getLabel()), "RiskEstimation", analysis.getVersion(),
-					"xlsx");
+					extension);
 			// set response header with location of the filename
 			response.setHeader("Content-Disposition",
 					"attachment; filename=\"" + filename + "\"");
@@ -802,13 +823,14 @@ public class ControllerDataManager {
 							mlPackage);
 				}
 			}
-			response.setContentType("xlsx");
+			final String extension = getExtension(mlPackage);
+			response.setContentType(extension);
 
 			final String filename = String.format(Constant.ITR_FILE_NAMING,
 					Utils.cleanUpFileName(analysis.findSetting(ExportFileName.MEASURE_COLLECTION)),
 					Utils.cleanUpFileName(analysis.getCustomer().getOrganisation()),
 					Utils.cleanUpFileName(analysis.getLabel()), "MeasureCollection", analysis.getVersion(),
-					"xlsx");
+					extension);
 			// set response header with location of the filename
 			response.setHeader("Content-Disposition", "attachment; filename=\""
 					+ filename + "\"");
@@ -1055,13 +1077,15 @@ public class ControllerDataManager {
 						mapper[1].toString(), mlPackage);
 			}
 
+			final String extension = getExtension(mlPackage);
+
 			final String filename = String.format(Constant.ITR_FILE_NAMING,
 					Utils.cleanUpFileName(analysis.findSetting(ExportFileName.BRAINSTORMING)),
 					Utils.cleanUpFileName(analysis.getCustomer().getOrganisation()),
 					Utils.cleanUpFileName(analysis.getLabel()), "Brainstorming", analysis.getVersion(),
-					"xlsx");
+					extension);
 
-			response.setContentType("xlsx");
+			response.setContentType(extension);
 			response.setHeader("Content-Disposition",
 					"attachment; filename=\"" + filename + "\"");
 			updateTokenCookie(request, response);
@@ -1175,12 +1199,13 @@ public class ControllerDataManager {
 
 			final Consumer<SpreadsheetMLPackage> callback = (m) -> {
 				try {
-					response.setContentType("xlsx");
+					final String extension = getExtension(m);
+					response.setContentType(extension);
 					final String filename = String.format(Constant.ITR_FILE_NAMING,
 							Utils.cleanUpFileName(analysis.findSetting(ExportFileName.RRF)),
 							Utils.cleanUpFileName(analysis.getCustomer().getOrganisation()),
 							Utils.cleanUpFileName(analysis.getLabel()), "RRF", analysis.getVersion(),
-							"xlsx");
+							extension);
 					// set response header with location of the filename
 					response.setHeader("Content-Disposition", "attachment; filename=\""
 							+ filename + "\"");
@@ -1213,12 +1238,13 @@ public class ControllerDataManager {
 		try {
 			final SpreadsheetMLPackage spreadsheetMLPackage = SpreadsheetMLPackage.load(file);
 			exportScenario(analysis, spreadsheetMLPackage);
-			response.setContentType("xlsx");
+			final String extension = getExtension(spreadsheetMLPackage);
+			response.setContentType(extension);
 			final String filename = String.format(Constant.ITR_FILE_NAMING,
 					Utils.cleanUpFileName(analysis.findSetting(ExportFileName.SCENARIO)),
 					Utils.cleanUpFileName(analysis.getCustomer().getOrganisation()),
 					Utils.cleanUpFileName(analysis.getLabel()), "Scenario", analysis.getVersion(),
-					"xlsx");
+					extension);
 			// set response header with location of the filename
 			response.setHeader("Content-Disposition", "attachment; filename=\""
 					+ filename + "\"");

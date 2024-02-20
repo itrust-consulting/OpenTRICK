@@ -32,6 +32,7 @@ import lu.itrust.business.ts.database.dao.DAOTrickTemplate;
 import lu.itrust.business.ts.database.service.ServiceStorage;
 import lu.itrust.business.ts.exception.TrickException;
 import lu.itrust.business.ts.helper.InstanceManager;
+import lu.itrust.business.ts.helper.NaturalOrderComparator;
 import lu.itrust.business.ts.model.analysis.AnalysisType;
 import lu.itrust.business.ts.model.general.Customer;
 import lu.itrust.business.ts.model.general.Language;
@@ -138,15 +139,16 @@ public class DefaultTemplateLoader {
 	public TrickTemplate findTemplate(Customer customer, TrickTemplateType type, Language language) {
 		List<TrickTemplate> templates = customer.getTemplates().stream()
 				.filter(e -> e.getType() == type && (e.getLanguage() == null || e.getLanguage().equals(language)))
+				.sorted((e1, e2) -> NaturalOrderComparator.compareTo(e2.getVersion(), e1.getVersion()))
 				.toList();
 		if (templates.isEmpty()) {
 			templates = findByType(type).stream().filter(
 					e -> e.getType() == type && (e.getLanguage() == null || e.getLanguage().equals(language)))
-					.toList();
+					.sorted((e1, e2) -> NaturalOrderComparator.compareTo(e2.getVersion(), e1.getVersion())).toList();
 		}
 
-		return templates.stream().filter(e -> e.getLanguage() != null).findAny()
-				.orElse(templates.stream().findAny().orElse(null));
+		return templates.stream().filter(e -> e.getLanguage() != null).findFirst()
+				.orElse(templates.stream().findFirst().orElse(null));
 
 	}
 
