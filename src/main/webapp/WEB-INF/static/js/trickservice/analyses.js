@@ -614,11 +614,11 @@ function customAnalysis(element) {
 
 					// Event user select a customer
 					$("#selector-customer").on("change", function (e) {
-						$("#selector-analysis option[value!=-1]").remove();
+						$("#selector-analysis option[value!=0]").remove();
 						$("#analysis-versions li[class!='disabled']").remove();
 						var idCustomer = $(e.target).val();
-						if (idCustomer < 0)
-							$("#selector-analysis option[value=-1]").prop("selected", true);
+						if (idCustomer < 1)
+							$("#selector-analysis option[value=0]").prop("selected", true);
 						else
 							analysesCaching.updateAnalysisIdentifiers(idCustomer);
 					});
@@ -626,7 +626,7 @@ function customAnalysis(element) {
 					$analysisSelector.on("change", function (e) {
 						$("#analysis-versions li[class!='disabled']", $modalBody).remove();
 						var identifier = $(e.target).val();
-						if (identifier != -1)
+						if (identifier != 0)
 							analysesCaching.updateAnalysisVersions($("#selector-customer").val(), identifier)
 
 					});
