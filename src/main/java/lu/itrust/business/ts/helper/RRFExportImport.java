@@ -28,12 +28,10 @@ import org.springframework.context.MessageSource;
 import org.springframework.web.multipart.MultipartFile;
 import org.xlsx4j.jaxb.Context;
 import org.xlsx4j.org.apache.poi.ss.usermodel.DataFormatter;
-import org.xlsx4j.sml.Cell;
 import org.xlsx4j.sml.ObjectFactory;
 import org.xlsx4j.sml.Row;
 import org.xlsx4j.sml.SheetData;
 
-import lu.itrust.business.ts.asynchronousWorkers.WorkerExportRiskRegister;
 import lu.itrust.business.ts.asynchronousWorkers.WorkerExportRiskSheet;
 import lu.itrust.business.ts.component.TrickLogManager;
 import lu.itrust.business.ts.database.service.ServiceAnalysis;
@@ -49,6 +47,7 @@ import lu.itrust.business.ts.model.general.AssetTypeValue;
 import lu.itrust.business.ts.model.general.LogAction;
 import lu.itrust.business.ts.model.general.LogLevel;
 import lu.itrust.business.ts.model.general.LogType;
+import lu.itrust.business.ts.model.general.SecurityCriteria;
 import lu.itrust.business.ts.model.scenario.Scenario;
 import lu.itrust.business.ts.model.standard.AnalysisStandard;
 import lu.itrust.business.ts.model.standard.AssetStandard;
@@ -176,21 +175,20 @@ public class RRFExportImport {
 
 	private void loadMeasureData(AssetMeasure measure, Row row, Integer index, Map<Integer, String> columnMapper,
 			DataFormatter formatter) {
-		Map<String, MeasureAssetValue> assetValues = measure.getMeasureAssetValues().stream()
+		Map<String, MeasureAssetValue> measureAssetValues = measure.getMeasureAssetValues().stream()
 				.collect(Collectors.toMap(assetValue -> assetValue.getAsset().getName(), Function.identity()));
 		MeasureProperties properties = measure.getMeasurePropertyList();
 		for (int i = 0; i < row.getC().size(); i++) {
 			if (i == index)
 				continue;
-			Cell cell = row.getC().get(i);
 			String nameField = columnMapper.get(i);
-			if (nameField == null)
-				continue;
-			double value = getDouble(cell, formatter);
-			if (assetValues.containsKey(nameField))
-				assetValues.get(nameField).setValue((int) value);
-			else
-				updateMeasureProperties(properties, nameField, value);
+			if (nameField != null) {
+				double value = getDouble(row, i, formatter);
+				if (measureAssetValues.containsKey(nameField))
+					measureAssetValues.get(nameField).setValue((int) value);
+				else
+					updateMeasureProperties(properties, nameField, value);
+			}
 		}
 		measure.setMeasurePropertyList(properties);
 	}
@@ -203,15 +201,14 @@ public class RRFExportImport {
 		for (int i = 0; i < row.getC().size(); i++) {
 			if (i == index)
 				continue;
-			Cell cell = row.getC().get(i);
 			String nameField = columnMapper.get(i);
-			if (nameField == null)
-				continue;
-			double value = getDouble(cell, formatter);
-			if (assetValues.containsKey(nameField))
-				assetValues.get(nameField).setValue((int) value);
-			else
-				updateMeasureProperties(properties, nameField, value);
+			if (nameField != null) {
+				double value = getDouble(row, i, formatter);
+				if (assetValues.containsKey(nameField))
+					assetValues.get(nameField).setValue((int) value);
+				else
+					updateMeasureProperties(properties, nameField, value);
+			}
 		}
 		measure.setMeasurePropertyList(properties);
 	}
@@ -221,35 +218,34 @@ public class RRFExportImport {
 			List<AssetTypeValue> toDeletedsTypeValues, DataFormatter formatter) {
 
 		for (int i = 0; i < row.getC().size(); i++) {
-			if (i == nameIndex)
-				continue;
-			String nameField = columnMapper.get(i);
-			if (nameField == null)
+			final String nameField = columnMapper.get(i);
+			if (i == nameIndex || nameField == null)
 				continue;
 			if (nameField.equalsIgnoreCase(RAW_ASSETS)) {
-				if (!scenario.isAssetLinked())
-					continue;
-				final List<String> assetNames = Arrays
-						.stream(getString(row.getC().get(i), formatter).trim().toLowerCase().split(";"))
-						.map(String::trim).distinct().collect(Collectors.toList());
-				scenario.getLinkedAssets().removeIf(e -> !assetNames.contains(e.getName().toLowerCase()));
-				assetNames.stream().map(assetMappings::get).filter(Objects::nonNull).forEach(scenario::addApplicable);
+				if (scenario.isAssetLinked()) {
+					final List<String> assetNames = Arrays
+							.stream(getString(row, i, formatter, "").trim().toLowerCase().split(";"))
+							.map(String::trim).distinct().collect(Collectors.toList());
+					scenario.getLinkedAssets().removeIf(e -> !assetNames.contains(e.getName().toLowerCase()));
+					assetNames.stream().map(assetMappings::get).filter(Objects::nonNull)
+							.forEach(scenario::addApplicable);
+				}
 			} else if (nameField.equalsIgnoreCase(RAW_ASSET_TYPES)) {
-				if (scenario.isAssetLinked())
-					continue;
+				if (!scenario.isAssetLinked()) {
 
-				final List<String> assetTypeNames = Arrays
-						.stream(getString(row.getC().get(i), formatter).trim().toLowerCase().split(";"))
-						.map(String::trim).distinct().collect(Collectors.toList());
+					final List<String> assetTypeNames = Arrays
+							.stream(getString(row, i, formatter, "").trim().toLowerCase().split(";"))
+							.map(String::trim).distinct().collect(Collectors.toList());
 
-				scenario.getAssetTypeValues()
-						.removeIf(e -> !assetTypeNames.contains(e.getAssetType().getName().toLowerCase())
-								&& toDeletedsTypeValues.add(e));
-				assetTypeNames.stream().map(assetTypeMappings::get).filter(Objects::nonNull)
-						.forEach(scenario::addApplicable);
+					scenario.getAssetTypeValues()
+							.removeIf(e -> !assetTypeNames.contains(e.getAssetType().getName().toLowerCase())
+									&& toDeletedsTypeValues.add(e));
+					assetTypeNames.stream().map(assetTypeMappings::get).filter(Objects::nonNull)
+							.forEach(scenario::addApplicable);
+				}
 
 			} else {
-				double value = getDouble(row.getC().get(i), formatter);
+				double value = getDouble(row, i, formatter);
 				switch (nameField) {
 					case RAW_EXTERNAL_THREAT:
 						scenario.setExternalThreat((int) value);
@@ -312,19 +308,18 @@ public class RRFExportImport {
 				.collect(Collectors.toMap(e -> e.getName().toLowerCase(), Function.identity()));
 
 		for (Row row : sheet.getRow()) {
-			if (row.equals(header))
-				continue;
-			String key = getString(row.getC().get(nameIndex), formatter);
-			if (isEmpty(key))
-				continue;
-			Scenario scenario = scenarioMappings.get(key);
-			if (scenario == null) {
-				scenario = scenarioMappings.get(key.trim());
-				if (scenario == null)
+			if (!row.equals(header)) {
+
+				String key = getString(row, nameIndex, formatter);
+				if (isEmpty(key))
 					continue;
+				Scenario scenario = scenarioMappings.get(key);
+				if (scenario == null)
+					scenario = scenarioMappings.get(key.trim());
+				if (scenario != null)
+					loadScenarioData(scenario, row, nameIndex, columnMapper, assetMappings, assetTypeMappings,
+							toDeletedsTypeValues, formatter);
 			}
-			loadScenarioData(scenario, row, nameIndex, columnMapper, assetMappings, assetTypeMappings,
-					toDeletedsTypeValues, formatter);
 		}
 
 		toDeletedsTypeValues.stream().filter(e -> e.getId() > 0).forEach(e -> serviceAssetTypeValue.delete(e));
@@ -345,20 +340,19 @@ public class RRFExportImport {
 						AssetMeasure.class::cast));
 		for (int i = 0; i < sheet.getRow().size(); i++) {
 			Row row = sheet.getRow().get(i);
-			String value = getString(row.getC().get(index), formatter);
+			String value = getString(row, index, formatter);
 			if (isEmpty(value))
 				continue;
 			AssetMeasure measure = mappingMeasures.get(value);
-			if (measure == null)
-				continue;
-			loadMeasureData(measure, row, index, columnMapper, formatter);
+			if (measure != null)
+				loadMeasureData(measure, row, index, columnMapper, formatter);
 		}
 	}
 
 	private void loadStandard(NormalStandard analysisStandard, SheetData sheet, DataFormatter formatter) {
 		if (sheet.getRow().isEmpty())
 			throw new TrickException("error.import.raw.rrf.standard", "Standard cannot be loaded");
-		final Map<Integer, String> columnMapper = new LinkedHashMap<Integer, String>();
+		final Map<Integer, String> columnMapper = new LinkedHashMap<>();
 		final Row header = sheet.getRow().get(0);
 		final Integer index = mappingColumns(header, REFERENCE, columnMapper, formatter);
 		if (index == null)
@@ -366,16 +360,15 @@ public class RRFExportImport {
 					"Standard reference column cannot be found");
 		final Map<String, NormalMeasure> mappingMeasures = analysisStandard.getMeasures().stream()
 				.collect(Collectors.toMap(measure -> measure.getMeasureDescription().getReference(),
-						measure -> (NormalMeasure) measure));
+						NormalMeasure.class::cast));
 		for (int i = 0; i < sheet.getRow().size(); i++) {
 			final Row row = sheet.getRow().get(i);
-			final String value = getString(row.getC().get(index), formatter);
+			final String value = getString(row, index, formatter);
 			if (isEmpty(value))
 				continue;
 			final NormalMeasure measure = mappingMeasures.get(value);
-			if (measure == null)
-				continue;
-			loadMeasureData(measure, row, index, columnMapper, formatter);
+			if (measure != null)
+				loadMeasureData(measure, row, index, columnMapper, formatter);
 		}
 	}
 
@@ -385,12 +378,12 @@ public class RRFExportImport {
 			if (analysisStandard instanceof MaturityStandard)
 				continue;
 			final SheetData sheet = findSheet(workbookPart, analysisStandard.getStandard().getName());
-			if (sheet == null)
-				continue;
-			if (analysisStandard instanceof AssetStandard)
-				loadStandard((AssetStandard) analysisStandard, sheet, formatter);
-			else if (analysisStandard instanceof NormalStandard)
-				loadStandard((NormalStandard) analysisStandard, sheet, formatter);
+			if (sheet != null) {
+				if (analysisStandard instanceof AssetStandard)
+					loadStandard((AssetStandard) analysisStandard, sheet, formatter);
+				else if (analysisStandard instanceof NormalStandard)
+					loadStandard((NormalStandard) analysisStandard, sheet, formatter);
+			}
 		}
 	}
 
@@ -398,7 +391,7 @@ public class RRFExportImport {
 			DataFormatter formatter) {
 		Integer identifierIndex = null;
 		for (int i = 0; i < row.getC().size(); i++) {
-			String value = getString(row.getC().get(i), formatter);
+			String value = getString(row, i, formatter);
 			if (identifier.equalsIgnoreCase(value))
 				identifierIndex = i;
 			else
@@ -409,7 +402,7 @@ public class RRFExportImport {
 
 	private void updateMeasureProperties(MeasureProperties properties, String nameField, double value) {
 
-		if (MeasureProperties.isCategoryKey(nameField))
+		if (SecurityCriteria.isCategoryKey(nameField))
 			properties.setCategoryValue(nameField, (int) value);
 		else {
 			switch (nameField) {
@@ -458,9 +451,9 @@ public class RRFExportImport {
 		final WorksheetPart worksheetPart = createWorkSheetPart(mlPackage, analysisStandard.getStandard().getName());
 		final SheetData sheetData = worksheetPart.getContents().getSheetData();
 		final List<AssetMeasure> measures = (List<AssetMeasure>) analysisStandard.getExendedMeasures();
-		final List<Asset> assets = measures.stream().map(measure -> measure.getMeasureAssetValues())
-				.flatMap(assetValues -> assetValues.stream())
-				.map(assetValue -> assetValue.getAsset()).distinct()
+		final List<Asset> assets = measures.stream().map(AssetMeasure::getMeasureAssetValues)
+				.flatMap(Collection::stream)
+				.map(MeasureAssetValue::getAsset).distinct()
 				.sorted((a1, a2) -> NaturalOrderComparator.compareTo(a1.getName(), a2.getName()))
 				.collect(Collectors.toList());
 		final Map<String, Integer> mappedValue = new LinkedHashMap<>();
@@ -470,7 +463,7 @@ public class RRFExportImport {
 		int colIndex = generateMeasureHeader(row, categories, totalCol);
 		measures.sort(new MeasureComparator());
 		for (Asset asset : assets)
-			setValue(row.getC().get(++colIndex), asset.getName());
+			setValue(row, ++colIndex, asset.getName());
 		measures.stream().forEach(
 				measure -> measure.getMeasureAssetValues().forEach(assetValue -> mappedValue
 						.put(measure.getId() + "_" + assetValue.getAsset().getId(), assetValue.getValue())));
@@ -479,7 +472,7 @@ public class RRFExportImport {
 			colIndex = writingMeasureData(row, totalCol, categories,
 					measure.getMeasureDescription().getReference(), measure.getMeasurePropertyList());
 			for (Asset asset : assets)
-				setValue(row.getC().get(++colIndex),
+				setValue(row, ++colIndex,
 						mappedValue.getOrDefault(measure.getId() + "_" + asset.getId(), 0));
 		}
 	}
@@ -513,7 +506,7 @@ public class RRFExportImport {
 		Row row = createRow(sheetData);
 		int colIndex = generateMeasureHeader(row, categories, totalCol);
 		for (AssetType assetType : assetTypes)
-			setValue(row.getC().get(++colIndex), assetType.getName());
+			setValue(row, ++colIndex, assetType.getName());
 		measures.stream().forEach(measure -> measure.getAssetTypeValues()
 				.forEach(assetypeValue -> mappedValue.put(
 						measure.getId() + "_" + assetypeValue.getAssetType().getName(), assetypeValue.getValue())));
@@ -522,7 +515,7 @@ public class RRFExportImport {
 			colIndex = writingMeasureData(row, totalCol, categories,
 					measure.getMeasureDescription().getReference(), measure.getMeasurePropertyList());
 			for (AssetType assetType : assetTypes)
-				setValue(row.getC().get(++colIndex),
+				setValue(row, ++colIndex,
 						mappedValue.getOrDefault(measure.getId() + "_" + assetType.getName(), 0));
 
 		}
@@ -543,18 +536,18 @@ public class RRFExportImport {
 		for (int i = 0; i < SCENARIO_RRF_DEFAULT_FIELD_COUNT; i++)
 			row.getC().add(factory.createCell());
 		scenarioSheet.getRow().add(row);
-		setValue(row.getC().get(colIndex), RAW_SCENARIO);
-		setValue(row.getC().get(++colIndex), RAW_PREVENTIVE);
-		setValue(row.getC().get(++colIndex), RAW_DETECTIVE);
-		setValue(row.getC().get(++colIndex), RAW_LIMITATIVE);
-		setValue(row.getC().get(++colIndex), RAW_CORRECTIVE);
-		setValue(row.getC().get(++colIndex), RAW_INTENTIONAL);
-		setValue(row.getC().get(++colIndex), RAW_ACCIDENTAL);
-		setValue(row.getC().get(++colIndex), RAW_ENVIRONMENTAL);
-		setValue(row.getC().get(++colIndex), RAW_INTERNAL_THREAT);
-		setValue(row.getC().get(++colIndex), RAW_EXTERNAL_THREAT);
-		setValue(row.getC().get(++colIndex), RAW_ASSETS);
-		setValue(row.getC().get(++colIndex), RAW_ASSET_TYPES);
+		setValue(row, colIndex, RAW_SCENARIO);
+		setValue(row, ++colIndex, RAW_PREVENTIVE);
+		setValue(row, ++colIndex, RAW_DETECTIVE);
+		setValue(row, ++colIndex, RAW_LIMITATIVE);
+		setValue(row, ++colIndex, RAW_CORRECTIVE);
+		setValue(row, ++colIndex, RAW_INTENTIONAL);
+		setValue(row, ++colIndex, RAW_ACCIDENTAL);
+		setValue(row, ++colIndex, RAW_ENVIRONMENTAL);
+		setValue(row, ++colIndex, RAW_INTERNAL_THREAT);
+		setValue(row, ++colIndex, RAW_EXTERNAL_THREAT);
+		setValue(row, ++colIndex, RAW_ASSETS);
+		setValue(row, ++colIndex, RAW_ASSET_TYPES);
 
 		for (Scenario scenario : scenarios) {
 			row = factory.createRow();
@@ -562,24 +555,24 @@ public class RRFExportImport {
 				row.getC().add(factory.createCell());
 			colIndex = 0;
 			scenarioSheet.getRow().add(row);
-			setValue(row.getC().get(colIndex), scenario.getName());
-			setValue(row.getC().get(++colIndex), scenario.getPreventive());
-			setValue(row.getC().get(++colIndex), scenario.getDetective());
-			setValue(row.getC().get(++colIndex), scenario.getLimitative());
-			setValue(row.getC().get(++colIndex), scenario.getCorrective());
-			setValue(row.getC().get(++colIndex), scenario.getIntentional());
-			setValue(row.getC().get(++colIndex), scenario.getAccidental());
-			setValue(row.getC().get(++colIndex), scenario.getEnvironmental());
-			setValue(row.getC().get(++colIndex), scenario.getInternalThreat());
-			setValue(row.getC().get(++colIndex), scenario.getExternalThreat());
+			setValue(row, colIndex, scenario.getName());
+			setValue(row, ++colIndex, scenario.getPreventive());
+			setValue(row, ++colIndex, scenario.getDetective());
+			setValue(row, ++colIndex, scenario.getLimitative());
+			setValue(row, ++colIndex, scenario.getCorrective());
+			setValue(row, ++colIndex, scenario.getIntentional());
+			setValue(row, ++colIndex, scenario.getAccidental());
+			setValue(row, ++colIndex, scenario.getEnvironmental());
+			setValue(row, ++colIndex, scenario.getInternalThreat());
+			setValue(row, ++colIndex, scenario.getExternalThreat());
 			if (scenario.isAssetLinked()) {
-				setValue(row.getC().get(++colIndex),
+				setValue(row, ++colIndex,
 						scenario.getLinkedAssets().stream()
 								.map(Asset::getName).distinct().sorted().collect(Collectors.joining(";")));
-				setValue(row.getC().get(++colIndex), "");
+				setValue(row, ++colIndex, "");
 			} else {
-				setValue(row.getC().get(++colIndex), "");
-				setValue(row.getC().get(++colIndex),
+				setValue(row, ++colIndex, "");
+				setValue(row, ++colIndex,
 						scenario.getAssetTypeValues().stream().filter(a -> a.getValue() > 0)
 								.map(a -> a.getAssetType().getName()).distinct().sorted()
 								.collect(Collectors.joining(";")));
@@ -594,20 +587,20 @@ public class RRFExportImport {
 		for (int i = 0; i < totalCol; i++)
 			row.getC().add(Context.getsmlObjectFactory().createCell());
 		int colIndex = 0;
-		setValue(row.getC().get(colIndex), reference);
-		setValue(row.getC().get(++colIndex), properties.getFMeasure());
-		setValue(row.getC().get(++colIndex), properties.getFSectoral());
-		setValue(row.getC().get(++colIndex), properties.getPreventive());
-		setValue(row.getC().get(++colIndex), properties.getDetective());
-		setValue(row.getC().get(++colIndex), properties.getLimitative());
-		setValue(row.getC().get(++colIndex), properties.getCorrective());
-		setValue(row.getC().get(++colIndex), properties.getIntentional());
-		setValue(row.getC().get(++colIndex), properties.getAccidental());
-		setValue(row.getC().get(++colIndex), properties.getEnvironmental());
-		setValue(row.getC().get(++colIndex), properties.getInternalThreat());
-		setValue(row.getC().get(++colIndex), properties.getExternalThreat());
+		setValue(row, colIndex, reference);
+		setValue(row, ++colIndex, properties.getFMeasure());
+		setValue(row, ++colIndex, properties.getFSectoral());
+		setValue(row, ++colIndex, properties.getPreventive());
+		setValue(row, ++colIndex, properties.getDetective());
+		setValue(row, ++colIndex, properties.getLimitative());
+		setValue(row, ++colIndex, properties.getCorrective());
+		setValue(row, ++colIndex, properties.getIntentional());
+		setValue(row, ++colIndex, properties.getAccidental());
+		setValue(row, ++colIndex, properties.getEnvironmental());
+		setValue(row, ++colIndex, properties.getInternalThreat());
+		setValue(row, ++colIndex, properties.getExternalThreat());
 		for (String category : categories)
-			setValue(row.getC().get(++colIndex), properties.getCategoryValue(category));
+			setValue(row, ++colIndex, properties.getCategoryValue(category));
 		return colIndex;
 	}
 
