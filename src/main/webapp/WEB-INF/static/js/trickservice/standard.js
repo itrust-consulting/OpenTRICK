@@ -1,3 +1,10 @@
+
+/**
+ * Saves the standard form data.
+ * 
+ * @param {HTMLFormElement} form - The form element containing the standard data.
+ * @returns {boolean} - Returns false to prevent the default form submission.
+ */
 function saveStandard(form) {
 	var $progress = $("#loading-indicator").show();
 	$("#addStandardModel .label-danger").remove();
@@ -26,7 +33,7 @@ function saveStandard(form) {
 						$(errorElement).appendTo($("#standard_form #standard_description").parent());
 						break;
 					default:
-						showDialog("#alert-dialog",response[error]);
+						showDialog("#alert-dialog", response[error]);
 				}
 				hasError = true;
 			}
@@ -38,10 +45,17 @@ function saveStandard(form) {
 
 		},
 		error: unknowError
-	}).complete(()=> $progress.hide());
+	}).complete(() => $progress.hide());
 	return false;
 }
 
+/**
+ * Deletes a standard.
+ * 
+ * @param {string} idStandard - The ID of the standard to delete.
+ * @param {string} name - The name of the standard to delete.
+ * @returns {boolean} - Returns false to prevent the default link behavior.
+ */
 function deleteStandard(idStandard, name) {
 	if (idStandard == null || idStandard == undefined) {
 		var selectedScenario = findSelectItemIdBySection(("section_kb_standard"));
@@ -75,6 +89,11 @@ function deleteStandard(idStandard, name) {
 	return false;
 }
 
+/**
+ * Uploads a file for importing a standard.
+ * 
+ * @returns {boolean} - Returns false to prevent the default link behavior.
+ */
 function uploadImportStandardFile() {
 	var $progress = $("#loading-indicator").show();
 	$.ajax({
@@ -102,6 +121,11 @@ function uploadImportStandardFile() {
 	return false;
 }
 
+/**
+ * Imports a new standard.
+ * 
+ * @returns {boolean} - Returns false to prevent the default form submission.
+ */
 function importNewStandard() {
 	$("#updateStandardNotification").empty();
 	var $uploadFile = $("#upload-file-info"), $progress = $("#loading-indicator");
@@ -136,6 +160,11 @@ function importNewStandard() {
 	return false;
 }
 
+/**
+ * Creates a new standard.
+ * 
+ * @returns {boolean} - Returns false to prevent the default link behavior.
+ */
 function newStandard() {
 	$("#addStandardModel .label-danger").remove();
 	$("#addStandardModel #addstandardbutton").prop("disabled", false);
@@ -153,6 +182,12 @@ function newStandard() {
 	return false;
 }
 
+/**
+ * Edits a single standard.
+ * 
+ * @param {string} idStandard - The ID of the standard to edit.
+ * @returns {boolean} - Returns false to prevent the default link behavior.
+ */
 function editSingleStandard(idStandard) {
 	if (idStandard == null || idStandard == undefined) {
 		var selectedScenario = findSelectItemIdBySection("section_kb_standard");
@@ -170,7 +205,7 @@ function editSingleStandard(idStandard) {
 	$("#standard_description").prop("value", $(rows[3]).text());
 	var standardtype = $($(rows[4])[0]).attr("data-trick-type"), computable = $(rows[5]).attr("data-trick-computable") == 'Yes';
 	$("#addStandardModel input[name='type'][value='" + standardtype + "']").parent().button("toggle");
-	$("#standard_computable input[value='"+computable+"']").parent().button("toggle");
+	$("#standard_computable input[value='" + computable + "']").parent().button("toggle");
 	$("#addStandardModel-title").text(MessageResolver("title.knowledgebase.norm.update", "Update a Standard"));
 	$("#addstandardbutton").text(MessageResolver("label.action.save", "Save"));
 	$("#standard_form").prop("action", "/Save");
@@ -178,11 +213,22 @@ function editSingleStandard(idStandard) {
 	return false;
 }
 
+/**
+ * Retrieves the import standard template.
+ * 
+ * @returns {boolean} - Returns false to prevent the default link behavior.
+ */
 function getImportStandardTemplate() {
 	window.location = context + '/KnowledgeBase/Standard/Template';
 	return false;
 }
 
+/**
+ * Exports a single standard.
+ * 
+ * @param {string} idStandard - The ID of the standard to export.
+ * @returns {boolean} - Returns false to prevent the default link behavior.
+ */
 function exportSingleStandard(idStandard) {
 	if (idStandard == null || idStandard == undefined) {
 		var selectedScenario = findSelectItemIdBySection("section_kb_standard");
@@ -192,5 +238,4 @@ function exportSingleStandard(idStandard) {
 	}
 	window.location = context + '/KnowledgeBase/Standard/Export/' + idStandard
 	return false;
-
 }

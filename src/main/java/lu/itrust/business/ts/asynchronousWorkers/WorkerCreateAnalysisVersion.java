@@ -23,9 +23,30 @@ import lu.itrust.business.ts.model.general.LogLevel;
 import lu.itrust.business.ts.model.general.LogType;
 import lu.itrust.business.ts.model.history.History;
 
+
 /**
- * @author eomar
- *
+ * This class represents a worker responsible for creating a new version of an analysis.
+ * It extends the WorkerImpl class and implements the Runnable interface.
+ * 
+ * The worker is responsible for duplicating an existing analysis, updating its settings,
+ * and saving it as a new version. It performs these tasks asynchronously in a separate thread.
+ * 
+ * The worker can be started by calling the start() method and can be canceled by calling the cancel() method.
+ * 
+ * The worker requires the following parameters to be initialized:
+ * - idAnalysis: The ID of the analysis to be duplicated.
+ * - history: The history object associated with the analysis.
+ * - userName: The username of the user performing the operation.
+ * 
+ * The worker uses a DAOIDS object to interact with the database and a History object to track the analysis history.
+ * 
+ * The worker overrides the isMatch() method to check if the worker matches a given expression and values.
+ * 
+ * The worker overrides the run() method to perform the analysis duplication, update, and saving operations.
+ * 
+ * The worker also provides methods to rollback a transaction and start the worker.
+ * 
+ * Note: This class assumes the existence of other classes and objects such as DAOIDS, History, Analysis, Duplicator, etc.
  */
 public class WorkerCreateAnalysisVersion extends WorkerImpl{
 
@@ -198,6 +219,13 @@ public class WorkerCreateAnalysisVersion extends WorkerImpl{
 		}
 	}
 
+	/**
+	 * Rolls back the current transaction in the provided session.
+	 * If the session is open and the transaction is rollbackable, the transaction will be rolled back.
+	 * Any exception that occurs during the rollback process will be logged using TrickLogManager.
+	 *
+	 * @param session the session in which the transaction should be rolled back
+	 */
 	protected void rollback(Session session) {
 		try {
 			if (session != null && session.isOpen() && session.getTransaction().getStatus().canRollback())

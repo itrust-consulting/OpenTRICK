@@ -1,3 +1,9 @@
+/**
+ * Converts a form to JSON object.
+ *
+ * @param {HTMLFormElement} form - The form element to convert.
+ * @returns {Object} - The JSON object representing the form data.
+ */
 function formToJson(form) {
 	return $(form)
 		.serializeArray()
@@ -7,6 +13,12 @@ function formToJson(form) {
 		}, {});
 }
 
+/**
+ * Handles the registration form submission.
+ * 
+ * @param {Event} e - The event object.
+ * @returns {boolean} - Returns false to prevent the default form submission behavior.
+ */
 function register(e) {
 	e.preventDefault();
 	let $form = $(e.target);
@@ -98,10 +110,8 @@ function register(e) {
 
 
 (function ($) {
-
 	let token = $("meta[name='_csrf']").attr("content");
 	let header = $("meta[name='_csrf_header']").attr("content");
 	$(document).ajaxSend(function (_e, xhr) { xhr.setRequestHeader(header, token); });
 	$("#registerform").on("submit", register);
-
 })(jQuery);

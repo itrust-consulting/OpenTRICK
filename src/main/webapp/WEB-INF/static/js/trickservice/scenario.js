@@ -1,3 +1,11 @@
+
+/**
+ * Edits a scenario based on the provided parameters.
+ * 
+ * @param {number} rowTrickId - The ID of the row trick.
+ * @param {boolean} isAdding - Indicates whether the scenario is being added or edited.
+ * @returns {boolean} - Returns false.
+ */
 function editScenario(rowTrickId, isAdding) {
 	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
 		if (!isAdding && (rowTrickId == null || rowTrickId == undefined)) {
@@ -40,7 +48,7 @@ function editScenario(rowTrickId, isAdding) {
 										"change",
 										function (event) {
 											$modal.find("#scenario_" + event.target.name + "_value").val(event.target.value);
-											event.target.title=event.target.value;
+											event.target.title = event.target.value;
 											switch (event.target.name) {
 												case "preventive":
 												case "detective":
@@ -73,6 +81,12 @@ function editScenario(rowTrickId, isAdding) {
 	return false;
 }
 
+/**
+ * Saves a scenario based on the provided form data.
+ * 
+ * @param {string} form - The ID of the form containing the scenario data.
+ * @returns {boolean} - Returns false.
+ */
 function saveScenario(form) {
 	try {
 		let $progress = $("#loading-indicator").show(), $scenarioModal = $("#addScenarioModal"), $form = $("#" + form), scenario = serializeScenario($form);
@@ -143,6 +157,12 @@ function saveScenario(form) {
 	return false;
 }
 
+/**
+ * Deletes a scenario with the specified ID.
+ * 
+ * @param {number} scenarioId - The ID of the scenario to delete.
+ * @returns {boolean} - Returns false.
+ */
 function deleteScenario(scenarioId) {
 	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
 		if (scenarioId == null || scenarioId == undefined) {
@@ -201,9 +221,14 @@ function deleteScenario(scenarioId) {
 		}
 	}
 	return false;
-
 }
 
+/**
+ * Serializes the scenario data from the provided form.
+ * 
+ * @param {jQuery} $form - The jQuery object representing the form.
+ * @returns {Object} - The serialized scenario data.
+ */
 function serializeScenario($form) {
 	let data = $form.serializeJSON();
 
@@ -227,12 +252,21 @@ function serializeScenario($form) {
 	return data;
 }
 
+/**
+ * Clears the form data for the scenario.
+ */
 function clearScenarioFormData() {
-	let lang = findAnalysisLocale();
 	$("#addScenarioModal #addScenarioModel-title").html(MessageResolver("label.scenario.add", "Add new scenario"));
 	$("#addScenarioModal #scenario_id").attr("value", -1);
 }
 
+/**
+ * Selects a scenario with the specified ID and value.
+ * 
+ * @param {number} scenarioId - The ID of the scenario to select.
+ * @param {string} value - The value to set for the selected scenario.
+ * @returns {boolean} - Returns false.
+ */
 function selectScenario(scenarioId, value) {
 	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
 		if (scenarioId == undefined) {

@@ -1,10 +1,15 @@
-let el = null, table = null, taskController = function () {
-};
-
 let language = { // translated asynchronously below
 	"label.dynamicparameter.evolution": "from {0} to {1}"
 };
 
+/**
+ * This file contains the JavaScript code for the analysis functionality of the TrickService application.
+ * It includes functions for loading charts, managing impact scale, managing scale levels, and computing risk profile measure.
+ * The code also includes event handlers for tab changes, window unload, and table header fix.
+ * The file uses jQuery for DOM manipulation and AJAX requests.
+ *
+ * @requires jQuery
+ */
 $(document).ready(function () {
 	for (let key in language)
 		language[key] = MessageResolver(key, language[key]);
@@ -94,6 +99,11 @@ $.fn.loadOrUpdateChart = function (parameters) {
 	return this;
 };
 
+/**
+ * Computes the risk profile measure for the analysis.
+ * 
+ * @returns {boolean} Returns false.
+ */
 function computeRiskProfileMeasure() {
 	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
 		let $progress = $("#loading-indicator").show();
@@ -117,6 +127,10 @@ function computeRiskProfileMeasure() {
 	return false;
 }
 
+/**
+ * Finds the analysis ID.
+ * @returns {number} The analysis ID.
+ */
 function findAnalysisId() {
 	let id = application['selected-analysis-id'];
 	if (id === undefined) {
@@ -128,6 +142,11 @@ function findAnalysisId() {
 	return id;
 }
 
+/**
+ * Manages the impact scale for analysis.
+ * 
+ * @returns {boolean} Returns false.
+ */
 function manageImpactScale() {
 	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
 		let $progress = $("#loading-indicator").show();
@@ -194,6 +213,17 @@ function manageImpactScale() {
 	return false;
 }
 
+/**
+ * Manages the scale level for analysis.
+ * This function checks if the user has the MODIFY right for the analysis,
+ * then makes an AJAX request to retrieve the scale level management view.
+ * The view is then appended to the #widgets element and displayed as a modal.
+ * The function also handles drag and drop functionality for the scale levels,
+ * as well as adding and removing scale levels.
+ * Finally, it saves the changes made to the scale levels via another AJAX request.
+ * 
+ * @returns {boolean} Returns false.
+ */
 function manageScaleLevel() {
 	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
 		let $progress = $("#loading-indicator").show();
@@ -308,6 +338,12 @@ function manageScaleLevel() {
 	return false;
 }
 
+/**
+ * Updates the scroll position of an element and ensures that the focus is maintained.
+ *
+ * @param {HTMLElement} element - The element to update the scroll position for.
+ * @returns {boolean} - Returns false.
+ */
 function updateScroll(element) {
 	let currentActive = document.activeElement;
 	if (element != currentActive) {
@@ -317,6 +353,10 @@ function updateScroll(element) {
 	return false;
 }
 
+/**
+ * Finds the analysis locale.
+ * @returns {string} The analysis locale.
+ */
 function findAnalysisLocale() {
 	let locale = application['selected-analysis-locale'];
 	if (locale === undefined) {
@@ -328,6 +368,12 @@ function findAnalysisLocale() {
 	return locale;
 }
 
+/**
+ * Reloads the asset or scenario section based on its visibility.
+ * If the asset section is visible, it reloads the "section_asset".
+ * If the scenario section is visible, it reloads the "section_scenario".
+ * If neither section is visible, it reloads both sections.
+ */
 function reloadAssetScenario() {
 	if ($("#section_asset:visible").length)
 		reloadSection("section_asset")
@@ -337,6 +383,12 @@ function reloadAssetScenario() {
 		reloadSection(["section_asset", "section_scenario"], undefined, true);
 }
 
+/**
+ * Reloads the asset scenario chart based on the analysis type.
+ * If the analysis type is qualitative, it reloads the risk chart.
+ * If the analysis type is quantitative, it charts the ALE (Annualized Loss Expectancy).
+ * @returns {boolean} Returns false.
+ */
 function reloadAssetScenarioChart() {
 	if (application.analysisType.isQualitative())
 		reloadRiskChart();
@@ -345,10 +397,21 @@ function reloadAssetScenarioChart() {
 	return false;
 }
 
+/**
+ * Checks if the current user has the permission to modify the analysis.
+ * @returns {boolean} Returns true if the user has the permission to modify the analysis, otherwise false.
+ */
 function isEditable() {
 	return userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY);
 }
 
+/**
+ * Updates the settings based on the provided element and entry key.
+ * 
+ * @param {HTMLElement} element - The element that triggered the update.
+ * @param {string} entryKey - The key associated with the settings entry.
+ * @returns {boolean} - Returns true if the update was successful, otherwise false.
+ */
 function updateSettings(element, entryKey) {
 	$.ajax({
 		url: context + "/Settings/Update",
@@ -383,6 +446,11 @@ function updateSettings(element, entryKey) {
 	return false;
 }
 
+/**
+ * Updates the measures cost for the analysis.
+ * 
+ * @returns {boolean} Returns false.
+ */
 function updateMeasuresCost() {
 	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
 		$.ajax({
@@ -406,6 +474,11 @@ function updateMeasuresCost() {
 	return false;
 }
 
+/**
+ * Manages the analysis settings.
+ * 
+ * @returns {boolean} Returns false.
+ */
 function manageAnalysisSettings() {
 	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
 		let $progress = $("#loading-indicator").show();
@@ -460,7 +533,14 @@ function manageAnalysisSettings() {
 	return false;
 }
 
-// reload measures
+
+/**
+ * Reloads a measure row in the analysis table.
+ *
+ * @param {string} idMeasure - The ID of the measure.
+ * @param {string} standard - The standard of the measure.
+ * @returns {boolean} - Returns false.
+ */
 function reloadMeasureRow(idMeasure, standard) {
 	let $currentRow = $("#section_standard_" + standard + " tr[data-trick-id='" + idMeasure + "']");
 	if (!$currentRow.find("input[type!='checkbox'],select,textarea").length) {
@@ -510,23 +590,46 @@ function reloadMeasureRow(idMeasure, standard) {
 	return false;
 }
 
+/**
+ * Updates the SOA threshold and reloads the corresponding sections.
+ * @returns {void}
+ */
 function soaThresholdUpdate() {
 	return reloadSection(["section_soa", "section_phase"]);
 }
 
 
+/**
+ * Reloads the measure row and updates the compliance status based on the given standard and measure ID.
+ *
+ * @param {string} standard - The standard to reload the measure row and update compliance for.
+ * @param {string} idMeasure - The ID of the measure to reload.
+ * @returns {boolean} - Returns the result of trying to reload the SOA (Service-Oriented Architecture).
+ */
 function reloadMeasureAndCompliance(standard, idMeasure) {
 	reloadMeasureRow(idMeasure, standard);
 	compliance(standard);
 	return tryToReloadSOA(standard, idMeasure);
 }
 
+/**
+ * Tries to reload the SOA (Service-Oriented Architecture) section based on the provided standard and measure ID.
+ * 
+ * @param {string} standard - The standard to reload the SOA section for.
+ * @param {string} idMeasure - The ID of the measure to reload the SOA section for.
+ * @returns {boolean} - Returns false.
+ */
 function tryToReloadSOA(standard, idMeasure) {
 	if (document.getElementById("table_SOA_" + standard))
 		reloadSection("section_soa");
 	return false;
 }
 
+/**
+ * Reloads the risk acceptance table with new data.
+ * 
+ * @param {jQuery} $tabSection - The jQuery object representing the tab section containing the table.
+ */
 function reloadRiskAcceptanceTable($tabSection) {
 	let $tbody = $("table>tbody", $tabSection), $trs = $("table#table_parameter_risk_acceptance tbody>tr[data-trick-id]").clone();
 	if ($trs.length) {
@@ -542,6 +645,11 @@ function reloadRiskAcceptanceTable($tabSection) {
 	$tabSection.attr("data-parameters", false);
 }
 
+/**
+ * Reloads the risk heat map section.
+ * @param {boolean} tableChange - Indicates whether the table has changed.
+ * @returns {boolean} - Returns false.
+ */
 function reloadRiskHeatMapSection(tableChange) {
 	let $tabSection = $("#tab-chart-heat-map");
 	if ($tabSection.is(":visible")) {
@@ -556,6 +664,12 @@ function reloadRiskHeatMapSection(tableChange) {
 	return false;
 }
 
+/**
+ * Reloads the risk asset section.
+ * 
+ * @param {boolean} tableChange - Indicates whether the table has changed.
+ * @returns {boolean} - Returns false.
+ */
 function reloadRiskAssetSection(tableChange) {
 	let $tabSection = $("#tab-chart-risk-asset");
 	if ($tabSection.is(":visible")) {
@@ -569,6 +683,12 @@ function reloadRiskAssetSection(tableChange) {
 	return false;
 }
 
+/**
+ * Reloads the risk asset type section.
+ * 
+ * @param {boolean} tableChange - Indicates whether the table has changed.
+ * @returns {boolean} - Returns false.
+ */
 function reloadRiskAssetTypeSection(tableChange) {
 	let $tabSection = $("#tab-chart-risk-asset-type");
 	if ($tabSection.is(":visible")) {
@@ -582,6 +702,12 @@ function reloadRiskAssetTypeSection(tableChange) {
 	return false;
 }
 
+/**
+ * Reloads the risk scenario section.
+ * 
+ * @param {boolean} tableChange - Indicates whether the table has changed.
+ * @returns {boolean} - Returns false.
+ */
 function reloadRiskScenarioSection(tableChange) {
 	let $tabSection = $("#tab-chart-risk-scenario");
 	if ($tabSection.is(":visible")) {
@@ -595,6 +721,12 @@ function reloadRiskScenarioSection(tableChange) {
 	return false;
 }
 
+/**
+ * Reloads the risk scenario type section.
+ * 
+ * @param {boolean} tableChange - Indicates whether the table has changed.
+ * @returns {boolean} - Returns false.
+ */
 function reloadRiskScenarioTypeSection(tableChange) {
 	let $tabSection = $("#tab-chart-risk-scenario-type");
 	if ($tabSection.is(":visible")) {
@@ -609,6 +741,12 @@ function reloadRiskScenarioTypeSection(tableChange) {
 }
 
 
+/**
+ * Reloads the risk chart sections based on the table change.
+ * 
+ * @param {boolean} tableChange - Indicates whether the table has changed.
+ * @returns {boolean} - Returns false.
+ */
 function reloadRiskChart(tableChange) {
 	reloadRiskHeatMapSection(tableChange);
 	reloadRiskAssetSection(tableChange);
@@ -618,6 +756,10 @@ function reloadRiskChart(tableChange) {
 	return false;
 }
 
+/**
+ * Loads the risk heat map by making an AJAX request and rendering the chart.
+ * @returns {boolean} Returns false to prevent the default form submission behavior.
+ */
 function loadRiskHeatMap() {
 	let $progress = $("#loading-indicator").show();
 	$.ajax({
@@ -642,6 +784,11 @@ function loadRiskHeatMap() {
 }
 
 
+/**
+ * Loads the Risk Evolution Heat Map chart.
+ * 
+ * @returns {boolean} Returns false.
+ */
 function loadRiskEvolutionHeatMap() {
 	let $progress = $("#loading-indicator").show();
 	$.ajax({
@@ -707,10 +854,23 @@ function loadRiskEvolutionHeatMap() {
 }
 
 
+/**
+ * Checks for collection update.
+ * Triggers the caller for the visible div with an id that starts with 'tab-standard-'.
+ */
 function checkForCollectionUpdate() {
 	triggerCaller($("div[id~='tab-standard-']:visible"));
 }
 
+/**
+ * Loads a risk chart from the specified URL and renders it in the specified container.
+ * 
+ * @param {string} url - The URL to fetch the risk chart data from.
+ * @param {string} name - The name of the chart object to store in the window object.
+ * @param {string} container - The selector for the container element to render the chart in.
+ * @param {string} canvas - The ID of the canvas element to render the chart on.
+ * @returns {boolean} - Returns false to prevent the default form submission behavior.
+ */
 function loadRiskChart(url, name, container, canvas) {
 	let $progress = $("#loading-indicator").show();
 	$.ajax({
@@ -758,6 +918,13 @@ function loadRiskChart(url, name, container, canvas) {
 	return false;
 }
 
+/**
+ * Updates the measure efficiency based on the given reference and force flag.
+ * 
+ * @param {any} reference - The reference value.
+ * @param {boolean} force - The force flag.
+ * @returns {boolean} - Returns false.
+ */
 function updateMeasureEffience(reference, force) {
 	if (!application.hasMaturity)
 		return;
@@ -815,6 +982,10 @@ function updateMeasureEffience(reference, force) {
 	return false;
 }
 
+/**
+ * Loads compliance charts based on the selected compliance types.
+ * @returns {boolean} Returns false.
+ */
 function compliances() {
 	let $section = $("#tab-chart-compliance");
 	if ($section.is(":visible")) {
@@ -826,6 +997,11 @@ function compliances() {
 	return false;
 }
 
+/**
+ * Loads compliance chart for a given standard.
+ * @param {string} standard - The standard to load compliance chart for.
+ * @returns {boolean} - Returns false.
+ */
 function compliance(standard) {
 	let $section = $("#tab-chart-compliance");
 	if ($section.is(":visible")) {
@@ -837,6 +1013,12 @@ function compliance(standard) {
 	return false;
 }
 
+/**
+ * Loads the compliance chart from the specified URL.
+ * 
+ * @param {string} url - The URL to fetch the chart data from.
+ * @returns {boolean} - Returns false.
+ */
 function loadComplianceChart(url) {
 	let $progress = $("#loading-indicator").show(), name = "compliancesChart", $container = $("#chart_compliance_body"), canvas = "chart_canvas_compliance_";
 	try {
@@ -880,6 +1062,12 @@ function loadComplianceChart(url) {
 }
 
 
+/**
+ * Retrieves and updates the evolution, profitability, and compliance chart based on the action plan type.
+ * 
+ * @param {string} actionPlanType - The type of action plan.
+ * @returns {boolean} - Returns false.
+ */
 function evolutionProfitabilityComplianceByActionPlanType(actionPlanType) {
 	let $section = $("#tab-chart-evolution");
 	if ($section.is(":visible")) {
@@ -923,17 +1111,30 @@ function evolutionProfitabilityComplianceByActionPlanType(actionPlanType) {
 	return false;
 }
 
+/**
+ * Generates summary charts.
+ * @returns {boolean} Returns false.
+ */
 function summaryCharts() {
 	loadChartBudget();
 	loadChartEvolution();
 	return false;
 }
 
+/**
+ * Loads the chart for evolution of profitability and compliance by action plan type.
+ * @returns {boolean} Returns false.
+ */
 function loadChartEvolution() {
 	application['actionPlanType'].map(actionType => evolutionProfitabilityComplianceByActionPlanType(actionType));
 	return false;
 }
 
+/**
+ * Loads the budget chart.
+ * 
+ * @returns {boolean} Returns false.
+ */
 function loadChartBudget() {
 	let $section = $("#tab-chart-budget");
 	if ($section.is(":visible")) {
@@ -975,6 +1176,12 @@ function loadChartBudget() {
 	return false;
 }
 
+/**
+ * Reloads the charts on the page.
+ * Calls various functions to reload different charts.
+ * 
+ * @returns {boolean} Returns false.
+ */
 function reloadCharts() {
 	compliances();
 	summaryCharts();
@@ -985,6 +1192,12 @@ function reloadCharts() {
 	return false;
 };
 
+/**
+ * Displays a chart in the specified element.
+ *
+ * @param {string} id - The ID of the element where the chart will be displayed.
+ * @param {Array|Object} response - The data or array of data for the chart(s).
+ */
 function displayChart(id, response) {
 	let $element = $(id);
 	if ($.isArray(response)) {
@@ -1007,6 +1220,12 @@ function displayChart(id, response) {
 }
 
 
+/**
+ * Deletes a dynamic parameter.
+ *
+ * @param {number} id - The ID of the dynamic parameter.
+ * @param {string} acronym - The acronym of the dynamic parameter.
+ */
 function deleteDynamicParameter(id, acronym) {
 	let $modal = showDialog("#confirm-dialog", MessageResolver("label.dynamic_parameter.question.delete", "Are you sure that you want to delete letiable (" + acronym + ")?", acronym));
 	$("button[name='yes']", $modal).unbind().one("click", function () {
@@ -1038,6 +1257,11 @@ function deleteDynamicParameter(id, acronym) {
 
 }
 
+/**
+ * Manages the risk acceptance form.
+ * 
+ * @returns {boolean} Returns false.
+ */
 function manageRiskAcceptance() {
 	let $progress = $("#loading-indicator").show();
 	$
@@ -1128,6 +1352,12 @@ function manageRiskAcceptance() {
 	return false;
 }
 
+/**
+ * Manages the ILR SOA scale.
+ * This function retrieves the ILR SOA scale form data from the server,
+ * handles user interactions with the form, and saves the form data.
+ * @returns {boolean} Returns false to prevent the default form submission behavior.
+ */
 function manageIlrSoaScale() {
 	let $progress = $("#loading-indicator").show();
 	$
@@ -1215,6 +1445,10 @@ function manageIlrSoaScale() {
 	return false;
 }
 
+/**
+ * Loads the chart asset data and displays it on the page.
+ * @returns {boolean} Returns false.
+ */
 function loadChartAsset() {
 	let $section = $("#tab-chart-asset");
 	if ($section.is(":visible")) {
@@ -1226,6 +1460,10 @@ function loadChartAsset() {
 	return false;
 }
 
+/**
+ * Loads the chart scenario.
+ * @returns {boolean} Returns false.
+ */
 function loadChartScenario() {
 	let $section = $("#tab-chart-scenario");
 	if ($section.is(":visible")) {
@@ -1237,6 +1475,10 @@ function loadChartScenario() {
 	return false;
 }
 
+/**
+ * Loads the dynamic parameter evolution chart.
+ * This function makes an AJAX request to retrieve the chart data and renders it on the page.
+ */
 function loadChartDynamicParameterEvolution() {
 	let $section = $("#tab-chart-parameter-evolution"), name = 'chart-parameter-evolution-map';
 	if ($section.is(":visible")) {
@@ -1277,6 +1519,10 @@ function loadChartDynamicParameterEvolution() {
 		$section.attr("data-update-required", "true");
 }
 
+/**
+ * Loads the dynamic chart for the ALE (Annualized Loss Expectancy) evolution by asset type.
+ * This function makes an AJAX request to retrieve the chart data and renders the chart on the page.
+ */
 function loadChartDynamicAleEvolutionByAssetType() {
 
 	let $section = $("#tab-chart-ale-evolution-by-asset-type"), name = 'chart-ale-evolution-by-asset-type-map';
@@ -1320,6 +1566,13 @@ function loadChartDynamicAleEvolutionByAssetType() {
 
 }
 
+/**
+ * Loads the dynamic ale evolution chart.
+ * 
+ * @function loadChartDynamicAleEvolution
+ * @memberof module:trickservice/analysis
+ * @returns {void}
+ */
 function loadChartDynamicAleEvolution() {
 	let $section = $("#tab-chart-ale-evolution"), name = 'chart-ale-evolution';
 	if ($section.is(":visible")) {
@@ -1360,6 +1613,15 @@ function loadChartDynamicAleEvolution() {
 	} else $section.attr("data-update-required", "true");
 }
 
+/**
+ * Loads an ALE chart using AJAX.
+ *
+ * @param {string} url - The URL to fetch the chart data from.
+ * @param {string} name - The name of the chart object to store in the window object.
+ * @param {string} container - The selector for the container element to append the chart canvas to.
+ * @param {string} canvas - The ID of the canvas element to create the chart on.
+ * @returns {boolean} - Returns false to prevent the default form submission behavior.
+ */
 function loadALEChart(url, name, container, canvas) {
 	let $progress = $("#loading-indicator").show();
 	try {
@@ -1401,10 +1663,17 @@ function loadALEChart(url, name, container, canvas) {
 	return false;
 }
 
+/**
+ * Reloads the action plans and charts section.
+ */
 function reloadActionPlansAndCharts() {
 	reloadSection('section_actionplans');
 }
 
+/**
+ * Generates the ALE chart.
+ * @returns {boolean} Returns false.
+ */
 function chartALE() {
 	loadChartAsset();
 	loadChartScenario();
@@ -1412,6 +1681,14 @@ function chartALE() {
 }
 
 // common
+/**
+ * Toggles the navigation menu and content based on the selected navigation item.
+ *
+ * @param {HTMLElement} section - The section element containing the navigation content.
+ * @param {HTMLElement} parentMenu - The parent menu element containing the navigation items.
+ * @param {string} navSelected - The value of the selected navigation item.
+ * @returns {boolean} Returns false if the current menu is disabled or not found, otherwise returns true.
+ */
 function navToogled(section, parentMenu, navSelected) {
 	let currentMenu = $("li[data-trick-nav-control='" + navSelected + "']", parentMenu);
 	if (!currentMenu.length || $(currentMenu).hasClass("disabled"))
@@ -1434,6 +1711,12 @@ function navToogled(section, parentMenu, navSelected) {
 	return false;
 }
 
+/**
+ * Manages the brainstorming process based on the given type.
+ * 
+ * @param {string} type - The type of brainstorming.
+ * @returns {boolean} - Returns false.
+ */
 function manageBrainstorming(type) {
 	let $progress = $("#loading-indicator").show(), category = type.replace(/\b\w/g, s => s.toUpperCase());
 	$.ajax({
@@ -1483,6 +1766,13 @@ function manageBrainstorming(type) {
 	return false;
 }
 
+/**
+ * Parses risk information data.
+ *
+ * @param {string} category - The category of the risk information data.
+ * @param {jQuery} $trs - The jQuery object containing the table rows.
+ * @returns {Array} - An array of parsed risk information data objects.
+ */
 function parseRiskInformationData(category, $trs) {
 	let data = [];
 	$trs.each(function (i) {
@@ -1499,18 +1789,39 @@ function parseRiskInformationData(category, $trs) {
 
 }
 
+/**
+ * Adds new risk information.
+ *
+ * @param {Event} e - The event object.
+ * @returns {boolean} Returns false.
+ */
 function addNewRiskInformtion(e) {
 	let $this = $(this), $currentTr = $this.closest("tr"), $tr = $("<tr data-trick-id='0' />");
 	addNewRiskInformation($currentTr, $tr, $("#risk-information-btn", $this.closest(".modal")), true);
 	return false;
 }
 
+/**
+ * Adds a new risk information chapter.
+ *
+ * @param {Event} e - The event object.
+ * @returns {boolean} Returns false.
+ */
 function addNewRiskInformtionChapter(e) {
 	let $this = $(this), $currentTr = $this.closest("tr"), $tr = $("<tr data-trick-id='0'/>");
 	addNewRiskInformation($currentTr, $tr, $("#risk-information-btn", $this.closest(".modal")), false);
 	return false;
 }
 
+/**
+ * Adds new risk information to the table row.
+ *
+ * @param {jQuery} $currentTr - The current table row.
+ * @param {jQuery} $tr - The new table row to be added.
+ * @param {jQuery} $buttons - The buttons container.
+ * @param {boolean} after - Determines whether to insert the new row after the current row or before it.
+ * @returns {boolean} - Returns false.
+ */
 function addNewRiskInformation($currentTr, $tr, $buttons, after) {
 	$("<td><input type='hidden' name='id' value='0' /><input name='chapter' required class='form-control'><input type='hidden' name='custom' value='true' /></td>").appendTo($tr);
 	$("<td><input class='form-control' type='text' name='label' placeholder='' required ></td>").appendTo($tr);
@@ -1528,6 +1839,12 @@ function addNewRiskInformation($currentTr, $tr, $buttons, after) {
 	return false;
 }
 
+/**
+ * Removes the risk information from the table row.
+ * 
+ * @param {Event} e - The event object.
+ * @returns {boolean} - Returns false to prevent default behavior.
+ */
 function removeRiskInformtion(e) {
 	let $currentTr = $(this).closest("tr"), $table = $currentTr.closest("table");
 	$currentTr.remove();
@@ -1535,6 +1852,11 @@ function removeRiskInformtion(e) {
 	return false;
 }
 
+/**
+ * Updates the risk information add button based on the provided table.
+ * @param {jQuery} $table - The jQuery object representing the table.
+ * @returns {boolean} - Returns false.
+ */
 function updateRiskInformationAddBtn($table) {
 	if ($table || $table.length) {
 		let $chapter = $("input[name='chapter']", $table);
@@ -1546,6 +1868,12 @@ function updateRiskInformationAddBtn($table) {
 	return false;
 }
 
+/**
+ * Validates the risk information chapter in the specified modal.
+ *
+ * @param {jQuery} $modal - The jQuery object representing the modal.
+ * @returns {boolean} - Returns false.
+ */
 function validateRiskInformationChapter($modal) {
 	let chpaters = new Map();
 	$(".has-error", $modal).removeClass("has-error");
@@ -1559,6 +1887,12 @@ function validateRiskInformationChapter($modal) {
 	return false;
 }
 
+/**
+ * Clears risk information based on the provided event target.
+ *
+ * @param {Event} e - The event object.
+ * @returns {boolean} - Returns false.
+ */
 function clearRiskInformtion(e) {
 	let $target = $(e.currentTarget), $tr = $target.closest("tr"), $table = $target.closest('table'), value = $("input[name='chapter']", $tr).val();
 	if (!(value === undefined || value === null)) {
@@ -1580,6 +1914,10 @@ function clearRiskInformtion(e) {
 	return false;
 }
 
+/**
+ * Imports the risk information form.
+ * @returns {boolean} Returns false.
+ */
 function importRiskInformationForm() {
 	let $progress = $("#loading-indicator").show();
 	$.ajax({
@@ -1602,6 +1940,11 @@ function importRiskInformationForm() {
 	return false;
 }
 
+/**
+ * Imports risk information from a selected file.
+ * 
+ * @returns {boolean} Returns false if the upload file is not found or not selected, otherwise returns true.
+ */
 function importRiskInformation() {
 	let $modal = $("#risk-information-modal"), $uploadFile = $("#upload-file-info", $modal), $progress = $("#loading-indicator"), $riskNotification = $("#riskInfromationNotification", $modal);
 	if (!$uploadFile.length)
@@ -1638,6 +1981,13 @@ function importRiskInformation() {
 	return false;
 }
 
+/**
+ * Backs up the height of a field or multiple fields.
+ * @param {string} baseName - The base name for the backup.
+ * @param {string|string[]} name - The name of the field(s) to backup.
+ * @param {HTMLElement} container - The container element that holds the field(s).
+ * @returns {boolean} - Returns false.
+ */
 function backupFieldHeight(baseName, name, container) {
 	if (Array.isArray(name)) {
 		for (let field of name)
@@ -1660,6 +2010,15 @@ function backupFieldHeight(baseName, name, container) {
 	return false;
 }
 
+/**
+ * Restores the height of a textarea field to its default or previously set value.
+ * If the `name` parameter is an array, it will restore the height of multiple fields.
+ * 
+ * @param {string} baseName - The base name of the field.
+ * @param {string|string[]} name - The name of the field(s) to restore the height for.
+ * @param {HTMLElement} container - The container element that holds the textarea field(s).
+ * @returns {boolean} - Returns false.
+ */
 function restoreFieldHeight(baseName, name, container) {
 	if (Array.isArray(name)) {
 		for (let field of name)

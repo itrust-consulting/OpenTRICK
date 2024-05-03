@@ -98,7 +98,48 @@ import lu.itrust.business.ts.usermanagement.User;
  * <li>Export a specific Analysis</li>
  * </ul>
  * 
+ * The `Analysis` class represents an analysis entity in the system. It contains various fields and methods for managing and manipulating analysis data.
  * 
+ * This class is annotated with `@Entity` to indicate that it is a persistent entity in the database. It is also annotated with `@Cacheable` to enable caching of instances of this class.
+ * 
+ * The `Analysis` class has the following fields:
+ * - `actionPlans`: A list of `ActionPlanEntry` objects representing the final action plans without phase computation.
+ * - `analysisStandards`: A map of `AnalysisStandard` objects representing the list of standards.
+ * - `assessments`: A list of `Assessment` objects representing the assessments.
+ * - `assets`: A list of `Asset` objects representing the assets.
+ * - `basedOnAnalysis`: An `Analysis` object representing the analysis on which this analysis is based.
+ * - `creationDate`: A `Timestamp` object representing the creation date of the analysis.
+ * - `customer`: A `Customer` object representing the customer associated with the analysis.
+ * - `data`: A boolean value indicating if the analysis has data.
+ * - `defaultProfile`: A boolean value indicating if the analysis has a default profile.
+ * - `histories`: A list of `History` objects representing the history data of the analysis.
+ * - `id`: An integer representing the ID of the analysis.
+ * - `identifier`: A string representing the identifier of the analysis.
+ * - `itemInformations`: A list of `ItemInformation` objects representing the item information.
+ * - `label`: A string representing the label of the analysis.
+ * - `language`: A `Language` object representing the language of the analysis.
+ * - `owner`: A `User` object representing the owner of the analysis.
+ * - `parameters`: A map of string keys and lists of `IParameter` objects representing the parameters.
+ * - `phases`: A list of `Phase` objects representing the phases used for action plan computation.
+ * - `profile`: A boolean value indicating if the analysis has a profile.
+ * - `project`: A string representing the ticketing project ID.
+ * - `riskInformations`: A list of `RiskInformation` objects representing the risk information.
+ * - `riskProfiles`: A list of `RiskProfile` objects representing the risk profiles.
+ * - `riskRegisters`: A list of `RiskRegisterItem` objects representing the risk register.
+ * - `excludeAcronyms`: A set of strings representing the excluded acronyms.
+ * - `scenarios`: A list of `Scenario` objects representing the scenarios.
+ * - `settings`: A map of string keys and string values representing the analysis settings.
+ * - `summaries`: A list of `SummaryStage` objects representing the action plan summary without phase computation.
+ * - `type`: An `AnalysisType` enum representing the type of analysis.
+ * - `uncertainty`: A boolean value indicating if the analysis has uncertainty.
+ * - `userRights`: A list of `UserAnalysisRight` objects representing the users and their access rights.
+ * - `assetNodes`: A list of `AssetNode` objects representing the asset nodes.
+ * - `ilrImpactTypes`: A list of `ScaleType` objects representing the ILR impact types.
+ * - `documents`: A map of `SimpleDocumentType` keys and `SimpleDocument` values representing the documents associated with the analysis.
+ * - `version`: A string representing the version of the analysis.
+ * - `archived`: A boolean value indicating if the analysis is archived.
+ * 
+ * The `Analysis` class provides various methods for adding and manipulating the analysis data.
  * @author itrust consulting s.a r.l. - SME,BJA
  * @version 0.1
  * @since 2012-08-21

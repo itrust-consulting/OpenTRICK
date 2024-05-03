@@ -41,11 +41,11 @@ import lu.itrust.business.ts.model.general.helper.Utils;
 import lu.itrust.business.ts.usermanagement.User;
 
 /**
- * WorkerExportAnalysis.java: <br>
- * Detailed description...
- * 
- * @author eomar, itrust consulting s.à.rl. :
- * @version
+ * WorkerExportAnalysis is a class that extends the WorkerImpl class and represents a worker task for exporting analysis.
+ * It performs the necessary steps to export the analysis, including loading the analysis, building the SQLite structure, and exporting the analysis.
+ * If any exceptions occur during the export process, error messages are sent to the service task feedback.
+ * After the export is completed or an error occurs, the worker task is marked as finished.
+ * @author itrust consulting s.à.rl.
  * @since Jan 30, 2014
  */
 public class WorkerExportAnalysis extends WorkerImpl {
@@ -69,6 +69,14 @@ public class WorkerExportAnalysis extends WorkerImpl {
 		setUsername(username);
 	}
 
+	/**
+	 * Executes the worker task to export analysis.
+	 * This method is called when the worker thread is started.
+	 * It performs the necessary steps to export the analysis, including loading the analysis,
+	 * building the SQLite structure, and exporting the analysis.
+	 * If any exceptions occur during the export process, error messages are sent to the service task feedback.
+	 * After the export is completed or an error occurs, the worker task is marked as finished.
+	 */
 	@Override
 	public void run() {
 		Session session = null;
@@ -174,6 +182,13 @@ public class WorkerExportAnalysis extends WorkerImpl {
 		}
 	}
 
+	/**
+	 * Saves the SQLite file for the given analysis.
+	 *
+	 * @param session The session object for database operations.
+	 * @param analysis The analysis object to save the SQLite file for.
+	 * @param sqlite The SQLite file to be saved.
+	 */
 	private void saveSqLite(Session session, Analysis analysis, File sqlite) {
 		final DAOUser daoUser = new DAOUserHBM(session);
 		final DAOUserSqLite daoUserSqLite = new DAOUserSqLiteHBM(session);
@@ -313,6 +328,11 @@ public class WorkerExportAnalysis extends WorkerImpl {
 		run();
 	}
 
+	/**
+	 * Cancels the current task being executed by the worker.
+	 * If the worker is currently working and not already canceled, it interrupts the current thread or the thread associated with the current task.
+	 * After cancellation, the worker's status is set to canceled and the finished timestamp is updated.
+	 */
 	@Override
 	public void cancel() {
 		try {
@@ -341,23 +361,46 @@ public class WorkerExportAnalysis extends WorkerImpl {
 		}
 	}
 
+	/**
+	 * Represents the name of a task.
+	 */
 	@Override
 	public TaskName getName() {
 		return TaskName.EXPORT_ANALYSIS;
 	}
 
+	/**
+	 * Returns the username associated with this worker.
+	 *
+	 * @return the username as a String
+	 */
 	public String getUsername() {
 		return username;
 	}
 
+	/**
+	 * Sets the username for the worker.
+	 *
+	 * @param username the username to set
+	 */
 	public void setUsername(String username) {
 		this.username = username;
 	}
 
+	/**
+	 * Returns the ID of the analysis.
+	 *
+	 * @return the ID of the analysis
+	 */
 	private int getIdAnalysis() {
 		return idAnalysis;
 	}
 
+	/**
+	 * Sets the ID of the analysis.
+	 *
+	 * @param idAnalysis the ID of the analysis
+	 */
 	private void setIdAnalysis(int idAnalysis) {
 		this.idAnalysis = idAnalysis;
 	}

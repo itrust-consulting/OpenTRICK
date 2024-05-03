@@ -1,3 +1,9 @@
+/**
+ * Initializes the OTP (One-Time Password) functionality.
+ * This function is executed when the document is ready.
+ *
+ * @param {Event} e - The event object.
+ */
 $(document).ready((e) => {
 	var $selectorMethod = $("#otp-option-method");
 	if($selectorMethod.length){

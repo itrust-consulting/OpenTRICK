@@ -1,4 +1,13 @@
+/**
+ * Represents the risk evolution page.
+ * @namespace
+ */
 var helpers = Chart.helpers, $customer = undefined, $analyses = undefined, $versions = undefined, analysisType = undefined, timerSaveSettings = undefined, restoring = false, openingTag = window.location.hash;
+
+/**
+ * Initializes the risk evolution page.
+ * @function
+ */
 $(document).ready(function () {
 	$customer = $("#customer-selector"), $analyses = $("select[name='analysis']"), $versions = $("select[name='version']");
 
@@ -7,7 +16,7 @@ $(document).ready(function () {
 		analyses: [],
 		size: $versions.length
 	};
-	
+
 	$('ul.nav.risk-evolution a[data-toggle="tab"]').on('shown.bs.tab', resetSaveSettingsTimeout);
 
 	$("#type-selector").on("change keyup", (e) => {
@@ -91,13 +100,15 @@ $(document).ready(function () {
 
 		resetSaveSettingsTimeout();
 	});
-	
+
 	restoreSettings();
 
 });
 
-
-
+/**
+ * Handles the change event of the analyses dropdown.
+ * @function
+ */
 function onAnalysesChange() {
 	var $this = $(this), value = $this.val(), $version = $($this.attr("data-target"));
 	$version.find("option[value!='-']").remove();
@@ -125,6 +136,11 @@ function onAnalysesChange() {
 	return false;
 }
 
+/**
+ * Handles the change event of the versions dropdown.
+ * @function
+ * @param {Event} e - The change event object.
+ */
 function onVersionChange(e) {
 	var analyses = application["risk-evolution"].analyses = [], $target = $(e.currentTarget), index = parseInt($target.attr("data-index")), currentValue = $target.val(), updateChart = true;
 	if ($target.is(":visible")) {
@@ -175,6 +191,10 @@ function onVersionChange(e) {
 	return false;
 }
 
+/**
+ * Updates all the charts on the risk evolution page.
+ * @function
+ */
 function updateCharts() {
 	loadTotalALE();
 	loadAleByAsset();
@@ -189,11 +209,20 @@ function updateCharts() {
 	loadCompliance();
 }
 
+/**
+ * Resets the timeout for saving settings.
+ * @function
+ */
 function resetSaveSettingsTimeout() {
 	clearTimeout(timerSaveSettings);
 	timerSaveSettings = setTimeout(() => saveSettings(), 5000);
 }
 
+/**
+ * Restores the saved settings for the risk evolution page.
+ * @function
+ * @returns {boolean} - True if the settings were successfully restored, false otherwise.
+ */
 function restoreSettings() {
 	try {
 		restoring = true;
@@ -202,15 +231,15 @@ function restoreSettings() {
 		$("#type-selector").val(application["settings"].type).change();
 		if (!application["settings"].idCustomer)
 			return false;
-		
-		if(application["settings"].currentTab){
-			if(!openingTag)
+
+		if (application["settings"].currentTab) {
+			if (!openingTag)
 				openingTag = application["settings"].currentTab;
 		}
-		
-		if(openingTag)	
-			$("a[href='"+openingTag+"']:visible").tab("show");
-		
+
+		if (openingTag)
+			$("a[href='" + openingTag + "']:visible").tab("show");
+
 		$customer.val(application["settings"].idCustomer).change();
 		if (!application["settings"].analyses || !application["settings"].versions)
 			return false;
@@ -227,11 +256,15 @@ function restoreSettings() {
 	}
 }
 
+/**
+ * Saves the current settings for the risk evolution page.
+ * @function
+ */
 function saveSettings() {
 	var data = {
 		type: analysisType,
 		idCustomer: $customer.val(),
-		currentTab : window.location.hash,
+		currentTab: window.location.hash,
 		analyses: [],
 		versions: []
 	};
@@ -261,7 +294,12 @@ function saveSettings() {
 	});
 }
 
-
+/**
+ * Updates the risk criteria table.
+ * @function
+ * @param {Array} settings - The risk criteria settings.
+ * @param {jQuery} $table - The jQuery object representing the risk criteria table.
+ */
 function updateRiskCriteria(settings, $table) {
 	if (!settings)
 		return false;
@@ -270,57 +308,114 @@ function updateRiskCriteria(settings, $table) {
 	for (var i = 0; i < settings.length; i++) {
 		var $tr = $("<tr />");
 		$("<td class='textaligncenter'/>").text(settings[i].label).appendTo($tr);
-		if(i==0)
-			$("<td class='textaligncenter'/>").text("[ 0 ; "+application.numberFormatNoDecimal.format(settings[i].value)+" ]").appendTo($tr);
-		else if(i==settings.length-1)
-			$("<td class='textaligncenter'/>").text('] '+application.numberFormatNoDecimal.format(settings[i-1].value)+'; +∞ [').appendTo($tr);
-		else $("<td class='textaligncenter'/>").text('] '+application.numberFormatNoDecimal.format(settings[i-1].value)+'; '+application.numberFormatNoDecimal.format(settings[i].value)+' ]').appendTo($tr);
+		if (i == 0)
+			$("<td class='textaligncenter'/>").text("[ 0 ; " + application.numberFormatNoDecimal.format(settings[i].value) + " ]").appendTo($tr);
+		else if (i == settings.length - 1)
+			$("<td class='textaligncenter'/>").text('] ' + application.numberFormatNoDecimal.format(settings[i - 1].value) + '; +∞ [').appendTo($tr);
+		else $("<td class='textaligncenter'/>").text('] ' + application.numberFormatNoDecimal.format(settings[i - 1].value) + '; ' + application.numberFormatNoDecimal.format(settings[i].value) + ' ]').appendTo($tr);
 		$("<td class='textaligncenter' />").text(settings[i].description).appendTo($tr);
 		$("<td/>").css({ "background-color": settings[i].color }).appendTo($tr);
 		$tr.appendTo($body);
 	}
 }
 
+/**
+ * Loads the total ALE chart.
+ * @function
+ * @returns {Promise} - A promise that resolves when the chart is loaded.
+ */
 function loadTotalALE() {
 	return loadALEChart("#tab-total-ale", "total-ale-chart", 'loadTotalALE', "/Analysis/Risk-evolution/Chart/Total-ALE");
 }
 
+/**
+ * Loads the ALE by asset type chart.
+ * @function
+ * @returns {Promise} - A promise that resolves when the chart is loaded.
+ */
 function loadAleByAssetType() {
 	return loadALEChart("#tab-ale-asset-type", "ale-asset-type-chart", 'loadAleByAssetType', "/Analysis/Risk-evolution/Chart/ALE-by-asset-type");
 }
 
+/**
+ * Loads the ALE by scenario chart.
+ * @function
+ * @returns {Promise} - A promise that resolves when the chart is loaded.
+ */
 function loadAleByScenario() {
 	return loadALEChart("#tab-ale-scenario", "ale-scenario-chart", 'loadAleByScenario', "/Analysis/Risk-evolution/Chart/ALE-by-scenario");
 }
 
+/**
+ * Loads the ALE (Annual Loss Expectancy) chart by scenario type.
+ * 
+ * @returns {Promise} A promise that resolves when the chart is loaded.
+ */
 function loadAleByScenarioType() {
 	return loadALEChart("#tab-ale-scenario-type", "ale-scenario-type-chart", 'loadAleByScenarioType', "/Analysis/Risk-evolution/Chart/ALE-by-scenario-type");
 }
 
+/**
+ * Loads the ALE (Annualized Loss Expectancy) chart by asset.
+ * 
+ * @returns {Promise} A promise that resolves when the chart is loaded.
+ */
 function loadAleByAsset() {
 	return loadALEChart("#tab-ale-asset", "ale-asset-chart", 'loadAleByAsset', "/Analysis/Risk-evolution/Chart/ALE-by-asset");
 }
 
+/**
+ * Loads the total risk chart.
+ * 
+ * @returns {Promise} A promise that resolves when the chart is loaded.
+ */
 function loadTotalRisk() {
 	return loadRiskChart("#tab-total-risk", "total-risk-chart", 'loadTotalRisk', "/Analysis/Risk-evolution/Chart/Total-Risk");
 }
 
+/**
+ * Loads the risk chart by asset type.
+ * @returns {Promise} A promise that resolves when the risk chart is loaded.
+ */
 function loadRiskByAssetType() {
 	return loadRiskChart("#tab-risk-asset-type", "risk-asset-type-chart", 'loadRiskByAssetType', "/Analysis/Risk-evolution/Chart/Risk-by-asset-type");
 }
 
+/**
+ * Loads the risk chart by scenario.
+ * 
+ * @returns {Promise} A promise that resolves when the risk chart is loaded.
+ */
 function loadRiskByScenario() {
 	return loadRiskChart("#tab-risk-scenario", "risk-scenario-chart", 'loadRiskByScenario', "/Analysis/Risk-evolution/Chart/Risk-by-scenario");
 }
 
+/**
+ * Loads the risk chart by scenario type.
+ * @returns {Promise} A promise that resolves when the risk chart is loaded.
+ */
 function loadRiskByScenarioType() {
 	return loadRiskChart("#tab-risk-scenario-type", "risk-scenario-type-chart", 'loadRiskByScenarioType', "/Analysis/Risk-evolution/Chart/Risk-by-scenario-type");
 }
 
+/**
+ * Loads the risk chart by asset.
+ * 
+ * @returns {Promise} A promise that resolves when the risk chart is loaded.
+ */
 function loadRiskByAsset() {
 	return loadRiskChart("#tab-risk-asset", "risk-asset-chart", 'loadRiskByAsset', "/Analysis/Risk-evolution/Chart/Risk-by-asset");
 }
 
+/**
+ * Loads the ALE chart.
+ *
+ * @param {string} tab - The tab element selector.
+ * @param {string} name - The name of the chart.
+ * @param {string} trigger - The trigger for the chart update.
+ * @param {string} url - The URL for the AJAX request.
+ * @returns {boolean} - Returns false.
+ */
 function loadALEChart(tab, name, trigger, url) {
 	var $tab = $(tab);
 	if (!$tab.is(":visible"))
@@ -359,6 +454,15 @@ function loadALEChart(tab, name, trigger, url) {
 	return false;
 }
 
+/**
+ * Loads the risk chart based on the provided parameters.
+ *
+ * @param {string} tab - The tab element selector.
+ * @param {string} name - The name of the chart.
+ * @param {string} trigger - The trigger element selector.
+ * @param {string} url - The URL to fetch the chart data.
+ * @returns {boolean} - Returns false.
+ */
 function loadRiskChart(tab, name, trigger, url) {
 	var $tab = $(tab);
 	if (!$tab.is(":visible"))
@@ -398,6 +502,10 @@ function loadRiskChart(tab, name, trigger, url) {
 	return false;
 }
 
+/**
+ * Loads compliance data and renders compliance charts.
+ * @returns {boolean} Returns false.
+ */
 function loadCompliance() {
 	var $tab = $("#tab-compliance");
 	if (!$tab.is(":visible"))

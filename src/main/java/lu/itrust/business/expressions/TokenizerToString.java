@@ -7,9 +7,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+
 /**
- * @author eomar
- *
+ * The TokenizerToString class represents a utility class that converts a tokenizer into a string representation.
+ * It provides methods to load tokens from the tokenizer, get and set the tokenizer, get and set the list of tokens,
+ * and convert the tokens into a string representation.
+ * @author (SMU), itrust consulting s.à r.l.
+ * @since Jun 9, 2015
  */
 public class TokenizerToString {
 
@@ -36,6 +40,10 @@ public class TokenizerToString {
 		}
 	}
 
+	/**
+	 * This class represents a tokenizer used for tokenizing strings.
+	 * It breaks down a string into individual tokens based on a set of delimiters.
+	 */
 	public Tokenizer getTokenizer() {
 		return tokenizer;
 	}
@@ -44,6 +52,11 @@ public class TokenizerToString {
 		this.tokenizer = tokenizer;
 	}
 
+	/**
+	 * Retrieves the list of tokens.
+	 *
+	 * @return The list of tokens.
+	 */
 	public List<Token<?>> getTokens() {
 		loadTokens();
 		return tokens;

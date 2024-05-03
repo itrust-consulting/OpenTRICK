@@ -1,3 +1,8 @@
+
+/**
+ * This file contains functions related to managing measure descriptions in the TrickService application.
+ * 
+ */
 function findDefaultLanguageId() {
 	var $language = $("#section_kb_measure #languageselect").val();
 	if ($.isNumeric($language))
@@ -6,6 +11,9 @@ function findDefaultLanguageId() {
 	return $language.length ? $language.attr('data-trick-id') : 1;
 }
 
+/**
+ * Rebuilds the measure language select options based on the trick IDs and names in the table.
+ */
 function rebuildMeasureLanguage() {
 	var $languageSelect = $("#languageselect"), selected = $languageSelect.val();
 	$languageSelect.empty();
@@ -19,6 +27,12 @@ function rebuildMeasureLanguage() {
 	});
 }
 
+/**
+ * Shows or hides the measure tab based on the selected language and standard.
+ *
+ * @param {string} idStandard - The ID of the selected standard.
+ * @param {string} [idLanguage] - The ID of the selected language. If not provided, the default language ID will be used.
+ */
 function showTabMeasure(idStandard, idLanguage) {
 	if (idLanguage == undefined || idLanguage == null)
 		idLanguage = findDefaultLanguageId();
@@ -31,6 +45,16 @@ function showTabMeasure(idStandard, idLanguage) {
 	$tab.attr("data-update-required", !($section.attr("data-standard-id") == idStandard && $section.attr("data-language-id") == idLanguage));
 }
 
+/**
+ * Retrieves and displays measures based on the provided standard ID and language ID.
+ * If the standard ID is not provided, it will be obtained from the selected scenario.
+ * If the language ID is not provided, the default language ID will be used.
+ * 
+ * @param {number} idStandard - The ID of the standard.
+ * @param {number} languageId - The ID of the language.
+ * @param {boolean} reloadBody - Indicates whether to reload the body.
+ * @returns {boolean} - Returns false.
+ */
 function showMeasures(idStandard, languageId, reloadBody) {
 	if (idStandard == null || idStandard == undefined) {
 		var selectedScenario = findSelectItemIdBySection("section_kb_standard");
@@ -69,6 +93,12 @@ function showMeasures(idStandard, languageId, reloadBody) {
 	return false;
 }
 
+/**
+ * Creates a new measure.
+ * 
+ * @param {string} idStandard - The ID of the standard.
+ * @returns {boolean} Returns false if idStandard is null or undefined, otherwise returns true.
+ */
 function newMeasure(idStandard) {
 	if (idStandard == null || idStandard == undefined)
 		idStandard = $("#idStandard", "#section_kb_measure").val();
@@ -113,6 +143,13 @@ function newMeasure(idStandard) {
 	return false;
 }
 
+/**
+ * Edits a single measure.
+ * 
+ * @param {number} measureId - The ID of the measure to edit.
+ * @param {number} idStandard - The ID of the standard.
+ * @returns {boolean} Returns false if the selected scenario length is not equal to 1, otherwise returns true.
+ */
 function editSingleMeasure(measureId, idStandard) {
 
 	if (idStandard == null || idStandard == undefined)
@@ -164,6 +201,11 @@ function editSingleMeasure(measureId, idStandard) {
 	return false;
 }
 
+/**
+ * Saves the measure by sending an AJAX request to the server.
+ * 
+ * @returns {boolean} Returns false to prevent the default form submission.
+ */
 function saveMeasure() {
 	var $progress = $("#loading-indicator").show(), $modal = $("#addMeasureModel"), $form = $("#measure_form", $modal), $progressBar = $("#save-measure-progress-bar", $modal), $buttonSubmit = $("#addmeasurebutton", $modal);
 	$modal.find(".label-danger").remove();
@@ -214,6 +256,12 @@ function saveMeasure() {
 	return false;
 }
 
+/**
+ * Deletes a measure.
+ * 
+ * @param {boolean} force - Indicates whether to force delete the measure.
+ * @returns {boolean} - Returns false if there are no selected measures or if the number of selected measures is not equal to 1, otherwise returns true.
+ */
 function deleteMeasure(force) {
 	$(".label-danger", "#addMeasureModel").remove();
 	var selectedMeasures = findSelectItemIdBySection("section_kb_measure");

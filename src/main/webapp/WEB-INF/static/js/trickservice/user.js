@@ -1,3 +1,12 @@
+
+
+/**
+ * Deletes a user.
+ * 
+ * @param {string} userId - The ID of the user to delete.
+ * @param {string} name - The name of the user to delete.
+ * @returns {boolean} - Returns false if the user ID is null or undefined, otherwise returns true.
+ */
 function deleteUser(userId, name) {
 	if (userId == null || userId == undefined) {
 		var selectedScenario = findSelectItemIdBySection("section_user");
@@ -102,6 +111,11 @@ function deleteUser(userId, name) {
 	return false;
 }
 
+/**
+ * Creates a new user.
+ * 
+ * @returns {boolean} - Returns false.
+ */
 function newUser() {
 	var $progress = $("#loading-indicator").show();
 	$.ajax({
@@ -115,6 +129,12 @@ function newUser() {
 	return false;
 }
 
+/**
+ * Edits a single user.
+ * 
+ * @param {string} userId - The ID of the user to edit.
+ * @returns {boolean} - Returns false if the user ID is null or undefined, otherwise returns true.
+ */
 function editSingleUser(userId) {
 	if (userId == null || userId == undefined) {
 		var selectedScenario = findSelectItemIdBySection("section_user");
@@ -136,6 +156,13 @@ function editSingleUser(userId) {
 	return false;
 }
 
+/**
+ * Processes the user form.
+ * 
+ * @param {Object} response - The response object.
+ * @param {string} textStatus - The status of the request.
+ * @param {Object} jqXHR - The XMLHttpRequest object.
+ */
 function processUserForm(response, textStatus, jqXHR) {
 	var $userModalForm = $("#user-modal-form", new DOMParser().parseFromString(response, "text/html")), $progress = $("#loading-indicator");
 	if ($userModalForm.length) {
@@ -189,5 +216,4 @@ function processUserForm(response, textStatus, jqXHR) {
 		});
 	} else
 		unknowError();
-
 }

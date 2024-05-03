@@ -34,6 +34,14 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
  * @author eomar
  *
  */
+/**
+ * Configuration class for the SessionFactory in the application.
+ * This class provides the necessary beans and configurations for creating a Hibernate SessionFactory.
+ * It is responsible for setting up the data source, Hibernate properties, and transaction management.
+ * The SessionFactoryConfig class is annotated with @Configuration to indicate that it is a configuration class.
+ * It is also annotated with @EnableTransactionManagement to enable transaction management for the application.
+ * The class is conditionally enabled based on the active profiles specified in the @Profile annotation.
+ */
 @Profile({ "p-auth-std", "p-auth-ldap", "p-auth-ad" })
 @Configuration(proxyBeanMethods = false)
 @EnableTransactionManagement
@@ -52,11 +60,21 @@ public class SessionFactoryConfig {
 		return sessionFactoryBean;
 	}
 
+	/**
+	 * Creates a bean for the PlatformTransactionManager.
+	 *
+	 * @param sessionFactory the SessionFactory to be used by the transaction manager
+	 * @return the PlatformTransactionManager bean
+	 */
 	@Bean
 	public PlatformTransactionManager transactionManager(SessionFactory sessionFactory) {
 		return new HibernateTransactionManager(sessionFactory);
 	}
 
+	/**
+	 * Represents the properties for configuring JPA (Java Persistence API).
+	 * These properties are used to customize the behavior of the JPA implementation.
+	 */
 	@Bean
 	@Primary
 	@ConfigurationProperties("app.jpa.first")
@@ -86,6 +104,12 @@ public class SessionFactoryConfig {
 		return properties;
 	}
 
+	/**
+	 * Loads the Spring JPA properties from the given environment and populates them into the provided properties map.
+	 *
+	 * @param env        the environment containing the Spring JPA properties
+	 * @param properties the map to populate with the Spring JPA properties
+	 */
 	public static void loadSpringJpaProperties(final Environment env, final Map<String, String> properties) {
 		StreamSupport.stream(
 				((AbstractEnvironment) env).getPropertySources().spliterator(), false)

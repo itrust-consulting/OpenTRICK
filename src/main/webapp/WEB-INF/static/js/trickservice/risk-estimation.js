@@ -1,5 +1,11 @@
 let activeSelector = undefined, helper = undefined, standardCaching = undefined;
 
+/**
+ * Saves the assessment data.
+ *
+ * @param {Event} e - The event object.
+ * @returns {boolean} - Returns false.
+ */
 function saveAssessmentData(e) {
 	let $assessmentUI = $("#estimation-ui"), $target = $(e.currentTarget), value = $target.val(), idScenario = $assessmentUI.attr('data-trick-scenario-id'), idAsset = $assessmentUI
 		.attr('data-trick-asset-id'), name = $target.attr('name'), type = $target.attr('data-trick-type'), oldValue = $target.hasAttr("placeholder") ? $target
@@ -89,6 +95,12 @@ function saveAssessmentData(e) {
 	return false;
 }
 
+/**
+ * Toggles the visibility of the additional action plan textarea.
+ * 
+ * @param {Event} e - The event object (optional).
+ * @returns {boolean} Returns false if the additional action plan textarea is not found.
+ */
 function toggleAdditionalActionPlan(e) {
 	let $additional = $("textarea[name='riskProfile.actionPlan']");
 	if (!$additional.length)
@@ -122,10 +134,19 @@ function toggleAdditionalActionPlan(e) {
 	}
 }
 
+/**
+ * Loads assessment data for a given ID.
+ *
+ * @param {string} id - The ID of the assessment data to load.
+ * @returns {boolean} - Returns true if the assessment data was loaded successfully, false otherwise.
+ */
 function loadAssessmentData(id) {
 	return application["estimation-helper"].reload(id) == undefined;
 }
 
+/**
+ * Updates the user interface for the assessment.
+ */
 function updateAssessmentUI() {
 	let $assessment = $("#tab-risk-estimation div.list-group:visible>.list-group-item.active");
 	if (!$assessment.is(":focus") && $("div[role='left-menu']").css("position") == "fixed")
@@ -133,6 +154,11 @@ function updateAssessmentUI() {
 	loadAssessmentData($assessment.attr("data-trick-id"));
 }
 
+/**
+ * Refreshes the estimation based on the specified type.
+ * 
+ * @param {string} type - The type of estimation to refresh.
+ */
 function refreshEstimation(type) {
 	let $current = $("#tab-risk-estimation div[data-trick-content='" + type + "'] div.list-group > a.list-group-item.active");
 	if (!$current.length)
@@ -140,6 +166,13 @@ function refreshEstimation(type) {
 	$current.trigger("click")
 }
 
+/**
+ * Updates the estimation select based on the provided type, elements, and status.
+ * @param {string} type - The type of the select element.
+ * @param {Array} elements - The elements to update.
+ * @param {string} status - The status to set for the elements.
+ * @returns {boolean} - Returns false.
+ */
 function updateEstimationSelect(type, elements, status) {
 	let $selections = $("select[name='" + type + "']>option[data-trick-type][data-trick-selected!='" + status + "'],div[data-trick-content='" + type + "'] a[data-trick-type][data-trick-id][data-trick-selected!='" + status + "']", "#tab-risk-estimation").filter(function () {
 		return this.tagName == "OPTION" ? elements.indexOf(this.getAttribute("value")) != "-1" : elements.indexOf(this.getAttribute("data-trick-id")) != "-1";
@@ -152,6 +185,14 @@ function updateEstimationSelect(type, elements, status) {
 	return false;
 }
 
+/**
+ * Updates the estimation item based on the provided parameters.
+ *
+ * @param {string} type - The type of the estimation item.
+ * @param {object} item - The item to be updated.
+ * @param {string} status - The status of the item.
+ * @returns {boolean} - Returns false.
+ */
 function updateEstimationIteam(type, item,status) {
 	let $tabSection = $("#tab-risk-estimation"), $selector = $("select[name='" + type + "']", $tabSection), $option = $("option[data-trick-type][value='" + item.id + "']", $selector), $link = undefined;
 	if ($option.length)
@@ -206,6 +247,13 @@ function updateEstimationIteam(type, item,status) {
 	return false;
 }
 
+/**
+ * Removes the specified elements from the risk estimation.
+ * 
+ * @param {string} type - The type of elements to remove.
+ * @param {Array} elements - The elements to remove.
+ * @returns {boolean} - Returns false.
+ */
 function removeEstimation(type, elements) {
 	let $selections = $("select[name='" + type + "']>option[data-trick-type],div[data-trick-content='" + type + "'] a[data-trick-type][data-trick-id]", "#tab-risk-estimation").filter(function () {
 		return this.tagName == "OPTION" ? elements.indexOf(this.getAttribute("value")) != "-1" : elements.indexOf(this.getAttribute("data-trick-id")) != "-1";
@@ -214,6 +262,11 @@ function removeEstimation(type, elements) {
 	return false;
 }
 
+/**
+ * Updates the risk estimation.
+ * 
+ * @param {boolean} force - Indicates whether to force the update.
+ */
 function riskEstimationUpdate(force) {
 	if (helper == undefined)
 		initialiseRiskEstimation();
@@ -226,6 +279,10 @@ function riskEstimationUpdate(force) {
 		helper.$tabSection.attr("data-update-required", helper.invalidate = true);
 }
 
+/**
+ * Updates the risk estimation navigation based on the current assessment and selector.
+ * @returns {boolean} Returns false.
+ */
 function updateRiskEstimationNavigation() {
 	let $tabSection = $("#tab-risk-estimation"), $currentAssessment = $("div[data-trick-content]:visible .list-group-item.active", $tabSection);
 
@@ -248,6 +305,11 @@ function updateRiskEstimationNavigation() {
 
 }
 
+/**
+ * Handles the change event for the assessment.
+ * @param {Event} e - The event object.
+ * @returns {boolean} - Returns false to prevent default behavior.
+ */
 function changeAssessment(e) {
 	let $target = $(e.currentTarget);
 	if (!$target.hasClass('active')) {
@@ -258,6 +320,10 @@ function changeAssessment(e) {
 	return false;
 }
 
+/**
+ * Represents an AssessmentHelder object.
+ * @constructor
+ */
 function AssessmentHelder() {
 	this.id = 0;
 	this.invalidate = true;
@@ -551,6 +617,12 @@ AssessmentHelder.prototype = {
 	}
 }
 
+/**
+ * Generates a datalist element based on the provided id.
+ * 
+ * @param {string} id - The id of the datalist element to be generated.
+ * @returns {boolean} Returns false if an element with the provided id already exists, otherwise returns true.
+ */
 function generateDataList(id) {
 	if (document.getElementById(id) != null)
 		return false;
@@ -566,6 +638,13 @@ function generateDataList(id) {
 
 }
 
+/**
+ * Displays parameters in a modal dialog.
+ *
+ * @param {string} name - The name of the element to display.
+ * @param {string} title - The title of the modal dialog.
+ * @returns {boolean} - Returns false.
+ */
 function displayParameters(name, title) {
 	let html = $(name).map(function () { return this.innerHTML; }).get().join("");
 	let view = new Modal(undefined, html), $modalBody = $(view.modal_body), $legend = $modalBody.find("legend").remove().slice(0, 1);
@@ -585,6 +664,14 @@ function displayParameters(name, title) {
 	return false;
 }
 
+/**
+ * Deletes estimation measures for a given asset and scenario.
+ * 
+ * @param {string} idAsset - The ID of the asset.
+ * @param {string} idScenario - The ID of the scenario.
+ * @param {jQuery} $assessmentUI - The jQuery object representing the assessment UI.
+ * @param {jQuery} $progress - The jQuery object representing the progress element.
+ */
 function deleteEstimationMeasures(idAsset, idScenario, $assessmentUI, $progress) {
 
 	let $toDelete = [], measures = [];
@@ -617,6 +704,12 @@ function deleteEstimationMeasures(idAsset, idScenario, $assessmentUI, $progress)
 	}).complete(function () { $progress.hide(); });
 }
 
+/**
+ * Computes the assessment and updates the analysis.
+ * 
+ * @param {boolean} silent - Indicates whether to show dialogs or not.
+ * @returns {boolean} - Returns false.
+ */
 function computeAssessment(silent) {
 	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
 		let $progress = $("#loading-indicator").show();
@@ -647,6 +740,11 @@ function computeAssessment(silent) {
 	return false;
 }
 
+/**
+ * Refreshes the assessment by rebuilding all assessments.
+ * 
+ * @returns {boolean} Returns false.
+ */
 function refreshAssessment() {
 	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
 		$("#confirm-dialog .modal-body").html(MessageResolver("confirm.refresh.assessment", "Are you sure, you want to rebuild all assessments"));
@@ -680,6 +778,12 @@ function refreshAssessment() {
 	return false;
 }
 
+/**
+ * Updates the Assessment ALE (Annual Loss Expectancy).
+ * 
+ * @param {boolean} silent - Indicates whether to show dialogs or not.
+ * @returns {boolean} - Returns false.
+ */
 function updateAssessmentAle(silent) {
 	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
 		let $progress = $("#loading-indicator").show();
@@ -711,6 +815,13 @@ function updateAssessmentAle(silent) {
 }
 
 
+/**
+ * Manages the risk profile measure.
+ * 
+ * @param {string} idAsset - The ID of the asset.
+ * @param {string} idScenario - The ID of the scenario.
+ * @param {Event} e - The event object.
+ */
 function manageRiskProfileMeasure(idAsset, idScenario, e) {
 	let $progress = $("#loading-indicator").show();
 	$.ajax(
@@ -1006,6 +1117,11 @@ function manageRiskProfileMeasure(idAsset, idScenario, e) {
 	return false;
 }
 
+/**
+ * Initializes the risk estimation functionality.
+ * This function sets up event listeners and handlers for various elements in the application.
+ * It also initializes the assessment helper and assigns it to the application object.
+ */
 function initialiseRiskEstimation() {
 
 	application["estimation-helper"] = helper = new AssessmentHelder();
@@ -1060,6 +1176,11 @@ function initialiseRiskEstimation() {
 	});
 }
 
+/**
+ * Imports risk estimation data.
+ * 
+ * @returns {boolean} Returns false to prevent the default form submission behavior.
+ */
 function importRiskEstimation() {
 	let $progress = $("#loading-indicator").show();
 	$.ajax({
@@ -1082,6 +1203,11 @@ function importRiskEstimation() {
 	return false;
 }
 
+/**
+ * Imports the risk estimation process.
+ * 
+ * @returns {boolean} Returns false if the upload file is not selected, otherwise returns true.
+ */
 function importRiskEstimationProcess() {
 	let $modal = $("#import-risk-estimation-modal"), $uploadFile = $("#upload-file-info-risk-estimation", $modal), $progress = $("#loading-indicator"), $measureNotification = $("#riskEstimationNotification", $modal);
 	if (!$uploadFile.length)

@@ -1,5 +1,14 @@
-// add new standard to analysis, updated by @eomar 24/05/2016
-var $deleteModal = $("#deleteStandardModal"), $standardModal = $("#standardModal");
+
+/**
+ * This file contains JavaScript code for managing analysis standards.
+ * It includes functions for handling modals, managing standards, importing standards from file and knowledge base,
+ * updating the import file form, and reloading the standard table.
+ * 
+ * @since 24/05/2016
+ * @see importStandard, editStandard, addStandard, saveStandard, and removeStandard
+ */
+let $deleteModal = $("#deleteStandardModal");
+let $standardModal = $("#standardModal");
 
 $(document).ready(function () {
 	$standardModal.on('hidden.bs.modal', function () {
@@ -27,11 +36,18 @@ $(document).ready(function () {
 
 });
 
+
+/**
+ * Checks if the given section is set to analysis only standard.
+ *
+ * @param {string} section - The section to check.
+ * @returns {boolean} - Returns true if the section is set to analysis only standard, otherwise false.
+ */
 function isAnalysisOnlyStandard(section) {
 	return $(section + " tbody :checked").parent().parent().attr("data-trick-analysisOnly") === "true";
 }
 /**
- * @author eomar
+ * 
  * @since 24/05/2016
  * @see importStandard, editStandard, addStandard, saveStandard and
  *      removeStandard
@@ -141,6 +157,12 @@ function updateImportFileForm(e) {
 	$standardModal.find("#importStandardFromFile input[name='name']").prop("value", name).prop("disabled", true);
 }
 
+/**
+ * Imports a standard from a file.
+ *
+ * @param {Event} e - The event object.
+ * @returns {boolean} Returns false.
+ */
 function importStandardFromFile(e) {
 	var $uploadFile = $("#upload-file-info",$standardModal), $progress = $("#loading-indicator");
 	if (!$uploadFile.length)
@@ -178,7 +200,13 @@ function importStandardFromFile(e) {
 	return false;
 }
 
-// rewritten by @eomar 24/05/2016
+
+/**
+ * Imports a standard from the Knowledge Base.
+ *
+ * @param {Event} e - The event object.
+ * @returns {boolean} Returns false if the parent element has the "disabled" class, otherwise returns undefined.
+ */
 function importStandardFromKb(e) {
 	if ($(e.currentTarget).parent().hasClass("disabled"))
 		return false;
@@ -232,6 +260,11 @@ function importStandardFromKb(e) {
 	});
 }
 
+/**
+ * Reloads the standard table by making an AJAX request to the server.
+ * 
+ * @returns {boolean} Returns false to prevent the default form submission behavior.
+ */
 function reloadStandardTable() {
 	var $progress = $("#loading-indicator").show();
 	$.ajax({
@@ -255,7 +288,13 @@ function reloadStandardTable() {
 	return false;
 }
 
-// rewritten by @eomar 24/05/2016
+
+/**
+ * Edits the standard based on the provided event.
+ *
+ * @param {Event} e - The event object.
+ * @returns {boolean} - Returns true if the standard was successfully edited, false otherwise.
+ */
 function editStandard(e) {
 	if ($(e.currentTarget).parent().hasClass("disabled"))
 		return false;
@@ -275,7 +314,13 @@ function editStandard(e) {
 	return true;
 }
 
-// added by @eomar 24/05/2016
+
+/**
+ * Adds a new standard.
+ *
+ * @param {Event} e - The event object.
+ * @returns {boolean} - Returns true if the standard was added successfully, false otherwise.
+ */
 function addStandard(e) {
 	if ($(e.currentTarget).parent().hasClass("disabled"))
 		return false;
@@ -291,7 +336,11 @@ function addStandard(e) {
 	return true;
 }
 
-// added by @eomar 24/05/2016
+/**
+ * Saves the standard.
+ * 
+ * @param {Event} e - The event object.
+ */
 function saveStandard(e) {
 	var $btn = $(e.currentTarget).prop("disabled", true), $progress = $("#loading-indicator").show(), $form = $("#standard_form");
 	$(".label-danger,.alert-danger", $standardModal).remove();
@@ -326,6 +375,11 @@ function saveStandard(e) {
 	});
 }
 
+/**
+ * Removes a standard from the analysis.
+ * 
+ * @returns {boolean} Returns false if no standard is selected, otherwise returns true.
+ */
 function removeStandard() {
 	var selectedStandard = $("#section_manage_standards :checked");
 	if (selectedStandard.length != 1)
@@ -356,13 +410,27 @@ function removeStandard() {
 	return false;
 }
 
-// management of measures of analysis only standards
+/**
+ * Adds a measure for a given element and standard ID.
+ * 
+ * @param {HTMLElement} element - The element to add the measure to.
+ * @param {number} idStandard - The ID of the standard.
+ * @returns {boolean} - Returns true if the measure was successfully added, false otherwise.
+ */
 function addMeasure(element, idStandard) {
 	if ($(element).parent().hasClass("disabled") || idStandard == undefined || idStandard == null || !$.isNumeric(idStandard))
 		return false;
 	return manageMeasure(context + "/Analysis/Standard/" + idStandard + "/Measure/New");
 }
 
+/**
+ * Edits a measure.
+ *
+ * @param {HTMLElement} element - The element that triggered the edit action.
+ * @param {number} idStandard - The ID of the standard.
+ * @param {number} [idMeasure] - The ID of the measure (optional).
+ * @returns {boolean} - Returns true if the measure was successfully edited, false otherwise.
+ */
 function editMeasure(element, idStandard, idMeasure) {
 	if ($(element).parent().hasClass("disabled") || idStandard == undefined || idStandard == null || !$.isNumeric(idStandard))
 		return false;
@@ -373,6 +441,11 @@ function editMeasure(element, idStandard, idMeasure) {
 	return manageMeasure(context + "/Analysis/Standard/Measure/" + idMeasure + "/Edit");
 }
 
+/**
+ * Manages the measure by making an AJAX request to the specified URL.
+ * @param {string} url - The URL to make the AJAX request to.
+ * @returns {boolean} - Returns false to prevent the default form submission behavior.
+ */
 function manageMeasure(url) {
 	var $progress = $("#loading-indicator").show();
 	$.ajax({
@@ -396,6 +469,12 @@ function manageMeasure(url) {
 	return false;
 }
 
+/**
+ * Sets up the measure manager.
+ *
+ * @param {jQuery} $content - The jQuery object representing the content.
+ * @returns {jQuery} The updated jQuery object representing the content.
+ */
 function setupMeasureManager($content) {
 	$content.find("#measure_form_tabs").tab();
 	var $assetTab = $content.find("#tab_asset");
@@ -473,6 +552,13 @@ function setupMeasureManager($content) {
 	return $content;
 }
 
+/**
+ * Saves a measure.
+ *
+ * @param {HTMLElement} form - The form element containing the measure data.
+ * @param {Function} callback - The callback function to be executed after the measure is saved.
+ * @returns {boolean} - Returns false to prevent the default form submission behavior.
+ */
 function saveMeasure(form, callback) {
 	var data = {}, $form = $(form), $modalMeasureForm = $form.closest(".modal"), $genearal = $("#tab_general", $form), properties = $("#tab_properties #values", $form)
 		.serializeJSON(), $assetTab = $("#tab_asset", $form);
@@ -558,6 +644,14 @@ function saveMeasure(form, callback) {
 	return false;
 }
 
+/**
+ * Deletes a measure from the standard.
+ * If `measureId` is not provided, it deletes all selected measures from the standard.
+ * 
+ * @param {string} measureId - The ID of the measure to delete (optional).
+ * @param {string} idStandard - The ID of the standard.
+ * @returns {boolean} Returns false if `idStandard` is null or undefined, or if no measures are selected.
+ */
 function deleteMeasure(measureId, idStandard) {
 
 	if (idStandard == null || idStandard == undefined)
@@ -601,6 +695,14 @@ function deleteMeasure(measureId, idStandard) {
 	return false;
 }
 
+/**
+ * Deletes a single measure.
+ *
+ * @param {jQuery} $progress - The progress element.
+ * @param {string} idStandard - The ID of the standard.
+ * @param {string} idMeasure - The ID of the measure.
+ * @param {boolean} last - Indicates whether it is the last measure.
+ */
 function deleteSingleMeasure($progress, idStandard, idMeasure, last) {
 	var error = false;
 	$.ajax({
@@ -629,6 +731,10 @@ function deleteSingleMeasure($progress, idStandard, idMeasure, last) {
 	});
 }
 
+/**
+ * Manages the SOA (Service-Oriented Architecture).
+ * @returns {boolean} Returns false.
+ */
 function manageSOA() {
 	var idAnalysis = 0;
 	if (userCan(idAnalysis = findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
@@ -699,6 +805,12 @@ function manageSOA() {
 	return false;
 }
 
+/**
+ * Validates the SOA state for a given standard and measure.
+ * @param {string} idStandard - The ID of the standard.
+ * @param {string} idMeasure - The ID of the measure.
+ * @returns {boolean} - Returns false.
+ */
 function validateSOAState(idStandard, idMeasure) {
 	$("tr[data-trick-id='" + idMeasure + "']>td[data-trick-field!='soaReference'][data-trick-field]", "#table_SOA_" + idStandard).each(function () {
 		var $this = $(this);

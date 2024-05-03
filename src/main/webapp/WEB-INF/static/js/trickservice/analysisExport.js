@@ -1,3 +1,24 @@
+/**
+ * DataManagerExport object contains various methods for setting up and processing data exports.
+ * Each export type has its own setup and process methods.
+ * The object structure is as follows:
+ * {
+ *    "default": {
+ *        setup: Function,
+ *        postSetup: Function,
+ *        process: Function
+ *    },
+ *    "asset": {
+ *        setup: Function,
+ *        process: Function
+ *    },
+ *    "risk-information": {
+ *        setup: Function,
+ *        process: Function
+ *    },
+ *    ...
+ * }
+ */
 let DataManagerExport = {
 	"default": {
 		setup: ($view, $tab) => {
@@ -442,6 +463,18 @@ let DataManagerExport = {
 	}
 };
 
+
+/**
+ * Sets up the browse button functionality.
+ *
+ * @param {jQuery} $inputFile - The input file element.
+ * @param {jQuery} $fileInfo - The file info element.
+ * @param {jQuery} $browseBtn - The browse button element.
+ * @param {jQuery} $exportBtn - The export button element.
+ * @param {string} extension - The allowed file extension.
+ * @param {function} callback - The callback function to be executed when the input file is empty.
+ * @param {boolean} [optionnal=false] - Optional parameter to indicate if the file is optional.
+ */
 function setupBrowseButton($inputFile, $fileInfo, $browseBtn, $exportBtn, extension, callback, optionnal) {
 	$inputFile.on("change", (e) => {
 		let value = $inputFile.val();
@@ -461,6 +494,13 @@ function setupBrowseButton($inputFile, $fileInfo, $browseBtn, $exportBtn, extens
 	$browseBtn.on("click", (e) => $inputFile.click());
 }
 
+/**
+ * Downloads the progress of a task.
+ *
+ * @param {jQuery} $progress - The jQuery element representing the progress indicator.
+ * @param {string} token - The token used to track the progress of the task.
+ * @param {Function} caller - The function to be called after the progress is shown.
+ */
 function downloadProgress($progress, token, caller) {
 	if (token) {
 		let cookiePattern = new RegExp(token + "=1", "i"), taskId = "";
@@ -477,6 +517,12 @@ function downloadProgress($progress, token, caller) {
 }
 
 
+/**
+ * Exports data manager for a given analysis.
+ *
+ * @param {number} idAnalysis - The ID of the analysis.
+ * @returns {boolean} Returns false.
+ */
 function exportDataManager(idAnalysis) {
 	let $progress = $("#loading-indicator").show();
 	$.ajax({
@@ -512,6 +558,13 @@ function exportDataManager(idAnalysis) {
 	return false;
 }
 
+/**
+ * Exports the analysis with the given analysisId.
+ * If analysisId is not provided, it will use the selectedScenario from the "section_analysis" section.
+ * 
+ * @param {number} analysisId - The ID of the analysis to export.
+ * @returns {boolean} - Returns false if the export fails, otherwise returns true.
+ */
 function exportAnalysis(analysisId) {
 	if (analysisId == null || analysisId == undefined) {
 		let selectedScenario = findSelectItemIdBySection("section_analysis");
@@ -538,6 +591,13 @@ function exportAnalysis(analysisId) {
 	return false;
 }
 
+/**
+ * Exports the analysis report for the given analysis ID.
+ * If analysisId is not provided, it will use the selected scenario from the "section_analysis" section.
+ * 
+ * @param {number} analysisId - The ID of the analysis to export the report for.
+ * @returns {boolean} - Returns false if the export is not allowed or encounters an error, otherwise returns true.
+ */
 function exportAnalysisReport(analysisId) {
 	if (analysisId == null || analysisId == undefined) {
 		let selectedScenario = findSelectItemIdBySection("section_analysis");

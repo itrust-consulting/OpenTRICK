@@ -18,20 +18,29 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
 import org.springframework.context.annotation.ComponentScan;
 
 /**
- * @author eomar
- *
+ * The main class that starts the Spring Boot application.
  */
-
 @ComponentScan({ "lu.itrust.boot.configuration", "lu.itrust.business" })
 @SpringBootApplication(exclude = { FlywayAutoConfiguration.class, DataSourceAutoConfiguration.class,
 		FreeMarkerAutoConfiguration.class, TransactionAutoConfiguration.class,
 		DataSourceTransactionManagerAutoConfiguration.class, UserDetailsServiceAutoConfiguration.class,
 		HibernateJpaAutoConfiguration.class, LdapAutoConfiguration.class })
 public class Application extends SpringBootServletInitializer {
+	/**
+	 * The main entry point for the application.
+	 *
+	 * @param args The command line arguments passed to the application.
+	 */
 	public static void main(String[] args) {
 		SpringApplication.run(Application.class, args);
 	}
 
+	/**
+	 * Configures the Spring application builder.
+	 *
+	 * @param builder the Spring application builder
+	 * @return the configured Spring application builder
+	 */
 	@Override
 	protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
 		return builder.sources(Application.class);

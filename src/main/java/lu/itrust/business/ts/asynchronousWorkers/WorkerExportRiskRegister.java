@@ -53,9 +53,12 @@ import lu.itrust.business.ts.model.general.helper.Utils;
 import lu.itrust.business.ts.model.parameter.helper.ValueFactory;
 import lu.itrust.business.ts.usermanagement.User;
 
+
 /**
- * @author eomar
- *
+ * This class represents a worker responsible for exporting the risk register.
+ * It extends the WorkerImpl class and implements the Worker interface.
+ * The worker exports the risk register based on the provided analysis ID and username.
+ * It performs the export operation asynchronously.
  */
 public class WorkerExportRiskRegister extends WorkerImpl {
 
@@ -194,6 +197,12 @@ public class WorkerExportRiskRegister extends WorkerImpl {
 		}
 	}
 
+	/**
+	 * Performs the processing of generating a risk register document based on the given analysis and user.
+	 * 
+	 * @return The ID of the generated WordReport.
+	 * @throws Exception If there is an error during the processing.
+	 */
 	private long processing() throws Exception {
 		User user = daoUser.get(username);
 		Analysis analysis = daoAnalysis.get(idAnalysis);
@@ -292,6 +301,9 @@ public class WorkerExportRiskRegister extends WorkerImpl {
 		}
 	}
 
+	/**
+	 * Represents a paragraph in a document.
+	 */
 	private P setStyle(P p, String styleId) {
 		if (p.getPPr() == null)
 			p.setPPr(new PPr());
@@ -301,10 +313,23 @@ public class WorkerExportRiskRegister extends WorkerImpl {
 		return p;
 	}
 
+	/**
+	 * Sets the text of a cell in a table cell (Tc) object.
+	 *
+	 * @param tc   The table cell object to set the text for.
+	 * @param text The text to set in the table cell.
+	 */
 	private void setCellText(Tc tc, String text) {
 		setCellText(tc, text, null);
 	}
 
+	/**
+	 * Sets the text and alignment of a cell in a table.
+	 *
+	 * @param cell      the cell to set the text for
+	 * @param text      the text to set in the cell
+	 * @param alignment the alignment of the text in the cell
+	 */
 	private void setCellText(Tc cell, String text, TextAlignment alignment) {
 		if (cell.getContent().isEmpty())
 			cell.getContent().add(new P());
@@ -314,6 +339,9 @@ public class WorkerExportRiskRegister extends WorkerImpl {
 		setText(paragraph, text, alignment);
 	}
 
+	/**
+	 * Represents a paragraph in a document.
+	 */
 	private P setText(P paragraph, String content, TextAlignment alignment) {
 		if (alignment != null) {
 			if (paragraph.getPPr() == null)
@@ -335,21 +363,45 @@ public class WorkerExportRiskRegister extends WorkerImpl {
 
 	}
 
+	/**
+	 * Adds an integer value to the specified row at the given index.
+	 *
+	 * @param value the integer value to add
+	 * @param row the row to add the value to
+	 * @param index the index at which to add the value
+	 */
 	private void addInt(int value, Tr row, int index) {
 		Tc cell = (Tc) XmlUtils.unwrap(row.getContent().get(index));
 		setCellText(cell, value + "", createAlignment("right"));
 	}
 
+	/**
+	 * Represents the alignment of text.
+	 */
 	private TextAlignment createAlignment(String value) {
 		TextAlignment alignment = new TextAlignment();
 		alignment.setVal(value);
 		return alignment;
 	}
 
+	/**
+	 * Adds a string to the specified cell in the risk register.
+	 *
+	 * @param content The string to be added to the cell.
+	 * @param row The row containing the cell.
+	 * @param index The index of the cell in the row.
+	 */
 	private void addString(String content, Tr row, int index) {
 		setCellText((Tc) XmlUtils.unwrap(row.getContent().get(index)), content);
 	}
 
+	/**
+	 * Adds the fields related to risk probability and impact to the given row at the specified index.
+	 *
+	 * @param expProbaImpact The risk probability and impact values to be added. Can be null.
+	 * @param row The row to which the fields will be added.
+	 * @param index The index at which the fields will be added.
+	 */
 	private void addField(RiskProbaImpact expProbaImpact, Tr row, int index) {
 		int impact = 0, proba = 0;
 		if (expProbaImpact != null) {

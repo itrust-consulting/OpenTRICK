@@ -1,3 +1,11 @@
+
+/**
+ * This file contains the JavaScript code for the knowledgebase functionality in the TrickService application.
+ * It includes functions for editing, exporting, setting as default, selecting, and deleting analysis profiles.
+ * The code also includes event handlers for various actions and AJAX requests for data manipulation.
+ * 
+ * @version 1.0.0
+ */
 $(document).ready(function () {
 	application["settings-fixed-header"] = {
 		fixedOffset: $(".nav-tab"),
@@ -13,6 +21,12 @@ $(document).ready(function () {
 	application["reportTemplateDownloadItemLimit"] = 10;
 });
 
+/**
+ * Edits a single analysis.
+ * 
+ * @param {number} analysisId - The ID of the analysis to edit.
+ * @returns {boolean} Returns false if the analysis ID is null or undefined, or if there are multiple selected scenarios. Otherwise, returns true.
+ */
 function editSingleAnalysis(analysisId) {
 	if (analysisId == null || analysisId == undefined) {
 		var selectedScenario = findSelectItemIdBySection("section_profile_analysis");
@@ -76,6 +90,13 @@ function editSingleAnalysis(analysisId) {
 	return false;
 }
 
+/**
+ * Exports the analysis with the given ID.
+ * If the analysis ID is not provided, it will use the selected scenario ID from the "section_profile_analysis" section.
+ * 
+ * @param {number} analysisId - The ID of the analysis to export.
+ * @returns {boolean} - Returns false if the analysis ID is not found or if there was an error during the export process.
+ */
 function exportAnalysis(analysisId) {
 	if (analysisId == null || analysisId == undefined) {
 		var selectedScenario = findSelectItemIdBySection("section_profile_analysis");
@@ -103,6 +124,13 @@ function exportAnalysis(analysisId) {
 	return false;
 }
 
+/**
+ * Sets the specified analysis profile as the default profile.
+ * If no analysisId is provided, it will use the selected scenario from the "section_profile_analysis" section.
+ * 
+ * @param {number} analysisId - The ID of the analysis profile to set as default.
+ * @returns {boolean} - Returns false if the analysisId is not valid or if the profile is already the default, otherwise returns true.
+ */
 function setAsDefaultProfile(analysisId) {
 	if (analysisId == null || analysisId == undefined) {
 		var selectedScenario = findSelectItemIdBySection("section_profile_analysis");
@@ -129,6 +157,14 @@ function setAsDefaultProfile(analysisId) {
 
 }
 
+/**
+ * Selects an analysis based on the provided analysisId.
+ * If analysisId is null or undefined, it selects the analysis based on the selectedScenario.
+ * It then shows the loading indicator and redirects to the analysis page for editing.
+ *
+ * @param {string} analysisId - The ID of the analysis to be selected.
+ * @returns {boolean} - Returns false.
+ */
 function selectAnalysis(analysisId) {
 	if (analysisId == null || analysisId == undefined) {
 		var selectedScenario = findSelectItemIdBySection("section_profile_analysis");
@@ -141,6 +177,14 @@ function selectAnalysis(analysisId) {
 	return false;
 }
 
+/**
+ * Deletes an analysis profile.
+ * If the analysisId is not provided, it will attempt to find the selected scenario and use its ID.
+ * If the analysis profile is not a default profile, it will prompt the user for confirmation before deleting.
+ * 
+ * @param {number} analysisId - The ID of the analysis profile to delete.
+ * @returns {boolean} - Returns false.
+ */
 function deleteAnalysisProfile(analysisId) {
 	if (analysisId == null || analysisId == undefined) {
 		var selectedScenario = findSelectItemIdBySection("section_profile_analysis");
@@ -177,6 +221,13 @@ function deleteAnalysisProfile(analysisId) {
 	return false;
 }
 
+/**
+ * Checks if a given analysis ID has a default profile.
+ * If the `idAnalysis` parameter is not provided, it checks if the currently selected profile has a default value.
+ *
+ * @param {string} [idAnalysis] - The ID of the analysis to check for a default profile.
+ * @returns {boolean} - Returns `true` if the analysis has a default profile, otherwise `false`.
+ */
 function isDefaultProfile(idAnalysis){
 	return idAnalysis === undefined?  $("#section_profile_analysis tbody>tr>td>input:checked").parent().parent().attr("data-trick-profile-default") === "true" : $("#section_profile_analysis tbody>tr[data-trick-id='"+idAnalysis+"']").attr("data-trick-profile-default") === "true";
 }

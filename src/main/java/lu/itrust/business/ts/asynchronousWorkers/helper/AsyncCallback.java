@@ -1,30 +1,27 @@
 /**
- * 
+ * This class represents an asynchronous callback.
  */
 package lu.itrust.business.ts.asynchronousWorkers.helper;
 
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author eomar
- *
- */
 public class AsyncCallback {
 
 	private String action;
-
 	private List<Object> args;
 
 	/**
-	 * 
+	 * Default constructor for AsyncCallback.
 	 */
 	public AsyncCallback() {
 	}
 
 	/**
-	 * @param action
-	 * @param args
+	 * Constructor for AsyncCallback with action and args.
+	 *
+	 * @param action the action to be performed
+	 * @param args   the arguments for the action
 	 */
 	public AsyncCallback(String action, List<Object> args) {
 		this.action = action;
@@ -32,8 +29,10 @@ public class AsyncCallback {
 	}
 
 	/**
-	 * @param action
-	 * @param args
+	 * Constructor for AsyncCallback with action and variable number of args.
+	 *
+	 * @param action the action to be performed
+	 * @param args   the arguments for the action
 	 */
 	public AsyncCallback(String action, Object... args) {
 		this.action = action;
@@ -45,6 +44,8 @@ public class AsyncCallback {
 	}
 
 	/**
+	 * Get the action.
+	 *
 	 * @return the action
 	 */
 	public String getAction() {
@@ -52,23 +53,27 @@ public class AsyncCallback {
 	}
 
 	/**
-	 * @param action
-	 *            the action to set
+	 * Set the action.
+	 *
+	 * @param action the action to be set
 	 */
 	public void setAction(String action) {
 		this.action = action;
 	}
 
 	/**
-	 * @return the args
+	 * Get the arguments.
+	 *
+	 * @return the arguments
 	 */
 	public List<Object> getArgs() {
 		return args;
 	}
 
 	/**
-	 * @param args
-	 *            the args to set
+	 * Set the arguments.
+	 *
+	 * @param args the arguments to be set
 	 */
 	public void setArgs(List<Object> args) {
 		this.args = args;

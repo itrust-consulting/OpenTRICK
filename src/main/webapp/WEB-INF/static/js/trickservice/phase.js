@@ -1,3 +1,8 @@
+/**
+ * Adds a phase to the analysis.
+ * 
+ * @returns {boolean} Returns false.
+ */
 function addPhase() {
 	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
 		var $progress = $("#loading-indicator").show();
@@ -14,6 +19,14 @@ function addPhase() {
 
 }
 
+/**
+ * Processes the phase form response and performs necessary actions.
+ *
+ * @param {any} response - The response from the server.
+ * @param {string} textStatus - The status of the request.
+ * @param {XMLHttpRequest} jqXHR - The XMLHttpRequest object.
+ * @returns {Object} - The current object.
+ */
 function processPhaseForm(response, textStatus, jqXHR){
 	var $view = $("#phase-modal-form", new DOMParser().parseFromString(response, "text/html"));
 	if ($view.length) {
@@ -40,6 +53,12 @@ function processPhaseForm(response, textStatus, jqXHR){
 	return this;
 }
 
+/**
+ * Edits a phase.
+ * 
+ * @param {number} phaseId - The ID of the phase to edit.
+ * @returns {boolean} - Returns false if the selected phase is not found or if the user does not have the MODIFY right, otherwise returns true.
+ */
 function editPhase(phaseId) {
 	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
 		if(phaseId===undefined || phaseId === null){
@@ -61,10 +80,12 @@ function editPhase(phaseId) {
 	return false;
 }
 
+
 /**
+ * Saves the phase data using an AJAX request.
  * 
- * @param form
- * @returns
+ * @param {Event} e - The event object.
+ * @returns {boolean} Returns false to prevent the default form submission.
  */
 function savePhase(e) {
 	var $progress = $("#loading-indicator").show(), form = e.currentTarget, view = form.closest(".modal");
@@ -96,6 +117,12 @@ function savePhase(e) {
 	return false;
 }
 
+/**
+ * Deletes a phase.
+ * 
+ * @param {number} idPhase - The ID of the phase to be deleted.
+ * @returns {boolean} Returns false if the ID is null or undefined, otherwise returns true.
+ */
 function deletePhase(idPhase) {
 
 	if (idPhase == null || idPhase == undefined) {

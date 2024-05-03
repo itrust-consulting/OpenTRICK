@@ -89,9 +89,12 @@ import lu.itrust.business.ts.model.standard.measuredescription.MeasureDescriptio
 import lu.itrust.business.ts.model.standard.measuredescription.MeasureDescriptionText;
 import lu.itrust.business.ts.usermanagement.User;
 
+
 /**
- * @author eomar
- *
+ * This class represents a worker for exporting a risk sheet. It extends the WorkerImpl class.
+ * The WorkerExportRiskSheet class is responsible for exporting risk data to an Excel sheet.
+ * It provides methods for canceling the export, retrieving the CSSF export form, setting the locale,
+ * running the export process, and setting various properties related to the export.
  */
 public class WorkerExportRiskSheet extends WorkerImpl {
 
@@ -125,12 +128,26 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 
 	private String username;
 
+	/**
+	 * Constructs a new instance of the WorkerExportRiskSheet class.
+	 *
+	 * @param cssfExportForm The CSSFExportForm object.
+	 * @param analysisId The analysis ID.
+	 * @param username The username.
+	 */
 	public WorkerExportRiskSheet(CSSFExportForm cssfExportForm, Integer analysisId, String username) {
 		setCssfExportForm(cssfExportForm);
 		setUsername(username);
 		setIdAnalysis(analysisId);
 	}
 
+	/**
+	 * Cancels the current task.
+	 * If the task is currently working and not already canceled, it interrupts the current thread or the thread associated with the current task.
+	 * Sets the canceled flag to true.
+	 * If an exception occurs during the cancellation process, it sets the error and logs the exception.
+	 * If the task is still working after cancellation, it sets the working flag to false and updates the finished timestamp.
+	 */
 	@Override
 	public void cancel() {
 		try {
@@ -174,6 +191,13 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 		return locale;
 	}
 
+	/**
+	 * Executes the worker task.
+	 * This method is called when the worker thread starts.
+	 * It performs the necessary operations to export a risk sheet.
+	 * 
+	 * @throws TrickException if an error occurs during the export process
+	 */
 	@Override
 	public void run() {
 		Session session = null;
@@ -293,6 +317,13 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 		this.username = username;
 	}
 
+	/**
+	 * Adds estimations to the worksheet.
+	 * 
+	 * @param worksheet   The worksheet to add the estimations to.
+	 * @param estimations The list of estimations to add.
+	 * @param types       The list of scale types.
+	 */
 	private void addEstimation(Worksheet worksheet, List<Estimation> estimations,
 			List<ScaleType> types) {
 		int size = 16 + types.size() * 3;
@@ -348,11 +379,24 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 		}
 	}
 
+	/**
+	 * Adds a field to the document with the specified title and content.
+	 *
+	 * @param document the document to add the field to
+	 * @param title the title of the field
+	 * @param content the content of the field
+	 */
 	private void addField(Document document, String title, String content) {
 		addTitle(document, title);
 		addFieldContent(document, content);
 	}
 
+	/**
+	 * Adds the specified content to the given document.
+	 * 
+	 * @param document the document to add the content to
+	 * @param content the content to be added
+	 */
 	private void addFieldContent(Document document, String content) {
 		if (content == null || content.isEmpty())
 			return;
@@ -361,10 +405,23 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 			document.getContent().add(setText(new P(), texts[i]));
 	}
 
+	/**
+	 * Adds content to the specified cell with the given text.
+	 * 
+	 * @param cell The cell to add content to.
+	 * @param text The text to be added to the cell.
+	 */
 	private void addFieldContent(Tc cell, String text) {
 		addFieldContent(cell, text, false);
 	}
 
+	/**
+	 * Adds content to a given cell in a risk sheet.
+	 *
+	 * @param cell The cell to add content to.
+	 * @param text The text to be added to the cell.
+	 * @param add  A flag indicating whether to add the content or create a new paragraph.
+	 */
 	private void addFieldContent(Tc cell, String text, boolean add) {
 		P p = (P) (!add && cell.getContent().size() == 1 ? cell.getContent().get(0) : createP(cell));
 		if (text == null)
@@ -379,6 +436,13 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 		setpStyleId(P_STYLE);
 	}
 
+	/**
+	 * Adds the header row to the worksheet.
+	 *
+	 * @param worksheet The worksheet to add the header row to.
+	 * @param factory The object factory used to create cells and rows.
+	 * @param types The list of scale types.
+	 */
 	private void addHeader(Worksheet worksheet, ObjectFactory factory, List<ScaleType> types) {
 		int rowCount = showRawColumn ? types.size() * 3 + 16 : types.size() * 2 + 14;
 		Row row = factory.createRow(), row1 = factory.createRow();
@@ -435,6 +499,13 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 
 	}
 
+	/**
+	 * Adds the header section for the risk sheet to the given document.
+	 *
+	 * @param document The document to add the header section to.
+	 * @param riskProfile The risk profile associated with the risk sheet.
+	 * @param isFirst Flag indicating if this is the first risk sheet in the document.
+	 */
 	private void addRiskSheetHeader(Document document, RiskProfile riskProfile, boolean isFirst) {
 		String scenarioType = riskProfile.getScenario().getType().getName();
 		String category = getMessage("label.scenario.type." + scenarioType.replace("-", "_").toLowerCase(),
@@ -465,6 +536,14 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 		document.getContent().add(format(table));
 	}
 
+	/**
+	 * Adds a table to the document with the specified title, risk probability and impact, and list of scale types.
+	 *
+	 * @param document The document to which the table will be added.
+	 * @param title The title of the table.
+	 * @param probaImpact The risk probability and impact.
+	 * @param types The list of scale types.
+	 */
 	private void addTable(Document document, String title, RiskProbaImpact probaImpact, List<ScaleType> types) {
 
 		addTitle(document, title);
@@ -527,6 +606,9 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 		document.getContent().add(format(table));
 	}
 
+	/**
+	 * Represents a table cell in a document.
+	 */
 	private Tc setVAlignment(Tc tc, String alignment) {
 		if (tc.getTcPr() == null)
 			tc.setTcPr(new TcPr());
@@ -536,6 +618,13 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 		return tc;
 	}
 
+	/**
+	 * Adds an action table to the document with the specified title and risk profile.
+	 * 
+	 * @param document    the document to add the action table to
+	 * @param title       the title of the action table
+	 * @param riskProfile the risk profile containing the measures and action plan
+	 */
 	private void addActionTable(Document document, String title, RiskProfile riskProfile) {
 
 		addTitle(document, title);
@@ -565,16 +654,28 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 
 	}
 
+	/**
+	 * Adds a title to the document.
+	 *
+	 * @param document the document to add the title to
+	 * @param title the title to be added
+	 */
 	private void addTitle(Document document, String title) {
 		document.getContent().add(setStyle(setText(new P(), title), "TSTitle"));
 	}
 
+	/**
+	 * Represents a paragraph element in a document.
+	 */
 	private P createP(Tc cell) {
 		P p = new P();
 		cell.getContent().add(p);
 		return p;
 	}
 
+	/**
+	 * Represents a table in a document.
+	 */
 	private Tbl createTable(String styleId, int rows, int cols) {
 		Tbl table = TblFactory.createTable(rows, cols, 1);
 		if (styleId != null)
@@ -589,6 +690,12 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 		return table;
 	}
 
+	/**
+	 * Exports the data for generating a risk sheet.
+	 *
+	 * @return The ID of the generated Word report.
+	 * @throws Exception If an error occurs during the export process.
+	 */
 	private long exportData() throws Exception {
 		final Analysis analysis = daoAnalysis.get(idAnalysis);
 		final File file = loadTemplate(analysis.getCustomer(), TrickTemplateType.DEFAULT_EXCEL,
@@ -661,6 +768,12 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 
 	}
 
+	/**
+	 * Exports a risk sheet report.
+	 *
+	 * @return The ID of the generated report.
+	 * @throws Exception If an error occurs during the export process.
+	 */
 	private long exportReport() throws Exception {
 		final User user = daoUser.get(username);
 		final Analysis analysis = daoAnalysis.get(idAnalysis);
@@ -755,6 +868,9 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 		}
 	}
 
+	/**
+	 * Represents a table.
+	 */
 	private Tbl format(Tbl table) {
 		switch (table.getTblPr().getTblStyle().getVal()) {
 			case "TSTABLERISK":
@@ -767,6 +883,9 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 		return table;
 	}
 
+	/**
+	 * Represents a table in a document.
+	 */
 	private Tbl formatTitle(Tbl table) {
 		int[] headers = { 2172, 2226, 5239 }, cols = { 1127, 1155, 2718 };
 		table.getTblPr().getTblW().setType("pct");
@@ -777,6 +896,9 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 		return table;
 	}
 
+	/**
+	 * Represents a table in a document.
+	 */
 	private Tbl formatMeasure(Tbl table) {
 		int[] headers = { 1276, 1357, 5616, 1388 }, cols = { 662, 704, 2913, 720 };
 		table.getTblPr().getTblW().setType("pct");
@@ -787,6 +909,9 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 		return table;
 	}
 
+	/**
+	 * Represents a table in a document.
+	 */
 	private Tbl formatEvolution(Tbl table) {
 		int[] headers = createCols(5000, table.getTblGrid().getGridCol().size()),
 				mergeCols = { headers[0], sum(1, headers.length - 2, headers), headers[headers.length - 1] };
@@ -799,6 +924,13 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 		return table;
 	}
 
+	/**
+	 * Creates an array of column sizes based on the given size and count.
+	 * 
+	 * @param size  the total size of the columns
+	 * @param count the number of columns to create
+	 * @return an array of column sizes
+	 */
 	private int[] createCols(int size, int count) {
 		int col = size / count;
 		int[] cols = new int[count];
@@ -807,10 +939,25 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 		return cols;
 	}
 
+	/**
+	 * Retrieves a localized message for the given code, with optional parameters and a default message.
+	 *
+	 * @param code The code of the message to retrieve.
+	 * @param parameters Optional parameters to be used in the message.
+	 * @param defaultMessage The default message to be used if the code is not found.
+	 * @return The localized message.
+	 */
 	private String getMessage(String code, Object[] parameters, String defaultMeassge) {
 		return getMessageSource().getMessage(code, parameters, defaultMeassge, getLocale());
 	}
 
+	/**
+	 * Retrieves a message from the message source based on the provided code.
+	 *
+	 * @param code The code of the message to retrieve.
+	 * @param defaultMeassge The default message to return if the code is not found.
+	 * @return The retrieved message as a {@link String}.
+	 */
 	private String getMessage(String code, String defaultMeassge) {
 		return getMessageSource().getMessage(code, null, defaultMeassge, getLocale());
 	}
@@ -822,6 +969,13 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 		return pStyleId;
 	}
 
+	/**
+	 * Prints the evaluation header in the specified row.
+	 *
+	 * @param row    The row to print the header in.
+	 * @param types  The list of scale types.
+	 * @param index  The starting index for the header cells.
+	 */
 	private void printEvaluationHeader(Row row, List<ScaleType> types, int index) {
 		setValue(row.getC().get(index++), getMessage("report.risk_sheet.probability", "Probability (P)"));
 		for (ScaleType scaleType : types)
@@ -831,6 +985,14 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 		setValue(row.getC().get(index++), getMessage("report.risk_sheet.importance", "Importance"));
 	}
 
+	/**
+	 * Prints the risk probability and impact values to the specified row.
+	 *
+	 * @param row         the row to print the values to
+	 * @param index       the starting index of the cells in the row
+	 * @param scaleTypes  the list of scale types
+	 * @param probaImpact the risk probability and impact values
+	 */
 	private void printRiskProba(Row row, int index, List<ScaleType> scaleTypes, RiskProbaImpact probaImpact) {
 		if (probaImpact == null)
 			probaImpact = new RiskProbaImpact();
@@ -843,18 +1005,45 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 		setCellInt(row, index++, probaImpact.getImportance());
 	}
 
+	/**
+	 * Sets the value of a cell in a row at the specified index to an integer value.
+	 *
+	 * @param row the row containing the cell
+	 * @param index the index of the cell in the row
+	 * @param value the integer value to set in the cell
+	 */
 	private void setCellInt(Row row, int index, int value) {
 		setValue(row.getC().get(index), value);
 	}
 
+	/**
+	 * Sets the value of a cell in a row at the specified index with the given string value.
+	 *
+	 * @param row   the row containing the cell
+	 * @param index the index of the cell in the row
+	 * @param value the string value to set in the cell
+	 */
 	private void setCellString(Row row, int index, String value) {
 		setValue(row.getC().get(index), value);
 	}
 
+	/**
+	 * Sets the text of a cell in a table cell (Tc) element.
+	 *
+	 * @param tc   the table cell element
+	 * @param text the text to set in the cell
+	 */
 	private void setCellText(Tc tc, String text) {
 		setCellText(tc, text, null);
 	}
 
+	/**
+	 * Sets the text and alignment of a cell in a risk sheet.
+	 *
+	 * @param cell      the cell to set the text for
+	 * @param text      the text to set in the cell
+	 * @param alignment the alignment of the text in the cell
+	 */
 	private void setCellText(Tc cell, String text, TextAlignment alignment) {
 		if (cell.getContent().isEmpty())
 			cell.getContent().add(new P());
@@ -864,6 +1053,9 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 		setText(paragraph, text, alignment);
 	}
 
+	/**
+	 * Represents a paragraph in a document.
+	 */
 	private P setStyle(P p, String styleId) {
 		if (p.getPPr() == null)
 			p.setPPr(new PPr());
@@ -873,10 +1065,16 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 		return p;
 	}
 
+	/**
+	 * Represents a paragraph element in a document.
+	 */
 	private P setText(P paragraph, String content) {
 		return setText(paragraph, content, null);
 	}
 
+	/**
+	 * Represents a paragraph in a document.
+	 */
 	private P setText(P paragraph, String content, TextAlignment alignment) {
 		if (alignment != null) {
 			if (paragraph.getPPr() == null)

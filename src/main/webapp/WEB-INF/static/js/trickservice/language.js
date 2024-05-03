@@ -1,3 +1,9 @@
+/**
+ * Saves the language data using an AJAX request.
+ * 
+ * @param {HTMLFormElement} form - The form element containing the language data.
+ * @returns {boolean} - Returns false to prevent the default form submission.
+ */
 function saveLanguage(form) {
 	$("#addLanguageModel .label-danger").remove();
 	var $progress = $("#loading-indicator").show();
@@ -40,6 +46,14 @@ function saveLanguage(form) {
 	return false;
 }
 
+/**
+ * Deletes a language.
+ * If the languageId is not provided, it will try to find the selected language in the UI.
+ * 
+ * @param {number} languageId - The ID of the language to delete.
+ * @param {string} name - The name of the language to delete.
+ * @returns {boolean} Returns false if the languageId is not found or if there is an error during the deletion process.
+ */
 function deleteLanguage(languageId, name) {
 	if (languageId == null || languageId == undefined) {
 		var selectedScenario = findSelectItemIdBySection(("section_language"));
@@ -73,6 +87,10 @@ function deleteLanguage(languageId, name) {
 	return false;
 }
 
+/**
+ * Creates a new language.
+ * @returns {boolean} Returns false.
+ */
 function newLanguage() {
 	$("#addLanguageModel .label-danger").remove();
 	$("#addLanguageModel #addlanguagebutton").prop("disabled", false);
@@ -87,6 +105,12 @@ function newLanguage() {
 	return false;
 }
 
+/**
+ * Edits a single language.
+ * 
+ * @param {number} languageId - The ID of the language to be edited.
+ * @returns {boolean} - Returns false if the language ID is null or undefined, or if there are multiple selected scenarios. Otherwise, returns true.
+ */
 function editSingleLanguage(languageId) {
 	if (languageId == null || languageId == undefined) {
 		var selectedScenario = findSelectItemIdBySection(("section_language"));

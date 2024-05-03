@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
  * Simple implementation of the Tokenizer interface, which reads tokens from a
  * given string.
  * 
- * @author Steve Muller (SMU), itrust consulting s.à r.l.
+ * @author (SMU), itrust consulting s.à r.l.
  * @since Jun 9, 2015
  */
 public class StringTokenizer implements Tokenizer {

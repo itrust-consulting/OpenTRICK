@@ -1,3 +1,10 @@
+
+/**
+ * Saves the measure data to the server.
+ *
+ * @param {Event} e - The event object.
+ * @returns {boolean} - Returns false to prevent the default form submission.
+ */
 function saveMeasureData(e) {
 	var $target = $(e.currentTarget), value = $target.val(), id = $("#measure-ui").attr('data-trick-id'), name = $target.attr('name'), type = $target.attr('data-trick-type'), oldValue = $target
 		.hasAttr("placeholder") ? $target.attr("placeholder") : $target.attr("data-trick-value");
@@ -76,6 +83,11 @@ function saveMeasureData(e) {
 	return false;
 }
 
+/**
+ * Loads measure data for a given ID.
+ * @param {number} id - The ID of the measure.
+ * @returns {boolean} - Returns false.
+ */
 function loadMeasureData(id) {
 	var $currentUI = $("#measure-ui");
 	if (id == undefined)
@@ -123,6 +135,15 @@ function loadMeasureData(id) {
 	return false;
 }
 
+/**
+ * Updates the description of an element.
+ *
+ * @param {jQuery} $element - The jQuery element to update.
+ * @param {string} id - The ID of the element.
+ * @param {jQuery} $description - The jQuery element representing the description.
+ * @param {jQuery} $progress - The jQuery element representing the progress indicator.
+ * @returns {boolean} - Returns false.
+ */
 function updateDescription($element, id, $description, $progress) {
 	$progress.show();
 	$.ajax({
@@ -143,6 +164,9 @@ function updateDescription($element, id, $description, $progress) {
 	return false;
 }
 
+/**
+ * Updates the Measure UI based on the selected measure.
+ */
 function updateMeasureUI() {
 	var $container = $("#tab-measure-edition div.list-group:visible");
 	$measure = $(".list-group-item.active", $container), id = $measure.attr('data-trick-id');
@@ -159,6 +183,10 @@ function updateMeasureUI() {
 	}
 }
 
+/**
+ * Updates the measure navigation based on the current selected chapter and measure.
+ * @returns {boolean} Returns false.
+ */
 function updateMeasureNavigation() {
 	var $currentChapter = $("#tab-measure-edition select[name='chapter']:visible>option:selected"), $currentMeasure = $("#tab-measure-edition div[data-trick-content='measure'][data-trick-standard-name][data-trick-id]:visible div.list-group .list-group-item.active"), $previousChatper = $(
 		"#tab-measure-edition [data-trick-nav='previous-chapter']").parent(), $nextChapter = $("#tab-measure-edition [data-trick-nav='next-chapter']").parent(), $previousMeasure = $(
@@ -186,6 +214,12 @@ function updateMeasureNavigation() {
 
 }
 
+/**
+ * Changes the measure based on the event target.
+ *
+ * @param {Event} e - The event object.
+ * @returns {boolean} - Returns false to prevent default behavior.
+ */
 function changeMeasure(e) {
 	var $target = $(e.currentTarget);
 	if (!$target.hasClass('active')) {
@@ -196,6 +230,10 @@ function changeMeasure(e) {
 	return false;
 }
 
+/**
+ * Updates the measure view.
+ * @returns {boolean} Returns false.
+ */
 function updateMeasureView() {
 	var $section = $("#tab-measure-edition");
 	if ($section.is(":visible")) {
@@ -209,10 +247,23 @@ function updateMeasureView() {
 	return false;
 }
 
+/**
+ * Extracts the chapter from a given reference.
+ * @param {string} reference - The reference string.
+ * @returns {string} The extracted chapter.
+ */
 function extractChapter(reference) {
 	return reference.split(/\.|\s|;|-|,/, (reference.toUpperCase().startsWith("A.")) || (reference.toUpperCase().startsWith("M.")) ? 2 : 1).join('.');
 }
 
+/**
+ * Finds the measures chapter with the given name and performs necessary operations.
+ *
+ * @param {string} chapter - The name of the chapter to find.
+ * @param {jQuery} $measureContainer - The container element for measures.
+ * @param {jQuery} $chapterSelector - The selector element for chapters.
+ * @returns {jQuery} - The jQuery object representing the found chapter.
+ */
 function findMeasuresChapter(chapter, $measureContainer, $chapterSelector) {
 	var $chapter = $("[data-trick-chapter-name='" + chapter + "']", $measureContainer);
 	if (!$chapter.length) {
@@ -226,12 +277,24 @@ function findMeasuresChapter(chapter, $measureContainer, $chapterSelector) {
 	return $chapter;
 }
 
+/**
+ * Sorts the measure chapters by reference.
+ *
+ * @param {jQuery} $chapter - The jQuery object representing the measure chapter.
+ * @returns {jQuery} - The sorted jQuery object representing the measure chapter.
+ */
 function sortMeasureChapterByReference($chapter) {
 	return $("[data-trick-reference][data-trick-id]", $chapter).sort(function (a, b) {
 		return naturalSort(a.getAttribute("data-trick-reference"), b.getAttribute("data-trick-reference"));
 	}).detach().appendTo($chapter).removeClass("active").filter(":first").addClass("active");
 }
 
+/**
+ * Updates the measure navigation control based on the provided measure.
+ * 
+ * @param {Object} measure - The measure object.
+ * @returns {boolean} - Returns false if the measure reference is undefined, otherwise returns true.
+ */
 function updateMeasureNavigationControl(measure) {
 	if (measure.reference == undefined)
 		return false;
@@ -259,6 +322,13 @@ function updateMeasureNavigationControl(measure) {
 	return updateMeasureView();
 }
 
+/**
+ * Removes a measure from the measure navigation.
+ *
+ * @param {string} idStandard - The ID of the standard.
+ * @param {string} idMeasure - The ID of the measure.
+ * @returns {boolean} - Returns false.
+ */
 function removeFromMeasureNavigation(idStandard, idMeasure) {
 	var $tabSection = $("#tab-measure-edition"), $measure = $("div[data-trick-id='" + idStandard
 		+ "'][data-trick-content='measure'] [data-trick-reference][data-trick-id='" + idMeasure + "']", $tabSection), $chapter = $measure
@@ -273,6 +343,11 @@ function removeFromMeasureNavigation(idStandard, idMeasure) {
 	return false;
 }
 
+/**
+ * Initializes the measure view.
+ * This function sets up event handlers and initializes the UI elements for the measure view.
+ * @returns {boolean} Returns false.
+ */
 function initiliseMeasureView() {
 
 	var $nav = $("#tab-measure-edition ul.nav.nav-pills[data-trick-role='nav-measure']").on("trick.update.nav", updateMeasureNavigation), $returnAnalysis = $("a[data-base-url]",

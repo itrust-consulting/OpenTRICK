@@ -1,3 +1,6 @@
+/**
+ * This file contains functions related to managing analysis access and profiles.
+ */
 var taskManager = undefined, analysesCaching = undefined;
 
 $(document).ready(function () {
@@ -8,6 +11,13 @@ $(document).ready(function () {
 	setTimeout(() => fixTableHeader("#section_analysis table"), 300);
 });
 
+/**
+ * Manages the access for an analysis.
+ * 
+ * @param {number} analysisId - The ID of the analysis.
+ * @param {string} section_analysis - The section of the analysis.
+ * @returns {boolean} - Returns false if the analysis ID is null or undefined, or if the selected analysis length is not equal to 1. Otherwise, returns true.
+ */
 function manageAnalysisAccess(analysisId, section_analysis) {
 	if (analysisId == null || analysisId == undefined) {
 		var selectedAnalysis = findSelectItemIdBySection((section_analysis));
@@ -105,6 +115,11 @@ function manageAnalysisAccess(analysisId, section_analysis) {
 	return false;
 }
 
+/**
+ * Updates the analysis access based on the user's input.
+ *
+ * @param {Event} e - The event object.
+ */
 function updateAnalysisAccess(e) {
 
 	var $progress = $("#loading-indicator").show(), $modal = $("#manageAnalysisAccessModel"), me = $modal.attr("data-trick-user-id"), data = {
@@ -161,6 +176,12 @@ function updateAnalysisAccess(e) {
 
 
 
+/**
+ * Manages the IDS access for a selected analysis.
+ * 
+ * @param {string} section - The section of the analysis.
+ * @returns {boolean} - Returns false if the selected analysis is not found or if the conditions are not met, otherwise returns true.
+ */
 function manageAnalysisIDSAccess(section) {
 	var selectedAnalysis = findSelectItemIdBySection(section);
 	if (selectedAnalysis.length != 1)
@@ -215,6 +236,11 @@ function manageAnalysisIDSAccess(section) {
 
 }
 
+/**
+ * Finds the value of the "data-trick-is-profile" attribute for the given element or its parent.
+ * @param {HTMLElement} element - The element to search for the "data-trick-is-profile" attribute.
+ * @returns {string|null} - The value of the "data-trick-is-profile" attribute, or null if not found.
+ */
 function findTrickisProfile(element) {
 	if (element != undefined && element != null && element.length > 0 && element.length < 2)
 		if ($(element).attr("data-trick-is-profile") != undefined)
@@ -227,6 +253,12 @@ function findTrickisProfile(element) {
 		return null;
 }
 
+/**
+ * Disables the specified menu item if the profile is selected.
+ *
+ * @param {string} section - The section selector.
+ * @param {string} menu - The menu selector.
+ */
 function disableifprofile(section, menu) {
 	var element = $(menu + " li[class='profilemenu']");
 	element.addClass("disabled");
@@ -239,6 +271,12 @@ function disableifprofile(section, menu) {
 	}
 }
 
+/**
+ * Deletes an analysis.
+ * 
+ * @param {number} analysisId - The ID of the analysis to delete.
+ * @returns {boolean} Returns false if the analysis ID is null or undefined, or if the user does not have the necessary permissions to delete the analysis. Otherwise, returns true.
+ */
 function deleteAnalysis(analysisId) {
 	if (analysisId == null || analysisId == undefined) {
 		var selectedScenario = findSelectItemIdBySection(("section_analysis"));
@@ -274,6 +312,14 @@ function deleteAnalysis(analysisId) {
 	return false;
 }
 
+/**
+ * Creates an analysis profile for the given analysis ID and section.
+ * If the analysis ID is not provided, it will be retrieved from the selected item in the section.
+ * 
+ * @param {string} analysisId - The ID of the analysis.
+ * @param {string} section_analysis - The section containing the analysis.
+ * @returns {boolean} Returns false if the analysis ID is not found or if the user does not have the required permissions.
+ */
 function createAnalysisProfile(analysisId, section_analysis) {
 	if (analysisId == null || analysisId == undefined) {
 		var selectedAnalysis = findSelectItemIdBySection((section_analysis));
@@ -302,6 +348,15 @@ function createAnalysisProfile(analysisId, section_analysis) {
 	return false;
 }
 
+/**
+ * Saves the analysis profile.
+ *
+ * @param {Event} e - The event object.
+ * @param {jQuery} $view - The jQuery object representing the view.
+ * @param {jQuery} $progress - The jQuery object representing the progress element.
+ * @param {string} analysisId - The ID of the analysis.
+ * @returns {boolean} - Returns false.
+ */
 function saveAnalysisProfile(e, $view, $progress, analysisId) {
 	var data = {
 		"id": analysisId,
@@ -344,6 +399,12 @@ function saveAnalysisProfile(e, $view, $progress, analysisId) {
 	return false;
 }
 
+/**
+ * Performs a custom analysis based on the provided element.
+ * 
+ * @param {Element} element - The element to perform the analysis on.
+ * @returns {boolean} Returns false if the parent of the element has the "disabled" class, otherwise returns true.
+ */
 function customAnalysis(element) {
 	if ($(element).parent().hasClass("disabled"))
 		return false;
@@ -897,6 +958,12 @@ function addHistory(analysisId) {
 	return false;
 }
 
+/**
+ * Edits a single analysis.
+ * 
+ * @param {number} analysisId - The ID of the analysis to be edited.
+ * @returns {boolean} - Returns false if the analysis ID is null or undefined, or if the user does not have the required permissions. Otherwise, returns true.
+ */
 function editSingleAnalysis(analysisId) {
 	
 	if (analysisId == null || analysisId == undefined) {
@@ -969,6 +1036,14 @@ function editSingleAnalysis(analysisId) {
 	return false;
 }
 
+/**
+ * Selects an analysis based on the provided analysisId and mode.
+ * If analysisId is not provided, it selects the analysis from the "section_analysis" dropdown.
+ * 
+ * @param {string} analysisId - The ID of the analysis to select.
+ * @param {string} mode - The mode of the analysis selection.
+ * @returns {boolean} - Returns false if the analysis selection fails, otherwise returns undefined.
+ */
 function selectAnalysis(analysisId, mode) {
 	if (analysisId == null || analysisId == undefined) {
 		var selectedScenario = findSelectItemIdBySection("section_analysis");
@@ -986,6 +1061,13 @@ function selectAnalysis(analysisId, mode) {
 	return false;
 }
 
+/**
+ * Duplicates an analysis.
+ *
+ * @param {Object} form - The form object containing the analysis data.
+ * @param {string} analyisId - The ID of the analysis to be duplicated.
+ * @returns {boolean} - Returns false.
+ */
 function duplicateAnalysis(form, analyisId) {
 	var $progress = $("#loading-indicator").show(), $modal = $("#addHistoryModal");
 	$.ajax({
@@ -1027,6 +1109,10 @@ function duplicateAnalysis(form, analyisId) {
 	return false;
 }
 
+/**
+ * Archives the analysis if it is not already archived and the user has the permission to manage access.
+ * @returns {boolean} Returns false.
+ */
 function archiveAnalysis(){
 	if (!isArchived() && canManageAccess()) {
 		var $modal = showDialog("#confirm-dialog", MessageResolver("label.analysis.question.archive", "Are you sure that you want to archive the analysis?"));
@@ -1054,6 +1140,13 @@ function archiveAnalysis(){
 	return false;
 }
 
+/**
+ * Updates the analysis filter based on the provided customer ID and trick name.
+ * 
+ * @param {number} customerId - The ID of the customer.
+ * @param {string} trickName - The name of the trick.
+ * @returns {boolean} - Returns false.
+ */
 function updateAnalysisFilter(customerId, trickName){
 	var $customer = $("#nameSelectorFilter"), $analysis = $("#nameSelectorFilter");
 	if($.isNumeric(customerId))
@@ -1065,6 +1158,12 @@ function updateAnalysisFilter(customerId, trickName){
 	return false;
 }
 
+/**
+ * Handles the customer change event and performs an AJAX request to display analysis data.
+ * @param {HTMLElement} customer - The customer element.
+ * @param {HTMLElement} nameFilter - The name filter element.
+ * @returns {boolean} - Returns false to prevent the default form submission.
+ */
 function customerChange(customer, nameFilter) {
 	var $progress = $("#loading-indicator").show();
 	$.ajax({
@@ -1093,6 +1192,11 @@ function customerChange(customer, nameFilter) {
 	return false;
 }
 
+/**
+ * Imports analysis data for a specific customer.
+ * 
+ * @returns {boolean} Returns false if the customer is not selected or invalid.
+ */
 function importAnalysis(){
 	var customer  = parseInt( $("#customerSelectorFilter").val());
 	if(!customer || customer < 1)

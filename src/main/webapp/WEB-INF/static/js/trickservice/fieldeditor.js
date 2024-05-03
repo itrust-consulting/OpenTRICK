@@ -55,19 +55,33 @@ function updateFieldValue(element, value, type) {
  * @constructor
  */
 function FieldValidator() {
+	/**
+	 * Validates the field.
+	 */
 	FieldValidator.prototype.Validate = function () {
 		throw "Not implemented";
 	};
 }
 
-FieldBoundedValidator.prototype = new FieldValidator();
-
+/**
+ * Represents a field validator with bounds.
+ * @constructor
+ * @param {number} min - The minimum value allowed.
+ * @param {number} max - The maximum value allowed.
+ */
 function FieldBoundedValidator(min, max) {
 	FieldValidator.call(this);
 	this.minValue = $.isNumeric(min) ? parseFloat(min) : undefined;
 	this.maxValue = $.isNumeric(max) ? parseFloat(max) : undefined;
 }
 
+FieldBoundedValidator.prototype = new FieldValidator();
+
+/**
+ * Validates the field element.
+ * @param {HTMLElement} element - The field element to validate.
+ * @returns {boolean} - True if the field is valid, false otherwise.
+ */
 FieldBoundedValidator.prototype.Validate = function (element) {
 	var $element = $(element), value = parseFloat($(element).val().replace(",", "."));
 	if (!$.isNumeric(value))
@@ -79,6 +93,12 @@ FieldBoundedValidator.prototype.Validate = function (element) {
 	return true;
 };
 
+/**
+ * Represents a field editor.
+ * @constructor
+ * @param {HTMLElement} element - The field element.
+ * @param {FieldValidator} validator - The field validator.
+ */
 function FieldEditor(element, validator) {
 	this.element = element;
 	this.validator = validator;
@@ -86,18 +106,22 @@ function FieldEditor(element, validator) {
 	this.defaultValue = $(element).text().trim();
 	/**
 	 * Options values
+	 * @type {Array<string>}
 	 */
 	this.choose = [];
 	/**
 	 * Options labels
+	 * @type {Array<string>}
 	 */
 	this.chooseTranslate = [];
 	/**
 	 * Value to display
+	 * @type {Array<string>}
 	 */
 	this.chooseValue = [];
 	/**
 	 * Options titles
+	 * @type {Array<string>}
 	 */
 	this.chooseTitle = [];
 
@@ -117,6 +141,10 @@ function FieldEditor(element, validator) {
 	};
 }
 
+/**
+ * Generates the field editor.
+ * @returns {boolean} - True if the field editor was generated successfully, false otherwise.
+ */
 FieldEditor.prototype.GeneratefieldEditor = function () {
 	var $element = $(this.element);
 	if ($element.find("input,select,textarea").length)
@@ -232,11 +260,21 @@ FieldEditor.prototype.GeneratefieldEditor = function () {
 	return false;
 };
 
+/**
+ * Checks if the element has the specified attribute.
+ * @param {HTMLElement} element - The element to check.
+ * @param {string} attribute - The attribute to check for.
+ * @returns {boolean} - True if the element has the attribute, false otherwise.
+ */
 FieldEditor.prototype.HasAttr = function (element, attribute) {
 	var attr = $(element).attr(attribute);
 	return typeof attr !== 'undefined' && attr !== false;
 };
 
+/**
+ * Initializes the field editor.
+ * @returns {boolean} - True if the initialization was successful, false otherwise.
+ */
 FieldEditor.prototype.Initialise = function () {
 
 	if (!this.GeneratefieldEditor()) {
@@ -250,6 +288,11 @@ FieldEditor.prototype.Initialise = function () {
 	return true;
 };
 
+/**
+ * Finds the choose values for the element.
+ * @param {HTMLElement} element - The element to find the choose values for.
+ * @returns {Array<string>} - The choose values.
+ */
 FieldEditor.prototype.__findChoose = function (element) {
 	var content = $(element).attr("data-trick-choose");
 	if (content != undefined)
@@ -257,6 +300,11 @@ FieldEditor.prototype.__findChoose = function (element) {
 	return [];
 };
 
+/**
+ * Finds the choose translations for the element.
+ * @param {HTMLElement} element - The element to find the choose translations for.
+ * @returns {Array<string>} - The choose translations.
+ */
 FieldEditor.prototype.__findChooseTranslate = function (element) {
 	var content = $(element).attr("data-trick-choose-translate");
 	if (content != undefined)
@@ -264,6 +312,11 @@ FieldEditor.prototype.__findChooseTranslate = function (element) {
 	return [];
 };
 
+/**
+ * Finds the choose titles for the element.
+ * @param {HTMLElement} element - The element to find the choose titles for.
+ * @returns {Array<string>} - The choose titles.
+ */
 FieldEditor.prototype.__findChooseTitle = function (element) {
 	var content = $(element).attr("data-trick-choose-title");
 	if (content != undefined)
@@ -271,22 +324,48 @@ FieldEditor.prototype.__findChooseTitle = function (element) {
 	return [];
 };
 
+/**
+ * Finds the controllor for the element.
+ * @param {HTMLElement} element - The element to find the controllor for.
+ * @returns {string} - The controllor.
+ */
 FieldEditor.prototype.__findControllor = function (element) {
 	return this.__finder(element, "data-trick-class");
 };
 
+/**
+ * Finds the class ID for the element.
+ * @param {HTMLElement} element - The element to find the class ID for.
+ * @returns {string} - The class ID.
+ */
 FieldEditor.prototype.__findClassId = function (element) {
 	return this.__finder(element, "data-trick-id");
 };
 
+/**
+ * Finds the callback for the element.
+ * @param {HTMLElement} element - The element to find the callback for.
+ * @returns {string} - The callback.
+ */
 FieldEditor.prototype.__findCallback = function (element) {
 	return this.__finder(element, "data-trick-callback");
 };
 
+/**
+ * Finds the pre-execution callback for the element.
+ * @param {HTMLElement} element - The element to find the pre-execution callback for.
+ * @returns {string} - The pre-execution callback.
+ */
 FieldEditor.prototype.__findCallbackPreExec = function (element) {
 	return this.__finder(element, "data-trick-callback-pre");
 };
 
+/**
+ * Helper function to find an attribute in the element or its ancestors.
+ * @param {HTMLElement} element - The element to start the search from.
+ * @param {string} attr - The attribute to find.
+ * @returns {string|null} - The value of the attribute, or null if not found.
+ */
 FieldEditor.prototype.__finder = function (element, attr) {
 	var $element = $(element);
 	if (!$element.length)
@@ -297,6 +376,12 @@ FieldEditor.prototype.__finder = function (element, attr) {
 	return content;
 }
 
+/**
+ * Finds the next editable field element.
+ * @param {jQuery} $tr - The current table row.
+ * @param {boolean} isNext - Whether to find the next or previous editable field.
+ * @returns {jQuery|null} - The next editable field element, or null if not found.
+ */
 FieldEditor.prototype.__findNextEditable = function ($tr, isNext) {
 	var $nextTr = isNext ? $tr.nextAll("tr[data-trick-id]:first") : $tr.prevAll("tr[data-trick-id]:first")
 	if (!$nextTr.length)
@@ -307,6 +392,10 @@ FieldEditor.prototype.__findNextEditable = function ($tr, isNext) {
 	return $next;
 };
 
+/**
+ * Checks if the field editor supports tab navigation.
+ * @returns {this} 
+ */
 FieldEditor.prototype.__supportTabNav = function () {
 	var that = this;
 	$(this.fieldEditor).keydown(function (e) {
@@ -318,8 +407,9 @@ FieldEditor.prototype.__supportTabNav = function () {
 		}
 		if (e.keyCode == 27)
 			that.Rollback();
-		else if (!that.isText && e.keyCode == 13)
+		else if (!that.isText && e.keyCode == 13){
 			that.Save(that);
+		}
 	});
 	return this;
 };
@@ -504,41 +594,49 @@ ExtendedFieldEditor.prototype = new FieldEditor();
 function ExtendedFieldEditor(section, element) {
 	FieldEditor.call(this, element);
 	this.section = section;
-	ExtendedFieldEditor.prototype.__save = function () {
-		var that = this;
-		$.ajax({
-			url: context + "/Analysis/EditField/" + that.controllor + "/" + that.classId,
-			type: "post",
-			async: that.async,
-			data: '{"id":' + that.classId + ', "fieldName":"' + that.fieldName + '", "value":"' + defaultValueByType(that.GetValue(), that.fieldType, true)
-				+ '", "type": "' + that.fieldType + '"}',
-			contentType: "application/json;charset=UTF-8",
-			success: function (response, textStatus, jqXHR) {
-				if (response["success"] != undefined) {
-					try {
-						that.UpdateUI();
-						if (that.callback != null && that.callback != undefined)
-							setTimeout(that.callback, 1);
-					} finally {
-						if (that.fieldName == "value") {
-							updateAssessmentAle(true);
-							$("datalist[id^='dataList-parameter-']").remove();
-							reloadSection([that.section, "section_asset", "section_scenario"]);
-						}
-					}
-				} else if (response["error"] != undefined)
-					showNotifcation("danger", MessageResolver("error.unknown.save.data", response["error"]));
-				else
-					showNotifcation("danger", MessageResolver("error.unknown.save.data", "An unknown error occurred when saving data"));
-			},
-			error: (jqXHR, textStatus, errorThrown) => that.Error(jqXHR, textStatus, errorThrown)
-		});
-		return this;
-	};
 }
+
+ExtendedFieldEditor.prototype.__save = function () {
+	var that = this;
+	$.ajax({
+		url: context + "/Analysis/EditField/" + that.controllor + "/" + that.classId,
+		type: "post",
+		async: that.async,
+		data: '{"id":' + that.classId + ', "fieldName":"' + that.fieldName + '", "value":"' + defaultValueByType(that.GetValue(), that.fieldType, true)
+			+ '", "type": "' + that.fieldType + '"}',
+		contentType: "application/json;charset=UTF-8",
+		success: function (response, textStatus, jqXHR) {
+			if (response["success"] != undefined) {
+				try {
+					that.UpdateUI();
+					if (that.callback != null && that.callback != undefined)
+						setTimeout(that.callback, 1);
+				} finally {
+					if (that.fieldName == "value") {
+						updateAssessmentAle(true);
+						$("datalist[id^='dataList-parameter-']").remove();
+						reloadSection([that.section, "section_asset", "section_scenario"]);
+					}
+				}
+			} else if (response["error"] != undefined)
+				showNotifcation("danger", MessageResolver("error.unknown.save.data", response["error"]));
+			else
+				showNotifcation("danger", MessageResolver("error.unknown.save.data", "An unknown error occurred when saving data"));
+		},
+		error: (jqXHR, textStatus, errorThrown) => that.Error(jqXHR, textStatus, errorThrown)
+	});
+	return this;
+};
 
 MaturityMeasureFieldEditor.prototype = new FieldEditor();
 
+/**
+ * Represents a field editor for the MaturityMeasure class.
+ *
+ * @param {HTMLElement} element - The HTML element to bind the field editor to.
+ * @constructor
+ * @extends FieldEditor
+ */
 function MaturityMeasureFieldEditor(element) {
 	FieldEditor.call(this, element);
 	this.implementations = [];
@@ -600,6 +698,13 @@ MaturityMeasureFieldEditor.prototype.GeneratefieldEditor = function () {
 
 AssessmentFieldEditor.prototype = new FieldEditor();
 
+/**
+ * Creates a new AssessmentFieldEditor.
+ *
+ * @param {HTMLElement} element - The element to bind the field editor to.
+ * @constructor
+ * @extends FieldEditor
+ */
 function AssessmentFieldEditor(element) {
 
 	FieldEditor.call(this, element);
@@ -720,6 +825,12 @@ AssessmentExtendedParameterEditor.prototype.__generateDataList = function () {
 
 AssessmentImpactFieldEditor.prototype = new AssessmentExtendedParameterEditor();
 
+/**
+ * Represents an Assessment Impact Field Editor.
+ * @constructor
+ * @param {HTMLElement} element - The HTML element to bind the editor to.
+ * @extends AssessmentExtendedParameterEditor
+ */
 function AssessmentImpactFieldEditor(element) {
 	AssessmentExtendedParameterEditor.call(this, element);
 }
@@ -754,6 +865,12 @@ AssessmentImpactFieldEditor.prototype.LoadData = function () {
 
 AssessmentProbaFieldEditor.prototype = new AssessmentExtendedParameterEditor();
 
+/**
+ * Creates a new AssessmentProbaFieldEditor.
+ * @param {HTMLElement} element - The element to bind the field editor to.
+ * @constructor
+ * @extends AssessmentExtendedParameterEditor
+ */
 function AssessmentProbaFieldEditor(element) {
 	AssessmentExtendedParameterEditor.call(this, element);
 }
@@ -781,10 +898,14 @@ AssessmentProbaFieldEditor.prototype.LoadData = function () {
 	return this.choose.length;
 };
 
-
-
 ReportSettingEditor.prototype = new FieldEditor();
 
+/**
+ * Represents a ReportSettingEditor.
+ * @param {HTMLElement} element - The element to initialize the editor on.
+ * @constructor
+ * @extends FieldEditor
+ */
 function ReportSettingEditor(element) {
 	FieldEditor.call(this, element);
 }
@@ -814,6 +935,14 @@ FieldEditor.prototype.__save = function () {
 	return this;
 };
 
+/**
+ * Extracts phases from the given element and adds them to the `choose` array in the provided object.
+ * If a default phase is specified, it is also added to the `choose` array.
+ * 
+ * @param {Object} self - The object to which the extracted phases will be added.
+ * @param {string} defaultPhase - The default phase to be added to the `choose` array.
+ * @returns {boolean} - Always returns false.
+ */
 function extractPhase(self, defaultPhase) {
 	if (self.choose.length)
 		return false;
@@ -825,6 +954,10 @@ function extractPhase(self, defaultPhase) {
 	return false;
 }
 
+/**
+ * Disables the edit mode and saves the changes made in the field editors.
+ * @returns {boolean} Returns false.
+ */
 function disableEditMode() {
 	if (application.editMode) {
 		try {
@@ -848,6 +981,10 @@ function disableEditMode() {
 	return false;
 }
 
+/**
+ * Enables the edit mode for the application.
+ * @returns {boolean} Returns false.
+ */
 function enableEditMode() {
 	if (!application.editMode) {
 		try {
@@ -879,6 +1016,16 @@ function enableEditMode() {
 	return false;
 }
 
+/**
+ * Edits a field based on the provided parameters.
+ *
+ * @param {HTMLElement} element - The HTML element representing the field.
+ * @param {string} controller - The controller for the field.
+ * @param {string} id - The ID of the field.
+ * @param {string} field - The field to be edited.
+ * @param {string} type - The type of the field.
+ * @returns {FieldEditor} - The field editor instance.
+ */
 function editField(element, controller, id, field, type) {
 	var fieldEditor = null;
 	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {

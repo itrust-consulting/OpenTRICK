@@ -1,5 +1,8 @@
-var previous;
-
+/**
+ * This file contains the JavaScript code for the administration functionality of the TrickService application.
+ * It includes functions for installing TrickService, switching customers and owners, managing analysis access, and managing IDS access.
+ * The code also includes event handlers for various buttons and checkboxes.
+ */
 $(document).ready(function () {
 	$("input[type='checkbox']").removeAttr("checked");
 	application["settings-fixed-header"] = {
@@ -20,6 +23,11 @@ $(document).ready(function () {
 	$("#btn-clear-notification").on("click", clearNotification);
 });
 
+/**
+ * Installs the Trick Service.
+ * 
+ * @returns {boolean} Returns false.
+ */
 function installTrickService() {
 	$.ajax({
 		url: context + "/Install",
@@ -37,6 +45,12 @@ function installTrickService() {
 	return false;
 }
 
+/**
+ * Switches the customer for a given section.
+ * 
+ * @param {string} section - The section identifier.
+ * @returns {boolean} Returns false if the profile is not found or if there are multiple selected analyses, otherwise returns true.
+ */
 function switchCustomer(section) {
 	let selectedAnalysis = findSelectItemIdBySection(section);
 	if (isProfile("#" + section) || selectedAnalysis.length != 1)
@@ -85,6 +99,12 @@ function switchCustomer(section) {
 	return false;
 }
 
+/**
+ * Switches the owner of a section.
+ * 
+ * @param {string} section - The section to switch the owner for.
+ * @returns {boolean} - Returns false if the profile is selected or if there is more than one selected analysis, otherwise returns true.
+ */
 function switchOwner(section) {
 	let selectedAnalysis = findSelectItemIdBySection(section);
 	if (isProfile("#" + section) || selectedAnalysis.length != 1)
@@ -137,6 +157,13 @@ function switchOwner(section) {
 	return false;
 }
 
+/**
+ * Manages the access for a specific analysis.
+ * 
+ * @param {number} analysisId - The ID of the analysis.
+ * @param {string} section_analysis - The section of the analysis.
+ * @returns {boolean} - Returns false if the profile is invalid or if the analysisId is null or undefined, otherwise returns true.
+ */
 function manageAnalysisAccess(analysisId, section_analysis) {
 	if (isProfile("#" + section_analysis))
 		return false;
@@ -168,6 +195,11 @@ function manageAnalysisAccess(analysisId, section_analysis) {
 
 }
 
+/**
+ * Updates the analysis access for a user.
+ * 
+ * @param {Event} e - The event object.
+ */
 function updateAnalysisAccess(e) {
 
 	let $progress = $("#loading-indicator").show(), $modal = $("#manageAnalysisAccessModel"), me = $modal.attr("data-trick-user-id"), data = {
@@ -210,6 +242,12 @@ function updateAnalysisAccess(e) {
 		$progress.hide();
 }
 
+/**
+ * Manages the IDS access for a specific section.
+ * 
+ * @param {string} section - The section identifier.
+ * @returns {boolean} - Returns false if the analysis type is not "QUANTITATIVE" or if it is a profile, otherwise returns true.
+ */
 function manageAnalysisIDSAccess(section) {
 	if (!isAnalysisType("QUANTITATIVE", "#" + section) || isProfile("#" + section))
 		return false;
@@ -263,6 +301,11 @@ function manageAnalysisIDSAccess(section) {
 	return false;
 }
 
+/**
+ * Finds the value of the "data-trick-is-profile" attribute for the given element or its closest ancestor.
+ * @param {HTMLElement} element - The element to search for the "data-trick-is-profile" attribute.
+ * @returns {string|null} - The value of the "data-trick-is-profile" attribute, or null if not found.
+ */
 function findTrickisProfile(element) {
 	if (element && element.length == 1)
 		if ($(element).attr("data-trick-is-profile") != undefined)
@@ -273,6 +316,13 @@ function findTrickisProfile(element) {
 		return null;
 }
 
+/**
+ * Checks if a profile is the default profile.
+ *
+ * @param {string} section - The section where the profile is located.
+ * @param {string} id - The ID of the profile to check. If undefined or null, it checks the selected profile.
+ * @returns {boolean} - True if the profile is the default profile, false otherwise.
+ */
 function isDefaultProfile(section, id) {
 	if (id === undefined || id === null) {
 		let $items = $(section + ">table>tbody :checked");
@@ -282,14 +332,33 @@ function isDefaultProfile(section, id) {
 	} else return $(section + ">table>tbody>tr[data-trick-id='" + id + "'][data-trick-is-profile='true'][data-trick-is-default='true']").length > 0;
 }
 
+/**
+ * Checks if the given section has a default profile.
+ *
+ * @param {string} section - The section to check.
+ * @returns {boolean} - True if the section has a default profile, false otherwise.
+ */
 function hasDefaultProfile(section) {
 	return $(section + ">table>tbody :checked").closest("[data-trick-is-profile='true'][data-trick-is-default='true']").length > 0
 }
 
+/**
+ * Checks if the given section is a profile.
+ *
+ * @param {string} section - The section to check.
+ * @returns {boolean} - Returns true if the section is a profile, false otherwise.
+ */
 function isProfile(section) {
 	return findTrickisProfile($(section + " tbody :checked")) === "true";
 }
 
+/**
+ * Handles the change event of the customer selector.
+ * Makes an AJAX request to retrieve analysis data for the selected customer and updates the UI accordingly.
+ *
+ * @param {string} selector - The selector for the customer dropdown element.
+ * @returns {boolean} - Returns false to prevent the default form submission behavior.
+ */
 function adminCustomerChange(selector) {
 	let customer = $(selector).find("option:selected").val();
 	$.ajax({
@@ -309,6 +378,20 @@ function adminCustomerChange(selector) {
 	return false;
 }
 
+/**
+ * Deletes the admin analysis with the specified analysisId or section_analysis.
+ * If analysisId is null or undefined, it finds the selected analysis items by section_analysis.
+ * If analysisId is an array, it uses the provided analysisId.
+ * If analysisId is not an array, it adds analysisId to the selectedAnalysis array.
+ * Removes any items from selectedAnalysis that have a default profile.
+ * Sends an AJAX request to delete the selected analysis items.
+ * Updates the UI after successful deletion.
+ * Shows an error message if deletion fails.
+ * 
+ * @param {string|number|null|undefined|Array} analysisId - The ID(s) of the analysis item(s) to delete.
+ * @param {string} section_analysis - The section of the analysis item(s).
+ * @returns {boolean} - Returns false if no analysis items are selected or if the deletion fails.
+ */
 function deleteAdminAnalysis(analysisId, section_analysis) {
 	let selectedAnalysis = [];
 	if (analysisId == null || analysisId == undefined) {
@@ -355,6 +438,11 @@ function deleteAdminAnalysis(analysisId, section_analysis) {
 	return false;
 }
 
+/**
+ * Updates the log filter based on the selected options.
+ * @param {HTMLElement} element - The element that triggered the update. (optional)
+ * @returns {boolean} Returns false if the element is unchecked, otherwise returns true.
+ */
 function updateLogFilter(element) {
 	if (element != undefined && !$(element).is(":checked"))
 		return false;
@@ -385,6 +473,11 @@ function updateLogFilter(element) {
 	return false;
 }
 
+/**
+ * Loads the system log by making an AJAX request to the server.
+ * 
+ * @returns {boolean} Returns true if the system log is successfully loaded, otherwise false.
+ */
 function loadSystemLog() {
 	let $progress = $("#loading-indicator").show();
 	$.ajax({
@@ -407,6 +500,11 @@ function loadSystemLog() {
 	return true;
 }
 
+/**
+ * Loads the system log with scrolling functionality.
+ * 
+ * @returns {boolean} Returns true if the system log is loaded successfully, otherwise false.
+ */
 function loadSystemLogScrolling() {
 	let currentSize = $("#section_log table>tbody>tr").length, size = parseInt($("#logFilterPageSize").val());
 	if (currentSize >= size && currentSize % size === 0) {
@@ -434,6 +532,13 @@ function loadSystemLogScrolling() {
 	return true;
 }
 
+/**
+ * Updates the setting based on the provided form and sender.
+ *
+ * @param {string} idForm - The ID of the form to be updated.
+ * @param {string} sender - The sender element that triggered the update.
+ * @returns {boolean} Returns false.
+ */
 function updateSetting(idForm, sender) {
 	let $form = $(idForm), $sender = $(sender), olvalue = $sender.attr("placeholder"), value = $sender.val();
 	if ($sender.attr("type") != "radio" && value !== olvalue || $sender.is(":checked")) {
@@ -465,6 +570,10 @@ function updateSetting(idForm, sender) {
 	return false;
 }
 
+/**
+ * Loads notifications from the server and inserts or updates them in the notification container.
+ * @returns {boolean} Returns false to prevent the default form submission behavior.
+ */
 function loadNotification() {
 	let $progress = $("#loading-indicator").show();
 	$.ajax({
@@ -486,6 +595,14 @@ function loadNotification() {
 	return false;
 }
 
+/**
+ * Inserts or updates a notification in the specified container.
+ * If the container is not provided, it defaults to "#notification-content".
+ *
+ * @param {Object} notification - The notification object to insert or update.
+ * @param {jQuery} [$container] - The container element where the notification should be inserted or updated.
+ * @returns {boolean} - Returns false.
+ */
 function insertOrUpdateNotification(notification, $container) {
 	if (!$container)
 		$container = $("#notification-content");
@@ -525,6 +642,11 @@ function insertOrUpdateNotification(notification, $container) {
 	return false;
 }
 
+/**
+ * Clears the notification.
+ * @param {Event} e - The event object.
+ * @returns {boolean} - Returns false.
+ */
 function clearNotification(e) {
 	let $confirmModal = showDialog("#confirm-dialog", MessageResolver("confirm.clear.notification", "Are you sure, you want to clear notification?"));
 	$confirmModal.find(".modal-footer>button[name='yes']").one("click", function (e) {
@@ -549,6 +671,12 @@ function clearNotification(e) {
 	return false;
 }
 
+/**
+ * Deletes a notification with the specified ID.
+ * 
+ * @param {number} id - The ID of the notification to delete.
+ * @returns {boolean} - Returns false.
+ */
 function deleteNotification(id) {
 	let $confirmModal = showDialog("#confirm-dialog", MessageResolver("confirm.delete.notification", "Are you sure, you want to delete this notification?"));
 	$confirmModal.find(".modal-footer>button[name='yes']").one("click", function (e) {
@@ -573,6 +701,13 @@ function deleteNotification(id) {
 	return false;
 }
 
+/**
+ * Handles the notification form.
+ *
+ * @param {Event} e - The event object.
+ * @param {string} id - The ID of the notification.
+ * @returns {boolean} - Returns false.
+ */
 function notificationForm(e, id) {
 	let $progress = $("#loading-indicator").show();
 	$.ajax({
@@ -598,6 +733,16 @@ function notificationForm(e, id) {
 }
 
 
+/**
+ * Parses a date and time string and returns a Date object.
+ * If only a date is provided, the time is set to 00:00.
+ * If only a time is provided, the date is set to the current date.
+ * If both date and time are empty or invalid, undefined is returned.
+ *
+ * @param {string} date - The date string in the format "YYYY-MM-DD".
+ * @param {string} time - The time string in the format "HH:MM".
+ * @returns {Date|undefined} The parsed Date object or undefined if the input is invalid.
+ */
 function parseDate(date, time) {
 	if (date.length && time.length)
 		return new Date(date + "T" + time);
@@ -613,6 +758,11 @@ function parseDate(date, time) {
 	}
 }
 
+/**
+ * Saves the notification data.
+ *
+ * @param {Event} e - The event object.
+ */
 function saveNotification(e) {
 	let $progress = $("#loading-indicator").show(), $view = $("#modal-add-notification"), $form = $("form", $view), data = $form.serializeJSON(), keys = Object.keys(data);
 
@@ -661,6 +811,12 @@ function saveNotification(e) {
 }
 
 
+/**
+ * Manages customer access.
+ * 
+ * @param {number} customerID - The ID of the customer.
+ * @returns {boolean} - Returns false if the customer profile is active or if the customerID is null or undefined. Otherwise, returns true.
+ */
 function manageCustomerAccess(customerID) {
 	if (isCustomerProfile())
 		return false;
@@ -689,14 +845,29 @@ function manageCustomerAccess(customerID) {
 	return false;
 }
 
+/**
+ * Checks if the current profile is not a customer profile.
+ * @returns {boolean} Returns true if the current profile is not a customer profile, false otherwise.
+ */
 function isNotCustomerProfile() {
 	return !isCustomerProfile();
 }
 
+
+/**
+ * Checks if the current profile is a customer profile.
+ * @returns {boolean} Returns true if the profile is a customer profile, otherwise false.
+ */
 function isCustomerProfile() {
 	return isProfile("#section_customer");
 }
 
+/**
+ * Checks if the selected ticketing system type matches the given type.
+ * 
+ * @param {string} type - The ticketing system type to check against.
+ * @returns {boolean} - Returns true if the selected ticketing system type matches the given type, false otherwise.
+ */
 function isTicketingType(type) {
 	let $selections = $("#section_customer>table>tbody>tr input:checked");
 	if ($selections.length !== 1)
@@ -704,6 +875,13 @@ function isTicketingType(type) {
 	return $selections.closest("tr").find("td[data-trick-name='tickecting_system_type'][data-real-value='" + type + "']").length > 0;
 }
 
+/**
+ * Updates the customer access based on the selected values in the view.
+ * @param {Event} e - The event object.
+ * @param {jQuery} $view - The jQuery object representing the view.
+ * @param {jQuery} $progress - The jQuery object representing the progress element.
+ * @param {string} customerID - The ID of the customer.
+ */
 function updateCustomerAccess(e, $view, $progress, customerID) {
 	let data = {};
 	$view.find(".form-group[data-trick-id][data-default-value]").each(function () {
@@ -733,6 +911,12 @@ function updateCustomerAccess(e, $view, $progress, customerID) {
 	}
 }
 
+/**
+ * Edits the ticketing system email template for a given customer.
+ * 
+ * @param {number} customerID - The ID of the customer.
+ * @returns {boolean} Returns false if the ticketing type is not "EMAIL" or if the customer ID is null or undefined.
+ */
 function editTicketingSystemEmailTemplate(customerID) {
 	if (!isTicketingType("EMAIL"))
 		return false;

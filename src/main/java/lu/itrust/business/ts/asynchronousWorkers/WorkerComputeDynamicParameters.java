@@ -10,6 +10,19 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import lu.itrust.business.ts.component.DynamicParameterComputer;
 import lu.itrust.business.ts.messagehandler.TaskName;
 
+/**
+ * This class represents a worker that computes dynamic parameters for a user.
+ * It extends the `WorkerImpl` class and implements the `Runnable` interface.
+ * 
+ * The computation of dynamic parameters is triggered by calling the `trigger` method.
+ * The computation itself is postponed to avoid denial-of-service attacks.
+ * 
+ * This class maintains a map of workers that are awaiting execution, where the key is the user name.
+ * 
+ * The computation is performed by invoking the `computeForAllAnalysesOfUser` method of the `DynamicParameterComputer` instance.
+ * 
+ * This class provides methods to start, cancel, and get the name of the worker.
+ */
 public class WorkerComputeDynamicParameters extends WorkerImpl {
 	
 	private DynamicParameterComputer dynamicParameterComputer;
@@ -133,6 +146,9 @@ public class WorkerComputeDynamicParameters extends WorkerImpl {
 		}
 	}
 
+	/**
+	 * This enum represents the different task names for computing dynamic parameters.
+	 */
 	@Override
 	public TaskName getName() {
 		return TaskName.COMPUTE_DYNAMIC_PARAMETER;

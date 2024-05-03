@@ -1,7 +1,9 @@
-/**
- * 
- */
 
+
+/**
+ * Adds a scale type.
+ * @returns {boolean} Returns false.
+ */
 function addScaleType() {
 	var $progress = $("#loading-indicator").show();
 	$.ajax({
@@ -15,6 +17,11 @@ function addScaleType() {
 	return false;
 }
 
+/**
+ * Edits a scale type.
+ * @param {number} id - The ID of the scale type to edit.
+ * @returns {boolean} Returns false.
+ */
 function editScaleType(id) {
 	if (id == undefined || id < 1) {
 		var selectedIDScale = findSelectItemIdBySection("section_kb_scale_type");
@@ -35,6 +42,12 @@ function editScaleType(id) {
 	return false;
 }
 
+/**
+ * Processes the scale type form.
+ * @param {string} response - The response from the server.
+ * @param {string} textStatus - The status of the request.
+ * @param {object} jqXHR - The jQuery XMLHttpRequest object.
+ */
 function processScaleTypeForm(response, textStatus, jqXHR) {
 	var $view = $("#formScaleTypeModal", new DOMParser().parseFromString(response, "text/html"));
 	if (!$view.length)
@@ -79,6 +92,12 @@ function processScaleTypeForm(response, textStatus, jqXHR) {
 	}
 }
 
+/**
+ * Saves the scale type.
+ * @param {object} $view - The jQuery object representing the scale type view.
+ * @param {object} form - The form element.
+ * @returns {boolean} Returns false.
+ */
 function saveScaleType($view, form) {
 	$("label.label-danger", $view).remove();
 	var $progress = $("#loading-indicator").show();
@@ -116,6 +135,10 @@ function saveScaleType($view, form) {
 	return false;
 }
 
+/**
+ * Deletes a scale type.
+ * @returns {boolean} Returns false.
+ */
 function deleteScaleType() {
 	var selectedIDScale = findSelectItemIdBySection("section_kb_scale_type");
 	if (selectedIDScale.length < 1)

@@ -3,6 +3,13 @@
 
 // load sections
 
+/**
+ * Loads the panel bodies of a section.
+ * 
+ * @param {string} section - The ID of the section.
+ * @param {boolean} refreshOnly - Indicates whether to refresh only.
+ * @returns {boolean} - Returns false if the controller is not found or if there is an error, otherwise returns true.
+ */
 function loadPanelBodiesOfSection(section, refreshOnly) {
 	if (refreshOnly === null || refreshOnly == "")
 		refreshOnly = false
@@ -37,6 +44,16 @@ function loadPanelBodiesOfSection(section, refreshOnly) {
 }
 
 // reload sections
+/**
+ * Reloads a section of the web page.
+ * 
+ * @param {string|string[]} section - The section(s) to reload.
+ * @param {string} [subSection] - The sub-section to reload within the section.
+ * @param {boolean} [refreshOnly=false] - Indicates whether to refresh the section only without updating the UI.
+ * @param {boolean} [prepend] - Indicates whether to prepend the new content to the existing content.
+ * 
+ * @returns {boolean} - Returns false if the section reload was unsuccessful, otherwise returns true.
+ */
 function reloadSection(section, subSection, refreshOnly, prepend) {
 	if (subSection === null || subSection == "")
 		subSection = undefined;
@@ -99,6 +116,11 @@ function reloadSection(section, subSection, refreshOnly, prepend) {
 	return false;
 }
 
+/**
+ * Reloads the page based on the provided key.
+ * @param {string} key - The key to determine the type of reload.
+ * @returns {boolean} - Returns true if the page was reloaded, false otherwise.
+ */
 function staticReload(key) {
 	switch (key) {
 		case "section_standard":
@@ -110,6 +132,13 @@ function staticReload(key) {
 	}
 }
 
+/**
+ * Finds the controller URL based on the given section and subSection.
+ *
+ * @param {string} section - The section name.
+ * @param {string} [subSection] - The sub-section name (optional).
+ * @returns {string|undefined} - The controller URL or undefined if not found.
+ */
 function findControllerBySection(section, subSection) {
 	let controllers = {
 		"section_asset": "/Analysis/Asset/Section",
@@ -152,6 +181,12 @@ function findControllerBySection(section, subSection) {
 		return controllers[section] + "/" + subSection;
 }
 
+/**
+ * Retrieves the callback function associated with the given section.
+ *
+ * @param {string} section - The section for which to retrieve the callback function.
+ * @returns {Function|undefined} - The callback function associated with the section, or undefined if not found.
+ */
 function callbackBySection(section) {
 	let callbacks = {
 		"section_asset": function () {
@@ -209,6 +244,14 @@ function callbackBySection(section) {
 	return callbacks[section];
 }
 
+/**
+ * Represents a smart update for a section.
+ *
+ * @param {string} sectionName - The name of the section.
+ * @param {any} data - The data to update the section with.
+ * @param {boolean} prepend - Indicates whether to prepend the data to the section.
+ * @constructor
+ */
 function SectionSmartUpdate(sectionName, data, prepend) {
 	this.sectionName = sectionName;
 	this.data = data;

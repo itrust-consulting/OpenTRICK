@@ -41,11 +41,19 @@ import lu.itrust.business.ts.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.ts.model.general.OpenMode;
 import lu.itrust.business.ts.model.general.TSSettingName;
 
+
 /**
- * PermissionEvaluatorImpl.java: <br>
- * Detailed description...
+ * This class implements the PermissionEvaluator interface and provides the implementation for evaluating permissions in the application.
+ * It is responsible for checking if a user has permission to perform certain actions on specific objects or resources.
+ * The class uses various service dependencies to perform the permission checks.
  * 
- * @author smenghi, itrust consulting s.à.rl. :
+ * The class provides methods for checking permissions based on different parameters such as authentication, target domain object, target ID, etc.
+ * It also provides methods for checking if a user is authorized to perform certain actions on specific elements or resources.
+ * 
+ * The class also provides methods for checking if a user or owner is authorized to perform certain actions on an analysis.
+ * 
+ * Note: This class is annotated with @Component to be recognized as a Spring bean and can be injected into other components or services.
+ * @author itrust consulting s.à.rl. :
  * @version
  * @since Jan 16, 2014
  */
@@ -121,6 +129,10 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 	@Autowired
 	private ServiceIlrSoaScaleParameter serviceIlrSoaScaleParameter;
 
+	/**
+	 * This class is responsible for evaluating permissions.
+	 * It implements the PermissionEvaluator interface.
+	 */
 	public PermissionEvaluatorImpl() {
 	}
 
@@ -174,6 +186,16 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 		return userIsAuthorized(isAuthorised(session, principal, right), principal, right);
 	}
 
+	/**
+	 * Checks if a user is authorized to perform a specific action on a given element in an analysis.
+	 *
+	 * @param analysisId the ID of the analysis
+	 * @param elementId the ID of the element
+	 * @param className the name of the class representing the element
+	 * @param principal the principal object representing the user
+	 * @param right the analysis right required to perform the action
+	 * @return true if the user is authorized, false otherwise
+	 */
 	@Override
 	public boolean userIsAuthorized(Integer analysisId, Integer elementId, String className, Principal principal,
 			AnalysisRight right) {

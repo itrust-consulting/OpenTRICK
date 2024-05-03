@@ -1,3 +1,8 @@
+
+/**
+ * Calculates the risk register.
+ * @returns {boolean} Returns false.
+ */
 function calculateRiskRegister() {
 	var $progress = $("#loading-indicator").show();
 	$.ajax({
@@ -19,6 +24,11 @@ function calculateRiskRegister() {
 	return false;
 }
 
+/**
+ * Switches the data in the risk register.
+ * @param {HTMLElement} element - The element that triggered the switch.
+ * @returns {boolean} Returns false.
+ */
 function riskRegisterSwitchData(element) {
 	var $li = $(element);
 	if ($li.hasClass("disabled"))

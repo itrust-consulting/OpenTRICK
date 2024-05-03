@@ -25,6 +25,17 @@ import org.springframework.security.provisioning.UserDetailsManager;
 import lu.itrust.business.ts.usermanagement.helper.CustomerDaoAuthenticationProvider;
 import lu.itrust.business.ts.usermanagement.helper.TRICKLdapUserDetailsMapper;
 
+/**
+ * This class represents the configuration for authentication in the
+ * application.
+ * It provides beans and methods for configuring the authentication manager,
+ * user details service,
+ * and authentication providers based on the active profiles.
+ * The configuration includes settings for standard authentication, LDAP
+ * authentication, and Active Directory authentication.
+ * The class also uses a data source, environment variables, and a password
+ * encoder for authentication purposes.
+ */
 @Configuration
 public class AuthenticationConfig {
 
@@ -43,6 +54,21 @@ public class AuthenticationConfig {
         @Autowired
         private @Lazy AuthenticationManager authenticationManager;
 
+        /**
+         * Returns the authentication manager for the application.
+         * This method is annotated with @Bean to indicate that it should be managed by
+         * the Spring container.
+         * It is also annotated with @Primary to indicate that it is the primary
+         * authentication manager when multiple are available.
+         * The authentication manager is configured based on the provided HttpSecurity
+         * object.
+         *
+         * @param http the HttpSecurity object used to configure the authentication
+         *             manager
+         * @return the configured authentication manager
+         * @throws Exception if an error occurs while building the authentication
+         *                   manager
+         */
         @Bean
         @Primary
         @Profile({ "p-auth-std", "p-auth-ldap", "p-auth-ad" })
@@ -51,6 +77,12 @@ public class AuthenticationConfig {
                 return http.getSharedObject(AuthenticationManagerBuilder.class).build();
         }
 
+        /**
+         * Configures the authentication manager builder based on the active profiles.
+         * 
+         * @param builder the AuthenticationManagerBuilder instance to configure
+         * @throws Exception if an error occurs during configuration
+         */
         @Autowired
         @Profile({ "p-auth-std", "p-auth-ldap", "p-auth-ad" })
         public void configure(AuthenticationManagerBuilder builder) throws Exception {
@@ -64,6 +96,12 @@ public class AuthenticationConfig {
 
         }
 
+        /**
+         * Creates a custom instance of {@link DaoAuthenticationProvider}.
+         * This bean is only active when the "p-auth-std" profile is active.
+         *
+         * @return The custom {@link DaoAuthenticationProvider} instance.
+         */
         @Bean
         @Profile("p-auth-std")
         public DaoAuthenticationProvider customDaoAuthenticationProvider() {
@@ -73,6 +111,11 @@ public class AuthenticationConfig {
                 return dao;
         }
 
+        /**
+         * Creates and configures a UserDetailsManager bean.
+         * 
+         * @return The configured UserDetailsManager bean.
+         */
         @Bean
         @Profile("p-auth-std")
         public UserDetailsManager userDetailsService() {
@@ -85,6 +128,13 @@ public class AuthenticationConfig {
                 return userDetailsService;
         }
 
+        /**
+         * Creates an instance of the ActiveDirectoryLdapAuthenticationProvider class to provide authentication using Active Directory.
+         * This method is annotated with @Bean to indicate that the returned object should be managed by the Spring container.
+         * This method is also annotated with @Profile("p-auth-ad") to specify that this bean should be created only when the "p-auth-ad" profile is active.
+         * 
+         * @return The ActiveDirectoryLdapAuthenticationProvider instance configured with the necessary properties.
+         */
         @Bean
         @Profile("p-auth-ad")
         public AuthenticationProvider adAuthenticationProvider() {
@@ -95,6 +145,10 @@ public class AuthenticationConfig {
                 return authenticationProvider;
         }
 
+        /**
+         * This class is responsible for mapping LDAP user details to the TRICK application's user details.
+         * It provides methods to set various properties related to LDAP user mapping.
+         */
         @Bean
         @Profile({ "p-auth-ad", "p-auth-ldap" })
         public TRICKLdapUserDetailsMapper userDetailsContextMapper() {
@@ -135,6 +189,11 @@ public class AuthenticationConfig {
 
         }
 
+        /**
+         * Initializes the LDAP authentication provider.
+         *
+         * @param ldap the LdapAuthenticationProviderConfigurer instance
+         */
         private void initLdapAuthenticationProvider(
                         LdapAuthenticationProviderConfigurer<?> ldap) {
 

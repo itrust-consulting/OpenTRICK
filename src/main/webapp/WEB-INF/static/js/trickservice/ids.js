@@ -1,7 +1,10 @@
-/**
- * 
- */
 
+
+/**
+ * Performs an AJAX request to add a new IDS.
+ * 
+ * @returns {boolean} Returns false to prevent the default form submission.
+ */
 function newIDS() {
 	var $progress = $("#loading-indicator").show();
 	$.ajax({
@@ -15,6 +18,13 @@ function newIDS() {
 	return false;
 }
 
+/**
+ * Edits the IDS (Identification System) with the specified ID.
+ * If the ID is not provided or is less than 1, it will attempt to find the selected IDS from the "section_ids" section.
+ * 
+ * @param {number} id - The ID of the IDS to edit.
+ * @returns {boolean} - Returns false if the ID is not valid or if there are multiple selected IDS, otherwise returns true.
+ */
 function editIDS(id) {
 	if (id == undefined || id < 1) {
 		var selectedIDS = findSelectItemIdBySection("section_ids");
@@ -35,6 +45,13 @@ function editIDS(id) {
 	return false;
 }
 
+/**
+ * Processes the IDS form response.
+ *
+ * @param {any} response - The response from the server.
+ * @param {string} textStatus - The status of the request.
+ * @param {XMLHttpRequest} jqXHR - The XMLHttpRequest object.
+ */
 function processIDSForm(response, textStatus, jqXHR) {
 	var $view = $("#formIDSModal", new DOMParser().parseFromString(response, "text/html"));
 	if (!$view.length)
@@ -60,6 +77,13 @@ function processIDSForm(response, textStatus, jqXHR) {
 	}
 }
 
+/**
+ * Saves IDS data.
+ *
+ * @param {jQuery} $view - The jQuery object representing the view.
+ * @param {HTMLFormElement} form - The HTML form element containing the data to be saved.
+ * @returns {boolean} Returns false.
+ */
 function saveIDS($view, form) {
 	$("label.label-danger", $view).remove();
 	var $progress = $("#loading-indicator").show();
@@ -99,6 +123,11 @@ function saveIDS($view, form) {
 	return false;
 }
 
+/**
+ * Deletes the selected IDSs.
+ * 
+ * @returns {boolean} Returns false if no IDSs are selected, otherwise returns true.
+ */
 function deleteIDS() {
 	var selectedIDS = findSelectItemIdBySection("section_ids");
 	if (selectedIDS.length < 1)
@@ -129,6 +158,11 @@ function deleteIDS() {
 	return false;
 }
 
+/**
+ * Renews the tokens of selected IDS.
+ * 
+ * @returns {boolean} Returns false if no IDS are selected.
+ */
 function renewIDSToken() {
 	var selectedIDS = findSelectItemIdBySection("section_ids");
 	if (selectedIDS.length < 1)

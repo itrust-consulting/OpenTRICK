@@ -1,7 +1,39 @@
 /**
- * 
+ * This file contains the DataManagerImport object and the importDataManager function.
+ * The DataManagerImport object defines different setup and process functions for importing data in different scenarios.
+ * The importDataManager function is responsible for making an AJAX request to import data using the DataManagerImport object.
  */
-
+/**
+ * DataManagerImport is an object that contains setup and process functions for different data import scenarios.
+ * Each scenario has a setup function that initializes the view and a process function that handles the import process.
+ * The object has the following structure:
+ * {
+ *    "default": {
+ *        setup: Function,
+ *        process: Function
+ *    },
+ *    "asset": {
+ *        setup: Function,
+ *        process: Function
+ *    },
+ *    "risk-information": {
+ *        setup: Function,
+ *        process: Function
+ *    },
+ *    ...
+ * }
+ * @typedef {Object} DataManagerImport
+ * @property {Object} default - The default scenario setup and process functions.
+ * @property {Function} default.setup - The setup function for the default scenario.
+ * @property {Function} default.process - The process function for the default scenario.
+ * @property {Object} asset - The asset scenario setup and process functions.
+ * @property {Function} asset.setup - The setup function for the asset scenario.
+ * @property {Function} asset.process - The process function for the asset scenario.
+ * @property {Object} risk-information - The risk-information scenario setup and process functions.
+ * @property {Function} risk-information.setup - The setup function for the risk-information scenario.
+ * @property {Function} risk-information.process - The process function for the risk-information scenario.
+ * ...
+ */
 var DataManagerImport = {
 	"default": {
 		setup: ($view, $tab) => {
@@ -172,6 +204,11 @@ var DataManagerImport = {
 	},
 };
 
+/**
+ * Imports data manager for a given analysis.
+ * @param {number} idAnalysis - The ID of the analysis.
+ * @returns {boolean} - Returns false.
+ */
 function importDataManager(idAnalysis) {
 	var $progress = $("#loading-indicator").show();
 	$.ajax({

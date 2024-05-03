@@ -1,3 +1,15 @@
+
+/**
+ * This file contains functions related to the management of the RRF (Risk Reduction Factor).
+ * The RRF Manager handles error handling, updating RRF values, fixing thresholds, loading RRF data, and initializing sliders for measures and scenarios.
+ */
+
+/**
+ * Displays an error message in the RRF editor.
+ *
+ * @param {string} message - The error message to display. If not provided, a default message will be used.
+ * @returns {boolean} - Returns false.
+ */
 function rrfError(message) {
 	if (message == undefined)
 		message = MessageResolver("error.unknown.occurred", "An unknown error occurred");
@@ -10,11 +22,22 @@ function rrfError(message) {
 	return false;
 }
 
+/**
+ * Updates the maximum RRF (Relative Response Factor).
+ * 
+ * @returns {boolean} Returns false.
+ */
 function updateMaxRRF() {
 	application["maxRRF"] = parseInt($("td[data-name='max_rrf']", "#section_parameter").text().replace(/\s/g, '').replace(",", "."));
 	return false;
 }
 
+/**
+ * Fixes the maximum RRF threshold from RRF.
+ * If the application's "maxRRF" property is undefined, it updates it by calling the "updateMaxRRF" function.
+ * Sets the "data-trick-max-value" attribute of the "ilr_rrf_threshold" table cell to the value of the application's "maxRRF" property.
+ * @returns {boolean} Returns false.
+ */
 function fixMaxRRFThresholdFromRRF() {
 	if (application["maxRRF"] === undefined)
 		updateMaxRRF();
@@ -22,12 +45,21 @@ function fixMaxRRFThresholdFromRRF() {
 	return false;
 }
 
+/**
+ * Fixes the minimum RRF value based on the RRF threshold.
+ * @returns {boolean} Returns false.
+ */
 function fixMinRRFFromRRFThreshold() {
 	let minRRF = parseInt($("td[data-name='ilr_rrf_threshold']", "#section_parameter").text().replace(/\s/g, '').replace(",", ".")) || 0;
 	$("td[data-name='max_rrf']", "#section_parameter").attr("data-trick-min-value", minRRF);
 	return false;
 }
 
+/**
+ * Loads the RRF (Risk Response Framework) data and initializes the UI.
+ * 
+ * @returns {boolean} Returns false to prevent the default form submission behavior.
+ */
 function loadRRF() {
 	let $progress = $("#loading-indicator").show();
 	$
@@ -143,6 +175,9 @@ function loadRRF() {
 	return false;
 }
 
+/**
+ * Initializes the measure sliders in the RRF Manager.
+ */
 function initialiseMeasureSliders() {
 
 	var $modal = $("#rrfEditor"), $selectedMeasure = $("#selectable_rrf_measures_chapter_controls .active[data-trick-class='Measure']", $modal), level = $selectedMeasure
@@ -165,6 +200,14 @@ function initialiseMeasureSliders() {
 	});
 }
 
+/**
+ * Updates the measure property with the given value.
+ * @param {string} property - The name of the property to update.
+ * @param {any} value - The new value for the property.
+ * @param {any} previousValue - The previous value of the property.
+ * @param {HTMLElement} slider - The slider element associated with the property.
+ * @returns {boolean} - Returns false if the value is the same as the previous value, or if idMeasure is null or undefined.
+ */
 function updateMeasureProperty(property, value, previousValue, slider) {
 	if (value === previousValue)
 		return false;
@@ -195,6 +238,11 @@ function updateMeasureProperty(property, value, previousValue, slider) {
 	});
 }
 
+/**
+ * Initializes the scenario sliders for the RRF Manager.
+ * @function initialiseScenarioSliders
+ * @returns {void}
+ */
 function initialiseScenarioSliders() {
 	var $modal = $("#rrfEditor"), $sliders = $("#control_rrf_scenario input[type='range']", $modal);
 	$sliders.each(
@@ -217,6 +265,14 @@ function initialiseScenarioSliders() {
 		});
 }
 
+/**
+ * Updates the scenario property with the given value.
+ * @param {string} property - The name of the property to update.
+ * @param {number} value - The new value for the property.
+ * @param {number} previousValue - The previous value of the property.
+ * @param {HTMLElement} slider - The slider element associated with the property.
+ * @returns {boolean} - Returns false if the value is the same as the previous value, otherwise returns true.
+ */
 function updateScenarioProperty(property, value, previousValue, slider) {
 	if (value === previousValue)
 		return false;
@@ -263,6 +319,13 @@ function updateScenarioProperty(property, value, previousValue, slider) {
 	});
 }
 
+/**
+ * Initializes the click event for the scenarios in the RRF Manager.
+ * 
+ * @function initialiseScenariosClick
+ * @memberof rrfManager
+ * @returns {void}
+ */
 function initialiseScenariosClick() {
 	var $modal = $("#rrfEditor");
 	$("#selectable_rrf_scenario_controls a", $modal).click(function () {
@@ -290,6 +353,13 @@ function initialiseScenariosClick() {
 	});
 }
 
+/**
+ * Initializes the click event for the measures in the RRF editor.
+ * 
+ * @function initialiseMeasuresClick
+ * @memberof rrfManager
+ * @returns {void}
+ */
 function initialiseMeasuresClick() {
 	var $modal = $("#rrfEditor");
 	$("#selectable_rrf_measures_chapter_controls a", $modal).click(function () {
@@ -316,6 +386,10 @@ function initialiseMeasuresClick() {
 	});
 }
 
+/**
+ * Loads the measure data using AJAX and updates the UI accordingly.
+ * @returns {boolean} Returns false if the measure or standard ID is not available, otherwise returns true.
+ */
 function loadMeasure() {
 	var $modal = $("#rrfEditor"), idMeasure = $("#selectable_rrf_measures_chapter_controls .active[data-trick-class='Measure']", $modal).attr("data-trick-id");
 	if (idMeasure == null || idMeasure == undefined)
@@ -347,6 +421,11 @@ function loadMeasure() {
 	return false;
 }
 
+/**
+ * Loads the measure chart.
+ * 
+ * @returns {boolean} Returns false if either idMeasure or idScenarioType is null or undefined, otherwise returns true.
+ */
 function loadMeasureChart() {
 	var $modal = $("#rrfEditor"), idMeasure = $("#selectable_rrf_measures_chapter_controls .active[data-trick-class='Measure']", $modal).attr("data-trick-id");
 	if (idMeasure == null || idMeasure == undefined)
@@ -374,6 +453,10 @@ function loadMeasureChart() {
 	return false;
 }
 
+/**
+ * Loads a scenario using an AJAX request and updates the UI accordingly.
+ * @returns {boolean} Returns false if the idScenario is null or undefined, otherwise returns true.
+ */
 function loadScenario() {
 	var $modal = $("#rrfEditor"), idScenario = $("#selectable_rrf_scenario_controls .active[data-trick-class='Scenario']", $modal).attr("data-trick-id");
 	if (idScenario == null || idScenario == undefined)
@@ -402,6 +485,11 @@ function loadScenario() {
 	return false;
 }
 
+/**
+ * Loads the scenario chart.
+ * 
+ * @returns {boolean} Returns false if the required data is missing, otherwise returns null.
+ */
 function loadScenarioChart() {
 	var $modal = $("#rrfEditor"), idStandard = $("#selectable_rrf_measures_chapter_controls .active[data-trick-class='Standard']", $modal).attr("data-trick-id");
 	if (idStandard == null || idStandard == undefined)
@@ -434,6 +522,12 @@ function loadScenarioChart() {
 	return false;
 }
 
+/**
+ * Updates the RFF chart with the given response data.
+ * @param {Object} response - The response data containing the datasets and title.
+ * @param {jQuery} $canvas - The jQuery object representing the canvas element.
+ * @returns {boolean} - Returns false.
+ */
 function updateRffChart(response, $canvas) {
 	if (response.datasets != null && response.datasets != undefined) {
 		var color = Chart.helpers.color;
@@ -457,6 +551,9 @@ function updateRffChart(response, $canvas) {
 	return false;
 }
 
+/**
+ * Initializes the standard filter for the RRF manager.
+ */
 function initialiseStandardFilter() {
 	var $modal = $("#rrfEditor");
 	$("#section_rrf [name='chapterselection']", $modal).change(function () {

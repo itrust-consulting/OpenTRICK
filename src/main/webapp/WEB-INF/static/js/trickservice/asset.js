@@ -1,4 +1,10 @@
-/* Asset */
+
+/**
+ * Serializes the form data into an asset object.
+ *
+ * @param {jQuery} $form - The jQuery object representing the form.
+ * @returns {Object} - The serialized asset object.
+ */
 function serializeAsset($form) {
 	var data = $form.serializeJSON();
 	data["assetType"] = {
@@ -7,6 +13,13 @@ function serializeAsset($form) {
 	return data;
 }
 
+/**
+ * Selects an asset and updates the corresponding analysis.
+ * 
+ * @param {string} assetId - The ID of the asset to be selected.
+ * @param {string} value - The value to be assigned to the selected asset.
+ * @returns {boolean} Returns false if the asset selection was not successful, otherwise returns true.
+ */
 function selectAsset(assetId, value) {
 	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
 		if (assetId == undefined) {
@@ -51,6 +64,11 @@ function selectAsset(assetId, value) {
 	return false;
 }
 
+/**
+ * Deletes an asset.
+ * 
+ * @returns {boolean} Returns false.
+ */
 function deleteAsset() {
 	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
 		var selectedAsset = findSelectItemIdBySection("section_asset");
@@ -104,6 +122,13 @@ function deleteAsset() {
 
 }
 
+/**
+ * Edits an asset.
+ * 
+ * @param {number} rowTrickId - The ID of the row trick.
+ * @param {boolean} isAdding - Indicates whether the asset is being added.
+ * @returns {boolean} - Returns false if the asset cannot be edited, otherwise returns true.
+ */
 function editAsset(rowTrickId, isAdding) {
 	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
 		if (!isAdding && (rowTrickId == null || rowTrickId == undefined)) {
@@ -131,6 +156,12 @@ function editAsset(rowTrickId, isAdding) {
 	return false;
 }
 
+/**
+ * Saves an asset.
+ *
+ * @param {string} form - The ID of the form containing the asset data.
+ * @returns {boolean} - Returns false to prevent the default form submission.
+ */
 function saveAsset(form) {
 	let $progress = $("#loading-indicator").show(), $assetModal = $("#addAssetModal"), $form = $("#" + form), data = serializeAsset($form);
 	$(".label-danger,.alert", $assetModal).remove();

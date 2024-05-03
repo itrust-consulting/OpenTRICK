@@ -6,7 +6,6 @@ package lu.itrust.business.ts.asynchronousWorkers;
 import java.io.File;
 import java.sql.Timestamp;
 
-import org.apache.commons.io.FilenameUtils;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.springframework.util.FileCopyUtils;
@@ -34,9 +33,11 @@ import lu.itrust.business.ts.model.general.document.impl.WordReport;
 import lu.itrust.business.ts.model.general.helper.Utils;
 import lu.itrust.business.ts.usermanagement.User;
 
+
 /**
- * @author eomar
- *
+ * This class represents a worker for exporting a Word report.
+ * It extends the `WorkerImpl` class and implements the `Runnable` interface.
+ * The worker is responsible for preparing and saving the Word document based on the analysis data.
  */
 public class WorkerExportWordReport extends WorkerImpl {
 
@@ -72,6 +73,12 @@ public class WorkerExportWordReport extends WorkerImpl {
 		this.exportReport = exportReport;
 	}
 
+	/**
+	 * Executes the worker thread.
+	 * This method is called when the worker thread is started.
+	 * It performs the necessary operations to export a Word report based on the analysis data.
+	 * If any error occurs during the export process, an appropriate exception is thrown and handled.
+	 */
 	@Override
 	public void run() {
 		Session session = null;
@@ -129,6 +136,11 @@ public class WorkerExportWordReport extends WorkerImpl {
 		}
 	}
 
+	/**
+	 * Cleans up the resources used by the worker and marks it as finished.
+	 * If the worker is currently working, it sets the working flag to false and updates the finished timestamp.
+	 * Finally, it closes the exportReport resource.
+	 */
 	private void cleanUp() {
 		if (isWorking()) {
 			synchronized (this) {
@@ -141,6 +153,12 @@ public class WorkerExportWordReport extends WorkerImpl {
 		exportReport.close();
 	}
 
+	/**
+	 * Saves a Word document to the database.
+	 *
+	 * @param session the database session
+	 * @throws Exception if an error occurs while saving the document
+	 */
 	private void saveWordDocument(Session session) throws Exception {
 		try {
 			final User user = new DAOUserHBM(session).get(username);
@@ -185,11 +203,19 @@ public class WorkerExportWordReport extends WorkerImpl {
 		}
 	}
 
+	/**
+	 * Starts the worker by calling the run method.
+	 */
 	@Override
 	public synchronized void start() {
 		run();
 	}
 
+	/**
+	 * Cancels the current operation.
+	 * If the worker is currently working and has not been canceled yet, it interrupts the current thread or the current task thread (if available) and sets the canceled flag to true.
+	 * If an exception occurs during the cancellation process, it sets the error flag and performs cleanup.
+	 */
 	@Override
 	public void cancel() {
 		try {
@@ -242,39 +268,80 @@ public class WorkerExportWordReport extends WorkerImpl {
 		}
 	}
 
+	/**
+	 * Returns the ID of the analysis.
+	 *
+	 * @return the ID of the analysis
+	 */
 	public int getIdAnalysis() {
 		return idAnalysis;
 	}
 
+	/**
+	 * Sets the ID of the analysis.
+	 *
+	 * @param idAnalysis the ID of the analysis
+	 */
 	public void setIdAnalysis(int idAnalysis) {
 		this.idAnalysis = idAnalysis;
 	}
 
+	/**
+	 * Returns the username.
+	 *
+	 * @return the username as a String.
+	 */
 	public String getUsername() {
 		return username;
 	}
 
+	/**
+	 * Sets the username for the worker.
+	 *
+	 * @param username the username to set
+	 */
 	public void setUsername(String username) {
 		this.username = username;
 	}
 
+	/**
+	 * Represents the name of a task.
+	 */
 	@Override
 	public TaskName getName() {
 		return TaskName.EXPORT_ANALYSIS_REPORT;
 	}
 
+	/**
+	 * Returns the ID of the template.
+	 *
+	 * @return the ID of the template
+	 */
 	public long getIdTemplate() {
 		return idTemplate;
 	}
 
+	/**
+	 * Sets the ID of the template.
+	 *
+	 * @param idTemplate the ID of the template
+	 */
 	public void setIdTemplate(long idTemplate) {
 		this.idTemplate = idTemplate;
 	}
 
+	/**
+	 * This class represents an export report.
+	 */
 	public ExportReport getExportReport() {
 		return exportReport;
 	}
 
+	/**
+	 * Sets the export report for this worker.
+	 *
+	 * @param exportReport the export report to be set
+	 */
 	public void setExportReport(ExportReport exportReport) {
 		this.exportReport = exportReport;
 	}

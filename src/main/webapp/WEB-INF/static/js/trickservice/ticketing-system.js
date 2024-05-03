@@ -1,5 +1,11 @@
 
 
+/**
+ * Creates tickets based on the selected section and ticketing type.
+ * @param {HTMLElement} section - The section element containing the checkboxes.
+ * @param {string} ticketingType - The type of ticketing system.
+ * @returns {boolean} - Returns false if the application is not linked to a project, otherwise returns true.
+ */
 function createTickets(section, ticketingType) {
 	if (!application.isLinkedToProject)
 		return false;
@@ -8,10 +14,14 @@ function createTickets(section, ticketingType) {
 		news: []
 	};
 	$("tbody>tr input:checked", section).closest("tr[data-is-linked='false']").each(function () { measures.news.push(this.hasAttribute("data-measure-id") ? this.getAttribute("data-measure-id") : this.getAttribute("data-trick-id")); });
-    updateOrGenereteTickets(measures);
+	updateOrGenereteTickets(measures);
 	return false;
 }
 
+/**
+ * Links the analysis to a project.
+ * @returns {boolean} - Returns false if the analysis cannot be linked to a project, otherwise returns true.
+ */
 function linkToProject() {
 	let idAnalysis = findSelectItemIdBySection("section_analysis")
 	if (idAnalysis.length != 1)
@@ -68,6 +78,10 @@ function linkToProject() {
 	return false;
 }
 
+/**
+ * Unlinks the analysis from a project.
+ * @returns {boolean} - Returns false if the analysis cannot be unlinked from a project, otherwise returns true.
+ */
 function unLinkToProject() {
 	let analyses = [];
 	$("tbody>tr input:checked", "#section_analysis").closest("tr").each(function () {
@@ -99,7 +113,11 @@ function unLinkToProject() {
 	return false;
 }
 
-
+/**
+ * Opens a ticket based on the selected section.
+ * @param {HTMLElement} section - The section element containing the checkboxes.
+ * @returns {boolean} - Returns false if the application is not linked to a project, otherwise returns true.
+ */
 function openTicket(section) {
 	if (!application.isLinkedToProject)
 		return false;
@@ -166,6 +184,11 @@ function openTicket(section) {
 	return false;
 }
 
+/**
+ * Links the selected measures to the ticketing system.
+ * @param {HTMLElement} section - The section element containing the checkboxes.
+ * @returns {boolean} - Returns false if the application is not linked to a project, otherwise returns true.
+ */
 function linkToTicketingSystem(section) {
 	if (!application.isLinkedToProject)
 		return false;
@@ -177,88 +200,86 @@ function linkToTicketingSystem(section) {
 
 	if (measures.length) {
 		let $progress = $("#loading-indicator").show();
-		$
-			.ajax(
-				{
-					url: context + "/Analysis/Ticketing/Measure/Link-form",
-					type: "POST",
-					contentType: "application/json;charset=UTF-8",
-					data: JSON.stringify(measures),
-					success: function (response, textStatus, jqXHR) {
-						if (response['error'])
-							showDialog("#alert-dialog", response['error']);
-						else {
-							let $modal = $("#modal-ticketing-linker", new DOMParser().parseFromString(response, "text/html")), updateRequired = false;
-							if (!$modal.length)
-								unknowError();
-							else {
-								$("#modal-ticketing-linker").remove();
-								$modal.appendTo($("#widgets")).modal("show");
-								let isFinished = false, $linker = $modal.find("#measure-task-linker"), $measureViewer = $modal.find("#measure-viewer"), $taskViewer = $("#task-viewer"), $taskContainer = $modal
-									.find("#task-container"), $tasks = $taskContainer.find("fieldset"), size = parseInt($taskContainer.attr("data-offset"));
-								taskController = function () {
-									$view = $(this.getAttribute("href"));
-									if (!$view.is(":visible")) {
-										$taskViewer.find("fieldset:visible").hide();
-										$view.show();
-									}
-									return false;
-								}
+		$.ajax({
+			url: context + "/Analysis/Ticketing/Measure/Link-form",
+			type: "POST",
+			contentType: "application/json;charset=UTF-8",
+			data: JSON.stringify(measures),
+			success: function (response, textStatus, jqXHR) {
+				if (response['error'])
+					showDialog("#alert-dialog", response['error']);
+				else {
+					let $modal = $("#modal-ticketing-linker", new DOMParser().parseFromString(response, "text/html")), updateRequired = false;
+					if (!$modal.length)
+						unknowError();
+					else {
+						$("#modal-ticketing-linker").remove();
+						$modal.appendTo($("#widgets")).modal("show");
+						let isFinished = false, $linker = $modal.find("#measure-task-linker"), $measureViewer = $modal.find("#measure-viewer"), $taskViewer = $("#task-viewer"), $taskContainer = $modal
+							.find("#task-container"), $tasks = $taskContainer.find("fieldset"), size = parseInt($taskContainer.attr("data-offset"));
+						taskController = function () {
+							$view = $(this.getAttribute("href"));
+							if (!$view.is(":visible")) {
+								$taskViewer.find("fieldset:visible").hide();
+								$view.show();
+							}
+							return false;
+						}
 
-								$tasks.appendTo($taskViewer);
+						$tasks.appendTo($taskViewer);
 
-								$taskContainer.find("a.list-group-item").on("click", taskController);
+						$taskContainer.find("a.list-group-item").on("click", taskController);
 
-								$modal.on("hidden.bs.modal", function () {
-									if (updateRequired)
-										reloadSection("section_actionplans");
-									$modal.remove();
-								}).on("show.bs.modal", function () {
-									$taskContainer.scrollTop();
-								}).on("shown.bs.modal", function () {
-									$taskContainer.on("scroll", function () {
-										if (!isFinished && (($taskContainer.scrollTop() + $taskContainer.innerHeight()) >= $taskContainer[0].scrollHeight)) {
-											isFinished = true;
-											$.ajax({
-												url: context + "/Analysis/Ticketing/Measure/Load?startIndex=" + size,
-												type: "POST",
-												contentType: "application/json;charset=UTF-8",
-												data: JSON.stringify(measures),
-												success: function (response, textStatus, jqXHR) {
-													$subTaskContainer = $("#task-container", new DOMParser().parseFromString(response, "text/html"));
-													let $subTasks = $subTaskContainer.find("fieldset");
-													if (!(isFinished = $subTasks.length == 0)) {
-														$subTasks.appendTo($taskViewer);
-														$subTaskContainer.find("a.list-group-item").appendTo($taskContainer).on("click", taskController);
-													}
-													size = parseInt($subTaskContainer.attr("data-offset"))
-												}
-											});
+						$modal.on("hidden.bs.modal", function () {
+							if (updateRequired)
+								reloadSection("section_actionplans");
+							$modal.remove();
+						}).on("show.bs.modal", function () {
+							$taskContainer.scrollTop();
+						}).on("shown.bs.modal", function () {
+							$taskContainer.on("scroll", function () {
+								if (!isFinished && (($taskContainer.scrollTop() + $taskContainer.innerHeight()) >= $taskContainer[0].scrollHeight)) {
+									isFinished = true;
+									$.ajax({
+										url: context + "/Analysis/Ticketing/Measure/Load?startIndex=" + size,
+										type: "POST",
+										contentType: "application/json;charset=UTF-8",
+										data: JSON.stringify(measures),
+										success: function (response, textStatus, jqXHR) {
+											$subTaskContainer = $("#task-container", new DOMParser().parseFromString(response, "text/html"));
+											let $subTasks = $subTaskContainer.find("fieldset");
+											if (!(isFinished = $subTasks.length == 0)) {
+												$subTasks.appendTo($taskViewer);
+												$subTaskContainer.find("a.list-group-item").appendTo($taskContainer).on("click", taskController);
+											}
+											size = parseInt($subTaskContainer.attr("data-offset"))
 										}
 									});
+								}
+							});
 
-								});
+						});
 
-								$modal.find("#measure-container>fieldset").appendTo($measureViewer);
-								$modal.find("#measure-container>a.list-group-item").on("click", function () {
-									$view = $(this.getAttribute("href"));
-									if (!$view.is(":visible")) {
-										$measureViewer.find("fieldset:visible").hide();
-										$view.show();
-									}
-									return false;
-								});
+						$modal.find("#measure-container>fieldset").appendTo($measureViewer);
+						$modal.find("#measure-container>a.list-group-item").on("click", function () {
+							$view = $(this.getAttribute("href"));
+							if (!$view.is(":visible")) {
+								$measureViewer.find("fieldset:visible").hide();
+								$view.show();
+							}
+							return false;
+						});
 
-								$linker.on('click', function () {
-									let $measure = $measureViewer.find("fieldset:visible"), $ticket = $taskViewer.find("fieldset:visible")
-									if ($measure.length && $ticket.length) {
-										$progress.show();
-										$linker.prop("disabled", true)
-										$.ajax({
-											url: context + "/Analysis/Ticketing/Measure/Link",
-											type: "POST",
-											contentType: "application/json;charset=UTF-8",
-											data: JSON.stringify({
+						$linker.on('click', function () {
+							let $measure = $measureViewer.find("fieldset:visible"), $ticket = $taskViewer.find("fieldset:visible")
+							if ($measure.length && $ticket.length) {
+								$progress.show();
+								$linker.prop("disabled", true)
+								$.ajax({
+									url: context + "/Analysis/Ticketing/Measure/Link",
+									type: "POST",
+									contentType: "application/json;charset=UTF-8",
+									data: JSON.stringify({
 												"idMeasure": $measure.attr("data-trick-id"),
 												"idTicket": $ticket.attr("data-trick-id")
 											}),
@@ -296,6 +317,12 @@ function linkToTicketingSystem(section) {
 	return false;
 }
 
+/**
+ * Unlinks measures and tasks from the ticketing system.
+ * 
+ * @param {string} section - The section where the unlinking is performed.
+ * @returns {boolean} - Returns false if the application is not linked to a project.
+ */
 function unLinkToTicketingSystem(section) {
 	if (!application.isLinkedToProject)
 		return false;
@@ -349,6 +376,11 @@ function unLinkToTicketingSystem(section) {
 
 }
 
+/**
+ * Updates or generates tickets based on the provided data.
+ * @param {Object} data - The data used to update or generate tickets.
+ * @returns {boolean} - Returns false.
+ */
 function updateOrGenereteTickets(data) {
 	if (data != undefined && (data.updates.length || data.news.length)) {
 		let $progress = $("#loading-indicator").show();
@@ -374,6 +406,12 @@ function updateOrGenereteTickets(data) {
 	return false;
 }
 
+/**
+ * Generates tickets based on the selected checkboxes in the given section.
+ * 
+ * @param {HTMLElement} section - The section containing the checkboxes.
+ * @returns {boolean} Returns false if the application is not linked to a project, otherwise returns true.
+ */
 function generateTickets(section) {
 	if (!application.isLinkedToProject)
 		return false;
@@ -402,6 +440,12 @@ function generateTickets(section) {
 	return false;
 }
 
+/**
+ * Synchronizes the selected measures with the ticketing system.
+ * 
+ * @param {HTMLElement} section - The section containing the measures.
+ * @returns {boolean} Returns false if the application is not linked to a project, otherwise returns true.
+ */
 function synchroniseWithTicketingSystem(section) {
 	if (!application.isLinkedToProject)
 		return false;
@@ -499,12 +543,24 @@ function synchroniseWithTicketingSystem(section) {
 	return false;
 }
 
+/**
+ * Checks if the ticketing system is linked.
+ *
+ * @param {HTMLElement} section - The section element containing the ticketing system.
+ * @returns {boolean} - Returns true if the ticketing system is linked, false otherwise.
+ */
 function isLinkedTicketingSystem(section) {
 	if (!application.isLinkedToProject)
 		return true;
 	return $("tbody>tr input:checked", section).closest("tr").attr("data-is-linked") === "true";
 }
 
+/**
+ * Checks if the ticketing system is unlinked.
+ *
+ * @param {HTMLElement} section - The section element containing the ticketing system.
+ * @returns {boolean} - Returns true if the ticketing system is unlinked, false otherwise.
+ */
 function isUnLinkedTicketingSystem(section) {
 	if (!application.isLinkedToProject)
 		return true;

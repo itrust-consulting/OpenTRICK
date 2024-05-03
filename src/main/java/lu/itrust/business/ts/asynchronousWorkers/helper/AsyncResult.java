@@ -5,11 +5,12 @@ package lu.itrust.business.ts.asynchronousWorkers.helper;
 
 import lu.itrust.business.ts.messagehandler.TaskName;
 
-/**
- * @author eom
- * 
- */
 
+
+/**
+ * The `AsyncResult` class represents the result of an asynchronous task.
+ * It contains information such as the task ID, status, message, progress, and callbacks.
+ */
 public class AsyncResult {
 
 	private String taskID;

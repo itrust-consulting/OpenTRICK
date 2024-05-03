@@ -1,3 +1,12 @@
+
+/**
+ * Imports RRF (Risk and Reliability Framework) for the specified analysis.
+ * If the analysis ID is not provided, it will try to find the analysis ID.
+ * Only users with MODIFY permission for the analysis can import RRF.
+ * This function makes an AJAX request to the server to import the RRF.
+ * @param {number} idAnalysis - The ID of the analysis.
+ * @returns {boolean} - Returns false.
+ */
 function importRRF(idAnalysis) {
 	if (idAnalysis == null || idAnalysis == undefined)
 		idAnalysis = findAnalysisId();
@@ -42,7 +51,7 @@ function importRRF(idAnalysis) {
 								type: "post",
 								data: $modalBody.find("form").serialize(),
 								success: function (response, textStatus, jqXHR) {
-									if (response.success != undefined){
+									if (response.success != undefined) {
 										showDialog("success", response.success);
 										modal.Destroy();
 									}
@@ -53,8 +62,8 @@ function importRRF(idAnalysis) {
 											unknowError();
 									}
 								},
-								error:unknowError
-								
+								error: unknowError
+
 							}).complete(function () {
 								$buttons.prop("disabled", false);
 								$progress.hide();
@@ -89,6 +98,14 @@ function importRRF(idAnalysis) {
 	return false;
 }
 
+/**
+ * Imports the raw RRF form for the specified analysis.
+ * If the analysis ID is not provided, it will try to find the analysis ID.
+ * Only users with MODIFY permission for the analysis can import the raw RRF form.
+ * This function makes an AJAX request to the server to import the raw RRF form.
+ * @param {number} idAnalysis - The ID of the analysis.
+ * @returns {boolean} - Returns false.
+ */
 function importRawRRFForm(idAnalysis) {
 	if (idAnalysis == null || idAnalysis == undefined)
 		idAnalysis = findAnalysisId();
@@ -118,6 +135,14 @@ function importRawRRFForm(idAnalysis) {
 	return false;
 }
 
+/**
+ * Imports the raw RRF data for the specified analysis.
+ * If the analysis ID is not provided, it will try to find the analysis ID.
+ * Only users with MODIFY permission for the analysis can import the raw RRF data.
+ * This function makes an AJAX request to the server to import the raw RRF data.
+ * @param {number} idAnalysis - The ID of the analysis.
+ * @returns {boolean} - Returns false.
+ */
 function importDataRawRRF(idAnalysis) {
 	if (idAnalysis == null || idAnalysis == undefined)
 		idAnalysis = findAnalysisId();
@@ -135,7 +160,7 @@ function importDataRawRRF(idAnalysis) {
 			processData: false,
 			async: false,
 			success: function (response, textStatus, jqXHR) {
-				if (response["success"] != undefined){
+				if (response["success"] != undefined) {
 					showDialog("success", response["success"]);
 					$("#import_raw_rrf_modal").modal("hide");
 				}

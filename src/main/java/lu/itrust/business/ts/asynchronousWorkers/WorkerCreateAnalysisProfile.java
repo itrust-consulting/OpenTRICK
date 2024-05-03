@@ -25,9 +25,11 @@ import lu.itrust.business.ts.model.general.LogAction;
 import lu.itrust.business.ts.model.general.LogType;
 import lu.itrust.business.ts.usermanagement.User;
 
+
 /**
- * @author eomar
- * 
+ * This class represents a worker responsible for creating an analysis profile.
+ * It extends the `WorkerImpl` class and implements the `Worker` interface.
+ * The worker is executed asynchronously.
  */
 public class WorkerCreateAnalysisProfile extends WorkerImpl {
 

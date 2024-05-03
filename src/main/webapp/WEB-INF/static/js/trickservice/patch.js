@@ -1,3 +1,8 @@
+/**
+ * Fixes all scenario categories.
+ * 
+ * @returns {boolean} Returns false.
+ */
 function fixAllScenarioCategories() {
 	var $progress = $("#loading-indicator").show();
 	$.ajax({
@@ -22,6 +27,10 @@ function fixAllScenarioCategories() {
 	return false;
 }
 
+/**
+ * Updates the measure asset type values.
+ * @returns {boolean} Returns false.
+ */
 function updateMeasureAssetTypeValue() {
 	var $progress = $("#loading-indicator").show();
 	$.ajax({
@@ -44,6 +53,11 @@ function updateMeasureAssetTypeValue() {
 	return false;
 }
 
+/**
+ * Restores analysis rights.
+ * 
+ * @returns {boolean} Returns false.
+ */
 function restoreAnalysisRights() {
 	var $confirmDialog = $("#confirm-dialog");
 	$confirmDialog.find('.modal-body').text(MessageResolver("confirm.restore.analysis.right", "Are you sure, you want to restore analysis rights?"));
@@ -74,6 +88,11 @@ function restoreAnalysisRights() {
 	return false;
 }
 
+/**
+ * Updates the missing scopes of analyses.
+ * 
+ * @returns {boolean} Returns false.
+ */
 function updateAnalysesScopes() {
 	var $confirmDialog = $("#confirm-dialog");
 	$confirmDialog.find('.modal-body').text(MessageResolver("confirm.update.analyses.scopes", "Are you sure, you want to update missing scopes of analyses?"));
@@ -104,6 +123,11 @@ function updateAnalysesScopes() {
 	return false;
 }
 
+/**
+ * Updates the missing risk and item information of analyses.
+ * 
+ * @returns {boolean} Returns false.
+ */
 function updateAnalysesRiskAndItemInformation() {
 	var $confirmDialog = $("#confirm-dialog");
 	$confirmDialog.find('.modal-body').text(MessageResolver("confirm.update.analyses.risk_item.information", "Are you sure, you want to update missing risk and item information of analyses?"));
@@ -134,6 +158,11 @@ function updateAnalysesRiskAndItemInformation() {
 	return false;
 }
 
+/**
+ * Fixes all assessments.
+ * 
+ * @returns {boolean} Returns false.
+ */
 function fixAllAssessments() {
 	var $progress = $("#loading-indicator").show();
 	$.ajax({
@@ -158,6 +187,10 @@ function fixAllAssessments() {
 	return false;
 }
 
+/**
+ * Adds CSSF parameters.
+ * @returns {boolean} Returns false.
+ */
 function addCSSFParameters() {
 	var $progress = $("#loading-indicator").show();
 	$.ajax({
@@ -182,6 +215,11 @@ function addCSSFParameters() {
 	return false;
 }
 
+/**
+ * Fixes the qualitative impact parameter.
+ * 
+ * @returns {boolean} Returns false.
+ */
 function fixQualitativeImpactParameter() {
 	var $progress = $("#loading-indicator").show();
 	$.ajax({
@@ -206,6 +244,11 @@ function fixQualitativeImpactParameter() {
 	return false;
 }
 
+/**
+ * Synchronizes the analyses measure collection.
+ * 
+ * @returns {boolean} Returns false.
+ */
 function synchroniseAnalysesMeasureCollection() {
 	var $confirmDialog = $("#confirm-dialog");
 	$confirmDialog.find('.modal-body').text(MessageResolver("confirm.synchronise.analyses.measure.collection", "Are you sure, you want to synchronise.analyses.measure.collection?"));

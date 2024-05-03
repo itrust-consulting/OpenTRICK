@@ -1,5 +1,7 @@
+
 /**
- * Main.js
+ * Represents the application object.
+ * @type {Application}
  */
 var application = new Application();
 
@@ -40,10 +42,23 @@ function Application() {
 	this.currentNotifications = {};
 }
 
-/**
- * Analysis rights / user permissions
- */
 
+/**
+ * Represents the analysis rights.
+ * @typedef {Object} ANALYSIS_RIGHT
+ * @property {Object} ALL - The "ALL" analysis right.
+ * @property {number} ALL.value - The value of the "ALL" analysis right.
+ * @property {string} ALL.name - The name of the "ALL" analysis right.
+ * @property {Object} EXPORT - The "EXPORT" analysis right.
+ * @property {number} EXPORT.value - The value of the "EXPORT" analysis right.
+ * @property {string} EXPORT.name - The name of the "EXPORT" analysis right.
+ * @property {Object} MODIFY - The "MODIFY" analysis right.
+ * @property {number} MODIFY.value - The value of the "MODIFY" analysis right.
+ * @property {string} MODIFY.name - The name of the "MODIFY" analysis right.
+ * @property {Object} READ - The "READ" analysis right.
+ * @property {number} READ.value - The value of the "READ" analysis right.
+ * @property {string} READ.name - The name of the "READ" analysis right.
+ */
 var ANALYSIS_RIGHT = {
 	ALL: {
 		value: 0,
@@ -63,8 +78,27 @@ var ANALYSIS_RIGHT = {
 	}
 };
 
+
 /**
- * Open mode
+ * Represents the open mode options.
+ * @typedef {Object} OPEN_MODE
+ * @property {Object} READ - The read-only mode.
+ * @property {string} READ.value - The value of the read-only mode.
+ * @property {string} READ.name - The name of the read-only mode.
+ * @property {Object} READ_ESTIMATION - The read-only estimation mode.
+ * @property {string} READ_ESTIMATION.value - The value of the read-only estimation mode.
+ * @property {string} READ_ESTIMATION.name - The name of the read-only estimation mode.
+ * @property {Object} EDIT - The edit mode.
+ * @property {string} EDIT.value - The value of the edit mode.
+ * @property {string} EDIT.name - The name of the edit mode.
+ * @property {Object} EDIT_ESTIMATION - The edit estimation mode.
+ * @property {string} EDIT_ESTIMATION.value - The value of the edit estimation mode.
+ * @property {string} EDIT_ESTIMATION.name - The name of the edit estimation mode.
+ * @property {Object} EDIT_MEASURE - The edit measure mode.
+ * @property {string} EDIT_MEASURE.value - The value of the edit measure mode.
+ * @property {string} EDIT_MEASURE.name - The name of the edit measure mode.
+ * @property {function} isReadOnly - Checks if the given mode is read-only.
+ * @property {function} valueOf - Returns the open mode object based on the given value.
  */
 var OPEN_MODE = {
 	READ: {
@@ -104,6 +138,16 @@ var OPEN_MODE = {
 	}
 }
 
+/**
+ * Represents the collection of notification types.
+ * Represents the notification types with their corresponding properties.
+ * 
+ * @typedef {Object} NotificationType
+ * @property {string} type - The type of the notification.
+ * @property {string} icon - The icon associated with the notification.
+ * @property {string[]} names - The names or identifiers associated with the notification.
+ * @type {Object.<string, NotificationType>}
+ */
 var NOTIFICATION_TYPE = {
 	ERROR: {
 		type: "danger",
@@ -141,6 +185,30 @@ var NOTIFICATION_TYPE = {
 	}
 }
 
+/**
+ * Represents the analysis types for data.
+ * @typedef {Object} ANALYSIS_TYPE
+ * @property {Object} QUANTITATIVE - Represents the quantitative analysis type.
+ * @property {string} QUANTITATIVE.type - The type of analysis (QUANTITATIVE).
+ * @property {Function} QUANTITATIVE.isQualitative - Checks if the analysis is qualitative (always returns false).
+ * @property {Function} QUANTITATIVE.isQuantitative - Checks if the analysis is quantitative (always returns true).
+ * @property {Function} QUANTITATIVE.isSupported - Checks if the analysis type is supported.
+ * @property {Object} HYBRID - Represents the hybrid analysis type.
+ * @property {string} HYBRID.type - The type of analysis (HYBRID).
+ * @property {Function} HYBRID.isQualitative - Checks if the analysis is qualitative (always returns true).
+ * @property {Function} HYBRID.isQuantitative - Checks if the analysis is quantitative (always returns true).
+ * @property {Function} HYBRID.isSupported - Checks if the analysis type is supported.
+ * @property {Object} QUALITATIVE - Represents the qualitative analysis type.
+ * @property {string} QUALITATIVE.type - The type of analysis (QUALITATIVE).
+ * @property {Function} QUALITATIVE.isQualitative - Checks if the analysis is qualitative (always returns true).
+ * @property {Function} QUALITATIVE.isQuantitative - Checks if the analysis is quantitative (always returns false).
+ * @property {Function} QUALITATIVE.isSupported - Checks if the analysis type is supported.
+ * @property {Function} valueOf - Returns the analysis type object based on the given value.
+ * @property {Function} isSupported - Checks if the analysis type is supported.
+ * @property {Function} isHybrid - Checks if the analysis type is hybrid.
+ * @property {Function} isQuantitative - Checks if the analysis type is quantitative.
+ * @property {Function} isQualitative - Checks if the analysis type is qualitative.
+ */
 var ANALYSIS_TYPE = {
 	QUANTITATIVE: {
 		type: "QUANTITATIVE",
@@ -203,6 +271,12 @@ if (!Array.prototype.removeIf) {
 	}
 }
 
+/**
+ * Checks if a value is a function.
+ *
+ * @param {*} value - The value to check.
+ * @returns {boolean} - Returns `true` if the value is a function, else `false`.
+ */
 function isFunction(value) {
 	var getType = {};
 	return value && getType.toString.call(value) === '[object Function]';
@@ -220,6 +294,12 @@ if (!String.prototype.endsWith) {
 	};
 }
 
+/**
+ * Converts a hexadecimal color code to an RGB object.
+ *
+ * @param {string} hex - The hexadecimal color code to convert.
+ * @returns {Object|null} - The RGB object with properties r, g, and b representing the red, green, and blue values respectively. Returns null if the input is not a valid hexadecimal color code.
+ */
 function hexToRgb(hex) {
 	var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
 	hex = hex.replace(shorthandRegex, function (m, r, g, b) {
@@ -233,12 +313,27 @@ function hexToRgb(hex) {
 	} : null;
 }
 
+/**
+ * Validates an email address.
+ *
+ * @param {string} email - The email address to validate.
+ * @returns {boolean} - Returns true if the email is valid, false otherwise.
+ */
 function validateEmail(email) {
 	var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 	return re.test(email);
 }
 
 
+/**
+ * Checks if a value has a valid extension.
+ *
+ * @param {string} value - The value to check.
+ * @param {string} extention - The valid extension(s) to match against. Multiple extensions can be separated by commas.
+ * @param {string} button - The button element to enable/disable based on the match result.
+ * @param {boolean} optionnal - Optional parameter to indicate if the match is optional.
+ * @returns {boolean} - Returns true if the value has a valid extension, false otherwise.
+ */
 function checkExtention(value, extention, button, optionnal) {
 	var extentions = extention.split(","), match = false;
 	for (var i = 0; i < extentions.length; i++)
@@ -248,6 +343,11 @@ function checkExtention(value, extention, button, optionnal) {
 	return match;
 }
 
+/**
+ * Switches the language of the webpage to the specified URL.
+ * @param {string} url - The URL to switch the language to.
+ * @returns {boolean} - Returns true if the window location hash is undefined, otherwise returns false.
+ */
 function switchLangueTo(url) {
 	if (window.location.hash == undefined)
 		return true;
@@ -255,6 +355,11 @@ function switchLangueTo(url) {
 	return false;
 }
 
+/**
+ * Triggers a function based on the provided target element.
+ *
+ * @param {jQuery} $target - The target element to trigger the function on.
+ */
 function triggerCaller($target) {
 	try {
 		if ($target.attr("data-update-required") == "true") {
@@ -270,6 +375,10 @@ function triggerCaller($target) {
 	}
 }
 
+/**
+ * Calls the specified callback function with optional data.
+ * @param {jQuery} $target - The target element.
+ */
 function callBackCaller($target) {
 	try {
 		var callback = $target.attr("data-callback");
@@ -285,6 +394,17 @@ function callBackCaller($target) {
 	}
 }
 
+/**
+ * Displays a dialog or notification based on the provided parameters.
+ *
+ * @param {string} dialog - The dialog element or selector.
+ * @param {string} message - The message to display in the dialog or notification.
+ * @param {string} title - The title of the dialog or notification.
+ * @param {string} url - The URL to navigate to when the dialog or notification is closed.
+ * @param {function} onClose - The callback function to execute when the dialog or notification is closed.
+ * @param {string} placement - The placement of the dialog or notification.
+ * @returns {object} - The dialog or notification object.
+ */
 function showDialog(dialog, message, title, url, onClose, placement) {
 	var notificationType = NOTIFICATION_TYPE.valueOf(dialog);
 	if (notificationType == undefined) {
@@ -295,6 +415,16 @@ function showDialog(dialog, message, title, url, onClose, placement) {
 	}
 }
 
+/**
+ * Displays a static dialog or notification based on the provided parameters.
+ *
+ * @param {string} dialog - The dialog element or selector.
+ * @param {string} message - The message to be displayed in the dialog or notification.
+ * @param {string} title - The title of the dialog or notification.
+ * @param {string} url - The URL to navigate to when the dialog or notification is closed.
+ * @param {function} onClose - The callback function to be executed when the dialog or notification is closed.
+ * @returns {jQuery} - The jQuery object representing the displayed dialog or notification.
+ */
 function showStaticDialog(dialog, message, title, url, onClose) {
 	var notificationType = NOTIFICATION_TYPE.valueOf(dialog);
 	if (notificationType == undefined) {
@@ -305,10 +435,26 @@ function showStaticDialog(dialog, message, title, url, onClose) {
 	}
 }
 
+/**
+ * Navigates to the specified page.
+ * @param {string} page - The page to navigate to.
+ */
 function gotToPage(page) {
 	window.location.assign(context + page);
 }
 
+/**
+ * Displays a notification using the specified parameters.
+ *
+ * @param {string} type - The type of the notification.
+ * @param {string} message - The message to be displayed in the notification.
+ * @param {string} icon - The icon to be displayed in the notification.
+ * @param {string} url - The URL to be redirected to when the notification is clicked.
+ * @param {string} title - The title of the notification.
+ * @param {Function} onClose - The function to be called when the notification is closed.
+ * @param {string} placement - The placement of the notification (e.g., "top", "bottom").
+ * @returns {object} - The notification object.
+ */
 function showNotifcation(type, message, icon, url, title, onClose, placement) {
 	return $.notify({
 		title: title ? title : undefined,
@@ -325,6 +471,17 @@ function showNotifcation(type, message, icon, url, title, onClose, placement) {
 	});
 }
 
+/**
+ * Displays a static notification.
+ *
+ * @param {string} type - The type of the notification.
+ * @param {string} message - The message to be displayed in the notification.
+ * @param {string} icon - The icon to be displayed in the notification.
+ * @param {string} title - The title of the notification.
+ * @param {string} url - The URL to be redirected to when the notification is clicked.
+ * @param {function} onClose - The callback function to be executed when the notification is closed.
+ * @returns {object} - The notification object.
+ */
 function showStaticNotifcation(type, message, icon, title, url, onClose) {
 	var $notification = $.notify({
 		title: title ? title : undefined,
@@ -349,6 +506,12 @@ function showStaticNotifcation(type, message, icon, title, url, onClose) {
 	return $notification;
 }
 
+/**
+ * Observes mutations in the DOM and triggers a callback function when an element with the specified class is inserted.
+ *
+ * @param {string} elementClass - The class name of the element to observe.
+ * @param {Function} callback - The callback function to be executed when an element with the specified class is inserted.
+ */
 function onElementInserted(elementClass, callback) {
 	var onMutationsObserved = function (mutations) {
 		mutations.forEach(function (mutation) {
@@ -363,6 +526,13 @@ function onElementInserted(elementClass, callback) {
 	new MutationObserver(onMutationsObserved).observe(document, { childList: true, subtree: true });
 }
 
+/**
+ * Handles unknown errors that occur during AJAX requests.
+ * @param {jqXHR} jqXHR - The jQuery XMLHttpRequest object.
+ * @param {string} textStatus - The status of the request.
+ * @param {string} errorThrown - The error message.
+ * @returns {boolean} - Returns true if the error was handled, false otherwise.
+ */
 function unknowError(jqXHR, textStatus, errorThrown) {
 	if (typeof textStatus != 'undefined' && textStatus === 'abort' || application["isReloading"])
 		return false;
@@ -400,6 +570,10 @@ function unknowError(jqXHR, textStatus, errorThrown) {
 	return true;
 }
 
+/**
+ * Calculates the width of the scrollbar in the current browser.
+ * @returns {number} The width of the scrollbar in pixels.
+ */
 function getScrollbarWidth() {
 	var outer = document.createElement("div");
 	outer.style.visibility = "hidden";
@@ -425,37 +599,78 @@ function getScrollbarWidth() {
 	return widthNoScroll - widthWithScroll;
 }
 
+/**
+ * Checks if the given analysis type is supported for the specified section.
+ * @param {string} type - The analysis type to check.
+ * @param {string} [section] - The section to search for the analysis type. If not provided, the default section "#section_analysis" will be used.
+ * @returns {boolean} - Returns true if the analysis type is supported for the section, otherwise returns false.
+ */
 function isAnalysisType(type, section) {
 	var analysisType = ANALYSIS_TYPE.valueOf(type), trType = $("table>tbody>tr[data-trick-type]>td>input:checked", section ? section : "#section_analysis").closest("tr").attr("data-trick-type");
 	return analysisType && analysisType.isSupported(trType);
 }
 
+/**
+ * Finds the analysis type for a given section and analysis ID.
+ *
+ * @param {HTMLElement} section - The section element to search within.
+ * @param {string} idAnalysis - The ID of the analysis to find the type for.
+ * @returns {string} The analysis type.
+ */
 function findAnalysisType(section, idAnalysis) {
 	if (Object.keys(application.analysisType).length)
 		return application.analysisType.type;
 	return $("table>tbody>tr[data-trick-id='" + idAnalysis + "'][data-trick-type]", section).attr("data-trick-type");
 }
 
+/**
+ * Checks if a trick with the given analysisId is archived.
+ * If analysisId is undefined, it checks if any trick is archived.
+ *
+ * @param {string} analysisId - The ID of the trick to check for archiving.
+ * @returns {boolean} - True if the trick is archived, false otherwise.
+ */
 function isArchived(analysisId) {
 	return analysisId == undefined ?
 		$("table>tbody>tr[data-trick-archived='true']>td>input:checked", "#section_analysis").length > 0 :
 		$("table>tbody>tr[data-trick-id='" + analysisId + "'][data-trick-archived='true']", "#section_analysis").length > 0;
 }
 
+/**
+ * Checks if the selected input is linked.
+ * 
+ * @returns {boolean} True if the selected input is linked, false otherwise.
+ */
 function isLinked() {
 	return $("tbody>tr input:checked", "#section_analysis").closest("tr").attr("data-is-linked") === "true";
 }
 
+/**
+ * Downloads a Word report for the given ID.
+ * @param {string} id - The ID of the report to download.
+ * @returns {boolean} - Returns false to prevent the default link behavior.
+ */
 function downloadWordReport(id) {
 	download(context + '/Account/Report/' + id + "/Download");
 	return false;
 }
 
+/**
+ * Downloads the exported SQLite file for the specified ID.
+ * 
+ * @param {string} id - The ID of the SQLite file to download.
+ * @returns {boolean} - Returns false to prevent the default link behavior.
+ */
 function downloadExportedSqLite(id) {
 	download(context + '/Account/Sqlite/' + id + "/Download");
 	return false;
 }
 
+/**
+ * Downloads a file from the given URL.
+ *
+ * @param {string} url - The URL of the file to download.
+ */
 function download(url) {
 	if ($.fileDownload) {
 		$.fileDownload(url).done((e) => { }).fail((e) => { window.open(url, "_blank_" + Math.random()) });
@@ -465,6 +680,12 @@ function download(url) {
 
 }
 
+/**
+ * Switches to the specified tab.
+ * 
+ * @param {string} tabName - The name of the tab to switch to.
+ * @returns {boolean} - Returns false to prevent default behavior.
+ */
 function switchTab(tabName) {
 	var $tab = $(tabName ? "a[href='#" + tabName + "']" : "a[data-toggle='tab']:first", ".nav-tab,.nav-analysis");
 	if ($tab.parent().css("display") != "none")
@@ -472,10 +693,24 @@ function switchTab(tabName) {
 	return false;
 }
 
+/**
+ * Checks if an element has a vertical scrollbar.
+ *
+ * @param {jQuery} element - The jQuery element to check.
+ * @returns {boolean} - True if the element has a vertical scrollbar, false otherwise.
+ */
 function hasScrollBar(element) {
 	return element.get(0).scrollHeight > element.get(0).clientHeight;
 }
 
+/**
+ * Sorts a table based on the specified type and element.
+ * 
+ * @param {string} type - The type of data to sort by.
+ * @param {HTMLElement} element - The element that triggered the sorting.
+ * @param {number} number - Indicates whether the sorting is based on numbers.
+ * @returns {boolean} - Returns false.
+ */
 function sortTable(type, element, number) {
 	const sorter = natsort({ insensitive: true });
 	var previousIndexes = [], $table = $(element).closest("table"), $tbody = $("tbody", $table), $trs = $("tr", $tbody), order = element == undefined ? undefined : element.getAttribute("data-order") == "0" ? -1 : 1, selector = "td[data-trick-field='" + type + "']";
@@ -583,6 +818,12 @@ $.fn.serializeJSON = function () {
 	return json;
 };
 
+/**
+ * Converts a form to JSON object.
+ *
+ * @param {HTMLFormElement} form - The form element to convert.
+ * @returns {Object} - The JSON object representing the form data.
+ */
 function convertFormToJSON(form) {
 	return $(form)
 		.serializeArray()
@@ -593,10 +834,20 @@ function convertFormToJSON(form) {
 }
 
 
+/**
+ * Displays a permission error dialog.
+ * @returns {void}
+ */
 function permissionError() {
 	return showDialog("#alert-dialog", MessageResolver("error.not_authorized", "Insufficient permissions!"));
 }
 
+/**
+ * Finds the right analysis based on the provided id.
+ *
+ * @param {string} idAnalysis - The id of the analysis.
+ * @returns {Object|undefined} - The analysis right object if found, otherwise undefined.
+ */
 function findRight(idAnalysis) {
 	var right = $("*[data-trick-id='" + idAnalysis + "'][data-trick-rights-id]");
 	if (!right.length)
@@ -610,6 +861,13 @@ function findRight(idAnalysis) {
 	return undefined;
 }
 
+/**
+ * Checks if the user has the specified action right for the given analysis.
+ *
+ * @param {string} idAnalysis - The ID of the analysis.
+ * @param {object} action - The action right to check.
+ * @returns {boolean} - Returns true if the user has the specified action right, otherwise false.
+ */
 function userCan(idAnalysis, action) {
 	var right = findRight(idAnalysis);
 	if (right != undefined && action.value != undefined) {
@@ -621,20 +879,43 @@ function userCan(idAnalysis, action) {
 	return false;
 }
 
+/**
+ * Checks if the user has the right to perform a specific action.
+ *
+ * @param {string} action - The action to check for.
+ * @returns {boolean} - Returns true if the user has the right, false otherwise.
+ */
 function hasRight(action) {
 	if (!(action instanceof jQuery))
 		action = ANALYSIS_RIGHT[action];
 	return userCan($("#section_analysis tbody>tr>td>input:checked").parent().parent().attr("data-trick-id"), action);
 }
 
+/**
+ * Checks if the specified analysis ID belongs to the owner.
+ * If no ID is provided, it checks if any of the selected analysis IDs belong to the owner.
+ *
+ * @param {string} [idAnalysis] - The ID of the analysis to check ownership for.
+ * @returns {boolean} - Returns true if the analysis belongs to the owner, false otherwise.
+ */
 function isOwner(idAnalysis) {
 	return idAnalysis === undefined ? $("#section_analysis tbody>tr>td>input:checked").parent().parent().attr("data-analysis-owner") === "true" : $("#section_analysis tbody>tr[data-trick-id='" + idAnalysis + "']").attr("data-analysis-owner") === "true"
 }
 
+/**
+ * Checks if the user can manage access.
+ * @returns {boolean} True if the user can manage access, false otherwise.
+ */
 function canManageAccess() {
 	return isOwner() || hasRight("ALL");
 }
 
+/**
+ * Selects an element and performs an action based on its type.
+ *
+ * @param {HTMLElement} elm - The element to select.
+ * @returns {boolean} - Returns false.
+ */
 function selectElement(elm) {
 	const $input = $(elm).find("input,textarea,select");
 	if ($input.length == 1) {
@@ -645,21 +926,36 @@ function selectElement(elm) {
 	return false;
 }
 
+/**
+ * Generates a unique message code with the given code and parameters.
+ *
+ * @param {string} code - The message code.
+ * @param {string} params - The parameters for the message.
+ * @returns {string} The generated unique message code.
+ */
 function generateMessageUniqueCode(code, params) {
 	return "|^|" + code + "__uPu_*-^|^-*_*+*_+*+_PuP__" + params + "|$|";// mdr
 }
 
+/**
+ * Resolves a message by generating a unique code and storing it in the application's localesMessages object.
+ *
+ * @param {string} code - The code associated with the message.
+ * @param {string} text - The text of the message.
+ * @param {Array} params - An array of parameters to be used in the message.
+ */
 function resolveMessage(code, text, params) {
 	application.localesMessages[generateMessageUniqueCode(code, params)] = he.decode(text);
 }
 
+
 /**
- * MessageResolver
- * 
- * @param code
- * @param defaulttext
- * @param params
- * @returns
+ * Resolves a message based on the provided code, default text, and parameters.
+ *
+ * @param {string} code - The code of the message.
+ * @param {string} defaulttext - The default text of the message.
+ * @param {Array|number|string} params - The parameters for the message. Can be an array, a number, or a string.
+ * @returns {string} - The resolved message.
  */
 function MessageResolver(code, defaulttext, params) {
 
@@ -696,14 +992,24 @@ function MessageResolver(code, defaulttext, params) {
 	return data.message;
 }
 
+/**
+ * Fixes the table header by making it sticky.
+ *
+ * @param {HTMLElement[]|jQuery} items - The table(s) to fix the header for.
+ * @returns {jQuery} - The jQuery object representing the fixed table header(s).
+ */
 function fixTableHeader(items) {
 	return $(items).stickyTableHeaders(application["settings-fixed-header"]);
 }
 
-/**
- * success and error message display
- */
 
+/**
+ * Displays an error message in the specified parent element.
+ *
+ * @param {HTMLElement} parent - The parent element where the error message will be displayed.
+ * @param {string} text - The error message text.
+ * @returns {HTMLElement} - The created error element.
+ */
 function showError(parent, text) {
 	var error = document.createElement("div");
 	var close = document.createElement("a");
@@ -722,6 +1028,13 @@ function showError(parent, text) {
 	return error;
 }
 
+/**
+ * Displays a success message in the specified parent element.
+ *
+ * @param {HTMLElement} parent - The parent element where the success message will be displayed.
+ * @param {string} text - The text content of the success message.
+ * @returns {HTMLElement} - The created success message element.
+ */
 function showSuccess(parent, text) {
 	var success = document.createElement("div");
 	var close = document.createElement("a");
@@ -740,18 +1053,35 @@ function showSuccess(parent, text) {
 	return success;
 }
 
-/**
- * section menu update
- */
 
+/**
+ * Checks if a section is selected.
+ * 
+ * @param {string} sectionName - The name of the section.
+ * @returns {boolean} - True if the section is selected, false otherwise.
+ */
 function isSelected(sectionName) {
 	return $("#section_" + sectionName + " tbody tr[data-trick-selected='true'] td:first-child input:checked").length > 0;
 }
 
+/**
+ * Checks if any row in a specific section has a selected state.
+ *
+ * @param {string} sectionName - The name of the section.
+ * @param {boolean} state - The state to check for (true for selected, false for not selected).
+ * @returns {boolean} - True if at least one row in the section has the specified state, false otherwise.
+ */
 function hasSelectedState(sectionName, state) {
 	return $("#section_" + sectionName + " tbody tr[data-trick-selected='" + state + "'] td:first-child input:checked").length > 0;
 }
 
+/**
+ * Checks or unchecks a checkbox and updates the menu based on the checkbox state.
+ * @param {HTMLElement} checkbox - The checkbox element.
+ * @param {string} sectionName - The name of the section.
+ * @param {string} appModalVar - The variable name of the application modal.
+ * @returns {boolean} Returns false.
+ */
 function checkControlChange(checkbox, sectionName, appModalVar) {
 	var items = (appModalVar == undefined || appModalVar == null) ? $("#section_" + sectionName + " tbody tr td:first-child input:not(:disabled)") : $(
 		application[appModalVar].modal).find("tbody tr td:first-child input");
@@ -774,6 +1104,16 @@ function checkControlChange(checkbox, sectionName, appModalVar) {
 	return false;
 }
 
+/**
+ * Updates the menu based on the provided parameters.
+ *
+ * @param {string} sender - The sender of the update.
+ * @param {string} idsection - The ID of the section.
+ * @param {string} idMenu - The ID of the menu.
+ * @param {string} appModalVar - The variable for the application modal.
+ * @param {Function} callback - The callback function to be invoked.
+ * @returns {boolean} - Returns false.
+ */
 function updateMenu(sender, idsection, idMenu, appModalVar, callback) {
 
 	var $section, $menu;
@@ -848,6 +1188,11 @@ function updateMenu(sender, idsection, idMenu, appModalVar, callback) {
 	return false;
 }
 
+/**
+ * Invokes the provided callback function or evaluates the callback string.
+ * 
+ * @param {Function|string} callback - The callback function or string to be invoked or evaluated.
+ */
 function invokeCallback(callback) {
 	try {
 		if ($.isFunction(callback))
@@ -861,6 +1206,13 @@ function invokeCallback(callback) {
 	}
 }
 
+/**
+ * Updates the dropdown menu based on the number of available options.
+ * If there are options available, the dropdown toggle is enabled.
+ * If there are no options available, the dropdown toggle is disabled.
+ * 
+ * @returns {boolean} Returns false to prevent default behavior.
+ */
 function updateDropdown() {
 	var $menu = $(".nav-dropdown-menu"), $controller = $("a.dropdown-toggle", $menu), $lis = $('ul.dropdown-menu>li:not(.disabled)', $menu);
 	if ($lis.length)
@@ -869,6 +1221,13 @@ function updateDropdown() {
 	return false;
 }
 
+/**
+ * Updates the state of a menu item based on a checker function.
+ *
+ * @param {Object} cachingChecker - An object used to cache the results of checker functions.
+ * @param {jQuery} $liSelected - The jQuery object representing the selected menu item.
+ * @param {string} checker - The name of the checker function to evaluate.
+ */
 function updateMenuItemState(cachingChecker, $liSelected, checker) {
 	if (checker === undefined)
 		return;
@@ -880,6 +1239,12 @@ function updateMenuItemState(cachingChecker, $liSelected, checker) {
 	}
 }
 
+/**
+ * Serializes a form into a JSON string.
+ *
+ * @param {string|HTMLElement|jQuery} form - The form element or its ID or jQuery object.
+ * @returns {string} - The serialized form data as a JSON string.
+ */
 function serializeForm(form) {
 	var $form = $(form);
 	if (!$form.length)
@@ -887,6 +1252,12 @@ function serializeForm(form) {
 	return JSON.stringify($form.serializeJSON());
 }
 
+/**
+ * Serializes a form to JSON.
+ *
+ * @param {string|HTMLElement|jQuery} form - The form element or its ID or a jQuery object representing the form.
+ * @returns {string} - The serialized form data in JSON format.
+ */
 function serializeFormToJson(form) {
 	var $form = $(form);
 	if (!$form.length)
@@ -894,6 +1265,12 @@ function serializeFormToJson(form) {
 	return JSON.stringify($form.serializeToJSON());
 }
 
+/**
+ * Parses the given data as JSON.
+ * 
+ * @param {any} data - The data to be parsed.
+ * @returns {object|boolean|undefined} - The parsed JSON object, false if data is false, or undefined if parsing fails.
+ */
 function parseJson(data) {
 	try {
 		if (typeof data == 'object')
@@ -907,12 +1284,25 @@ function parseJson(data) {
 	}
 }
 
+/**
+ * Logs a message and throws an error asynchronously.
+ *
+ * @param {string} msg - The message to log.
+ * @throws {Error} - The error with the specified message.
+ */
 function log(msg) {
 	setTimeout(function () {
 		throw new Error(msg);
 	}, 0);
 }
 
+/**
+ * Finds the selected item IDs by section.
+ *
+ * @param {string} section - The section to search in.
+ * @param {string} [modal] - The modal to search in (optional).
+ * @returns {Array<number>|undefined} - An array of selected item IDs, or undefined if trickId is null or undefined.
+ */
 function findSelectItemIdBySection(section, modal) {
 	var selectedItem = [], $items = (modal == null || modal == undefined) ? $("tbody>tr>td>:checked", "#" + section) : $("tbody>tr>td>:checked", modal);
 	for (var i = 0; i < $items.length; i++) {
@@ -924,12 +1314,23 @@ function findSelectItemIdBySection(section, modal) {
 	return selectedItem;
 }
 
+/**
+ * Finds the trick ID associated with the given element.
+ * @param {HTMLElement} element - The element to find the trick ID for.
+ * @returns {string} The trick ID of the element.
+ */
 function findTrickID(element) {
 	if ($(element).attr("data-trick-id") != undefined)
 		return $(element).attr("data-trick-id");
 	return $(element).closest("[data-trick-id]").attr("data-trick-id");
 }
 
+/**
+ * Toggles the tooltip based on the event target.
+ *
+ * @param {Event} e - The event object.
+ * @returns {Event} - The event object.
+ */
 function toggleToolTip(e) {
 	var target = e.target, current = application["settings-open-tooltip"];
 	if (!(current == undefined || current.$element == null)) {
@@ -945,11 +1346,20 @@ function toggleToolTip(e) {
 	return e;
 }
 
+/**
+ * Forces an update of the menu by triggering the change event on the first checkbox in the specified section.
+ * If no checkboxes are found, it triggers the change event on the first checkbox in the entire section.
+ *
+ * @param {jQuery} $section - The jQuery object representing the section containing the checkboxes.
+ */
 function forceUpdateMenu($section) {
 	if (!$("tbody>tr:first input[type='checkbox']", $section).trigger("change").length)
 		$("input[type='checkbox']:first", $section).trigger("change");
 }
 
+/**
+ * Closes the tooltips if the "settings-open-tooltip" is present in the application object.
+ */
 function closeToolTips() {
 	if (application["settings-open-tooltip"]) {
 		application["settings-open-tooltip"].hide();
@@ -957,6 +1367,13 @@ function closeToolTips() {
 	}
 }
 
+/**
+ * Displays a timeout notification.
+ *
+ * @param {Object} notification - The notification object.
+ * @param {string} message - The notification message.
+ * @param {string} title - The notification title.
+ */
 function displayTimeoutNotification(notification, message, title) {
 	if (application['sessionNotification']) {
 		application['sessionNotification'].update({
@@ -983,6 +1400,11 @@ function displayTimeoutNotification(notification, message, title) {
 	}
 }
 
+/**
+ * Displays a timeout warning message with a countdown.
+ *
+ * @param {number} counter - The initial counter value for the countdown.
+ */
 function displayTimeoutWarning(counter) {
 	var message = MessageResolver("info.session.expire.in.x.seconds", "Your session will be expired in {0} seconds");
 	displayTimeoutNotification(NOTIFICATION_TYPE.WARNING, message.replace("{0}", counter))
@@ -993,6 +1415,10 @@ function displayTimeoutWarning(counter) {
 	}, 1000);
 }
 
+/**
+ * Forces the closure of tooltips.
+ * This function closes any open tooltips and removes any tooltips that are still visible after a short delay.
+ */
 function forceCloseToolTips() {
 	closeToolTips();
 	setTimeout(function () {
@@ -1000,6 +1426,12 @@ function forceCloseToolTips() {
 	}, 100);
 }
 
+/**
+ * Generates helper elements for the given selection.
+ * @param {jQuery} $selection - The jQuery selection of elements to generate helpers for.
+ * @param {string} [container='body'] - The container element where the helpers will be appended.
+ * @returns {boolean} - Returns false.
+ */
 function generateHelper($selection, container) {
 	if (container == undefined || container == null)
 		container = "body";
@@ -1024,6 +1456,10 @@ function generateHelper($selection, container) {
 	return false;
 }
 
+/**
+ * Updates the URL of the user guide link in the footer.
+ * @returns {boolean} Returns false.
+ */
 function updateUserGuideURL() {
 	try {
 		var $this = $("#footer a[data-base-url]"), baseURL = $this.attr("data-base-url");

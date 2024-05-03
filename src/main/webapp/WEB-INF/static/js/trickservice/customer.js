@@ -1,3 +1,11 @@
+
+/**
+ * Initializes the user customer list.
+ * 
+ * This function hides the '#usercustomer' element, creates a list of options based on the '#usercustomer' select element,
+ * and adds event listeners to toggle the 'active' class on the list items. It also updates the value of the '#usercustomer'
+ * select element based on the selected list items.
+ */
 function initUserCustomerList() {
 	$('#usercustomer').hide().after("<ul class='list-group' style='max-height: 300px; padding: 5px;margin:0; overflow: auto;'></ul>");
 	$('#usercustomer option').each(function () {
@@ -19,18 +27,37 @@ function initUserCustomerList() {
 	});
 }
 
+/**
+ * Loads the target context based on the current application state.
+ * @returns {string} The target context URL.
+ */
 function loadTargetContext() {
 	return context + (application['isAdministration'] ? "/Admin" : "/KnowledgeBase");
 }
 
+/**
+ * Checks if the current user can manage the customer template.
+ * @returns {boolean} Returns true if the user can manage the customer template, otherwise false.
+ */
 function canManageCustomerTemplate() {
 	return application['isAdministration'] ? isCustomerProfile() : true;
 }
 
+/**
+ * Retrieves the section ID based on the user's role.
+ *
+ * @returns {string} The section ID for the customer.
+ */
 function getCustomerSection() {
 	return application['isAdministration'] ? "section_admin_customer" : "section_customer";
 }
 
+/**
+ * Saves a customer by sending an AJAX request to the server.
+ * 
+ * @param {HTMLFormElement} form - The form element containing the customer data.
+ * @returns {boolean} - Returns false to prevent the default form submission.
+ */
 function saveCustomer(form) {
 	let $progress = $("#loading-indicator").show();
 	$("#addCustomerModel .label-danger").remove();
@@ -106,6 +133,13 @@ function saveCustomer(form) {
 	return false;
 }
 
+/**
+ * Deletes a customer.
+ * 
+ * @param {string} customerId - The ID of the customer to delete.
+ * @param {string} organisation - The name of the organization associated with the customer.
+ * @returns {boolean} Returns false if the customerId is null or undefined, or if there are multiple selected scenarios. Otherwise, returns true.
+ */
 function deleteCustomer(customerId, organisation) {
 	if (customerId == null || customerId == undefined) {
 		let selectedScenario = findSelectItemIdBySection("section_customer");
@@ -141,6 +175,11 @@ function deleteCustomer(customerId, organisation) {
 	return false;
 }
 
+/**
+ * Creates a new customer.
+ * 
+ * @returns {boolean} Returns false.
+ */
 function newCustomer() {
 	$("#addCustomerModel .label-danger").remove();
 	$("#addCustomerModel #addcustomerbutton").prop("disabled", false);
@@ -161,6 +200,12 @@ function newCustomer() {
 	return false;
 }
 
+/**
+ * Edits a single customer.
+ * 
+ * @param {number} customerId - The ID of the customer to edit.
+ * @returns {boolean} Returns false if the customer ID is null or undefined, or if there are multiple selected scenarios. Otherwise, returns true.
+ */
 function editSingleCustomer(customerId) {
 	if (customerId == null || customerId == undefined) {
 		let selectedScenario = findSelectItemIdBySection("section_customer");
@@ -187,6 +232,14 @@ function editSingleCustomer(customerId) {
 }
 
 
+/**
+ * Manages the customer template based on the provided customerId.
+ * If customerId is not provided, it will try to find the selected scenario in the "section_customer" and use its id.
+ * If customerId is still not available or cannot manage the customer template, it will return false.
+ * It makes an AJAX request to load the customer template management page and handles various events and actions on the page.
+ * @param {string} customerId - The ID of the customer.
+ * @returns {boolean} - Returns false if customerId is not available or cannot manage the customer template, otherwise returns true.
+ */
 function manageCustomerTemplate(customerId) {
 	if (customerId == null || customerId == undefined) {
 		let selectedScenario = findSelectItemIdBySection("section_customer");
@@ -309,6 +362,13 @@ function manageCustomerTemplate(customerId) {
 	return false;
 }
 
+/**
+ * Reloads the report template table for a specific customer.
+ * 
+ * @param {string} customerId - The ID of the customer.
+ * @param {jQuery} $modal - The jQuery object representing the modal element.
+ * @returns {boolean} - Returns false.
+ */
 function reloadReportTemplateTable(customerId, $modal) {
 	let $progress = $("#loading-indicator").show();
 	$.ajax({
@@ -331,6 +391,12 @@ function reloadReportTemplateTable(customerId, $modal) {
 	return false;
 }
 
+/**
+ * Saves the report template for a customer.
+ *
+ * @param {Event} e - The event object.
+ * @returns {boolean} - Returns false to prevent the default form submission behavior.
+ */
 function saveReportTemplate(e) {
 	let $modal = $(e.currentTarget).closest(".modal"), $form = $("#reportTemplate-form", $modal), $progress = $("#loading-indicator").show(), customerId = $("input[name='customer']", $form).val();
 	$("label.label-danger", $modal).remove();
@@ -370,14 +436,29 @@ function saveReportTemplate(e) {
 	return false;
 }
 
+/**
+ * Checks if the default custom template is selected.
+ * 
+ * @returns {number} The number of checked checkboxes in the specified section.
+ */
 function isDefaultCustomTemplate() {
 	return $("#section_manage_customer_template tbody>tr[data-trick-editable='false'] :checked").length
 }
 
+/**
+ * Checks the count of checked items in the customer template section.
+ * @returns {boolean} True if the count is less than the application's report template download item limit, false otherwise.
+ */
 function checkItemCount() {
 	return $("#section_manage_customer_template tbody>tr :checked").length < application["reportTemplateDownloadItemLimit"];
 }
 
+/**
+ * Edits the report template based on the selected row in the table.
+ *
+ * @param {Event} e - The event object.
+ * @returns {boolean} Returns true if the report template was successfully edited, false otherwise.
+ */
 function editReportTemplate(e) {
 	let $current = $(e.currentTarget);
 	if ($current.parent().hasClass("disabled"))
@@ -411,6 +492,12 @@ function editReportTemplate(e) {
 	return true;
 }
 
+/**
+ * Adds a report template.
+ *
+ * @param {Event} e - The event object.
+ * @returns {boolean} Returns false if the parent element has the "disabled" class, otherwise returns undefined.
+ */
 function addReportTemplate(e) {
 	let $current = $(e.currentTarget);
 	if ($current.parent().hasClass("disabled"))
@@ -422,6 +509,13 @@ function addReportTemplate(e) {
 	$("select>option:disabled", $form).prop("selected", true).parent().prop("disabled", false).attr("required", "required").trigger("change");
 	$("input[name='id']", $form).val("0");
 }
+
+/**
+ * Deletes the selected report template for a customer.
+ * 
+ * @param {Event} e - The event object.
+ * @returns {boolean} Returns false if the parent element has the "disabled" class or if no selections are made, otherwise returns true.
+ */
 function deleteReportTemplate(e) {
 	let $current = $(e.currentTarget);
 	if ($current.parent().hasClass("disabled"))
@@ -456,6 +550,12 @@ function deleteReportTemplate(e) {
 
 }
 
+/**
+ * Downloads the report template for the selected customer.
+ * 
+ * @param {Event} e - The event object.
+ * @returns {boolean} Returns false if the download is disabled or no selections are made, otherwise returns true.
+ */
 function downloadReportTemplate(e) {
 	let $current = $(e.currentTarget);
 	if ($current.parent().hasClass("disabled"))

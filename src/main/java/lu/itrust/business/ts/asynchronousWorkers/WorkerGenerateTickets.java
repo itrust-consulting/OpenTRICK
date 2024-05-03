@@ -41,9 +41,18 @@ import lu.itrust.business.ts.model.standard.measure.helper.MeasureComparator;
 import lu.itrust.business.ts.model.standard.measuredescription.MeasureDescriptionText;
 import lu.itrust.business.ts.model.ticketing.builder.Client;
 
+
 /**
- * @author eomar
- *
+ * This class represents a worker responsible for generating tickets.
+ * It extends the `WorkerImpl` class.
+ * 
+ * The worker is initialized with an analysis ID, a client, and a ticketing form.
+ * It executes the task of generating tickets by creating or updating issues based on the analysis and measures.
+ * The generated tickets are associated with the analysis project and the customer's ticketing system.
+ * 
+ * The worker starts the task by calling the `start()` method, which opens a session and executes the task.
+ * If an exception occurs during the task execution, it is logged and appropriate error messages are sent.
+ * Finally, the session is closed and the worker is cleaned up.
  */
 public class WorkerGenerateTickets extends WorkerImpl {
 
@@ -111,6 +120,12 @@ public class WorkerGenerateTickets extends WorkerImpl {
 		}
 	}
 
+	/**
+	 * Executes the task for generating tickets.
+	 *
+	 * @param session The session object for database operations.
+	 * @throws InterruptedException If the execution of the task is interrupted.
+	 */
 	private void executeTask(Session session) throws InterruptedException {
 		final DAOAnalysis daoAnalysis = new DAOAnalysisHBM(session);
 		session.beginTransaction();
@@ -191,6 +206,18 @@ public class WorkerGenerateTickets extends WorkerImpl {
 		}
 	}
 
+	/**
+	 * Creates issues for the given analysis using the provided measures and value factory.
+	 * 
+	 * @param analysis The analysis object.
+	 * @param newMeasures The list of new measures.
+	 * @param updateMeasures The list of updated measures.
+	 * @param valueFactory The value factory.
+	 * @param handler The message handler.
+	 * @param maxProgess The maximum progress value.
+	 * @return True if the issues were created successfully, false otherwise.
+	 * @throws InterruptedException If the operation is interrupted.
+	 */
 	private boolean createIssues(Analysis analysis, List<Measure> newMeasures,
 			List<Measure> updateMeasures, ValueFactory valueFactory, MessageHandler handler, int maxProgess)
 			throws InterruptedException {
@@ -291,6 +318,11 @@ public class WorkerGenerateTickets extends WorkerImpl {
 		return false;
 	}
 
+	/**
+	 * Cleans up the resources used by the worker.
+	 * This method sets the worker's status to not working, closes the client connection,
+	 * clears the ticketing form, and sets the finished timestamp.
+	 */
 	private void cleanUp() {
 		if (isWorking()) {
 			synchronized (this) {

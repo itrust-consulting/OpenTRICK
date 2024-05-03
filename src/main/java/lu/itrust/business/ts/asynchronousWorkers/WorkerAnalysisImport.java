@@ -24,9 +24,12 @@ import lu.itrust.business.ts.model.general.LogAction;
 import lu.itrust.business.ts.model.general.LogType;
 import lu.itrust.business.ts.usermanagement.User;
 
+
 /**
- * @author eom
- * 
+ * This class represents a worker for analysis import in a multi-threaded environment.
+ * It extends the `WorkerImpl` class and provides methods to start and cancel the worker task.
+ * The worker imports analysis data from files and performs analysis on the data.
+ * It also provides methods to retrieve and set the import analysis, customer ID, file names, and username.
  */
 public class WorkerAnalysisImport extends WorkerImpl {
 
@@ -44,6 +47,14 @@ public class WorkerAnalysisImport extends WorkerImpl {
 
 	private MessageHandler messageHandler;
 
+	/**
+	 * Constructs a new WorkerAnalysisImport object.
+	 *
+	 * @param filenames  the list of filenames to be processed
+	 * @param customerId the ID of the customer
+	 * @param userName   the username of the user initiating the import
+	 * @throws IOException if an I/O error occurs
+	 */
 	public WorkerAnalysisImport(List<String> filenames, int customerId, String userName) throws IOException {
 		setUsername(userName);
 		setCustomerId(customerId);
@@ -151,6 +162,11 @@ public class WorkerAnalysisImport extends WorkerImpl {
 		}
 	}
 
+	/**
+	 * This method is called when the analysis import is successful.
+	 * It sets the message handler and async callback, sends the message handler,
+	 * retrieves the analysis and username, and logs the import action.
+	 */
 	protected void OnSuccess() {
 		if (getMessageHandler() == null)
 			setMessageHandler(new MessageHandler("success.analysis.import", "Import Done!", 100));
@@ -167,6 +183,14 @@ public class WorkerAnalysisImport extends WorkerImpl {
 				LogAction.IMPORT, analysis.getIdentifier(), analysis.getVersion());
 	}
 
+	/**
+	 * Executes the worker analysis import task.
+	 * This method is called when the worker thread is started.
+	 * It performs the necessary operations to import and process files for analysis.
+	 * 
+	 * @throws TrickException if an error occurs during the import and processing of files.
+	 * @throws Exception if an unknown error occurs.
+	 */
 	@Override
 	public void run() {
 		Session session = null;
@@ -234,6 +258,18 @@ public class WorkerAnalysisImport extends WorkerImpl {
 		}
 	}
 
+	/**
+	 * Processes the analysis import for a specific file.
+	 *
+	 * @param index the index of the file in the list of file names
+	 * @param fileName the name of the file to be processed
+	 * @param session the session object
+	 * @param user the user object
+	 * @param customer the customer object
+	 * @throws ClassNotFoundException if the specified class cannot be found
+	 * @throws SQLException if a database access error occurs
+	 * @throws Exception if an error occurs during the process
+	 */
 	protected void process(int index, String fileName, Session session, User user, Customer customer) throws ClassNotFoundException, SQLException, Exception {
 		try (DatabaseHandler databaseHandler = new DatabaseHandler(getServiceStorage().load(fileName).toString())) {
 			importAnalysis.setProgress(0);
@@ -250,6 +286,11 @@ public class WorkerAnalysisImport extends WorkerImpl {
 		}
 	}
 
+	/**
+	 * Sets the worker state to started and performs necessary initialization tasks.
+	 * 
+	 * @throws Exception if an error occurs during initialization
+	 */
 	protected synchronized void OnStarted() throws Exception {
 		setWorking(true);
 		setStarted(new Timestamp(System.currentTimeMillis()));
@@ -257,42 +298,92 @@ public class WorkerAnalysisImport extends WorkerImpl {
 		setCurrent(Thread.currentThread());
 	}
 
+	/**
+	 * Returns the AsyncCallback object.
+	 *
+	 * @return the AsyncCallback object.
+	 */
 	public AsyncCallback getAsyncCallback() {
 		return asyncCallback;
 	}
 
+	/**
+	 * Sets the asynchronous callback for this worker.
+	 *
+	 * @param asyncCallback the asynchronous callback to set
+	 */
 	public void setAsyncCallback(AsyncCallback asyncCallback) {
 		this.asyncCallback = asyncCallback;
 	}
 
+	/**
+	 * Returns the message handler associated with this worker.
+	 *
+	 * @return the message handler
+	 */
 	public MessageHandler getMessageHandler() {
 		return messageHandler;
 	}
 
+	/**
+	 * Sets the message handler for this worker.
+	 *
+	 * @param messageHandler the message handler to be set
+	 */
 	public void setMessageHandler(MessageHandler messageHandler) {
 		this.messageHandler = messageHandler;
 	}
 
+	/**
+	 * Returns a boolean value indicating whether the file can be deleted.
+	 *
+	 * @return true if the file can be deleted, false otherwise.
+	 */
 	public boolean isCanDeleteFile() {
 		return canDeleteFile;
 	}
 
+	/**
+	 * Sets the flag indicating whether the file can be deleted.
+	 *
+	 * @param canDeleteFile true if the file can be deleted, false otherwise
+	 */
 	public void setCanDeleteFile(boolean canDeleteFile) {
 		this.canDeleteFile = canDeleteFile;
 	}
 
+	/**
+	 * Returns the customer ID associated with this worker.
+	 *
+	 * @return the customer ID
+	 */
 	public int getCustomerId() {
 		return customerId;
 	}
 
+	/**
+	 * Sets the customer ID for this worker.
+	 *
+	 * @param customerId the ID of the customer
+	 */
 	public void setCustomerId(int customerId) {
 		this.customerId = customerId;
 	}
 
+	/**
+	 * Returns the username.
+	 *
+	 * @return the username as a String.
+	 */
 	public String getUsername() {
 		return username;
 	}
 
+	/**
+	 * Sets the username for the worker.
+	 *
+	 * @param username the username to set
+	 */
 	public void setUsername(String username) {
 		this.username = username;
 	}

@@ -42,9 +42,27 @@ import lu.itrust.business.ts.model.cssf.helper.RiskSheetComputation;
 import lu.itrust.business.ts.model.standard.AnalysisStandard;
 import lu.itrust.business.ts.model.standard.measure.AbstractNormalMeasure;
 
+
 /**
- * @author eomar
+ * WorkerComputeActionPlan is a class that represents a worker responsible for computing the action plan for a given analysis.
+ * It extends the WorkerImpl class and implements the Runnable interface.
  * 
+ * The worker performs the following tasks:
+ * - Loads the analysis from the database
+ * - Deletes the previous action plan and summary
+ * - Updates the assessment and risk profile
+ * - Computes the action plans using the ActionPlanComputation class
+ * - Saves the computed action plans and the analysis
+ * - Sends feedback messages to the service task feedback
+ * 
+ * The worker can be canceled and can be matched with specific expressions and values.
+ * 
+ * Usage:
+ * WorkerComputeActionPlan worker = new WorkerComputeActionPlan(idAnalysis, standards, uncertainty, reloadSection);
+ * worker.start();
+ * 
+ * Note: This class assumes the existence of other classes and dependencies such as AssessmentAndRiskProfileManager,
+ * DAOActionPlan, DAOActionPlanSummary, DAOActionPlanType, DAOAnalysis, DAORiskRegister, and others.
  */
 public class WorkerComputeActionPlan extends WorkerImpl {
 
@@ -283,6 +301,12 @@ public class WorkerComputeActionPlan extends WorkerImpl {
 		run();
 	}
 
+	/**
+	 * Returns an array of AsyncCallback objects for common operations.
+	 * 
+	 * @param isHybrid a boolean indicating whether the operation is hybrid or not
+	 * @return an array of AsyncCallback objects
+	 */
 	private AsyncCallback[] communsCallback(boolean isHybrid) {
 		AsyncCallback[] callbacks = new AsyncCallback[isHybrid ? 5 : 4];
 		callbacks[0] = new AsyncCallback("reloadSection", "section_actionplans");
@@ -294,6 +318,9 @@ public class WorkerComputeActionPlan extends WorkerImpl {
 		return callbacks;
 	}
 
+	/**
+	 * Represents a message handler that processes messages in the system.
+	 */
 	private MessageHandler computeRiskRegister(Analysis analysis) {
 		return new RiskSheetComputation(analysis).computeRiskRegister(new CSSFFilter(-1, -1, -1, 0, 0));
 	}
@@ -345,11 +372,11 @@ public class WorkerComputeActionPlan extends WorkerImpl {
 		}
 	}
 
+	
 	/**
-	 * initialiseDAO: <br>
-	 * Description
+	 * Initializes the Data Access Objects (DAOs) used by the WorkerComputeActionPlan class.
 	 * 
-	 * @param session
+	 * @param session the session object used for database operations
 	 */
 	private void initialiseDAO(Session session) {
 		daoActionPlan = new DAOActionPlanHBM(session);
@@ -366,12 +393,22 @@ public class WorkerComputeActionPlan extends WorkerImpl {
 
 	}
 
+	/**
+	 * Saves the risk register of the given analysis.
+	 * 
+	 * @param analysis the analysis object containing the risk registers
+	 */
 	private void saveRiskRegister(Analysis analysis) {
 		oldRiskRegisters = analysis.getRiskRegisters().stream()
 				.collect(Collectors.toMap(RiskRegisterItem::getKey, Function.identity()));
 		analysis.getRiskRegisters().clear();
 	}
 
+	/**
+	 * Updates the risk register with the given list of register items.
+	 * 
+	 * @param registerItems the list of register items to update the risk register with
+	 */
 	private void updateRiskRegister(List<RiskRegisterItem> registerItems) {
 		if (oldRiskRegisters == null || oldRiskRegisters.isEmpty())
 			return;

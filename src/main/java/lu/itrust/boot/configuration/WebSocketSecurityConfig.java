@@ -10,10 +10,19 @@ import org.springframework.security.messaging.access.intercept.MessageMatcherDel
 
 import lu.itrust.business.ts.constants.Constant;
 
+/**
+ * Configuration class for WebSocket security.
+ */
 @Configuration
 @EnableWebSocketSecurity
 public class WebSocketSecurityConfig {
 
+        /**
+         * Creates an AuthorizationManager for WebSocket messages.
+         *
+         * @param messages The builder for configuring message matchers and authorities.
+         * @return The AuthorizationManager for WebSocket messages.
+         */
         @Bean
         public AuthorizationManager<Message<?>> messageAuthorizationManager(
                         MessageMatcherDelegatingAuthorizationManager.Builder messages) {

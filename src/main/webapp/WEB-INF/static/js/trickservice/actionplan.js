@@ -1,4 +1,9 @@
-function displayActionPlanOptions(analysisId) {
+
+/**
+ * Displays the action plan options by making an AJAX request to the server.
+ * @returns {boolean} Returns false to prevent the default form submission behavior.
+ */
+function displayActionPlanOptions() {
 	$.ajax({
 		url: context + "/Analysis/ActionPlan/ComputeOptions",
 		type: "GET",
@@ -15,6 +20,12 @@ function displayActionPlanOptions(analysisId) {
 	return false;
 }
 
+/**
+ * Calculates the action plan with the given options.
+ *
+ * @param {string} form - The ID of the form element.
+ * @returns {number[]} - An array of calculated action data.
+ */
 function calculateActionPlanWithOptions(form) {
 	let $form = $("#" + form), data = [];
 	let length = 'standard_'.length;
@@ -24,6 +35,12 @@ function calculateActionPlanWithOptions(form) {
 	return calculateAction(data);
 }
 
+/**
+ * Calculates the action plan based on the provided data.
+ * 
+ * @param {Array} data - The data used for calculating the action plan.
+ * @returns {boolean} - Returns false.
+ */
 function calculateAction(data) {
 	let $progress = $("#loading-indicator").show();
 	$.ajax({
@@ -46,6 +63,13 @@ function calculateAction(data) {
 	return false;
 }
 
+/**
+ * Hides the action plan assets in the specified section and updates the menu link text.
+ * 
+ * @param {string} sectionactionplan - The selector for the section containing the action plan.
+ * @param {string} menu - The selector for the menu containing the action plan assets link.
+ * @returns {boolean} - Returns false.
+ */
 function hideActionplanAssets(sectionactionplan, menu) {
 	let actionplantype = $(sectionactionplan).find(".disabled[data-trick-nav-control]").attr("data-trick-nav-control");
 	if (!$("#actionplantable_" + actionplantype + " .actionplanasset").hasClass("actionplanassethidden")) {
@@ -57,6 +81,15 @@ function hideActionplanAssets(sectionactionplan, menu) {
 
 }
 
+/**
+ * Reloads an action plan entry row.
+ *
+ * @param {number} idActionPlanEntry - The ID of the action plan entry.
+ * @param {string} type - The type of the action plan entry.
+ * @param {number} idMeasure - The ID of the measure.
+ * @param {string} standard - The standard.
+ * @returns {boolean} - Returns false.
+ */
 function reloadActionPlanEntryRow(idActionPlanEntry, type, idMeasure, standard) {
 	$.ajax({
 		url: context + "/Analyis/ActionPlan/RetrieveSingleEntry/" + idActionPlanEntry,
@@ -74,6 +107,10 @@ function reloadActionPlanEntryRow(idActionPlanEntry, type, idMeasure, standard) 
 	return false;
 }
 
+/**
+ * Displays the action plan assets.
+ * @returns {boolean} Returns false.
+ */
 function displayActionPlanAssets() {
 	let $progress = $("#loading-indicator").show();
 	$.ajax({

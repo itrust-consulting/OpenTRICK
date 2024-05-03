@@ -10,11 +10,20 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
+/**
+ * Configuration class for scheduling tasks and defining thread pools.
+ */
 @Configuration
 @EnableAsync
 @EnableScheduling
 public class SchedulerConfig {
 
+    /**
+     * Creates a ThreadPoolTaskExecutor bean.
+     * 
+     * @param env the environment object used to retrieve configuration properties
+     * @return the created ThreadPoolTaskExecutor bean
+     */
     @Bean
     public ThreadPoolTaskExecutor executor(Environment env) {
         var executor = new ThreadPoolTaskExecutor();
@@ -28,6 +37,11 @@ public class SchedulerConfig {
         return executor;
     }
 
+    /**
+     * Creates a ThreadPoolTaskExecutor for executing email tasks.
+     *
+     * @return The configured ThreadPoolTaskExecutor instance.
+     */
     @Bean
     public ThreadPoolTaskExecutor emailTaskExecutor() {
         var emailTaskExecutor = new ThreadPoolTaskExecutor();
@@ -38,6 +52,12 @@ public class SchedulerConfig {
         return emailTaskExecutor;
     }
 
+    /**
+     * Creates a ThreadPoolTaskScheduler bean with the specified pool size.
+     *
+     * @param poolSize the size of the thread pool
+     * @return the ThreadPoolTaskScheduler bean
+     */
     @Bean
     @Primary
     public ThreadPoolTaskScheduler scheduler(@Value("${app.settings.scheduler.pool.size}") int poolSize) {

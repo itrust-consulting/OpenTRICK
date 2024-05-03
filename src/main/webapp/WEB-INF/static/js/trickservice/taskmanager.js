@@ -1,5 +1,10 @@
 
 
+/**
+ * Represents a Task Manager.
+ * @constructor
+ * @param {string} title - The title of the Task Manager.
+ */
 function TaskManager(title) {
 	this.tasks = [];
 	this.progressBars = [];
@@ -15,6 +20,10 @@ function TaskManager(title) {
 	this.csrfToken = null;
 	this.locker = false;
 
+	/**
+	 * Starts the Task Manager.
+	 * @returns {TaskManager} The Task Manager instance.
+	 */
 	TaskManager.prototype.Start = function () {
 		if (!(this.stomp || this.legacy))
 			this.__createStompClient();
@@ -23,6 +32,10 @@ function TaskManager(title) {
 		return this;
 	};
 
+	/**
+	 * Loads the CSRF token and header.
+	 * @private
+	 */
 	TaskManager.prototype.__loadCSRF = function () {
 		try {
 			this.csrfHeader = $("meta[name='_csrf_header']").attr("content");
@@ -31,18 +44,23 @@ function TaskManager(title) {
 		}
 	};
 
+	/**
+	 * Gets the language of the application.
+	 * @returns {string} The language of the application.
+	 */
 	TaskManager.prototype.getLangue = function () {
 		return application.language;
 	};
 
+	/**
+	 * Creates a Stomp client for WebSocket communication.
+	 * @private
+	 */
 	TaskManager.prototype.__createStompClient = function () {
 
 		try {
 			var self = this;
 			var headers = {};
-
-			//let url = new URL("/Messaging/", window.location.href);
-			//url.protocol = url.protocol.replace('http', 'ws');
 
 			if (!(self.csrfHeader && self.csrfToken))
 				self.__loadCSRF();
@@ -52,23 +70,12 @@ function TaskManager(title) {
 			headers[self.csrfHeader] = self.csrfToken;
 			self.reconnecting = true;
 			self.stomp = new StompJs.Client({
-				//brokerURL: url,
 				connectHeaders: headers,
 				reconnectDelay: 30000,
 				webSocketFactory: () => {
 					return new SockJS('/Messaging/');
-				}/*,
-				debug: (str) => {
-					console.log(str);
-				}*/
+				}
 			});
-
-			/*self.stomp.webSocketFactory = function () {
-				// Note that the URL is different from the WebSocket URL
-				return new SockJS('/Messaging/');
-			};*/
-
-
 
 			self.stomp.onConnect = (e) => {
 				self.reconnecting = false;
@@ -132,7 +139,11 @@ function TaskManager(title) {
 		}
 	};
 
-
+	/**
+	 * Processes a system message received from the server.
+	 * @param {Object} data - The system message data.
+	 * @private
+	 */
 	TaskManager.prototype.__processSystemMessage = function (data) {
 		var self = this, message = JSON.parse(data.body);
 		if (message.type) {
@@ -165,6 +176,10 @@ function TaskManager(title) {
 
 	};
 
+	/**
+	 * Switches to the legacy client for communication.
+	 * @private
+	 */
 	TaskManager.prototype.__switchToLegacyClient = function () {
 		var self = this;
 		self.legacy = true;
@@ -177,6 +192,10 @@ function TaskManager(title) {
 		}
 	};
 
+	/**
+	 * Stops the legacy client.
+	 * @private
+	 */
 	TaskManager.prototype.__stopLegacyClient = function () {
 		var self = this;
 		self.legacy = false;
@@ -189,15 +208,28 @@ function TaskManager(title) {
 		}
 	};
 
+	/**
+	 * Sets the title of the Task Manager.
+	 * @param {string} title - The new title.
+	 * @returns {TaskManager} The Task Manager instance.
+	 */
 	TaskManager.prototype.SetTitle = function (title) {
 		this.title = title;
 		return this;
 	};
 
+	/**
+	 * Checks if the Task Manager is empty.
+	 * @returns {boolean} True if the Task Manager is empty, false otherwise.
+	 */
 	TaskManager.prototype.isEmpty = function () {
 		return this.tasks.length == 0;
 	};
 
+	/**
+	 * Disconnects the Task Manager.
+	 * @returns {boolean} True if the Task Manager is disconnected, false otherwise.
+	 */
 	TaskManager.prototype.Disconnect = function () {
 		this.disposing = true;
 		if (this.stomp)
@@ -205,11 +237,19 @@ function TaskManager(title) {
 		return true;
 	};
 
+	/**
+	 * Destroys the Task Manager.
+	 * @returns {boolean} True if the Task Manager is destroyed, false otherwise.
+	 */
 	TaskManager.prototype.Destroy = function () {
 		this.disposing = true;
 		return true;
 	};
 
+	/**
+	 * Updates the task count of the Task Manager.
+	 * @returns {TaskManager} The Task Manager instance.
+	 */
 	TaskManager.prototype.UpdateTaskCount = function () {
 		var self = this;
 		if (self.legacy) {
@@ -232,6 +272,13 @@ function TaskManager(title) {
 		return this;
 	};
 
+	/**
+	 * Creates a progress bar for a task.
+	 * @param {number} taskId - The ID of the task.
+	 * @param {string} title - The title of the progress bar.
+	 * @param {string} message - The message of the progress bar.
+	 * @returns {Object} The progress bar object.
+	 */
 	TaskManager.prototype.createProgressBar = function (taskId, title, message) {
 		var notificationType = NOTIFICATION_TYPE.INFO;
 		return $.notify({
@@ -249,6 +296,11 @@ function TaskManager(title) {
 		});
 	};
 
+	/**
+	 * Removes a task or a notification.
+	 * @param {number} id - The ID of the task or notification.
+	 * @returns {TaskManager} The Task Manager instance.
+	 */
 	TaskManager.prototype.Remove = function (id) {
 		if (application.currentNotifications[id])
 			delete application.currentNotifications[id]
@@ -256,6 +308,11 @@ function TaskManager(title) {
 		return this;
 	};
 
+	/**
+	 * Removes a task.
+	 * @param {number} id - The ID of the task.
+	 * @private
+	 */
 	TaskManager.prototype.__removeTask = function (id) {
 		try {
 
@@ -281,6 +338,11 @@ function TaskManager(title) {
 		return this;
 	}
 
+	/**
+	 * Processes a task response received from the server.
+	 * @param {Object} reponse - The task response data.
+	 * @private
+	 */
 	TaskManager.prototype.__process = function (reponse) {
 		var self = this, taskId = reponse.taskID, downloading = false;
 		if (reponse.flag == 3 && !self.progressBars[taskId])
@@ -335,6 +397,11 @@ function TaskManager(title) {
 
 	};
 
+	/**
+	 * Updates the status of a task.
+	 * @param {number} taskId - The ID of the task.
+	 * @returns {TaskManager} The Task Manager instance.
+	 */
 	TaskManager.prototype.UpdateStatus = function (taskId) {
 		if (!$.isNumeric(taskId))
 			return;
@@ -355,6 +422,7 @@ function TaskManager(title) {
 		});
 	};
 };
+
 
 function generateDownloadURL(data) {
 	return context + "/Account/" + data.join("/") + "/Download";
