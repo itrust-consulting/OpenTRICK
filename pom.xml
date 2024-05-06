@@ -142,7 +142,7 @@
 
 		<dependency>
 			<groupId>lu.itrust.monarc</groupId>
-			<artifactId>monarc</artifactId>
+			<artifactId>trick2monarc-api</artifactId>
 			<version>0.7.5</version>
 		</dependency>
 
@@ -774,6 +774,13 @@
 			<id>atlassian-repo</id>
 			<name>Atlassian repo for jira java client</name>
 			<url>https://packages.atlassian.com/mvn/maven-external/</url>
+		</repository>
+		<repository>
+			<id>github</id>
+			<url>https://maven.pkg.github.com/itrust-consulting/Trick2MonarcApi</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
 		</repository>
 	</repositories>
 </project>

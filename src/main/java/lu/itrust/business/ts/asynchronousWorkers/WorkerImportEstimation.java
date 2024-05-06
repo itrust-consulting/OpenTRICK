@@ -1,6 +1,3 @@
-/**
- * 
- */
 package lu.itrust.business.ts.asynchronousWorkers;
 
 import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.findSheet;
@@ -95,8 +92,14 @@ import lu.itrust.business.ts.model.standard.measure.impl.MaturityMeasure;
 import lu.itrust.business.ts.usermanagement.User;
 
 /**
- * @author eomar
- *
+ * This class represents a worker for importing risk estimations, assets, or scenarios.
+ * It extends the WorkerImpl class and implements the Runnable interface.
+ * The worker is responsible for importing data from a file and updating the risk analysis accordingly.
+ * The import can be performed for assets only, scenarios only, or both assets and scenarios.
+ * The worker runs in a separate thread and provides feedback on the progress of the import task.
+ * The worker uses various DAOs (Data Access Objects) to interact with the database and perform the necessary operations.
+ * The import process involves reading data from a file, parsing it, and updating the corresponding entities in the database.
+ * The worker also handles exceptions and provides error messages in case of any issues during the import process.
  */
 public class WorkerImportEstimation extends WorkerImpl {
 
@@ -562,6 +565,17 @@ public class WorkerImportEstimation extends WorkerImpl {
 
 	}
 
+	/**
+	 * Imports asset dependencies from the specified sheet in the workbook.
+	 * 
+	 * @param analysis   The analysis object.
+	 * @param workbook   The workbook containing the data.
+	 * @param sheets     The map of sheet names to sheet objects.
+	 * @param formatter  The data formatter for parsing cell values.
+	 * @param min        The minimum progress value for the message handler.
+	 * @param max        The maximum progress value for the message handler.
+	 * @throws Exception If an error occurs during the import process.
+	 */
 	private void importAssetDependancy(Analysis analysis, WorkbookPart workbook, Map<String, Sheet> sheets,
 			DataFormatter formatter, int min, int max) throws Exception {
 		final Sheet sheet = sheets.get("Dependency");
@@ -657,6 +671,20 @@ public class WorkerImportEstimation extends WorkerImpl {
 
 	}
 
+	/**
+	 * Imports risk estimation data from a specified sheet in a workbook.
+	 *
+	 * @param analysis            The analysis object.
+	 * @param factory             The value factory.
+	 * @param riskProfileManager  The assessment and risk profile manager.
+	 * @param workbook            The workbook containing the data.
+	 * @param sheets              The map of sheet names to sheet objects.
+	 * @param formatter           The data formatter.
+	 * @param min                 The minimum progress value.
+	 * @param max                 The maximum progress value.
+	 * @throws Exception      If an error occurs during the import process.
+	 * @throws Docx4JException If an error occurs while working with the workbook.
+	 */
 	private void importRiskEstimation(final Analysis analysis, ValueFactory factory,
 			AssessmentAndRiskProfileManager riskProfileManager, final WorkbookPart workbook,
 			final Map<String, Sheet> sheets, DataFormatter formatter, final int min, final int max)
@@ -845,6 +873,9 @@ public class WorkerImportEstimation extends WorkerImpl {
 				analysis.getIdentifier(), analysis.getVersion());
 	}
 
+	/**
+	 * Represents an assessment for a specific asset and scenario.
+	 */
 	private Assessment findOrCreateAssessment(Analysis analysis, Asset asset, Scenario scenario, ValueFactory factory,
 			Map<String, Assessment> assessments,
 			Map<String, RiskProfile> riskProfiles) {
@@ -865,6 +896,17 @@ public class WorkerImportEstimation extends WorkerImpl {
 		return assessment;
 	}
 
+	/**
+	 * Imports scenarios from a workbook into the analysis.
+	 *
+	 * @param analysis   The analysis to import the scenarios into.
+	 * @param workbook   The workbook containing the scenarios.
+	 * @param sheets     A map of sheet names to sheet objects.
+	 * @param formatter  The data formatter to use for formatting cell values.
+	 * @param min        The minimum progress value for the progress handler.
+	 * @param max        The maximum progress value for the progress handler.
+	 * @throws Exception If an error occurs during the import process.
+	 */
 	private void importScenario(Analysis analysis, WorkbookPart workbook, Map<String, Sheet> sheets,
 			DataFormatter formatter, int min, int max) throws Exception {
 		final Sheet sheet = sheets.get("Scenarios");
@@ -1010,6 +1052,14 @@ public class WorkerImportEstimation extends WorkerImpl {
 				analysis.getIdentifier(), analysis.getVersion());
 	}
 
+	/**
+	 * Updates the asset type value for a given list of asset types and scenario.
+	 * If the scenario is asset linked, the method returns without making any updates.
+	 * Otherwise, it checks the existing asset type values in the scenario and adds any missing asset types with a value of 0.
+	 *
+	 * @param assetTypes the list of asset types to update
+	 * @param scenario   the scenario to update the asset type values for
+	 */
 	private void updateAssetTypeValue(final List<AssetType> assetTypes, final Scenario scenario) {
 		if (scenario.isAssetLinked())
 			return;
@@ -1018,6 +1068,11 @@ public class WorkerImportEstimation extends WorkerImpl {
 		assetTypes.stream().filter(v -> !values.containsKey(v)).forEach(v -> scenario.add(new AssetTypeValue(v, 0)));
 	}
 
+	/**
+	 * Initializes the Data Access Objects (DAOs) used by the WorkerImportEstimation class.
+	 * 
+	 * @param session the Hibernate session used for database operations
+	 */
 	private void initialiseDAO(Session session) {
 		setDaoAnalysis(new DAOAnalysisHBM(session));
 		setDaoWordReport(new DAOWordReportHBM(session));
@@ -1031,6 +1086,17 @@ public class WorkerImportEstimation extends WorkerImpl {
 		daoScaleType = new DAOScaleTypeHBM(session);
 	}
 
+	/**
+	 * Loads the impact of an assessment based on the given parameters.
+	 *
+	 * @param assessment     The assessment object to load the impact for.
+	 * @param type           The scale type of the impact.
+	 * @param value          The value of the impact.
+	 * @param defaultValue   The default value for the impact.
+	 * @param factory        The value factory used to create new values.
+	 * @param valuesToDelete The list of values to delete.
+	 * @return {@code true} if the impact was successfully loaded, {@code false} otherwise.
+	 */
 	private boolean loadImpact(Assessment assessment, ScaleType type, String value, Number defaultValue,
 			ValueFactory factory, List<IValue> valuesToDelete) {
 		if (type == null)
@@ -1054,6 +1120,10 @@ public class WorkerImportEstimation extends WorkerImpl {
 		return false;
 	}
 
+	/**
+	 * Represents a value in the system.
+	 * This interface provides methods to manipulate and retrieve values.
+	 */
 	private IValue loadImpactValue(ScaleType type, String value, ValueFactory factory, Number defaultValue) {
 		if (defaultValue instanceof Double) {
 			Double tempValue = ValueFactory.toDouble(value, null);
@@ -1063,6 +1133,14 @@ public class WorkerImportEstimation extends WorkerImpl {
 		return factory.findValue(parseValue(type, value), type.getName());
 	}
 
+	/**
+	 * Loads measures into the given risk profile based on the provided value.
+	 * 
+	 * @param riskProfile     the risk profile to load measures into
+	 * @param value           the value containing measure data
+	 * @param measuresMapper  a map of measure categories to their corresponding measures
+	 * @return                true if the loading was successful, false otherwise
+	 */
 	private boolean loadMeasures(RiskProfile riskProfile, String value,
 			Map<String, Map<String, Measure>> measuresMapper) {
 		if (riskProfile == null || value == null)
@@ -1089,6 +1167,16 @@ public class WorkerImportEstimation extends WorkerImpl {
 		return false;
 	}
 
+	/**
+	 * Loads the type names from the specified worksheet in the given workbook.
+	 * 
+	 * @param workbook  the workbook containing the worksheet
+	 * @param sheets    a map of sheet names to sheet objects
+	 * @param formatter the data formatter used to format cell values
+	 * @param value     the name of the worksheet to load type names from
+	 * @return a map of display names to type names
+	 * @throws Exception if the worksheet or table cannot be found, or if there is not enough data in the table
+	 */
 	private Map<String, String> loadTypeNames(WorkbookPart workbook, Map<String, Sheet> sheets, DataFormatter formatter,
 			String value) throws Exception {
 		final Sheet sheet = sheets.get(value);
@@ -1128,6 +1216,9 @@ public class WorkerImportEstimation extends WorkerImpl {
 		return names;
 	}
 
+	/**
+	 * Represents a strategy for handling risk in a certain context.
+	 */
 	private RiskStrategy parseResponse(String value, RiskStrategy defaultValue) {
 		try {
 			return value == null || value.length() == 0 ? defaultValue
@@ -1137,6 +1228,13 @@ public class WorkerImportEstimation extends WorkerImpl {
 		}
 	}
 
+	/**
+	 * Parses the given value based on the specified scale type.
+	 *
+	 * @param type the scale type
+	 * @param value the value to parse
+	 * @return the parsed value as a string, or null if the input value is null
+	 */
 	private String parseValue(ScaleType type, String value) {
 		if (value == null)
 			return null;
@@ -1144,6 +1242,15 @@ public class WorkerImportEstimation extends WorkerImpl {
 		return matcher.matches() ? value.replace("i", type.getAcronym()) : value;
 	}
 
+	/**
+	 * Performs the processing of the data for risk estimation.
+	 * This method retrieves the user and analysis objects from the database,
+	 * loads the spreadsheet file, and performs the necessary imports and risk estimations
+	 * based on the analysis settings and parameters.
+	 * Finally, it updates the assessment and saves the analysis.
+	 *
+	 * @throws Exception if there is an error during the processing.
+	 */
 	private void processing() throws Exception {
 		final User user = daoUser.get(username);
 		final Analysis analysis = daoAnalysis.get(idAnalysis);
@@ -1186,10 +1293,25 @@ public class WorkerImportEstimation extends WorkerImpl {
 		getServiceTaskFeedback().send(getId(), new MessageHandler("info.commit.transcation", "Commit transaction", 96));
 	}
 
+	/**
+	 * Checks if the asset has dependency only.
+	 * 
+	 * @return true if the asset has dependency only, false otherwise.
+	 */
 	private boolean isAssetDependancyOnly() {
 		return false;
 	}
 
+	/**
+	 * Generates a list of columns based on the provided parameters.
+	 *
+	 * @param scales          the list of scale types
+	 * @param qualitative     a boolean indicating whether the columns should include qualitative information
+	 * @param hiddenComment   a boolean indicating whether the columns should include a hidden comment
+	 * @param rowColumn       a boolean indicating whether the columns should include a row column
+	 * @param uncertainty     a boolean indicating whether the columns should include uncertainty information
+	 * @return the list of generated columns
+	 */
 	public final static List<Column> generateColumns(List<ScaleType> scales, boolean qualitative, boolean hiddenComment,
 			boolean rowColumn, boolean uncertainty) {
 		List<Column> columns = new ArrayList<>();
@@ -1238,26 +1360,56 @@ public class WorkerImportEstimation extends WorkerImpl {
 		return columns;
 	}
 
+	/**
+	 * Returns whether the worker is configured to import only assets.
+	 *
+	 * @return true if the worker is configured to import only assets, false otherwise.
+	 */
 	public boolean isAssetOnly() {
 		return assetOnly;
 	}
 
+	/**
+	 * Sets the flag indicating whether only assets should be imported.
+	 *
+	 * @param assetOnly true if only assets should be imported, false otherwise
+	 */
 	public void setAssetOnly(boolean assetOnly) {
 		this.assetOnly = assetOnly;
 	}
 
+	/**
+	 * Returns a boolean value indicating whether the worker is configured to import scenarios only.
+	 *
+	 * @return true if the worker is configured to import scenarios only, false otherwise.
+	 */
 	public boolean isScenarioOnly() {
 		return scenarioOnly;
 	}
 
+	/**
+	 * Sets the flag indicating whether only the scenario should be imported.
+	 *
+	 * @param scenarioOnly true if only the scenario should be imported, false otherwise
+	 */
 	public void setScenarioOnly(boolean scenarioOnly) {
 		this.scenarioOnly = scenarioOnly;
 	}
 
+	/**
+	 * Returns the filename associated with this worker.
+	 *
+	 * @return the filename as a String
+	 */
 	public String getFilename() {
 		return filename;
 	}
 
+	/**
+	 * Sets the filename for the import estimation worker.
+	 *
+	 * @param filename the name of the file to be imported
+	 */
 	public void setFilename(String filename) {
 		this.filename = filename;
 	}

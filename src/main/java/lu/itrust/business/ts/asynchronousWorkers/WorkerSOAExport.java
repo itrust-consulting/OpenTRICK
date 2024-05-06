@@ -61,8 +61,27 @@ import lu.itrust.business.ts.model.standard.measure.Measure;
 import lu.itrust.business.ts.usermanagement.User;
 
 /**
- * @author eomar
- *
+ * This class represents a worker for exporting SOA (Statement of Analysis) data.
+ * It extends the `WorkerImpl` class and implements the `Worker` interface.
+ * The `WorkerSOAExport` class is responsible for exporting SOA data to a Word document.
+ * It performs the export operation asynchronously.
+ * 
+ * The class contains methods for starting, canceling, and running the export process.
+ * It also includes helper methods for initializing DAOs, processing data, and generating tables.
+ * 
+ * The exported SOA data includes measures, their references, domains, statuses, due dates, justifications, and references.
+ * The data is retrieved from the database and populated into a Word document template.
+ * The template is then saved as a Word document and stored in the database.
+ * 
+ * The `WorkerSOAExport` class is designed to be used in a multi-threaded environment, where multiple export operations can be performed concurrently.
+ * Each instance of the class represents a single export operation.
+ * 
+ * Usage:
+ * WorkerSOAExport worker = new WorkerSOAExport(username, idAnalysis);
+ * worker.start(); // Start the export process
+ * worker.cancel(); // Cancel the export process
+ * 
+ * Note: This class assumes the existence of various DAO classes and utility classes, which are not included in this code snippet.
  */
 public class WorkerSOAExport extends WorkerImpl {
 
@@ -97,6 +116,11 @@ public class WorkerSOAExport extends WorkerImpl {
 		run();
 	}
 
+	/**
+	 * Initializes the DAO objects used by the WorkerSOAExport class.
+	 * 
+	 * @param session the Hibernate session used for database operations
+	 */
 	private void initialiseDAO(Session session) {
 		daoUser = new DAOUserHBM(session);
 		daoAnalysis = new DAOAnalysisHBM(session);
@@ -202,6 +226,12 @@ public class WorkerSOAExport extends WorkerImpl {
 
 	}
 
+	/**
+	 * Performs the processing of the user and analysis to generate a result.
+	 *
+	 * @return the result of the processing
+	 * @throws Exception if there is an error during the processing
+	 */
 	private long processing() throws Exception {
 		User user = daoUser.get(username);
 		Analysis analysis = daoAnalysis.get(idAnalysis);
@@ -212,6 +242,14 @@ public class WorkerSOAExport extends WorkerImpl {
 		return proccessing(user, analysis);
 	}
 
+	/**
+	 * Processes the given user and analysis to generate an SOA (Statement of Analysis) report.
+	 *
+	 * @param user     The user for whom the report is being generated.
+	 * @param analysis The analysis for which the report is being generated.
+	 * @return The ID of the generated report.
+	 * @throws Exception If an error occurs during the processing.
+	 */
 	protected long proccessing(User user, Analysis analysis) throws Exception {
 		final int[] progressing = { 2, 95, 0, 0 };
 		final File workFile = loadTemplate(analysis.getCustomer(), TrickTemplateType.SOA,
@@ -274,6 +312,11 @@ public class WorkerSOAExport extends WorkerImpl {
 		}
 	}
 
+	/**
+	 * Represents a table in a document.
+	 * 
+	 * This class provides methods to create and manipulate tables.
+	 */
 	private Tbl generateTable(List<Measure> measures, MessageHandler handler, ValueFactory factory, double soaThreshold,
 			int[] progressing) {
 		int rowIndex = 0;
@@ -323,6 +366,9 @@ public class WorkerSOAExport extends WorkerImpl {
 		return format(table);
 	}
 
+	/**
+	 * Represents a table.
+	 */
 	private Tbl format(Tbl table) {
 		int[] headers = { 878, 3128, 549, 1000, 5784, 2382 }, cols = { 303, 1147, 189, 400, 2086, 875 },
 				mergeCols = { 303, sum(1, 5, cols) };
@@ -336,6 +382,9 @@ public class WorkerSOAExport extends WorkerImpl {
 		return table;
 	}
 
+	/**
+	 * Represents a table in a document.
+	 */
 	protected Tbl createTable(String styleId, int rows, int cols) {
 		Tbl table = TblFactory.createTable(rows, cols, 1);
 		if (styleId != null)
@@ -350,6 +399,9 @@ public class WorkerSOAExport extends WorkerImpl {
 		return table;
 	}
 
+	/**
+	 * Represents a paragraph in a document.
+	 */
 	protected P setStyle(P p, String styleId) {
 		if (p.getPPr() == null)
 			p.setPPr(new PPr());
@@ -359,14 +411,30 @@ public class WorkerSOAExport extends WorkerImpl {
 		return p;
 	}
 
+	/**
+	 * This class represents a paragraph in a document.
+	 */
 	protected P setText(P paragraph, String content) {
 		return setText(paragraph, content, null);
 	}
 
+	/**
+	 * Sets the text of a cell in the given Tc object.
+	 *
+	 * @param tc   the Tc object representing the cell
+	 * @param text the text to be set in the cell
+	 */
 	protected void setCellText(Tc tc, String text) {
 		setCellText(tc, text, null);
 	}
 
+	/**
+	 * Sets the text and alignment of a cell in a table.
+	 *
+	 * @param cell      the cell to set the text for
+	 * @param text      the text to set in the cell
+	 * @param alignment the alignment of the text in the cell
+	 */
 	protected void setCellText(Tc cell, String text, TextAlignment alignment) {
 		if (cell.getContent().isEmpty())
 			cell.getContent().add(new P());
@@ -376,6 +444,10 @@ public class WorkerSOAExport extends WorkerImpl {
 		setText(paragraph, text, alignment);
 	}
 
+	/**
+	 * The `P` class represents a paragraph in a document.
+	 * It is used to store and manipulate the content and formatting of a paragraph.
+	 */
 	protected P setText(P paragraph, String content, TextAlignment alignment) {
 		if (alignment != null) {
 			if (paragraph.getPPr() == null)

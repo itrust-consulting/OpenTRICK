@@ -32,9 +32,10 @@ import lu.itrust.business.ts.model.standard.NormalStandard;
 import lu.itrust.business.ts.model.standard.Standard;
 import lu.itrust.business.ts.model.standard.measuredescription.MeasureDescription;
 
+
 /**
- * @author eomar
- *
+ * This class represents a worker responsible for synchronizing measure collection and analysis.
+ * It extends the WorkerImpl class.
  */
 public class WorkerSynchroniseMeasureCollectionAndAnalysis extends WorkerImpl {
 
@@ -102,6 +103,16 @@ public class WorkerSynchroniseMeasureCollectionAndAnalysis extends WorkerImpl {
 		}
 	}
 
+	/**
+	 * Synchronizes the measure collection of the knowledge base to analyses.
+	 * This method retrieves a list of standards that are not bound to any analysis,
+	 * and then iterates over each standard to synchronize the measure collection.
+	 * For each standard, it retrieves the total count of analyses associated with the standard,
+	 * and then retrieves the measure descriptions for the standard.
+	 * It then iterates over each page of analyses and checks if any measures are missing
+	 * from the measure collection. If measures are missing, it updates the analysis accordingly.
+	 * The progress of the synchronization is reported using a message handler.
+	 */
 	private void synchroniseMeasure() {
 		final List<Standard> standards = daoStandard.getAllNotBoundToAnalysis();
 		final int min = 5, max = 95, countStd = standards.size();
@@ -170,6 +181,10 @@ public class WorkerSynchroniseMeasureCollectionAndAnalysis extends WorkerImpl {
 		start();
 	}
 
+	/**
+	 * Cleans up the worker by setting the working status to false and updating the finished timestamp.
+	 * If the worker is already working, it will synchronize the access to ensure thread safety.
+	 */
 	private void cleanUp() {
 		if (isWorking()) {
 			synchronized (this) {
@@ -182,6 +197,11 @@ public class WorkerSynchroniseMeasureCollectionAndAnalysis extends WorkerImpl {
 
 	}
 
+	/**
+	 * Initializes the DAO objects used for data access.
+	 *
+	 * @param session the session object used for database operations
+	 */
 	public void initialiseDAO(Session session) {
 		daoStandard = new DAOStandardHBM(session);
 		daoAnalysis = new DAOAnalysisHBM(session);
@@ -190,10 +210,20 @@ public class WorkerSynchroniseMeasureCollectionAndAnalysis extends WorkerImpl {
 		daoMeasureDescription = new DAOMeasureDescriptionHBM(session);
 	}
 
+	/**
+	 * Returns the username associated with this worker.
+	 *
+	 * @return the username as a String
+	 */
 	public String getUsername() {
 		return username;
 	}
 
+	/**
+	 * Sets the username for the worker.
+	 *
+	 * @param username the username to set
+	 */
 	public void setUsername(String username) {
 		this.username = username;
 	}

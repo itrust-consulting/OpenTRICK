@@ -30,6 +30,27 @@ import lu.itrust.business.ts.model.general.LogType;
  * @author eomar
  *
  */
+/**
+ * This class represents a worker that restores analysis rights.
+ * It extends the `WorkerImpl` class and implements the `Runnable` interface.
+ * 
+ * The worker is responsible for restoring analysis rights by loading analysis data,
+ * sorting it, and updating the rights for each analysis.
+ * 
+ * The worker can be started by calling the `start()` method, which will execute the `run()` method.
+ * It can be canceled by calling the `cancel()` method.
+ * 
+ * The worker requires a username to be initialized.
+ * 
+ * This class provides methods for initializing the DAOs, loading analysis data,
+ * restoring rights, and handling transactions.
+ * 
+ * The worker also implements the `isMatch()` method to check if it matches a given expression.
+ * 
+ * The class provides getter and setter methods for the DAOAnalysis and DAOUserAnalysisRight objects.
+ * 
+ * The class also overrides the `getName()` method to return the task name as `RESET_ANALYSIS_RIGHT`.
+ */
 public class WorkerRestoreAnalyisRight extends WorkerImpl {
 	
 	private String username;
@@ -146,6 +167,12 @@ public class WorkerRestoreAnalyisRight extends WorkerImpl {
 		}
 	}
 
+	/**
+	 * Restores the rights for a list of analyses.
+	 *
+	 * @param analyses the list of analyses to restore rights for
+	 * @throws Exception if an error occurs during the restoration process
+	 */
 	private void restoreRights(List<Analysis> analyses) throws Exception {
 		Analysis previous = null;
 		for (Analysis analysis : analyses) {
@@ -172,6 +199,11 @@ public class WorkerRestoreAnalyisRight extends WorkerImpl {
 		}
 	}
 
+	/**
+	 * Initializes the DAO objects used by the WorkerRestoreAnalyisRight class.
+	 * 
+	 * @param session the Hibernate session object used for database operations
+	 */
 	private void initialiseDAO(Session session) {
 		setDaoAnalysis(new DAOAnalysisHBM(session));
 		setDaoUserAnalysisRight(new DAOUserAnalysisRightHBM(session));
@@ -248,6 +280,9 @@ public class WorkerRestoreAnalyisRight extends WorkerImpl {
 		this.daoUserAnalysisRight = daoUserAnalysisRight;
 	}
 
+	/**
+	 * Represents the name of a task.
+	 */
 	@Override
 	public TaskName getName() {
 		return TaskName.RESET_ANALYSIS_RIGHT;

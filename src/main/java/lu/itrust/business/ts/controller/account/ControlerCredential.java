@@ -7,16 +7,12 @@ import static lu.itrust.business.ts.constants.Constant.ACCEPT_APPLICATION_JSON_C
 import static lu.itrust.business.ts.constants.Constant.ACCEPT_TEXT_PLAIN_CHARSET_UTF_8;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.security.Principal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import jakarta.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -35,6 +31,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import jakarta.servlet.http.HttpSession;
 import lu.itrust.business.ts.component.TrickLogManager;
 import lu.itrust.business.ts.constants.Constant;
 import lu.itrust.business.ts.database.service.ServiceCustomer;
@@ -53,9 +50,10 @@ import lu.itrust.business.ts.model.ticketing.builder.ClientBuilder;
 import lu.itrust.business.ts.usermanagement.User;
 import lu.itrust.business.ts.usermanagement.UserCredential;
 
+
 /**
- * @author eomar
- *
+ * This class is a controller for managing user credentials. It handles HTTP requests related to user credentials, such as saving, editing, and deleting credentials.
+ * The controller is responsible for validating the input data, interacting with the database, and returning appropriate responses.
  */
 @PreAuthorize(Constant.ROLE_MIN_USER)
 @PostAuthorize("@permissionEvaluator.isAllowed(T(lu.itrust.business.ts.model.general.TSSettingName).SETTING_ALLOWED_TICKETING_SYSTEM_LINK)")
@@ -75,6 +73,14 @@ public class ControlerCredential {
 	@Autowired
 	private ServiceUserCredential serviceUserCredential;
 
+	/**
+	 * Saves the user credential information.
+	 * 
+	 * @param form      The user credential form.
+	 * @param principal The principal object representing the currently authenticated user.
+	 * @param locale    The locale object representing the user's preferred language and region.
+	 * @return An object containing the result of the save operation.
+	 */
 	@PostMapping(value = "/Save", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody Object save(@RequestBody UserCredentialForm form, Principal principal, Locale locale) {
 		final Customer customer = serviceCustomer.getFromUsernameAndId(principal.getName(), form.getCustomer());
@@ -121,6 +127,14 @@ public class ControlerCredential {
 		return result;
 	}
 
+	/**
+	 * Retrieves the HTML form for adding a new credential.
+	 *
+	 * @param model     the model object for the view
+	 * @param principal the currently authenticated user
+	 * @param locale    the locale of the user
+	 * @return the HTML form for adding a new credential
+	 */
 	@GetMapping(value = "/Form", consumes = MediaType.TEXT_PLAIN_VALUE, headers = ACCEPT_TEXT_PLAIN_CHARSET_UTF_8, produces = MediaType.TEXT_HTML_VALUE)
 	public String add(Model model, Principal principal, Locale locale) {
 		final User user = serviceUser.get(principal.getName());
@@ -140,6 +154,15 @@ public class ControlerCredential {
 		return "jsp/user/credential/form";
 	}
 
+	/**
+	 * Retrieves the HTML representation of the edit form for a specific account.
+	 *
+	 * @param id        The ID of the account to edit.
+	 * @param model     The model object to populate with data.
+	 * @param principal The currently authenticated user.
+	 * @param locale    The locale of the user.
+	 * @return The HTML representation of the edit form.
+	 */
 	@GetMapping(value = "/{id}/Edit", consumes = MediaType.TEXT_PLAIN_VALUE, headers = ACCEPT_TEXT_PLAIN_CHARSET_UTF_8, produces = MediaType.TEXT_HTML_VALUE)
 	public String edit(@PathVariable long id, Model model, Principal principal, Locale locale) {
 		final UserCredential credential = serviceUserCredential.findByIdAndUsername(id, principal.getName());
@@ -158,6 +181,14 @@ public class ControlerCredential {
 		return add(model, principal, locale);
 	}
 
+	/**
+	 * Deletes a credential with the specified ID.
+	 *
+	 * @param id the ID of the credential to delete
+	 * @param principal the principal object representing the currently authenticated user
+	 * @param locale the locale of the request
+	 * @return true if the credential was successfully deleted, false otherwise
+	 */
 	@DeleteMapping(value = "/{id}/Delete", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody boolean delete(@PathVariable long id, Principal principal, Locale locale) {
 		final User user = serviceUser.get(principal.getName());
@@ -168,6 +199,14 @@ public class ControlerCredential {
 		return result;
 	}
 
+	/**
+	 * Deletes the credentials with the specified IDs.
+	 *
+	 * @param ids      The list of IDs of the credentials to be deleted.
+	 * @param principal The principal object representing the authenticated user.
+	 * @param locale   The locale of the request.
+	 * @return A map containing the IDs of the deleted credentials and a boolean value indicating the success of each deletion.
+	 */
 	@DeleteMapping(value = "/Delete", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody Map<Long, Boolean> delete(@RequestBody List<Long> ids, Principal principal, Locale locale) {
 		final User user = serviceUser.get(principal.getName());
@@ -183,12 +222,27 @@ public class ControlerCredential {
 		return results;
 	}
 
+	/**
+	 * Retrieves the section credential.
+	 *
+	 * @param session   the HttpSession object
+	 * @param principal the Principal object representing the currently authenticated user
+	 * @param model     the Model object used to pass data to the view
+	 * @return the name of the view to render, in this case "jsp/user/credential/section"
+	 */
 	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public String sectionCredential(HttpSession session, Principal principal, Model model) {
 		model.addAttribute("credentials", serviceUserCredential.findByUsername(principal.getName()));
 		return "jsp/user/credential/section";
 	}
 
+	/**
+	 * Checks if the user is connected to the ticketing system using the provided credentials.
+	 *
+	 * @param credential The user credential form containing the username, password, and token.
+	 * @param ticketingSystem The ticketing system to connect to.
+	 * @return true if the user is connected, false otherwise.
+	 */
 	private boolean isConnected(UserCredentialForm credential, TicketingSystem ticketingSystem) {
 		Client client = null;
 		try {

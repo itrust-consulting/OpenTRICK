@@ -82,7 +82,7 @@
     <factorypathentry kind="VARJAR" id="M2_REPO/io/micrometer/micrometer-commons/1.11.9/micrometer-commons-1.11.9.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/org/springframework/security/spring-security-acl/6.1.7/spring-security-acl-6.1.7.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/org/springframework/security/spring-security-messaging/6.1.7/spring-security-messaging-6.1.7.jar" enabled="true" runInBatchMode="false"/>
-    <factorypathentry kind="VARJAR" id="M2_REPO/lu/itrust/monarc/monarc/0.7.5/monarc-0.7.5.jar" enabled="true" runInBatchMode="false"/>
+    <factorypathentry kind="VARJAR" id="M2_REPO/lu/itrust/monarc/trick2monarc-api/0.7.5/trick2monarc-api-0.7.5.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/org/glassfish/ozark/ozark/1.0.0-m02/ozark-1.0.0-m02.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/javax/mvc/javax.mvc-api/1.0-edr2/javax.mvc-api-1.0-edr2.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/joda-time/joda-time/2.12.5/joda-time-2.12.5.jar" enabled="true" runInBatchMode="false"/>

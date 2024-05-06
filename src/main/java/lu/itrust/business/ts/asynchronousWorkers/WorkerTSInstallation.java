@@ -29,9 +29,10 @@ import lu.itrust.business.ts.model.general.LogAction;
 import lu.itrust.business.ts.model.general.LogType;
 import lu.itrust.business.ts.usermanagement.User;
 
+
 /**
- * @author eomar
- *
+ * This class represents a worker for installing the Trick Service application asynchronously.
+ * It extends the WorkerAnalysisImport class and provides additional functionality for installation.
  */
 public class WorkerTSInstallation extends WorkerAnalysisImport {
 
@@ -53,6 +54,12 @@ public class WorkerTSInstallation extends WorkerAnalysisImport {
 		setCanDeleteFile(false);
 	}
 
+	/**
+	 * This method is called when the worker is started. It performs the installation of the application.
+	 * It removes the default profiles from the database.
+	 *
+	 * @throws Exception if an error occurs during the installation process.
+	 */
 	@Override
 	protected synchronized void OnStarted() throws Exception {
 		Session session = null;
@@ -126,6 +133,12 @@ public class WorkerTSInstallation extends WorkerAnalysisImport {
 		}
 	}
 
+	/**
+	 * This method is called when the operation is successful.
+	 * It updates the version of the TrickService and saves it to the database.
+	 * It also sends a message to the service task feedback with the updated version information.
+	 * Finally, it logs the installation action in the TrickLogManager.
+	 */
 	@Override
 	protected void OnSuccess() {
 		Session session = null;
@@ -159,10 +172,20 @@ public class WorkerTSInstallation extends WorkerAnalysisImport {
 		}
 	}
 
+	/**
+	 * Returns the current version as a string.
+	 *
+	 * @return the current version as a string
+	 */
 	public String getCurrentVersion() {
 		return currentVersion;
 	}
 
+	/**
+	 * Sets the current version of the worker.
+	 *
+	 * @param currentVersion the current version to set
+	 */
 	public void setCurrentVersion(String currentVersion) {
 		this.currentVersion = currentVersion;
 	}

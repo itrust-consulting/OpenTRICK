@@ -50,11 +50,12 @@ import lu.itrust.business.ts.model.standard.MaturityStandard;
 import lu.itrust.business.ts.model.standard.measure.AbstractNormalMeasure;
 import lu.itrust.business.ts.model.standard.measure.Measure;
 import lu.itrust.business.ts.model.standard.measure.impl.MaturityMeasure;
-import lu.itrust.business.ts.model.standard.measure.impl.MeasureProperties;
 
 /**
- * @author eomar
- *
+ * This class represents a worker for importing measure data asynchronously.
+ * It extends the `WorkerImpl` class and implements the `Worker` interface.
+ * The worker is responsible for importing measure data for a risk analysis.
+ * It performs the import operation in a separate thread.
  */
 public class WorkerImportMeasureData extends WorkerImpl {
 

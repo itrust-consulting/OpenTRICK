@@ -43,6 +43,20 @@ import lu.itrust.business.expressions.TokenizerToString;
  * @author eomar
  *
  */
+/**
+ * This class represents a worker responsible for migrating scale levels in an analysis.
+ * It extends the WorkerImpl class.
+ * 
+ * The worker migrates scale levels by updating the analysis, impact parameters, likelihood parameters,
+ * and risk profiles based on the provided level mappers.
+ * 
+ * The worker runs asynchronously and can be started and canceled.
+ * 
+ * Usage:
+ * WorkerScaleLevelMigrator migrator = new WorkerScaleLevelMigrator(idAnalysis, levelMappers);
+ * migrator.start(); // Start the worker
+ * migrator.cancel(); // Cancel the worker
+ */
 public class WorkerScaleLevelMigrator extends WorkerImpl {
 
 	private int idAnalysis;
@@ -160,6 +174,11 @@ public class WorkerScaleLevelMigrator extends WorkerImpl {
 		}
 	}
 
+	/**
+	 * Performs the processing of migrating scale levels for assessments, risk profiles, and analysis parameters.
+	 * This method migrates the scale levels by converting the existing parameters to the new scale levels.
+	 * It updates the analysis, risk profiles, and parameters accordingly.
+	 */
 	private void processing() {
 		MessageHandler handler = new MessageHandler("info.scale.level.migrate.parameters", "Migrating parameters", 2);
 		getServiceTaskFeedback().send(getId(), handler);
@@ -211,6 +230,13 @@ public class WorkerScaleLevelMigrator extends WorkerImpl {
 		handler.update("info.scale.level.migrate.transaction.commit", "Writing data to database", 93);
 	}
 
+	/**
+	 * Migrates the given value using the provided convertor and factory.
+	 * 
+	 * @param convertor The ScaleLevelConvertor used for parameter conversion.
+	 * @param factory The ValueFactory used for parameter and value lookup.
+	 * @param value The value to be migrated.
+	 */
 	private void migrateValue(final ScaleLevelConvertor convertor, final ValueFactory factory, IValue value) {
 		if (value == null || convertor == null || factory == null)
 			return;
@@ -239,10 +265,22 @@ public class WorkerScaleLevelMigrator extends WorkerImpl {
 		}
 	}
 
+	/**
+	 * Calculates the increased progress based on the given array of progress values.
+	 * 
+	 * @param progress an array of progress values [current, target, currentStep, totalSteps]
+	 * @return the increased progress value
+	 */
 	private int increaseProgress(int[] progress) {
 		return (int) (progress[0] + (progress[1] - progress[0]) * ((double) ++progress[2] / (double) progress[3]));
 	}
 
+	/**
+	 * Updates the given RiskProbaImpact object by converting its probability and impacts using the provided ScaleLevelConvertor.
+	 *
+	 * @param riskProbaImpact The RiskProbaImpact object to be updated.
+	 * @param convertor The ScaleLevelConvertor used for converting the probability and impacts.
+	 */
 	private void update(RiskProbaImpact riskProbaImpact, ScaleLevelConvertor convertor) {
 		if (riskProbaImpact.getProbability() != null)
 			riskProbaImpact.setProbability((LikelihoodParameter) convertor.find(riskProbaImpact.getProbability()));
@@ -251,18 +289,37 @@ public class WorkerScaleLevelMigrator extends WorkerImpl {
 		riskProbaImpact.setImpacts(impactParameters);
 	}
 
+	/**
+	 * Sets up the Data Access Objects (DAOs) for the WorkerScaleLevelMigrator.
+	 * Initializes the DAOAnalysisHBM, DAOImpactParameterHBM, and DAOLikelihoodParameterHBM objects
+	 * with the provided session.
+	 *
+	 * @param session the Hibernate session to be used by the DAOs
+	 */
 	private void setUpDOA(Session session) {
 		setDaoAnalysis(new DAOAnalysisHBM(session));
 		setDaoImpactParameter(new DAOImpactParameterHBM(session));
 		setDaoLikelihoodParameter(new DAOLikelihoodParameterHBM(session));
 	}
 
+	/**
+	 * Cancels the processing of the worker and handles any exceptions that occur.
+	 *
+	 * @param session the current session
+	 * @param e the exception that occurred during processing
+	 */
 	private void cancelProcessing(Session session, Exception e) {
 		setError(e);
 		rollback(session);
 		TrickLogManager.Persist(e);
 	}
 
+	/**
+	 * Rolls back the current transaction in the given session.
+	 * If the session is open and the transaction is rollbackable, the transaction will be rolled back.
+	 *
+	 * @param session the session in which the transaction should be rolled back
+	 */
 	protected void rollback(Session session) {
 		try {
 			if (session != null && session.isOpen() && session.getTransaction().getStatus().canRollback())
@@ -272,42 +329,90 @@ public class WorkerScaleLevelMigrator extends WorkerImpl {
 		}
 	}
 
+	/**
+	 * Returns the ID analysis.
+	 *
+	 * @return the ID analysis
+	 */
 	public int getIdAnalysis() {
 		return idAnalysis;
 	}
 
+	/**
+	 * Sets the ID of the analysis.
+	 *
+	 * @param idAnalysis the ID of the analysis
+	 */
 	public void setIdAnalysis(int idAnalysis) {
 		this.idAnalysis = idAnalysis;
 	}
 
+	/**
+	 * This class represents the DAOAnalysis object.
+	 * It provides methods to analyze and retrieve data from the DAO.
+	 */
 	public DAOAnalysis getDaoAnalysis() {
 		return daoAnalysis;
 	}
 
+	/**
+	 * Sets the DAOAnalysis object for this WorkerScaleLevelMigrator.
+	 *
+	 * @param daoAnalysis the DAOAnalysis object to be set
+	 */
 	public void setDaoAnalysis(DAOAnalysis daoAnalysis) {
 		this.daoAnalysis = daoAnalysis;
 	}
 
+	/**
+	 * Returns the DAOImpactParameter object.
+	 *
+	 * @return the DAOImpactParameter object.
+	 */
 	public DAOImpactParameter getDaoImpactParameter() {
 		return daoImpactParameter;
 	}
 
+	/**
+	 * Sets the DAO impact parameter.
+	 *
+	 * @param daoImpactParameter the DAO impact parameter to set
+	 */
 	public void setDaoImpactParameter(DAOImpactParameter daoImpactParameter) {
 		this.daoImpactParameter = daoImpactParameter;
 	}
 
+	/**
+	 * This class represents the DAO (Data Access Object) for the Likelihood Parameter.
+	 * It provides methods to interact with the database and retrieve Likelihood Parameter objects.
+	 */
 	public DAOLikelihoodParameter getDaoLikelihoodParameter() {
 		return daoLikelihoodParameter;
 	}
 
+	/**
+	 * Sets the DAO likelihood parameter.
+	 *
+	 * @param daoLikelihoodParameter the DAO likelihood parameter to set
+	 */
 	public void setDaoLikelihoodParameter(DAOLikelihoodParameter daoLikelihoodParameter) {
 		this.daoLikelihoodParameter = daoLikelihoodParameter;
 	}
 
+	/**
+	 * Returns the level mappers map.
+	 *
+	 * @return the level mappers map
+	 */
 	public Map<Integer, List<Integer>> getLevelMappers() {
 		return levelMappers;
 	}
 
+	/**
+	 * Sets the level mappers for the WorkerScaleLevelMigrator.
+	 * 
+	 * @param levelMappers a map containing the level mappers
+	 */
 	public void setLevelMappers(Map<Integer, List<Integer>> levelMappers) {
 		this.levelMappers = levelMappers;
 	}
