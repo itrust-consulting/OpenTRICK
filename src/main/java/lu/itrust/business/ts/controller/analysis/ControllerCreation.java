@@ -100,10 +100,9 @@ import lu.itrust.business.ts.usermanagement.User;
 import lu.itrust.business.ts.validator.CustomAnalysisValidator;
 
 /**
- * ControllerAnalysisCreate.java: <br>
- * Detailed description...
- *
- * @author smenghi itrust consulting s.a.rl.:
+ * This class represents a controller for creating analysis in the application.
+ * It handles the HTTP requests related to analysis creation and provides necessary dependencies.
+ * @author itrust consulting s.a.rl.:
  * @version
  * @since Oct 13, 2014
  */
@@ -190,6 +189,16 @@ public class ControllerCreation {
 	@Autowired
 	private ServiceSimpleDocument serviceSimpleDocument;
 
+	/**
+	 * Builds a custom analysis.
+	 *
+	 * @param session   the HttpSession object
+	 * @param principal the Principal object representing the currently authenticated user
+	 * @param model     the Model object used to pass data to the view
+	 * @param locale    the Locale object representing the current locale
+	 * @return the view name for the custom analysis form
+	 * @throws Exception if an error occurs during the build process
+	 */
 	@GetMapping
 	public String buildCustom(HttpSession session, Principal principal, Model model, Locale locale) throws Exception {
 
@@ -215,6 +224,15 @@ public class ControllerCreation {
 
 	}
 
+	/**
+	 * This method builds a custom save operation for the analysis form.
+	 * 
+	 * @param analysisForm The analysis form object.
+	 * @param principal The principal object representing the currently authenticated user.
+	 * @param locale The locale object representing the user's preferred language.
+	 * @return An object representing the result of the save operation. If there are validation errors, a map of errors is returned. Otherwise, an empty object is returned.
+	 * @throws Exception If an exception occurs during the save operation.
+	 */
 	@PostMapping(value = "/Save", consumes = "application/x-www-form-urlencoded;charset=UTF-8", produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody Object buildCustomSave(@ModelAttribute AnalysisForm analysisForm, Principal principal,
 			Locale locale) throws Exception {
@@ -642,6 +660,14 @@ public class ControllerCreation {
 		}
 	}
 
+	/**
+	 * Generates likelihood parameters for the analysis.
+	 *
+	 * @param analysis          The analysis object.
+	 * @param mappingParameters The mapping of parameter names to parameter objects.
+	 * @param maxValue          The maximum value for the likelihood parameters.
+	 * @param maxlevel          The maximum level for the likelihood parameters.
+	 */
 	private void generateLikelihoodParameters(Analysis analysis, Map<String, IParameter> mappingParameters,
 			int maxValue, int maxlevel) {
 
@@ -679,6 +705,14 @@ public class ControllerCreation {
 		});
 	}
 
+	/**
+	 * Generates impact parameters based on the given analysis, mapping parameters, and scale.
+	 * 
+	 * @param analysis         The analysis object.
+	 * @param mappingParameters The mapping parameters map.
+	 * @param scale            The scale object.
+	 * @return A consumer that generates impact parameters.
+	 */
 	private Consumer<? super Integer> generateImpactParameters(Analysis analysis,
 			Map<String, IParameter> mappingParameters, Scale scale) {
 		return id -> {
@@ -719,6 +753,12 @@ public class ControllerCreation {
 		};
 	}
 
+	/**
+	 * Returns a function that duplicates the given parameter and adds it to the analysis.
+	 *
+	 * @param analysis the analysis to add the duplicated parameter to
+	 * @return a function that duplicates the parameter and adds it to the analysis
+	 */
 	private Function<? super IParameter, ? extends IParameter> duplicateParameter(Analysis analysis) {
 		return parameter -> {
 			IParameter clone = parameter.duplicate();
@@ -727,6 +767,16 @@ public class ControllerCreation {
 		};
 	}
 
+	/**
+	 * Generates a standard log based on the given parameters.
+	 *
+	 * @param baseAnalysis   the base analysis string
+	 * @param analysisForm   the analysis form object
+	 * @param defaultProfileId   the default profile ID
+	 * @param analysisLocale   the analysis locale
+	 * @return the generated standard log string
+	 * @throws Exception if an error occurs during the generation process
+	 */
 	private String generateStandardLog(String baseAnalysis, AnalysisForm analysisForm, int defaultProfileId,
 			Locale analysisLocale) throws Exception {
 		if (analysisForm.getStandards().size() == 1
@@ -760,6 +810,15 @@ public class ControllerCreation {
 		return baseAnalysis;
 	}
 
+	/**
+	 * Validates the standards for analysis.
+	 * 
+	 * @param standrads The list of analysis standard base information.
+	 * @param errors The map to store any validation errors.
+	 * @param principal The principal object representing the current user.
+	 * @param defaultProfileId The default profile ID.
+	 * @param locale The locale for error messages.
+	 */
 	private void validateStandards(List<AnalysisStandardBaseInfo> standrads, Map<String, String> errors,
 			Principal principal, int defaultProfileId, Locale locale) {
 		if (standrads == null || standrads.isEmpty())
@@ -779,6 +838,14 @@ public class ControllerCreation {
 					analysisStandardBaseInfo -> validateStandards(analysisStandardBaseInfo, errors, principal, locale));
 	}
 
+	/**
+	 * Validates the standards for the given analysis standard base information.
+	 * 
+	 * @param analysisStandardBaseInfo The analysis standard base information to validate.
+	 * @param errors                   A map to store any validation errors.
+	 * @param principal                The principal object representing the current user.
+	 * @param locale                   The locale to use for error messages.
+	 */
 	private void validateStandards(AnalysisStandardBaseInfo analysisStandardBaseInfo, Map<String, String> errors,
 			Principal principal, Locale locale) {
 		if (!serviceUserAnalysisRight.hasRightOrOwner(analysisStandardBaseInfo.getIdAnalysis(), principal.getName(),
@@ -793,12 +860,27 @@ public class ControllerCreation {
 		}
 	}
 
+	/**
+	 * Retrieves a list of AnalysisBaseInfo objects based on the provided customer ID and user principal.
+	 *
+	 * @param id        The ID of the customer.
+	 * @param principal The user principal.
+	 * @return A list of AnalysisBaseInfo objects.
+	 */
 	@GetMapping(value = "/Customer/{id}", headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody List<AnalysisBaseInfo> findByCustomer(@PathVariable Integer id, Principal principal) {
 		return serviceAnalysis.getGroupByIdentifierAndFilterByCustmerIdAndUsernamerAndNotEmpty(id, principal.getName(),
 				AnalysisRight.highRightFrom(AnalysisRight.EXPORT));
 	}
 
+	/**
+	 * Retrieves a list of AnalysisBaseInfo objects based on the provided customer ID, identifier, and user principal.
+	 * 
+	 * @param id         The customer ID.
+	 * @param identifier The identifier.
+	 * @param principal  The user principal.
+	 * @return A list of AnalysisBaseInfo objects.
+	 */
 	@GetMapping(value = "/Customer/{id}/Identifier/{identifier}", headers = "Accept=application/json;charset=UTF-8")
 	public @ResponseBody List<AnalysisBaseInfo> findByCustomerAndIdentifier(@PathVariable Integer id,
 			@PathVariable String identifier, Principal principal) {

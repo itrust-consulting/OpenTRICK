@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.token.Sha512DigestUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -82,14 +83,12 @@ import lu.itrust.business.ts.validator.field.ValidatorField;
 import net.glxn.qrgen.QRCode;
 
 /**
- * ControllerProfile.java: <br>
- * Detailed description...
  * 
  * @author eomar, itrust consulting s.à.rl.
  * @version
  * @since Apr 15, 2014
  */
-//@PreAuthorize(Constant.ROLE_MIN_USER)
+@PreAuthorize(Constant.ROLE_MIN_USER)
 @RequestMapping("/Account")
 @Controller
 public class ControllerAccount {

@@ -37,8 +37,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.docx4j.openpackaging.contenttype.ContentTypes;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.docx4j.openpackaging.exceptions.InvalidFormatException;
@@ -71,7 +69,6 @@ import org.xlsx4j.sml.ObjectFactory;
 import org.xlsx4j.sml.Row;
 import org.xlsx4j.sml.SheetData;
 
-import jakarta.activation.MimetypesFileTypeMap;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -169,6 +166,12 @@ import lu.itrust.business.ts.model.standard.measure.Measure;
 import lu.itrust.business.ts.model.standard.measuredescription.MeasureDescription;
 import lu.itrust.business.ts.model.standard.measuredescription.MeasureDescriptionText;
 
+/**
+ * This class is a controller that handles data management operations for the Analysis module.
+ * It provides endpoints for exporting various types of data related to an analysis, such as action plans, assets, risk information, measures, reports, etc.
+ * The exported data is in Excel format.
+ * This controller requires the user to have the necessary authorization to perform the export operations.
+ */
 @PreAuthorize(ROLE_MIN_USER)
 @Controller
 @RequestMapping("/Analysis/Data-manager")
@@ -266,6 +269,16 @@ public class ControllerDataManager {
 	@Autowired
 	private ServiceAssetTypeValue serviceAssetTypeValue;
 
+	/**
+	 * Exports the raw action plan process as an Excel file.
+	 *
+	 * @param request   the HttpServletRequest object
+	 * @param response  the HttpServletResponse object
+	 * @param session   the HttpSession object
+	 * @param principal the Principal object
+	 * @param locale    the Locale object
+	 * @throws Exception if an error occurs during the export process
+	 */
 	@GetMapping(value = "/Action-plan-raw/Export-process", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).EXPORT)")
 	public void exportActionPlanRawProcess(HttpServletRequest request, HttpServletResponse response,
@@ -299,6 +312,16 @@ public class ControllerDataManager {
 
 	}
 
+	/**
+	 * Exports the asset process for a given analysis.
+	 *
+	 * @param request   the HTTP servlet request
+	 * @param response  the HTTP servlet response
+	 * @param session   the HTTP session
+	 * @param principal the principal object representing the user
+	 * @param locale    the locale of the analysis
+	 * @throws Exception if an error occurs during the export process
+	 */
 	@GetMapping(value = "/Asset/Export-process", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).EXPORT)")
 	public void exportAssetProcess(HttpServletRequest request, HttpServletResponse response, HttpSession session,
@@ -331,6 +354,12 @@ public class ControllerDataManager {
 		}
 	}
 
+	/**
+	 * Returns the extension of the spreadsheetMLPackage based on its content type.
+	 *
+	 * @param spreadsheetMLPackage the SpreadsheetMLPackage to get the extension for
+	 * @return the extension of the spreadsheetMLPackage as a String
+	 */
 	private String getExtension(final SpreadsheetMLPackage spreadsheetMLPackage) {
 		switch (spreadsheetMLPackage.getWorkbookPart().getContentType()) {
 			case ContentTypes.SPREADSHEETML_WORKBOOK_MACROENABLED:
@@ -344,6 +373,21 @@ public class ControllerDataManager {
 		}
 	}
 
+	/**
+	 * Exportation method that returns a String.
+	 * This method exports data related to the analysis identified by the given analysisId.
+	 * The exported data includes action plans, assets, risk information, measures, word reports,
+	 * risk estimations, risk registers, risk sheets, RRF raw data, scenarios, SOA data, and ILR data.
+	 * The exported data is added to the model and the maximum file size for upload is also added to the model.
+	 * The method returns the name of the JSP file that will be used to render the export view.
+	 *
+	 * @param idAnalysis The ID of the analysis to export.
+	 * @param model The model to add the exported data and maximum file size.
+	 * @param session The HttpSession object.
+	 * @param principal The Principal object representing the currently authenticated user.
+	 * @param locale The Locale object representing the user's preferred language.
+	 * @return The name of the JSP file that will be used to render the export view.
+	 */
 	@GetMapping(value = "/Export", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).EXPORT)")
 	public String exportation(@RequestParam(name = "analysisId") Integer idAnalysis, Model model, HttpSession session,
@@ -398,6 +442,15 @@ public class ControllerDataManager {
 		return "jsp/analyses/single/components/data-manager/export";
 	}
 
+	/**
+	 * Export the ILR form.
+	 *
+	 * @param model    the model object
+	 * @param session  the HttpSession object
+	 * @param principal  the Principal object
+	 * @param locale  the Locale object
+	 * @return the view name for the ILR export form
+	 */
 	@GetMapping(value = "/ILR/Export-form", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).EXPORT)")
 	public String exportILRForm(Model model, HttpSession session, Principal principal, Locale locale) {
@@ -406,6 +459,15 @@ public class ControllerDataManager {
 		return "jsp/analyses/single/components/data-manager/export/ilr";
 	}
 
+	/**
+	 * Retrieves the export risk estimation form.
+	 *
+	 * @param model     the model object to be populated with data
+	 * @param session   the HttpSession object
+	 * @param principal the Principal object representing the currently authenticated user
+	 * @param locale    the Locale object representing the user's preferred language
+	 * @return the name of the JSP file to be rendered
+	 */
 	@GetMapping(value = "/Risk-estimation/Export-form", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).EXPORT)")
 	public String exportRiskEstimationForm(Model model, HttpSession session, Principal principal, Locale locale) {
@@ -415,6 +477,18 @@ public class ControllerDataManager {
 		return "jsp/analyses/single/components/data-manager/export/risk-estimation";
 	}
 
+	/**
+	 * Exports the ILR process data.
+	 *
+	 * @param ilrData      The ILR data file to be exported.
+	 * @param mappingFile  The mapping file (optional) used for exporting the ILR data.
+	 * @param request      The HTTP servlet request.
+	 * @param response     The HTTP servlet response.
+	 * @param session      The HTTP session.
+	 * @param principal    The principal object representing the authenticated user.
+	 * @param locale       The locale for the export operation.
+	 * @throws Exception   If an error occurs during the export process.
+	 */
 	@PostMapping(value = "/ILR/Export-process", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal,T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).EXPORT)")
 	public void exportILRProcess(@RequestParam(value = "ilrData") MultipartFile ilrData,
@@ -464,6 +538,18 @@ public class ControllerDataManager {
 
 	}
 
+	/**
+	 * Exports the estimation process for risk analysis.
+	 * This method handles the export of the risk estimation process in Excel format.
+	 *
+	 * @param extrasFormula   The extras formula file (optional).
+	 * @param request         The HTTP servlet request.
+	 * @param response        The HTTP servlet response.
+	 * @param session         The HTTP session.
+	 * @param locale          The locale.
+	 * @param principal       The principal.
+	 * @throws Exception      If an error occurs during the export process.
+	 */
 	@RequestMapping(value = "/Risk-estimation/Export-process", method = { RequestMethod.GET,
 			RequestMethod.POST }, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).EXPORT)")

@@ -59,8 +59,9 @@ import lu.itrust.business.ts.model.standard.measure.AbstractNormalMeasure;
 import lu.itrust.business.ts.model.standard.measure.Measure;
 
 /**
- * @author eom
- * 
+ * The ControllerAssessment class is a controller that handles requests related to assessment and risk profiles in the analysis module.
+ * It provides methods for loading asset assessments, scenario assessments, managing risk profile measures, computing risk profile measures, and refreshing assessments.
+ * This controller is responsible for handling HTTP requests and returning the appropriate response.
  */
 @PreAuthorize(Constant.ROLE_MIN_USER)
 @RequestMapping("/Analysis/Assessment")
@@ -91,6 +92,18 @@ public class ControllerAssessment {
 	@Autowired
 	private ServiceMeasure serviceMeasure;
 
+	/**
+	 * Loads the asset assessment for the given asset ID and scenario ID.
+	 * 
+	 * @param idAsset    The ID of the asset.
+	 * @param idScenario The ID of the scenario.
+	 * @param model      The model object for the view.
+	 * @param session    The HttpSession object.
+	 * @param principal  The Principal object representing the currently authenticated user.
+	 * @param locale     The Locale object representing the user's preferred language.
+	 * @return The name of the view to render.
+	 * @throws Exception if an error occurs during the loading process.
+	 */
 	@RequestMapping(value = "/Asset/{idAsset}/Load", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #idAsset, 'Asset', #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).READ)")
 	public String loadAssetAssessment(@PathVariable int idAsset,
@@ -129,6 +142,18 @@ public class ControllerAssessment {
 		return "jsp/analyses/single/components/risk-estimation/asset/home";
 	}
 
+	/**
+	 * Loads the scenario assessment and returns a String representing the view name.
+	 * 
+	 * @param idScenario the ID of the scenario
+	 * @param idAsset the ID of the asset (default value is 0)
+	 * @param model the model object for the view
+	 * @param session the HttpSession object
+	 * @param principal the Principal object representing the currently authenticated user
+	 * @param locale the Locale object representing the user's locale
+	 * @return a String representing the view name
+	 * @throws Exception if an error occurs during the loading of the assessment
+	 */
 	@RequestMapping(value = "/Scenario/{idScenario}/Load", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #idScenario, 'Scenario', #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).READ)")
 	public String loadSceanrioAssessment(@PathVariable int idScenario,
@@ -167,6 +192,17 @@ public class ControllerAssessment {
 
 	}
 
+	/**
+	 * Retrieves the risk profile measure for a given asset and scenario.
+	 * 
+	 * @param idAsset   the ID of the asset
+	 * @param idScenario   the ID of the scenario
+	 * @param model   the model object for the view
+	 * @param session   the HTTP session
+	 * @param principal   the principal object representing the currently authenticated user
+	 * @param locale   the locale for the request
+	 * @return the view name for the risk profile measure form
+	 */
 	@RequestMapping(value = "/RiskProfile/Manage-measure", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #idScenario, 'Scenario', #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).MODIFY) and "
 			+ "@permissionEvaluator.userIsAuthorized(#session, #idAsset, 'Asset', #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).MODIFY)")
@@ -185,6 +221,15 @@ public class ControllerAssessment {
 		return "jsp/analyses/single/components/risk-estimation/form/measure";
 	}
 
+	/**
+	 * Computes the risk profile measure.
+	 *
+	 * @param model     the model object
+	 * @param session   the HttpSession object
+	 * @param principal the Principal object
+	 * @param locale    the Locale object
+	 * @return an Object representing the computed risk profile measure
+	 */
 	@PostMapping(value = "/RiskProfile/Compute-measure", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody Object computeRiskProfileMeasure(Model model, HttpSession session, Principal principal,
@@ -247,14 +292,15 @@ public class ControllerAssessment {
 
 	}
 
+	
 	/**
-	 * updateAssessment: <br>
-	 * Description
-	 * 
-	 * @param session
-	 * @param locale
-	 * @return
-	 * @throws Exception
+	 * Refreshes the assessment and returns a success or error message as a JSON string.
+	 *
+	 * @param session   the HttpSession object
+	 * @param locale    the Locale object
+	 * @param principal the Principal object
+	 * @return a JSON string containing a success or error message
+	 * @throws Exception if an error occurs during the refresh process
 	 */
 	@RequestMapping(value = "/Refresh", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).MODIFY)")
@@ -298,6 +344,9 @@ public class ControllerAssessment {
 		}
 	}
 
+	/**
+	 * Represents a chart object used for visualizing data.
+	 */
 	@RequestMapping(value = "/Chart/Risk-evolution-heat-map", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).READ)")
 	public @ResponseBody Chart riskEvolutionHeatMapChart(HttpSession session, Principal principal, Locale locale) {
@@ -305,6 +354,9 @@ public class ControllerAssessment {
 				locale);
 	}
 
+	/**
+	 * Represents a chart object.
+	 */
 	@RequestMapping(value = "/Chart/Risk-heat-map", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).READ)")
 	public @ResponseBody Chart riskHeatMapChart(HttpSession session, Principal principal, Locale locale) {
@@ -312,6 +364,17 @@ public class ControllerAssessment {
 		return chartGenerator.generateRiskHeatMap(idAnalysis, locale);
 	}
 
+	/**
+	 * Saves the risk profile measure.
+	 *
+	 * @param measureIds  the list of measure IDs
+	 * @param idAsset     the asset ID
+	 * @param idScenario  the scenario ID
+	 * @param session     the HttpSession object
+	 * @param principal   the Principal object
+	 * @param locale      the Locale object
+	 * @return the success message if the risk profile is saved successfully, otherwise an error message
+	 */
 	@RequestMapping(value = "/RiskProfile/Update/Measure", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #idScenario, 'Scenario', #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).MODIFY) and "
 			+ "@permissionEvaluator.userIsAuthorized(#session, #idAsset, 'Asset', #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).MODIFY)")
@@ -334,6 +397,15 @@ public class ControllerAssessment {
 				"Risk profile has been successfully save", locale));
 	}
 
+	/**
+	 * Updates the Asset Loss Expectancy (ALE) for the analysis and returns a success message.
+	 *
+	 * @param session   the HttpSession object
+	 * @param locale    the Locale object
+	 * @param principal the Principal object
+	 * @return a JSON string representing the success message
+	 * @throws Exception if an error occurs during the update process
+	 */
 	@RequestMapping(value = "/Update/ALE", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String updateAle(HttpSession session, Locale locale, Principal principal) throws Exception {
@@ -361,14 +433,15 @@ public class ControllerAssessment {
 		}
 	}
 
+	
 	/**
-	 * updateAssessment: <br>
-	 * Description
-	 * 
-	 * @param session
-	 * @param locale
-	 * @return
-	 * @throws Exception
+	 * Updates the assessment of an analysis and returns a success or error message.
+	 *
+	 * @param session  the HttpSession object
+	 * @param locale   the Locale object
+	 * @param principal  the Principal object
+	 * @return a JSON string containing a success or error message
+	 * @throws Exception if an error occurs during the update process
 	 */
 	@RequestMapping(value = "/Update", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).MODIFY)")
@@ -396,6 +469,15 @@ public class ControllerAssessment {
 		}
 	}
 
+	/**
+	 * Returns a comparator for sorting assessments based on asset properties.
+	 * The assessments are sorted in ascending order of ALE (Annual Loss Expectancy).
+	 * If two assessments have the same ALE, they are further sorted based on the value of the asset.
+	 * If the assets have the same value, they are further sorted based on the name of the asset type.
+	 * If the asset types have the same name, they are further sorted based on the name of the asset.
+	 *
+	 * @return a comparator for sorting assessments based on asset properties
+	 */
 	private Comparator<? super Assessment> assessmentAssetComparator() {
 		return (a1, a2) -> {
 			int compare = Double.compare(a1.getALE(), a2.getALE());
@@ -411,6 +493,12 @@ public class ControllerAssessment {
 		};
 	}
 
+	/**
+	 * Returns a comparator for sorting assessments based on their ALE (Annual Loss Expectancy) values,
+	 * scenario type names, and scenario names.
+	 *
+	 * @return a comparator for sorting assessments
+	 */
 	private Comparator<? super Assessment> assessmentScenarioComparator() {
 		return (a1, a2) -> {
 			int compare = Double.compare(a1.getALE(), a2.getALE());
@@ -423,6 +511,12 @@ public class ControllerAssessment {
 		};
 	}
 
+	/**
+	 * Loads the analysis settings into the model.
+	 * 
+	 * @param model    the model to which the settings will be added
+	 * @param analysis the analysis object containing the settings
+	 */
 	private void loadAnalysisSettings(Model model, Analysis analysis) {
 		final AnalysisSetting rawSetting = AnalysisSetting.ALLOW_RISK_ESTIMATION_RAW_COLUMN;
 		final AnalysisSetting hiddenCommentSetting = AnalysisSetting.ALLOW_RISK_HIDDEN_COMMENT;
@@ -431,6 +525,13 @@ public class ControllerAssessment {
 		model.addAttribute("showDynamicAnalysis", analysis.findSetting(AnalysisSetting.ALLOW_DYNAMIC_ANALYSIS));
 	}
 
+	/**
+	 * Loads the assessment data into the model.
+	 *
+	 * @param model    the model to which the assessment data will be added
+	 * @param locale   the locale used for language-specific data
+	 * @param analysis the analysis object containing the assessment data
+	 */
 	private void loadAssessmentData(Model model, Locale locale, Analysis analysis) {
 		model.addAttribute("valueFactory", new ValueFactory(analysis.getParameters()));
 		model.addAttribute("impactTypes", analysis.findImpacts());
@@ -440,6 +541,15 @@ public class ControllerAssessment {
 		model.addAttribute("langue", locale.getLanguage().toUpperCase());
 	}
 
+	/**
+	 * Loads the assessment form data for a given scenario and asset.
+	 * 
+	 * @param idScenario  the ID of the scenario
+	 * @param idAsset     the ID of the asset
+	 * @param model       the model object to add attributes to
+	 * @param analysis    the analysis object containing likelihood and dynamic parameters
+	 * @param assessment  the assessment object to be loaded
+	 */
 	private void loadAssessmentFormData(int idScenario, int idAsset, Model model, Analysis analysis,
 			Assessment assessment) {
 		ValueFactory factory = (ValueFactory) model.asMap().get("valueFactory");
