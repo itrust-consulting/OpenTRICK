@@ -19,10 +19,6 @@ import lu.itrust.business.ts.model.parameter.type.impl.ParameterType;
 /**
  * SimpleParameter: <br>
  * This class represents a SimpleParameter and its data.
- * 
- * @author itrust consulting s.à r.l. - BJA,SME
- * @version 0.1
- * @since 2012-08-21
  */
 @Entity
 @Cacheable
@@ -77,16 +73,25 @@ public class SimpleParameter extends Parameter implements ITypedParameter {
 		this.type = type;
 	}
 
+	/**
+		 * Returns the name of the type of this parameter.
+		 *
+		 * @return the name of the type
+		 */
 	@Override
 	public String getTypeName() {
 		return this.type.getName();
 	}
 
+	/**
+	 * Returns the group of the parameter.
+	 *
+	 * @return the group of the parameter
+	 */
 	@Override
 	public String getGroup() {
 		return Constant.PARAMETER_CATEGORY_SIMPLE;
 	}
-	
-	
+		
 
 }

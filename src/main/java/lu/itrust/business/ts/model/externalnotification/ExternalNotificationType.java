@@ -2,8 +2,6 @@ package lu.itrust.business.ts.model.externalnotification;
 
 /**
  * Enumerates different types of external notifications.
- * @author Steve Muller (SMU), itrust consulting s.à r.l.
- * @since Aug 19, 2015
  */
 public enum ExternalNotificationType {
 	//

@@ -5,10 +5,8 @@ package lu.itrust.business.ts.model.standard.measure.helper;
 
 import lu.itrust.business.ts.model.standard.Standard;
 
-
 /**
- * @author eomar
- *
+ * Represents a chapter in a standard.
  */
 public class Chapter {
 
@@ -17,16 +15,16 @@ public class Chapter {
 	private String reference;
 
 	/**
-	 * 
+	 * Default constructor.
 	 */
 	public Chapter() {
 	}
 
 	/**
-	 * Constructor: <br>
+	 * Constructor with parameters.
 	 * 
-	 * @param standard
-	 * @param reference
+	 * @param standard  the standard associated with the chapter
+	 * @param reference the reference of the chapter
 	 */
 	public Chapter(Standard standard, String reference) {
 		this.standard = standard;
@@ -34,52 +32,45 @@ public class Chapter {
 	}
 
 	/**
-	 * getStandard: <br>
-	 * Description
+	 * Gets the standard associated with the chapter.
 	 * 
-	 * @return
+	 * @return the standard
 	 */
 	public Standard getStandard() {
 		return standard;
 	}
 
 	/**
-	 * setStandard: <br>
-	 * Description
+	 * Sets the standard associated with the chapter.
 	 * 
-	 * @param standard
+	 * @param standard the standard to set
 	 */
 	public void setStandard(Standard standard) {
 		this.standard = standard;
 	}
 
 	/**
-	 * getReference: <br>
-	 * Description
+	 * Gets the reference of the chapter.
 	 * 
-	 * @return
+	 * @return the reference
 	 */
 	public String getReference() {
 		return reference;
 	}
 
 	/**
-	 * setReference: <br>
-	 * Description
+	 * Sets the reference of the chapter.
 	 * 
-	 * @param reference
+	 * @param reference the reference to set
 	 */
 	public void setReference(String reference) {
 		this.reference = reference;
 	}
 
 	/**
-	 * hashCode: <br>
-	 * Description
-	 *
-	 * @{tags
-	 *
-	 * @see java.lang.Object#hashCode()
+	 * Generates a hash code for the chapter.
+	 * 
+	 * @return the hash code
 	 */
 	@Override
 	public int hashCode() {
@@ -91,12 +82,10 @@ public class Chapter {
 	}
 
 	/**
-	 * equals: <br>
-	 * Description
-	 *
-	 * @{tags
-	 *
-	 * @see java.lang.Object#equals(java.lang.Object)
+	 * Checks if this chapter is equal to another object.
+	 * 
+	 * @param obj the object to compare
+	 * @return true if the chapters are equal, false otherwise
 	 */
 	@Override
 	public boolean equals(Object obj) {

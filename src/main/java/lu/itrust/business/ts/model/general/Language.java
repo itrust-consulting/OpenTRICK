@@ -18,9 +18,6 @@ import lu.itrust.business.ts.exception.TrickException;
  * Language: <br>
  * This class contains all data concerning a language.
  * 
- * @author itrust consulting s.à r.l. - SME,BJA
- * @version 0.1
- * @since 2012-09-24
  */
 @Entity
 @Cacheable
@@ -206,6 +203,11 @@ public class Language {
 		return true;
 	}
 
+	/**
+	 * Returns the alpha-2 code of the language.
+	 * 
+	 * @return The alpha-2 code of the language, or null if the alpha-3 code is null or not of length 3.
+	 */
 	@Transient
 	public String getAlpha2() {
 		if (alpha3 == null || alpha3.length() != 3)

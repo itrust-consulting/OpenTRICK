@@ -23,8 +23,9 @@ import lu.itrust.business.ts.usermanagement.listner.helper.EncryptedPassword;
 import lu.itrust.business.ts.usermanagement.listner.helper.PasswordEncryptionHelper;
 
 /**
- * @author eomar
- *
+ * This class is responsible for encrypting and decrypting the credentials of a user.
+ * It implements several event listeners to perform encryption and decryption operations
+ * before and after certain database operations.
  */
 public class CredentialEncryptListner implements PostLoadEventListener, PreUpdateEventListener, PreInsertEventListener,
 		PreCollectionUpdateEventListener {
@@ -34,6 +35,13 @@ public class CredentialEncryptListner implements PostLoadEventListener, PreUpdat
 	 */
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * Encrypts the given credential value using a password encryption algorithm.
+	 * This method is called before persisting or updating a Credential object.
+	 * If the credential value is already encrypted, the method returns without performing any encryption.
+	 * 
+	 * @param credential The Credential object to be encrypted.
+	 */
 	@PrePersist
 	@PreUpdate
 	public void encrypt(Credential credential) {
@@ -51,6 +59,11 @@ public class CredentialEncryptListner implements PostLoadEventListener, PreUpdat
 		}
 	}
 
+	/**
+	 * Decrypts the encrypted password value of the given Credential object.
+	 * 
+	 * @param credential The Credential object to decrypt.
+	 */
 	@PostLoad
 	public void decrypt(Credential credential) {
 		try {
@@ -64,12 +77,25 @@ public class CredentialEncryptListner implements PostLoadEventListener, PreUpdat
 		}
 	}
 
+	/**
+	 * This method is called before a collection is updated.
+	 * It checks if the affected owner is an instance of UserCredential and calls the encrypt method.
+	 *
+	 * @param event The PreCollectionUpdateEvent object containing information about the update event.
+	 */
 	@Override
 	public void onPreUpdateCollection(PreCollectionUpdateEvent event) {
 		if (event.getAffectedOwnerOrNull() instanceof UserCredential)
 			encrypt((UserCredential) event.getAffectedOwnerOrNull());
 	}
 
+	/**
+	 * This method is called before an entity is inserted into the database.
+	 * It checks if the entity is an instance of Credential and encrypts it if necessary.
+	 *
+	 * @param event The PreInsertEvent object containing information about the insert event.
+	 * @return true if the entity is an instance of Credential and encryption is performed, false otherwise.
+	 */
 	@Override
 	public boolean onPreInsert(PreInsertEvent event) {
 		if (event.getEntity() instanceof Credential)
@@ -77,6 +103,14 @@ public class CredentialEncryptListner implements PostLoadEventListener, PreUpdat
 		return false;
 	}
 
+	/**
+	 * This method is called before an update operation is performed on an entity.
+	 * It checks if the entity is an instance of Credential and then encrypts the credential.
+	 * It also forces encryption on the event.
+	 *
+	 * @param event the PreUpdateEvent object representing the update event
+	 * @return false
+	 */
 	@Override
 	public boolean onPreUpdate(PreUpdateEvent event) {
 		if (event.getEntity() instanceof Credential) {
@@ -86,6 +120,11 @@ public class CredentialEncryptListner implements PostLoadEventListener, PreUpdat
 		return false;
 	}
 
+	/**
+	 * Forces encryption for the given event.
+	 *
+	 * @param event The PreUpdateEvent object representing the update event.
+	 */
 	private void forceEncryption(PreUpdateEvent event) {
 		final Object[] states = event.getState();
 		final Credential credential = (Credential) event.getEntity();
@@ -101,6 +140,12 @@ public class CredentialEncryptListner implements PostLoadEventListener, PreUpdat
 		}
 	}
 
+	/**
+	 * This method is called after an entity is loaded from the database.
+	 * If the loaded entity is an instance of Credential, it decrypts the entity.
+	 *
+	 * @param event The PostLoadEvent object containing information about the event.
+	 */
 	@Override
 	public void onPostLoad(PostLoadEvent event) {
 		if (event.getEntity() instanceof Credential)

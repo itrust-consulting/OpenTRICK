@@ -35,9 +35,12 @@ import lu.itrust.business.ts.model.general.LogLevel;
 import lu.itrust.business.ts.model.general.LogType;
 import lu.itrust.business.ts.usermanagement.User;
 
+
 /**
- * @author eomar
- *
+ * This class is responsible for managing analysis rights.
+ * It provides methods to update analysis rights for users and handle analysis share invitations.
+ * The class is annotated with @Component to be eligible for component scanning and dependency injection.
+ * It is also annotated with @Transactional to enable transaction management for the methods in this class.
  */
 @Component
 @Transactional
@@ -58,6 +61,14 @@ public class ManageAnalysisRight {
 	@Autowired
 	private ServiceEmailSender serviceEmailSender;
 
+	/**
+	 * Updates the analysis rights for a given analysis.
+	 *
+	 * @param principal The principal object representing the currently authenticated user.
+	 * @param idAnalysis The ID of the analysis to update the rights for.
+	 * @param jsonNode The JSON node containing the updated rights for each user.
+	 * @throws Exception If an error occurs during the update process.
+	 */
 	public void updateAnalysisRights(Principal principal, Integer idAnalysis, JsonNode jsonNode) throws Exception {
 
 		final List<User> users = daoUser.getAll();
@@ -126,6 +137,13 @@ public class ManageAnalysisRight {
 		daoAnalysis.saveOrUpdate(analysis);
 	}
 
+	/**
+	 * Updates the analysis rights for the specified principal and analysis right form.
+	 *
+	 * @param principal   the principal representing the user performing the update
+	 * @param rightsForm  the analysis right form containing the updated rights
+	 * @throws TrickException if the analysis cannot be found
+	 */
 	public void updateAnalysisRights(Principal principal, AnalysisRightForm rightsForm) {
 
 		final Analysis analysis = daoAnalysis.get(rightsForm.getAnalysisId());
@@ -165,6 +183,13 @@ public class ManageAnalysisRight {
 		daoAnalysis.saveOrUpdate(analysis);
 	}
 
+	/**
+	 * Grants the specified analysis access right to the given invitation.
+	 *
+	 * @param principal The principal representing the user granting the access right.
+	 * @param invitation The analysis share invitation to grant access to.
+	 * @param right The analysis access right to grant.
+	 */
 	private void grantInvitationAccess(Principal principal, AnalysisShareInvitation invitation, AnalysisRight right) {
 		final Analysis analysis = invitation.getAnalysis();
 
@@ -176,6 +201,14 @@ public class ManageAnalysisRight {
 				principal.getName(), LogAction.GRANT_ACCESS, analysis.getIdentifier(), analysis.getVersion(), right.toLower(), invitation.getEmail());
 	}
 
+	/**
+	 * Sends an invitation to the specified email address for accessing the given analysis.
+	 *
+	 * @param email The email address of the recipient.
+	 * @param analysis The analysis to be shared.
+	 * @param host The user who is sharing the analysis.
+	 * @param right The access rights for the recipient.
+	 */
 	private void sendInvitation(String email, Analysis analysis, User host, AnalysisRight right) {
 		final SecureRandom random = new SecureRandom();
 		final String token = Sha512DigestUtils
@@ -188,6 +221,12 @@ public class ManageAnalysisRight {
 				LogAction.ACCESS_REQUEST, analysis.getIdentifier(), analysis.getVersion(), right.toLower(), email);
 	}
 
+	/**
+	 * Cancels the invitation with the specified token.
+	 *
+	 * @param principal the principal object representing the user
+	 * @param token the token of the invitation to be canceled
+	 */
 	public void cancelInvitation(Principal principal, String token) {
 		final AnalysisShareInvitation invitation = daoAnalysisShareInviatation.findByToken(token);
 		if (invitation == null)
@@ -195,6 +234,12 @@ public class ManageAnalysisRight {
 		cancelInvitation(principal, invitation);
 	}
 
+	/**
+	 * Cancels the invitation for sharing analysis.
+	 *
+	 * @param principal The principal object representing the authenticated user.
+	 * @param invitation The AnalysisShareInvitation object representing the invitation to be canceled.
+	 */
 	private void cancelInvitation(Principal principal, AnalysisShareInvitation invitation) {
 		final String host = invitation.getHost().getLogin(), identifier = invitation.getAnalysis().getIdentifier(), version = invitation.getAnalysis().getVersion();
 		daoAnalysisShareInviatation.delete(invitation);
@@ -209,6 +254,15 @@ public class ManageAnalysisRight {
 					LogAction.CANCEL_ACCESS_REQUEST, identifier, version, invitation.getEmail(), host);
 	}
 
+	/**
+	 * Grants access to an analysis for a specific user.
+	 *
+	 * @param principal The principal object representing the current user.
+	 * @param analysis The analysis object to grant access to.
+	 * @param rightForm The form containing the new access right.
+	 * @param user The user to grant access to.
+	 * @param userRight The user's analysis right object.
+	 */
 	private void grantAccess(Principal principal, Analysis analysis, RightForm rightForm, User user, UserAnalysisRight userRight) {
 		userRight.setRight(rightForm.getNewRight());
 		if (user.getLogin().equals(principal.getName()))
@@ -222,6 +276,13 @@ public class ManageAnalysisRight {
 					principal.getName(), LogAction.GRANT_ACCESS, analysis.getIdentifier(), analysis.getVersion(), userRight.getRight().toLower(), user.getLogin());
 	}
 
+	/**
+	 * Accepts an invitation to access an analysis.
+	 * 
+	 * @param principal The principal object representing the authenticated user.
+	 * @param token The token associated with the invitation.
+	 * @throws TrickException If there is an error accepting the invitation.
+	 */
 	public void acceptInvitation(Principal principal, String token) {
 		final User user = daoUser.get(principal.getName());
 		final AnalysisShareInvitation invitation = daoAnalysisShareInviatation.findByToken(token);
@@ -259,6 +320,14 @@ public class ManageAnalysisRight {
 				invitation.getHost().getLogin());
 	}
 
+	/**
+	 * Gives access to a user for a specific analysis.
+	 *
+	 * @param username   The username of the user performing the action.
+	 * @param analysis   The analysis to give access to.
+	 * @param rightForm  The form containing the new access right.
+	 * @param user       The user to give access to.
+	 */
 	private void giveAccess(String username, Analysis analysis, RightForm rightForm, User user) {
 		analysis.addUserRight(user, rightForm.getNewRight());
 		if (!user.containsCustomer(analysis.getCustomer())) {
@@ -278,6 +347,13 @@ public class ManageAnalysisRight {
 		}
 	}
 
+	/**
+	 * Removes the access right for a user from the given analysis.
+	 *
+	 * @param principal The principal object representing the current user.
+	 * @param analysis The analysis from which the access right should be removed.
+	 * @param user The user for whom the access right should be removed.
+	 */
 	private void removeRight(Principal principal, Analysis analysis, User user) {
 		if (analysis.getOwner().equals(user))
 			return;

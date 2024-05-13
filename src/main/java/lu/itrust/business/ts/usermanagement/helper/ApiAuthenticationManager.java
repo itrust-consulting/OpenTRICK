@@ -21,8 +21,11 @@ import lu.itrust.business.ts.database.dao.DAOIDS;
 import lu.itrust.business.ts.usermanagement.IUser;
 
 /**
- * @author eomar
- *
+ * This class is responsible for authenticating API requests.
+ * It implements the AuthenticationManager interface from Spring Security.
+ * The authentication process involves validating the token provided in the request,
+ * checking if the user associated with the token exists and is enabled,
+ * and creating an authentication token with the user's details and authorities.
  */
 public class ApiAuthenticationManager implements AuthenticationManager {
 

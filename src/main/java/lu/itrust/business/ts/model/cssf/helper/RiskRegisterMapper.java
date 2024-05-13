@@ -11,13 +11,22 @@ import lu.itrust.business.ts.exception.TrickException;
 import lu.itrust.business.ts.model.cssf.RiskRegisterItem;
 import lu.itrust.business.ts.model.parameter.helper.ValueFactory;
 
+
 /**
- * @author eomar
- *
+ * The RiskRegisterMapper class is responsible for mapping a list of RiskRegisterItems to a map of RiskRegisterHelpers.
+ * It provides a static method to generate the mapping.
  */
 public class RiskRegisterMapper {
 	
-	public static Map<Integer, RiskRegisterHelper> Generate(List<RiskRegisterItem> riskRegisterItems,ValueFactory factory) throws TrickException{
+	/**
+	 * Generates a mapping of RiskRegisterItems to RiskRegisterHelpers.
+	 * 
+	 * @param riskRegisterItems The list of RiskRegisterItems to be mapped.
+	 * @param factory The ValueFactory object used for finding impact and probability levels.
+	 * @return A map of RiskRegisterHelpers, where the key is the ID of the RiskRegisterItem and the value is the corresponding RiskRegisterHelper.
+	 * @throws TrickException If an error occurs during the mapping process.
+	 */
+	public static Map<Integer, RiskRegisterHelper> Generate(List<RiskRegisterItem> riskRegisterItems, ValueFactory factory) throws TrickException {
 		Map<Integer, RiskRegisterHelper> mapping = new LinkedHashMap<Integer, RiskRegisterHelper>(riskRegisterItems.size());
 		for (RiskRegisterItem registerItem : riskRegisterItems) {
 			RiskRegisterHelper registerHelper = new RiskRegisterHelper();
@@ -31,7 +40,6 @@ public class RiskRegisterMapper {
 			
 			registerHelper.getNetEvaluation().setImpact(factory.findImpactLevelByMaxLevel(registerItem.getNetEvaluation().getImpact()));
 			registerHelper.getNetEvaluation().setProbability(factory.findProbLevel(registerItem.getNetEvaluation().getProbability()));
-
 		}
 		return mapping;
 	}

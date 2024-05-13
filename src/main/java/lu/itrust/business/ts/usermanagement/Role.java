@@ -18,10 +18,6 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 /**
  * Role.java: <br>
  * Detailed description...
- *
- * @author eomar itrust consulting s.a.rl.:
- * @version
- * @since Aug 19, 2012
  */
 @Entity
 @Cacheable
@@ -84,6 +80,12 @@ public class Role implements Serializable {
 		this.type = role;
 	}
 
+	/**
+	 * Returns a hash code value for the object. This method is used by the Java
+	 * hashing algorithms when storing objects in hash tables.
+	 *
+	 * @return the hash code value for the object.
+	 */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -93,10 +95,22 @@ public class Role implements Serializable {
 		return result;
 	}
 
+	/**
+	 * Returns the role name.
+	 *
+	 * @return the role name as a String.
+	 */
 	public String getRoleName() {
 		return type.name().replace("ROLE_", "");
 	}
 
+	/**
+	 * Indicates whether some other object is "equal to" this one.
+	 * The equality is determined based on the id and type of the Role objects.
+	 * 
+	 * @param obj the reference object with which to compare
+	 * @return true if this object is the same as the obj argument; false otherwise
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)

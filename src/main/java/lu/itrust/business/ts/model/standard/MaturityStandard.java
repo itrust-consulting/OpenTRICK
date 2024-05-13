@@ -16,10 +16,6 @@ import lu.itrust.business.ts.model.standard.measuredescription.MeasureDescriptio
 /**
  * MaturityStandard: <br>
  * This class represents the MaturityStandard and its data
- * 
- * @author itrust consulting s.à r.l. - BJA,SME
- * @version 0.1
- * @since 2012-08-21
  */
 @Entity
 @DiscriminatorValue("MaturityStandard")
@@ -149,11 +145,21 @@ public class MaturityStandard extends AnalysisStandard implements Cloneable {
 		return (MaturityStandard) super.duplicate();
 	}
 
+	/**
+	 * Adds a measure to the maturity standard.
+	 *
+	 * @param measure the measure to be added
+	 */
 	@Override
 	public void add(Measure measure) {
 		addMeasure((MaturityMeasure) measure);
 	}
 
+	/**
+	 * Adds a new measure description to the maturity standard.
+	 *
+	 * @param measureDescription the measure description to be added
+	 */
 	@Override
 	public void add(MeasureDescription measureDescription) {
 		add(new MaturityMeasure(measureDescription));

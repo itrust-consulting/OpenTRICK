@@ -28,12 +28,9 @@ import lu.itrust.business.ts.exception.TrickException;
 import lu.itrust.business.ts.model.analysis.Analysis;
 
 /**
- * SimpleParameter: <br>
- * This class represents a SimpleParameter and its data.
- *
- * @author itrust consulting s.à r.l. - BJA,SME
- * @version 0.1
- * @since 2012-08-21
+ * Represents a phase in the business process.
+ * Each phase has a unique identifier, phase number, begin date, end date, and associated analysis.
+ * It also contains various transient fields for tracking measures, workloads, and other metrics.
  */
 @Entity
 @Cacheable
@@ -363,58 +360,131 @@ public class Phase implements Cloneable {
 		return result;
 	}
 
+	/**
+	 * Returns the measure count.
+	 *
+	 * @return the measure count
+	 */
 	public int getMeasureCount() {
 		return measureCount;
 	}
 
+	/**
+	 * Sets the measure count for this Phase.
+	 *
+	 * @param measureCount the new measure count
+	 */
 	public void setMeasureCount(int measureCount) {
 		this.measureCount = measureCount;
 	}
 
+	/**
+	 * Returns the investment amount for this phase.
+	 *
+	 * @return the investment amount
+	 */
 	public double getInvestment() {
 		return investment;
 	}
 
+	/**
+	 * Sets the investment amount for this phase.
+	 *
+	 * @param investment the investment amount to set
+	 */
 	public void setInvestment(double investment) {
 		this.investment = investment;
 	}
 
+	/**
+	 * Calculates and returns the compliance rate of the phase.
+	 * The compliance rate is calculated as the ratio of the compliance count to the measure count.
+	 * If the measure count is 0, the compliance rate is 0.0.
+	 *
+	 * @return the compliance rate of the phase
+	 */
 	public double getComplianceRate() {
 		return measureCount == 0 ? 0.0 : ((double) complianceCount) / (double) measureCount;
 	}
 
+	/**
+	 * Returns the compliance count.
+	 *
+	 * @return the compliance count
+	 */
 	public int getComplianceCount() {
 		return complianceCount;
 	}
 
+	/**
+	 * Sets the compliance count for this phase.
+	 *
+	 * @param complianceCount the compliance count to set
+	 */
 	public void setComplianceCount(int complianceCount) {
 		this.complianceCount = complianceCount;
 	}
 
+	/**
+	 * Returns the internal workload of the phase.
+	 *
+	 * @return the internal workload of the phase
+	 */
 	public double getInternalWorkload() {
 		return internalWorkload;
 	}
 
+	/**
+	 * Sets the internal workload for this phase.
+	 *
+	 * @param internalWorkload the internal workload value to set
+	 */
 	public void setInternalWorkload(double internalWorkload) {
 		this.internalWorkload = internalWorkload;
 	}
 
+	/**
+	 * Returns the external workload for this phase.
+	 *
+	 * @return the external workload
+	 */
 	public double getExternalWorkload() {
 		return externalWorkload;
 	}
 
+	/**
+	 * Sets the external workload for this phase.
+	 *
+	 * @param externalWorkload the external workload value to set
+	 */
 	public void setExternalWorkload(double externalWorkload) {
 		this.externalWorkload = externalWorkload;
 	}
 
+	/**
+		* Returns the duration between the beginDate and endDate.
+		*
+		* @return the duration between the beginDate and endDate
+		*/
 	public Duration getDuration() {
 		return Duration.ofMillis(endDate.getTime() - beginDate.getTime());
 	}
 
+	/**
+		* Returns the period between the begin date and end date.
+		*
+		* @return the period between the begin date and end date
+		*/
 	public Period getPeriod() {
 		return Period.between(beginDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), endDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()).normalized();
 	}
 
+	/**
+	 * Returns the format code based on the period.
+	 * The format code is determined by the number of years, months, and days in the period.
+	 *
+	 * @return The format code.
+	 */
 	public int getFormatCode() {
 		final Period period = getPeriod();
 		if (period.isZero())
@@ -427,6 +497,14 @@ public class Phase implements Cloneable {
 
 	}
 
+	/**
+	 * Returns the count format code based on the implemented measure count.
+	 * 
+	 * @return the count format code:
+	 *         - 2 if the implemented measure count is 0
+	 *         - 1 if the measure count is equal to the implemented measure count
+	 *         - 0 otherwise
+	 */
 	public int getCountFormatCode() {
 		if (implementedMeasureCount == 0)
 			return 2;
@@ -436,6 +514,14 @@ public class Phase implements Cloneable {
 			return 0;
 	}
 
+	/**
+	 * Returns the internal workload format code.
+	 * 
+	 * @return The internal workload format code:
+	 *         - 2 if the implemented internal workload is 0.
+	 *         - 1 if the internal workload is equal to the implemented internal workload.
+	 *         - 0 otherwise.
+	 */
 	public int getInternalWorkloadFormatCode() {
 		if (implementedInternalWorkload == 0)
 			return 2;
@@ -445,6 +531,14 @@ public class Phase implements Cloneable {
 			return 0;
 	}
 
+	/**
+	 * Returns the external workload format code based on the implemented external workload and the external workload.
+	 * 
+	 * @return the external workload format code:
+	 *         - 2 if the implemented external workload is 0
+	 *         - 1 if the external workload is equal to the implemented external workload
+	 *         - 0 otherwise
+	 */
 	public int getExternalWorkloadFormatCode() {
 		if (implementedExternalWorkload == 0)
 			return 2;
@@ -454,38 +548,83 @@ public class Phase implements Cloneable {
 			return 0;
 	}
 
+	/**
+	 * Returns whether the phase is removable or not.
+	 *
+	 * @return true if the phase is removable, false otherwise
+	 */
 	public boolean isRemovable() {
 		return removable;
 	}
 
+	/**
+	 * Sets the flag indicating whether the object is removable.
+	 *
+	 * @param removable true if the object is removable, false otherwise
+	 */
 	public void setRemovable(boolean removable) {
 		this.removable = removable;
 	}
 
+	/**
+	 * Checks if the phase is out of date.
+	 * 
+	 * @return true if the measure count is not equal to the compliance count and the end date is not null and is before the current time; false otherwise.
+	 */
 	public boolean isOutToDate() {
 		return getMeasureCount() != getComplianceCount() && endDate != null && endDate.getTime() < System.currentTimeMillis();
 	}
 
+	/**
+	 * Returns the count of implemented measures.
+	 *
+	 * @return the count of implemented measures
+	 */
 	public int getImplementedMeasureCount() {
 		return implementedMeasureCount;
 	}
 
+	/**
+	 * Sets the number of implemented measures.
+	 *
+	 * @param implementedMeasureCount the number of implemented measures
+	 */
 	public void setImplementedMeasureCount(int implementedMeasureCount) {
 		this.implementedMeasureCount = implementedMeasureCount;
 	}
 
+	/**
+	 * Returns the implemented internal workload for this phase.
+	 *
+	 * @return the implemented internal workload
+	 */
 	public double getImplementedInternalWorkload() {
 		return implementedInternalWorkload;
 	}
 
+	/**
+	 * Sets the implemented internal workload for this phase.
+	 *
+	 * @param implementedInternalWorkload the implemented internal workload to set
+	 */
 	public void setImplementedInternalWorkload(double implementedInternalWorkload) {
 		this.implementedInternalWorkload = implementedInternalWorkload;
 	}
 
+	/**
+	 * Returns the implemented external workload for this phase.
+	 *
+	 * @return the implemented external workload
+	 */
 	public double getImplementedExternalWorkload() {
 		return implementedExternalWorkload;
 	}
 
+	/**
+	 * Sets the implemented external workload for this phase.
+	 *
+	 * @param implementedExternalWorkload the implemented external workload to set
+	 */
 	public void setImplementedExternalWorkload(double implementedExternalWorkload) {
 		this.implementedExternalWorkload = implementedExternalWorkload;
 	}

@@ -47,18 +47,38 @@ import lu.itrust.business.ts.model.scale.ScaleType;
 import lu.itrust.business.ts.model.scenario.Scenario;
 
 /**
- * Assessment: <br>
- * This class represents an assessments and all its data.
- * 
- * This class is used to store assessments data for assets, scenarios, and their
- * ALE (normal, optimistic, pessimistic)
- * 
+ * The `Assessment` class represents an assessment of risk for a specific asset and scenario.
+ * and their ALE (normal, optimistic, pessimistic)
  * This class is used for the action plan calculation.
+ * It contains various fields and methods to store and manipulate assessment data.
  * 
- * @author itrust consulting s.à r.l. - SME,BJA
- * @version 0.1
- * @since 2012-08-21
+ * This class is annotated with `@Entity` to indicate that it is a JPA entity.
+ * It is also annotated with `@Cacheable` to enable caching of assessment instances.
+ * 
+ * The `Assessment` class has the following fields:
+ * - `ALE`: The Annual Loss Expectancy - Normal
+ * - `ALEO`: The Annual Loss Expectancy - Optimistic
+ * - `ALEP`: The Annual Loss Expectancy - Pessimistic
+ * - `asset`: The asset object reference
+ * - `comment`: A comment on this assessment
+ * - `hiddenComment`: Hidden assessment comment
+ * - `id`: Identifier from the database
+ * - `impactMapper`: A map of impact values for this assessment
+ * - `impactReal`: The impactFin value of this assessment
+ * - `impacts`: A list of impact values for this assessment
+ * - `likelihood`: The likelihood value of this assessment
+ * - `likelihoodReal`: The likelihood value of this assessment
+ * - `owner`: The owner of this assessment
+ * - `cockpit`: Only for excel export
+ * - `scenario`: The scenario object reference
+ * - `selected`: Assessment selected flag
+ * - `uncertainty`: The uncertainty value of this assessment
+ * - `vulnerability`: The vulnerability value of this assessment
+ * 
+ * The `Assessment` class provides various methods to get and set the values of its fields,
+ * as well as methods for cloning, duplicating, and comparing assessments.
  */
+
 @Entity
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
@@ -334,6 +354,12 @@ public class Assessment implements Cloneable {
 		return getImpactMapper().get(name);
 	}
 
+	/**
+	 * Finds the impact value for the given name.
+	 *
+	 * @param name the name of the impact value to find
+	 * @return an Optional containing the impact value if found, or an empty Optional if not found
+	 */
 	public Optional<IValue> findImpact(String name) {
 		final IValue value = getImpactMapper().get(name);
 		return value == null ? Optional.empty() : Optional.of(value);

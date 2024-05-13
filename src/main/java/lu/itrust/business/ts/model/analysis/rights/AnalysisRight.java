@@ -6,37 +6,30 @@ import java.util.List;
 import lu.itrust.business.ts.exception.TrickException;
 
 /**
- * AnalysisRight: <br>
- * Detailed description...
- *
- * @author smenghi, smuller, itrust consulting s.à.rl.
- * @version
- * @since Jan 9, 2014
+ * The AnalysisRight enum represents the different rights that can be assigned to an analysis.
  */
 public enum AnalysisRight {
 
 	ALL(0), EXPORT(1), MODIFY(2), READ(3);
 
 	/**
-	 * Constructor:<br>
-	 * 
-	 * @param value
-	 *            The value to set the ActionPlanMode
+	 * Constructor for the AnalysisRight enum.
+	 *
+	 * @param value The value to set the AnalysisRight.
 	 */
 	private AnalysisRight(int value) {
 		this.value = value;
 	}
 
-	/** ActionPlanModeValue */
+	/** The value of the AnalysisRight. */
 	private int value = 0;
 
 	/**
-	 * valueOf: <br>
-	 * Description
-	 * 
-	 * @param value
-	 * @return
-	 * @throws TrickException
+	 * Returns the AnalysisRight corresponding to the given value.
+	 *
+	 * @param value The value to search for.
+	 * @return The AnalysisRight corresponding to the given value.
+	 * @throws TrickException If the value is out of bounds.
 	 */
 	public static AnalysisRight valueOf(int value) throws TrickException {
 		AnalysisRight[] values = values();
@@ -46,19 +39,30 @@ public enum AnalysisRight {
 	}
 
 	/**
-	 * getValue: <br>
-	 * Returns the Value of the ActionPlanMode
-	 * 
-	 * @return The Value of the ActionPlanMode
+	 * Returns the value of the AnalysisRight.
+	 *
+	 * @return The value of the AnalysisRight.
 	 */
 	public int getValue() {
 		return value;
 	}
 
+	/**
+	 * Checks if the given value is a valid AnalysisRight.
+	 *
+	 * @param value The value to check.
+	 * @return True if the value is a valid AnalysisRight, false otherwise.
+	 */
 	public static boolean isValid(int value) {
 		return value > -1 && value < values().length;
 	}
 
+	/**
+	 * Returns a list of AnalysisRights that have a higher or equal ordinal value compared to the given right.
+	 *
+	 * @param right The AnalysisRight to compare against.
+	 * @return A list of AnalysisRights with higher or equal ordinal value.
+	 */
 	public static List<AnalysisRight> highRightFrom(AnalysisRight right) {
 		List<AnalysisRight> rights = new LinkedList<AnalysisRight>();
 		if (right != null) {
@@ -68,7 +72,12 @@ public enum AnalysisRight {
 		}
 		return rights;
 	}
-	
+
+	/**
+	 * Returns the lowercase string representation of the AnalysisRight.
+	 *
+	 * @return The lowercase string representation of the AnalysisRight.
+	 */
 	public String toLower() {
 		return name().toLowerCase();
 	}

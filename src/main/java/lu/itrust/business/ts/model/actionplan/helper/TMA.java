@@ -12,10 +12,6 @@ import lu.itrust.business.ts.model.standard.measure.Measure;
  * Stands for Threat, Measure, Asset. It contains data to calculate for each
  * triple of T,M,A the delta ALE. Using each T,M,A inside a list it is possible
  * to calculate and create the action plans.
- * 
- * @author itrust consulting s.� r.l. - BJA,SME
- * @version 0.1
- * @since 2012-09-13
  */
 public class TMA {
 

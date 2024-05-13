@@ -16,9 +16,16 @@ import lu.itrust.business.ts.model.analysis.AnalysisSetting;
 import lu.itrust.business.ts.model.general.Phase;
 import lu.itrust.business.ts.model.parameter.helper.ValueFactory;
 
+
 /**
- * @author eomar
- *
+ * This abstract class represents a summary computation for an action plan.
+ * It implements the ISummaryComputation interface.
+ * 
+ * The SummaryComputation class contains various properties and methods for performing summary computations.
+ * It provides access to analysis, current values, phases, summary stages, maintenances, pre-maintenance, action plans,
+ * action plan type, SOA (Service Order Agreement), internal setup rate, external setup rate, and full cost related flag.
+ * 
+ * This class can be extended to implement specific summary computation logic for different types of action plans.
  */
 public abstract class SummaryComputation implements ISummaryComputation {
 

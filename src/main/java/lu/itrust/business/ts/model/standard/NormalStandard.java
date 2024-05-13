@@ -15,10 +15,6 @@ import lu.itrust.business.ts.model.standard.measuredescription.MeasureDescriptio
 /**
  * NormalStandard: <br>
  * This class represents a NormalStandard and its data
- * 
- * @author itrust consulting s.à r.l. - BJA,SME
- * @version 0.1
- * @since 2012-08-21
  */
 @Entity
 @DiscriminatorValue("NormalStandard")
@@ -141,11 +137,21 @@ public class NormalStandard extends AnalysisStandard {
 		return (NormalStandard) super.duplicate();
 	}
 
+	/**
+	 * Adds a measure to the normal standard.
+	 *
+	 * @param measure the measure to be added
+	 */
 	@Override
 	public void add(Measure measure) {
 		addMeasure((NormalMeasure) measure);
 	}
 
+	/**
+	 * Adds a new measure using the given measure description.
+	 *
+	 * @param measureDescription the description of the measure to be added
+	 */
 	@Override
 	public void add(MeasureDescription measureDescription) {
 		add(new NormalMeasure(measureDescription));

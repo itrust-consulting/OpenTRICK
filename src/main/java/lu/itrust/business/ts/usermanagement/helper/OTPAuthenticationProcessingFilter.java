@@ -33,9 +33,21 @@ import lu.itrust.business.ts.database.service.AccountLockerManager;
 import lu.itrust.business.ts.exception.TrickOtpException;
 import lu.itrust.business.ts.usermanagement.User;
 
+
 /**
- * @author eomar
- *
+ * This class is responsible for processing OTP (One-Time Password) authentication.
+ * It extends the AbstractAuthenticationProcessingFilter class from Spring Security.
+ * 
+ * The filter checks if the authentication method is supported and if the user session is expired.
+ * It also verifies the OTP code provided by the user and authenticates the user if the code is valid.
+ * 
+ * This filter requires the following dependencies to be autowired:
+ * - SessionFactory: Used to open a session for database operations.
+ * - AccountLockerManager: Used to manage user account lockouts.
+ * 
+ * The filter is configured with a URL pattern and HTTP method for authentication requests.
+ * 
+ * @param url The URL pattern for authentication requests.
  */
 public class OTPAuthenticationProcessingFilter extends AbstractAuthenticationProcessingFilter {
 
@@ -62,6 +74,16 @@ public class OTPAuthenticationProcessingFilter extends AbstractAuthenticationPro
 	public void afterPropertiesSet() {
 	}
 
+	/**
+	 * Attempts to authenticate the user based on the provided request and response.
+	 * 
+	 * @param request  the HttpServletRequest object representing the user's request
+	 * @param response the HttpServletResponse object representing the response to be sent back to the user
+	 * @return an Authentication object representing the authenticated user
+	 * @throws AuthenticationException if there is an error during the authentication process
+	 * @throws IOException             if there is an error with the input/output operations
+	 * @throws ServletException        if there is an error with the servlet handling
+	 */
 	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException, IOException, ServletException {
 		if (!request.getMethod().equals("POST"))
 			throw new AuthenticationServiceException("Authentication method not supported: " + request.getMethod());

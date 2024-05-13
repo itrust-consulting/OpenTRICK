@@ -6,6 +6,10 @@ import org.springframework.validation.Validator;
 
 import lu.itrust.business.ts.model.analysis.helper.AnalysisProfile;
 
+/**
+ * This class is responsible for validating AnalysisProfile objects.
+ * It implements the Validator interface.
+ */
 public class AnalysisProfileValidator implements Validator {
 
 	@Override

@@ -84,12 +84,8 @@ import lu.itrust.business.ts.model.standard.measure.Measure;
 import lu.itrust.business.ts.usermanagement.User;
 
 /**
- * Analysis: <br>
- * This class represents an analysis and all its data of TRICK Service. This
- * class is used to store analysis data such as assets, scenarios, security
- * measures, item information, risk information, the version, parameters and
- * phases. After the data is stored, the action plan can be computed within this
- * class as well as the Action Plan Summary.
+ * The `Analysis` class represents an analysis entity in the system.
+ * It contains various fields and methods for managing and manipulating analysis data.
  * <ul>
  * <li>import Analysis from SQLite file</li>
  * <li>store analysis in java object to use during the calculations</li>
@@ -98,9 +94,8 @@ import lu.itrust.business.ts.usermanagement.User;
  * <li>Export a specific Analysis</li>
  * </ul>
  * 
- * The `Analysis` class represents an analysis entity in the system. It contains various fields and methods for managing and manipulating analysis data.
- * 
- * This class is annotated with `@Entity` to indicate that it is a persistent entity in the database. It is also annotated with `@Cacheable` to enable caching of instances of this class.
+ * This class is annotated with `@Entity` to indicate that it is a persistent entity in the database.
+ * It is also annotated with `@Cacheable` to enable caching of instances of this class.
  * 
  * The `Analysis` class has the following fields:
  * - `actionPlans`: A list of `ActionPlanEntry` objects representing the final action plans without phase computation.
@@ -139,10 +134,7 @@ import lu.itrust.business.ts.usermanagement.User;
  * - `version`: A string representing the version of the analysis.
  * - `archived`: A boolean value indicating if the analysis is archived.
  * 
- * The `Analysis` class provides various methods for adding and manipulating the analysis data.
- * @author itrust consulting s.a r.l. - SME,BJA
- * @version 0.1
- * @since 2012-08-21
+ * The `Analysis` class provides constructors and methods for managing and manipulating analysis data.
  */
 @Entity
 @Cacheable
@@ -458,7 +450,7 @@ public class Analysis implements Cloneable {
 	 **********************************************************************************************/
 
 	/**
-	 * addAnItemInformation: <br>
+	 * add: 
 	 * Adds an Item Information Object to the List of Item Information
 	 * 
 	 * @param iteminformation The Item Information Object to Add
@@ -467,6 +459,15 @@ public class Analysis implements Cloneable {
 		return this.itemInformations.add(itemInformation);
 	}
 
+	/**
+	 * Adds a phase to the analysis.
+	 * If the phases list is null, it initializes the list.
+	 * If the phase is not already present in the list, it adds the phase and sets the analysis for the phase.
+	 * If the phase is already present in the list, it throws a TrickException with an error message.
+	 *
+	 * @param phase the phase to be added
+	 * @throws TrickException if the phase is already present in the list
+	 */
 	public void add(Phase phase) {
 		if (this.phases == null)
 			phases = new ArrayList<>();
@@ -480,8 +481,7 @@ public class Analysis implements Cloneable {
 	}
 
 	/**
-	 * addARiskInformation: <br>
-	 * Adds an Risk Information Object to the List of Risk Information
+	 * add: Adds a Risk Information Object to the List of Risk Information
 	 * 
 	 * @param riskInfo The Risk Information Object to Add
 	 */
@@ -490,10 +490,10 @@ public class Analysis implements Cloneable {
 	}
 
 	/**
-	 * setAScenario: <br>
-	 * Adds a Scenario Object to the List of Scenarios
-	 * 
-	 * @param scenario The Scenario Object to Add
+	 * Adds a scenario to the analysis.
+	 *
+	 * @param scenario the scenario to be added
+	 * @throws IllegalArgumentException if the scenario is already present in the analysis
 	 */
 	public void add(Scenario scenario) {
 		if (this.scenarios.contains(scenario)) {
@@ -570,10 +570,9 @@ public class Analysis implements Cloneable {
 	}
 
 	/**
-	 * addUserRights: <br>
-	 * Description
-	 * 
-	 * @param userRight
+	 * Adds a user right to the analysis.
+	 *
+	 * @param userRight the UserAnalysisRight object containing the user and their right
 	 */
 	public void addUserRight(UserAnalysisRight userRight) {
 		addUserRight(userRight.getUser(), userRight.getRight());
@@ -589,13 +588,12 @@ public class Analysis implements Cloneable {
 		return (Analysis) super.clone();
 	}
 
+
 	/**
-	 * computeCost: <br>
-	 * Returns the Calculated Cost of a given Measure.
-	 * 
-	 * @param measure The Measure to calculate the Cost
-	 * 
-	 * @return The Calculated Cost
+	 * Computes the cost based on the given measure.
+	 *
+	 * @param measure The measure used to calculate the cost.
+	 * @return The computed cost.
 	 */
 	public double computeCost(Measure measure) {
 
@@ -622,11 +620,12 @@ public class Analysis implements Cloneable {
 	public List<AssetType> distinctAssetType() {
 		return this.assets.stream().map(asset -> asset.getAssetType()).distinct().collect(Collectors.toList());
 	}
-
-	/*
-	 * (non-Javadoc)
+		
+	/**
+	 * Creates a duplicate of the analysis object.
 	 * 
-	 * @see java.lang.Object#clone()
+	 * @return A new instance of the Analysis class that is a duplicate of the current object.
+	 * @throws CloneNotSupportedException if the object's class does not support the Cloneable interface.
 	 */
 	public Analysis duplicate() throws CloneNotSupportedException {
 		Analysis analysis = (Analysis) super.clone();
@@ -639,7 +638,7 @@ public class Analysis implements Cloneable {
 		analysis.id = 0;
 		return analysis;
 	}
-
+	
 	public Analysis duplicateTo(Analysis copy) throws CloneNotSupportedException {
 		if (copy == null)
 			copy = (Analysis) super.clone();
@@ -722,11 +721,11 @@ public class Analysis implements Cloneable {
 				.collect(Collectors.toList());
 	}
 
+
 	/**
-	 * getAnalysisStandards: <br>
-	 * Description
-	 * 
-	 * @return
+	 * Returns a list of AnalysisStandard objects that are marked as analysis only.
+	 *
+	 * @return a list of AnalysisStandard objects that are marked as analysis only
 	 */
 	public List<AnalysisStandard> findAnalysisOnlyStandards() {
 		return analysisStandards.values().stream().filter(standard -> standard.getStandard().isAnalysisOnly())
@@ -734,12 +733,20 @@ public class Analysis implements Cloneable {
 
 	}
 
+	/**
+	 * Represents an analysis standard.
+	 */
 	public AnalysisStandard findAnalysisStandardByStandardId(Integer standardID) {
 		return standardID == null ? null
 				: analysisStandards.values().stream().filter(standard -> standard.getStandard().getId() == standardID)
 						.findAny().orElse(null);
 	}
 
+	/**
+	 * Finds assessments grouped by asset.
+	 *
+	 * @return a map containing assessments grouped by asset
+	 */
 	public Map<Asset, List<Assessment>> findAssessmentByAsset() {
 		final Map<Asset, List<Assessment>> mapping = new LinkedHashMap<>();
 		assessments.forEach(assessment -> mapping.computeIfAbsent(assessment.getAsset(), k -> new ArrayList<>())
@@ -747,10 +754,19 @@ public class Analysis implements Cloneable {
 		return mapping;
 	}
 
+	/**
+	 * Finds assessments grouped by asset and scenario
+	 */
 	public Assessment findAssessmentByAssetAndScenario(int idAsset, int idScenario) {
 		return assessments.stream().filter(assessment -> assessment.is(idAsset, idScenario)).findAny().orElse(null);
 	}
 
+	/**
+	 * Finds assessments by asset ID.
+	 *
+	 * @param id the ID of the asset
+	 * @return a map of assessments with scenario IDs as keys and Assessment objects as values
+	 */
 	public Map<Integer, Assessment> findAssessmentByAssetId(int id) {
 		final Map<Integer, Assessment> assessmentMap = new LinkedHashMap<>();
 		if (assessments == null || assessments.isEmpty())
@@ -761,6 +777,12 @@ public class Analysis implements Cloneable {
 		return assessmentMap;
 	}
 
+	/**
+	 * Finds assessments by scenario ID.
+	 *
+	 * @param id The ID of the scenario.
+	 * @return A map of assessments with asset ID as the key and the assessment object as the value.
+	 */
 	public Map<Integer, Assessment> findAssessmentByScenarioId(int id) {
 		final Map<Integer, Assessment> assessmentMap = new LinkedHashMap<>();
 		if (assessments == null || assessments.isEmpty())
@@ -771,18 +793,37 @@ public class Analysis implements Cloneable {
 		return assessmentMap;
 	}
 
+	/**
+	 * Finds and returns a list of assessments based on the selected asset.
+	 *
+	 * @return a list of assessments that have the selected asset
+	 */
 	public List<Assessment> findAssessmentBySelectedAsset() {
 		return this.assessments.stream().filter(a -> a.getAsset().isSelected()).collect(Collectors.toList());
 	}
 
+	/**
+	 * Returns a list of assessments that are associated with the selected scenario.
+	 *
+	 * @return a list of assessments that are associated with the selected scenario
+	 */
 	public List<Assessment> findAssessmentBySelectedScenario() {
 		return this.assessments.stream().filter(a -> a.getScenario().isSelected()).collect(Collectors.toList());
 	}
 
+	/**
+	 * Represents an asset.
+	 */
 	public Asset findAsset(int idAsset) {
 		return assets.stream().filter(asset -> asset.getId() == idAsset).findAny().orElse(null);
 	}
 
+	/**
+	 * Finds and returns a list of parameters based on the specified groups.
+	 *
+	 * @param groups the groups to search for
+	 * @return a list of parameters found in the specified groups
+	 */
 	public List<IParameter> findByGroup(String... groups) {
 		final List<IParameter> ps = new LinkedList<>();
 		for (String group : groups) {
@@ -792,97 +833,200 @@ public class Analysis implements Cloneable {
 		return ps;
 	}
 
+	/**
+	 * Returns a map of dynamic parameters associated with this analysis.
+	 *
+	 * @return a map of dynamic parameters, where the key is the acronym of the dynamic parameter and the value is the dynamic parameter object itself
+	 */
 	public Map<String, DynamicParameter> findDynamicParametersByAnalysisAsMap() {
 		return getDynamicParameters().stream()
 				.collect(Collectors.toMap(DynamicParameter::getAcronym, Function.identity()));
 	}
 
+	/**
+	 * Finds the ID measures implemented by the given action plan type.
+	 *
+	 * @param appn The action plan mode to filter the action plans by.
+	 * @return A map of measure IDs to a boolean value indicating if the measure is implemented.
+	 */
 	public Map<Integer, Boolean> findIdMeasuresImplementedByActionPlanType(ActionPlanMode appn) {
 		return this.actionPlans.stream().filter(a -> a.getActionPlanType().getActionPlanMode() == appn)
 				.map(ActionPlanEntry::getMeasure).collect(Collectors.toMap(Measure::getId, e -> true, (m1, m2) -> m1));
 	}
 
+	/**
+	 * Represents a likelihood parameter used in the analysis.
+	 */
 	public LikelihoodParameter findLikelihoodByTypeAndLevel(int level) {
 		return getLikelihoodParameters().stream().filter(parameter -> parameter.getLevel() == level).findAny()
 				.orElse(null);
 	}
 
+	/**
+	 * Represents a measure in the analysis.
+	 */
 	public Measure findMeasureById(int idMeasure) {
 		return analysisStandards.values().stream().flatMap(measures -> measures.getMeasures().stream())
 				.filter(measure -> measure.getId() == idMeasure).findAny().orElse(null);
 	}
 
+	/**
+	 * Finds measures by the specified standard.
+	 *
+	 * @param standard the standard to search for
+	 * @return a list of measures that belong to the specified standard, or an empty list if no measures are found
+	 */
 	public List<? extends Measure> findMeasureByStandard(String standard) {
 		return this.analysisStandards.values().stream().filter(a -> a.getStandard().is(standard)).findAny()
 				.map(AnalysisStandard::getMeasures).orElse(Collections.emptyList());
 	}
 
+	/**
+	 * Finds and returns a list of measures associated with the given ActionPlanMode.
+	 *
+	 * @param appn The ActionPlanMode to filter the measures by.
+	 * @return A list of Measure objects associated with the given ActionPlanMode.
+	 */
 	public List<Measure> findMeasuresByActionPlan(ActionPlanMode appn) {
 		return this.actionPlans.stream().filter(a -> a.getActionPlanType().getActionPlanMode() == appn)
 				.map(ActionPlanEntry::getMeasure).collect(Collectors.toList());
 	}
 
+	/**
+	 * Finds the measures associated with action plans that have a specific ActionPlanMode and a return on investment (ROI) less than or equal to 0.0.
+	 *
+	 * @param appn The ActionPlanMode to filter action plans by.
+	 * @return A list of Measure objects associated with the filtered action plans.
+	 */
 	public List<Measure> findMeasuresByActionPlanAndNotToImplement(ActionPlanMode appn) {
 		return this.actionPlans.stream()
 				.filter(a -> a.getActionPlanType().getActionPlanMode() == appn && a.getROI() <= 0.0)
 				.map(ActionPlanEntry::getMeasure).collect(Collectors.toList());
 	}
 
+	/**
+	 * Finds and returns a list of assets that are not selected.
+	 *
+	 * @return a list of assets that are not selected
+	 */
 	public List<Asset> findNoAssetSelected() {
 		return this.assets.stream().filter(asset -> !asset.isSelected()).collect(Collectors.toList());
 	}
 
+	/**
+	 * Represents a parameter in the analysis.
+	 */
 	public IParameter findParameter(String type, String baseKey) {
 		return this.parameters.values().stream().flatMap(paramters -> paramters.stream())
 				.filter(parameter -> parameter.isMatch(type, baseKey)).findAny().orElse(null);
 	}
 
+	/**
+	 * Finds parameters by type.
+	 * 
+	 * @param type the type of parameters to search for
+	 * @return a list of parameters matching the specified type
+	 */
 	public List<? extends IParameter> findParametersByType(String type) {
 		return this.parameters.values().stream().flatMap(paramters -> paramters.stream())
 				.filter(parameter -> parameter.isMatch(type)).collect(Collectors.toList());
 	}
 
+	/**
+	 * Finds the parameter value by type and acronym.
+	 *
+	 * @param type    the type of the parameter
+	 * @param acronym the acronym of the parameter
+	 * @return the parameter value
+	 */
 	public double findParameterValueByTypeAndAcronym(String type, String acronym) {
 		return findParameterValueByTypeAndAcronym(type, acronym, 0D);
 	}
 
+	/**
+	 * Finds the parameter value by type and acronym.
+	 *
+	 * @param type the type of the parameter
+	 * @param acronym the acronym of the parameter
+	 * @param defaultValue the default value to return if the parameter is not found
+	 * @return the parameter value if found, otherwise the default value
+	 */
 	public Double findParameterValueByTypeAndAcronym(String type, String acronym, Double defaultValue) {
 		IParameter parameter = findParameter(type, acronym);
 		return parameter == null ? defaultValue : parameter.getValue().doubleValue();
 	}
 
+	/**
+	 * Represents a phase in the analysis.
+	 */
 	public Phase findPhaseByNumber(int number) {
 		return phases.stream().filter(phase -> phase.getNumber() == number).findAny().orElse(null);
 	}
 
+	/**
+	 * Finds the risk profiles associated with a given asset.
+	 *
+	 * @param asset The asset for which to find the risk profiles.
+	 * @return A list of risk profiles associated with the given asset.
+	 */
 	public List<RiskProfile> findRiskProfileByAsset(Asset asset) {
 		return riskProfiles.stream().filter(riskRegister -> riskRegister.getAsset().equals(asset))
 				.collect(Collectors.toList());
 	}
 
+	/**
+	 * Finds the risk profile for a given asset and scenario.
+	 *
+	 * @param idAsset    the ID of the asset
+	 * @param idScenario the ID of the scenario
+	 * @return the risk profile matching the asset and scenario, or null if not found
+	 */
 	public RiskProfile findRiskProfileByAssetAndScenario(int idAsset, int idScenario) {
 		return riskProfiles.stream().filter(riskProfile -> riskProfile.is(idAsset, idScenario)).findAny().orElse(null);
 	}
 
+	/**
+	 * Finds the risk profiles associated with a given asset ID.
+	 *
+	 * @param idAsset the ID of the asset
+	 * @return a map of risk profiles, where the key is the scenario ID and the value is the risk profile
+	 */
 	public Map<Integer, RiskProfile> findRiskProfileByAssetId(int idAsset) {
 		return riskProfiles.stream().filter(riskRegister -> riskRegister.getAsset().getId() == idAsset)
 				.collect(Collectors.toMap(riskRegister -> riskRegister.getScenario().getId(), Function.identity()));
 	}
 
+	/**
+	 * Finds the risk profiles associated with a given scenario ID.
+	 *
+	 * @param idScenario The ID of the scenario.
+	 * @return A map of risk profiles, where the key is the ID of the associated asset and the value is the risk profile object.
+	 */
 	public Map<Integer, RiskProfile> findRiskProfileByScenarioId(int idScenario) {
 		return riskProfiles.stream().filter(riskRegister -> riskRegister.getScenario().getId() == idScenario)
 				.collect(Collectors.toMap(riskRegister -> riskRegister.getAsset().getId(), Function.identity()));
 	}
 
+	/**
+	 * Represents a risk register item.
+	 */
 	public RiskRegisterItem findRiskRegisterByAssetAndScenario(int idAsset, int idScenario) {
 		return riskRegisters.stream().filter(riskRegister -> riskRegister.is(idAsset, idScenario)).findAny()
 				.orElse(null);
 	}
 
+	/**
+	 * Represents a scenario in the analysis.
+	 */
 	public Scenario findScenario(int idScenario) {
 		return scenarios.stream().filter(scenario -> scenario.getId() == idScenario).findAny().orElse(null);
 	}
 
+	/**
+	 * Returns a list of selected scenarios.
+	 *
+	 * @return a list of selected scenarios
+	 */
 	public List<Scenario> findScenarioSelected() {
 		if (scenarios == null)
 			return Collections.emptyList();
@@ -890,6 +1034,11 @@ public class Analysis implements Cloneable {
 
 	}
 
+	/**
+	 * Finds and returns a map of selected assessments grouped by asset.
+	 *
+	 * @return A map where the key is an asset and the value is a list of selected assessments for that asset.
+	 */
 	public Map<Asset, List<Assessment>> findSelectedAssessmentByAsset() {
 		return assessments.stream().filter(Assessment::isSelected).sorted((a1, a2) -> {
 			int result = NaturalOrderComparator.compareTo(a1.getAsset().getName(), a2.getAsset().getName());
@@ -900,24 +1049,35 @@ public class Analysis implements Cloneable {
 		}).collect(Collectors.groupingBy(Assessment::getAsset, LinkedHashMap::new, Collectors.toList()));
 	}
 
+	/**
+	 * Finds and returns a list of selected assessments based on the given asset ID.
+	 *
+	 * @param idAsset the ID of the asset
+	 * @return a list of selected assessments for the given asset ID
+	 */
 	public List<Assessment> findSelectedAssessmentByAsset(int idAsset) {
 		return assessments.stream()
 				.filter(assessment -> assessment.isSelected() && assessment.getAsset().getId() == idAsset)
 				.collect(Collectors.toList());
 	}
 
+	/**
+	 * Finds and returns a list of selected assessments based on the given scenario ID.
+	 *
+	 * @param idScenario The ID of the scenario to filter the assessments by.
+	 * @return A list of selected assessments that belong to the specified scenario.
+	 */
 	public List<Assessment> findSelectedAssessmentByScenario(int idScenario) {
 		return assessments.stream()
 				.filter(assessment -> assessment.isSelected() && assessment.getScenario().getId() == idScenario)
 				.collect(Collectors.toList());
 	}
 
-	public List<Asset> findSelectedAsset() {
-		if (assets == null)
-			return Collections.emptyList();
-		return this.assets.stream().filter(Asset::isSelected).collect(Collectors.toList());
-	}
-
+	/**
+	 * Finds and returns a list of selected assets.
+	 *
+	 * @return a list of selected assets, or an empty list if no assets are selected
+	 */
 	public List<Asset> findSelectedAssets() {
 		if (assets == null)
 			return Collections.emptyList();
@@ -939,11 +1099,20 @@ public class Analysis implements Cloneable {
 		return tmpscenarios;
 	}
 
+	/**
+	 * Represents a simple parameter.
+	 */
 	public SimpleParameter findSimpleParameter(String type, String description) {
 		return getSimpleParameters().stream().filter(parameter -> parameter.isMatch(type, description)).findAny()
 				.orElse(null);
 	}
 
+	/**
+	 * Finds a standard by its ID and analysis only flag.
+	 *
+	 * @param idStandard The ID of the standard to find.
+	 * @return The found standard, or null if not found.
+	 */
 	public Standard findStandardByAndAnalysisOnly(Integer idStandard) {
 		return this.analysisStandards.values().stream()
 				.filter(analysisStandard -> analysisStandard.getStandard().getId() == idStandard
@@ -951,6 +1120,11 @@ public class Analysis implements Cloneable {
 				.map(analysisStandard -> analysisStandard.getStandard()).findAny().orElse(null);
 	}
 
+	/**
+	 * Finds the usable phases from the action plans.
+	 *
+	 * @return a list of usable phases
+	 */
 	public List<Phase> findUsablePhase() {
 		List<Phase> ps = new ArrayList<>();
 		if (this.actionPlans == null || this.actionPlans.isEmpty())
@@ -1077,6 +1251,11 @@ public class Analysis implements Cloneable {
 		return basedOnAnalysis;
 	}
 
+	/**
+	 * Returns a list of bounded parameters.
+	 * 
+	 * @return a list of bounded parameters
+	 */
 	@Transient
 	public List<IBoundedParameter> getBoundedParamters() {
 		final List<IBoundedParameter> ps = getImpactParameters().stream().collect(Collectors.toList());
@@ -1256,6 +1435,11 @@ public class Analysis implements Cloneable {
 		return history == null ? "" : history.getVersion();
 	}
 
+	/**
+	 * Retrieves the list of IlrSoaScaleParameters associated with this Analysis.
+	 *
+	 * @return The list of IlrSoaScaleParameters.
+	 */
 	@OneToMany
 	@JoinColumn(name = "fiAnalysis")
 	@Access(AccessType.PROPERTY)
@@ -1267,6 +1451,11 @@ public class Analysis implements Cloneable {
 				.computeIfAbsent(Constant.PARAMETER_CATEGORY_ILR_SOA_SCALE, k -> new ArrayList<>());
 	}
 
+	/**
+	 * Retrieves the list of likelihood parameters associated with this analysis.
+	 *
+	 * @return The list of likelihood parameters.
+	 */
 	@OneToMany
 	@JoinColumn(name = "fiAnalysis")
 	@Access(AccessType.PROPERTY)
@@ -1278,6 +1467,11 @@ public class Analysis implements Cloneable {
 				.computeIfAbsent(Constant.PARAMETER_CATEGORY_PROBABILITY_LIKELIHOOD, k -> new ArrayList<>());
 	}
 
+	/**
+	 * Retrieves the list of maturity parameters associated with this analysis.
+	 *
+	 * @return The list of maturity parameters.
+	 */
 	@OneToMany
 	@JoinColumn(name = "fiAnalysis")
 	@Access(AccessType.PROPERTY)
@@ -1289,6 +1483,9 @@ public class Analysis implements Cloneable {
 
 	}
 
+	/**
+	 * Represents a maturity standard for analysis.
+	 */
 	@Transient
 	public MaturityStandard getMaturityStandard() {
 		return (MaturityStandard) analysisStandards.values().stream()
@@ -1318,6 +1515,14 @@ public class Analysis implements Cloneable {
 		return findParameter(name, -1D);
 	}
 
+	/**
+	 * Finds the value of a parameter with the given name.
+	 * If the parameter is not found, returns the default value.
+	 *
+	 * @param name         the name of the parameter to find
+	 * @param defaultValue the default value to return if the parameter is not found
+	 * @return the value of the parameter with the given name, or the default value if not found
+	 */
 	public double findParameter(String name, double defaultValue) {
 		return getParameters().values().stream().flatMap(paramters -> paramters.stream())
 				.filter(parameter -> parameter.getDescription().equals(name))
@@ -1392,11 +1597,19 @@ public class Analysis implements Cloneable {
 				.orElse(null);
 	}
 
+	/**
+	 * Represents the analysis right for a user.
+	 */
 	public AnalysisRight findRightValue(User user) {
 		UserAnalysisRight analysisRight = findRightsforUser(user);
 		return analysisRight == null ? null : analysisRight.getRight();
 	}
 
+	/**
+	 * Retrieves the risk acceptance parameters associated with this analysis.
+	 * 
+	 * @return The list of risk acceptance parameters.
+	 */
 	@OneToMany
 	@JoinColumn(name = "fiAnalysis")
 	@Access(AccessType.PROPERTY)
@@ -1455,14 +1668,33 @@ public class Analysis implements Cloneable {
 		return assessments.stream().filter(Assessment::isSelected).collect(Collectors.toList());
 	}
 
+	/**
+	 * Finds the setting value for the specified analysis setting.
+	 *
+	 * @param setting the analysis setting to find the value for
+	 * @param <T> the type of the setting value
+	 * @return the setting value for the specified analysis setting
+	 */
 	public <T> T findSetting(AnalysisSetting setting) {
 		return findSetting(setting, settings.get(setting.name()));
 	}
 
+	/**
+	 * Finds the value of the specified report setting.
+	 *
+	 * @param setting the report setting to find the value for
+	 * @return the value of the report setting, or null if the setting is null
+	 */
 	public String findSetting(ReportSetting setting) {
 		return setting == null ? null : settings.getOrDefault(setting.name(), setting.getValue());
 	}
 
+	/**
+	 * Finds the setting for the given export file name.
+	 *
+	 * @param setting the export file name setting to find
+	 * @return the setting value if found, or null if the setting is null
+	 */
 	public String findSetting(ExportFileName setting) {
 		return setting == null ? null : settings.getOrDefault(setting.name(), "05-X_TSE");
 	}
@@ -1478,10 +1710,9 @@ public class Analysis implements Cloneable {
 	}
 
 	/**
-	 * getAnalysisStandards: <br>
-	 * Description
-	 * 
-	 * @return
+	 * Returns a list of standards found in the analysis.
+	 *
+	 * @return a list of standards
 	 */
 	public List<Standard> findStandards() {
 		return analysisStandards.values().stream().map(AnalysisStandard::getStandard)
@@ -1491,24 +1722,19 @@ public class Analysis implements Cloneable {
 	}
 
 	/**
-	 * getSummary: <br>
-	 * Returns the summary of a given Action Plan Type.
-	 * 
-	 * @param type The Identifier of the Action Plan Type
-	 * 
-	 * @return The List of Summary Entries for the requested Action Plan Type
+	 * Returns the list of summary stages.
+	 *
+	 * @return the list of summary stages
 	 */
 	public List<SummaryStage> getSummaries() {
 		return this.summaries;
 	}
 
 	/**
-	 * getSummary: <br>
-	 * Returns the summary of a given Action Plan Type.
-	 * 
-	 * @param type The Identifier of the Action Plan Type
-	 * 
-	 * @return The List of Summary Entries for the requested Action Plan Type
+	 * Finds and returns a list of SummaryStage objects based on the specified ActionPlanMode.
+	 *
+	 * @param mode The ActionPlanMode to filter the SummaryStage objects.
+	 * @return A list of SummaryStage objects that match the specified ActionPlanMode.
 	 */
 	public List<SummaryStage> findSummary(ActionPlanMode mode) {
 		return getSummaries().stream().filter(e -> e.getActionPlanType().getActionPlanMode() == mode)
@@ -1516,7 +1742,7 @@ public class Analysis implements Cloneable {
 	}
 
 	/**
-	 * @return the type
+	 * Represents the type of analysis.
 	 */
 	public AnalysisType getType() {
 		return type;
@@ -1542,22 +1768,48 @@ public class Analysis implements Cloneable {
 		return version;
 	}
 
+	/**
+	 * Returns the settings map.
+	 *
+	 * @return the settings map
+	 */
 	public Map<String, String> getSettings() {
 		return settings;
 	}
 
+	/**
+	 * Sets the settings for the analysis.
+	 *
+	 * @param settings a map containing the settings for the analysis
+	 */
 	public void setSettings(Map<String, String> settings) {
 		this.settings = settings;
 	}
 
+	/**
+	 * Returns the map of documents associated with this analysis.
+	 *
+	 * @return the map of documents
+	 */
 	public Map<SimpleDocumentType, SimpleDocument> getDocuments() {
 		return documents;
 	}
 
+	/**
+	 * Sets the documents for this analysis.
+	 *
+	 * @param documents a map of SimpleDocumentType to SimpleDocument representing the documents to be set
+	 */
 	public void setDocuments(Map<SimpleDocumentType, SimpleDocument> documents) {
 		this.documents = documents;
 	}
 
+	/**
+	 * Groups the assessments by asset and scenario.
+	 * 
+	 * @param assetAssessments   a map of assets and their corresponding assessments
+	 * @param scenarioAssessments a map of scenarios and their corresponding assessments
+	 */
 	public void groupAssessmentByAssetAndScenario(Map<Asset, List<Assessment>> assetAssessments,
 			Map<Scenario, List<Assessment>> scenarioAssessments) {
 		if (assetAssessments == null || scenarioAssessments == null)
@@ -1569,10 +1821,10 @@ public class Analysis implements Cloneable {
 	}
 
 	/**
-	 * Retrieve extended parameters: Impact and Probabilities
+	 * Groups the parameters into two separate lists based on their types: probabilities and impacts.
 	 * 
-	 * @param probabilities
-	 * @param impacts
+	 * @param probabilities The list to store the likelihood parameters.
+	 * @param impacts The list to store the impact parameters.
 	 */
 	public void groupExtended(List<LikelihoodParameter> probabilities, List<ImpactParameter> impacts) {
 		this.getParameters().values().stream().flatMap(Collection::stream)
@@ -1806,6 +2058,13 @@ public class Analysis implements Cloneable {
 		return uncertainty;
 	}
 
+	/**
+	 * Checks if a user is authorized to perform a specific analysis right.
+	 *
+	 * @param username the username of the user to check authorization for
+	 * @param right the analysis right to check authorization for
+	 * @return true if the user is authorized, false otherwise
+	 */
 	@Transient
 	public boolean isUserAuthorized(String username, AnalysisRight right) {
 		return userRights.stream().anyMatch(userRight -> userRight.getUser().getLogin().equals(username)
@@ -1829,6 +2088,11 @@ public class Analysis implements Cloneable {
 		return false;
 	}
 
+	/**
+	 * Maps the assessments to a map using the assessment key as the key and the assessment object as the value.
+	 *
+	 * @return a map of assessments with the assessment key as the key and the assessment object as the value
+	 */
 	public Map<String, Assessment> mapAssessment() {
 		return assessments.stream().collect(Collectors.toMap(Assessment::getKey, Function.identity()));
 	}
@@ -1841,22 +2105,34 @@ public class Analysis implements Cloneable {
 		return riskProfiles.stream().collect(Collectors.toMap(RiskProfile::getKey, Function.identity()));
 	}
 
+	
 	/**
-	 * addAnalysisStandard: <br>
-	 * Description
-	 * 
-	 * @param analysisStandard
+	 * Removes the specified analysis standard from the list of analysis standards.
+	 *
+	 * @param analysisStandard the analysis standard to be removed
 	 */
 	public void removeAnalysisStandard(AnalysisStandard analysisStandard) {
 		this.analysisStandards.remove(analysisStandard.getStandard().getName());
 	}
 
+	/**
+	 * Removes all assessments associated with the given asset.
+	 *
+	 * @param asset the asset for which assessments need to be removed
+	 * @return a list of removed assessments
+	 */
 	public List<Assessment> removeAssessment(Asset asset) {
 		final List<Assessment> assmts = new LinkedList<>();
 		this.assessments.removeIf(assessment -> assessment.getAsset().equals(asset) && assmts.add(assessment));
 		return assmts;
 	}
 
+	/**
+	 * Removes all assessments associated with the given scenario.
+	 *
+	 * @param scenario the scenario for which assessments need to be removed
+	 * @return a list of removed assessments
+	 */
 	public List<Assessment> removeAssessment(Scenario scenario) {
 		final List<Assessment> assmts = new LinkedList<>();
 		this.assessments
@@ -1864,29 +2140,43 @@ public class Analysis implements Cloneable {
 		return assmts;
 	}
 
+	/**
+	 * Removes the given asset from the scenarios and returns the list of scenarios that were affected.
+	 *
+	 * @param asset The asset to be removed from the scenarios.
+	 * @return The list of scenarios that were affected by the removal of the asset.
+	 */
 	public List<Scenario> removeFromScenario(Asset asset) {
 		return this.scenarios.stream().filter(scenario -> scenario.getLinkedAssets().remove(asset))
 				.collect(Collectors.toList());
 	}
 
 	/**
-	 * removeRights: <br>
-	 * Description
-	 * 
-	 * @param user
-	 * @return
+	 * Represents the analysis rights for a user.
 	 */
 	public UserAnalysisRight removeRights(User user) {
 		final UserAnalysisRight userRight = findRightsforUser(user);
 		return userRight == null ? null : this.userRights.remove(userRight) ? userRight : null;
 	}
 
+	/**
+	 * Removes the risk profiles associated with the given asset.
+	 *
+	 * @param asset the asset for which the risk profiles should be removed
+	 * @return a list of the removed risk profiles
+	 */
 	public List<RiskProfile> removeRiskProfile(Asset asset) {
 		final List<RiskProfile> profiles = new LinkedList<>();
 		riskProfiles.removeIf(riskProfile -> riskProfile.getAsset().equals(asset) && profiles.add(riskProfile));
 		return profiles;
 	}
 
+	/**
+	 * Removes all risk profiles associated with the given scenario.
+	 *
+	 * @param scenario the scenario for which risk profiles need to be removed
+	 * @return a list of removed risk profiles
+	 */
 	public List<RiskProfile> removeRiskProfile(Scenario scenario) {
 		final List<RiskProfile> profiles = new LinkedList<>();
 		riskProfiles.removeIf(riskProfile -> riskProfile.getScenario().equals(scenario) && profiles.add(riskProfile));
@@ -1973,7 +2263,7 @@ public class Analysis implements Cloneable {
 	}
 
 	/**
-	 * setCustomerid: <br>
+	 * setCustomer: <br>
 	 * Sets the "customer" field with a object
 	 * 
 	 * @param customer The Object to set the Customer
@@ -1983,10 +2273,10 @@ public class Analysis implements Cloneable {
 	}
 
 	/**
-	 * sethasData: <br>
-	 * Sets the "hasData" field with a value
+	 * setData: <br>
+	 * Sets the "data" field with a value
 	 * 
-	 * @param hasData The value to set the hasData Analysis Flag
+	 * @param hasData The value to set the data (hasData) Analysis Flag
 	 */
 	public void setData(boolean data) {
 		this.data = data;
@@ -2002,25 +2292,28 @@ public class Analysis implements Cloneable {
 		this.defaultProfile = defaultProfile;
 	}
 
+	/**
+	 * Sets the dynamic parameters for this analysis.
+	 *
+	 * @param parameters the list of dynamic parameters to set
+	 */
 	public void setDynamicParameters(List<DynamicParameter> parameters) {
 		this.getParameters().put(Constant.PARAMETER_CATEGORY_DYNAMIC, parameters);
 	}
 
 	/**
-	 * setHistories: <br>
-	 * Description
-	 * 
-	 * @param histories
+	 * Sets the list of histories for this analysis.
+	 *
+	 * @param histories the list of histories to set
 	 */
 	public void setHistories(List<History> histories) {
 		this.histories = histories;
 	}
 
 	/**
-	 * setHistory: <br>
-	 * Description
+	 * Sets the history for this analysis.
 	 * 
-	 * @param history
+	 * @param history the history to be set
 	 */
 	public void setHistory(History history) {
 		if (histories == null)
@@ -2058,6 +2351,11 @@ public class Analysis implements Cloneable {
 		this.identifier = identifier;
 	}
 
+	/**
+	 * Sets the impact parameters for the analysis.
+	 *
+	 * @param impacts the list of impact parameters to set
+	 */
 	public void setImpactParameters(List<ImpactParameter> impacts) {
 		getParameters().put(Constant.PARAMETER_CATEGORY_IMPACT, impacts);
 	}
@@ -2092,14 +2390,29 @@ public class Analysis implements Cloneable {
 		this.language = language;
 	}
 
+	/**
+	 * Sets the ILR SOA scale parameters.
+	 *
+	 * @param parameters the list of ILR SOA scale parameters to set
+	 */
 	public void setIlrSoaScaleParameters(List<IlrSoaScaleParameter> parameters) {
 		this.getParameters().put(Constant.PARAMETER_CATEGORY_ILR_SOA_SCALE, parameters);
 	}
 
+	/**
+	 * Sets the likelihood parameters for the analysis.
+	 *
+	 * @param parameters the list of likelihood parameters to set
+	 */
 	public void setLikelihoodParameters(List<LikelihoodParameter> parameters) {
 		this.getParameters().put(Constant.PARAMETER_CATEGORY_PROBABILITY_LIKELIHOOD, parameters);
 	}
 
+	/**
+	 * Sets the maturity parameters for this analysis.
+	 *
+	 * @param parameters the list of maturity parameters to set
+	 */
 	public void setMaturityParameters(List<MaturityParameter> parameters) {
 		this.getParameters().put(Constant.PARAMETER_CATEGORY_MATURITY, parameters);
 	}
@@ -2124,32 +2437,41 @@ public class Analysis implements Cloneable {
 		this.parameters = params;
 	}
 
+	
 	/**
-	 * setPhases: <br>
-	 * Description
-	 * 
-	 * @param phases
+	 * Sets the phases of the analysis.
+	 *
+	 * @param phases the list of phases to set
 	 */
 	public void setPhases(List<Phase> phases) {
 		this.phases = phases;
 	}
 
+
 	/**
-	 * @param profile the profile to set
+	 * Sets the profile flag for the analysis.
+	 *
+	 * @param profile the value to set for the profile flag
 	 */
 	public void setProfile(boolean profile) {
 		this.profile = profile;
 	}
 
+
 	/**
-	 * Ticketing project id
-	 * 
+	 * Sets the project for this analysis (ticketing project id)
+	 *
 	 * @param project the project to set
 	 */
 	public void setProject(String project) {
 		this.project = project;
 	}
 
+	/**
+	 * Sets the risk acceptance parameters for this analysis.
+	 *
+	 * @param parameters the list of risk acceptance parameters to set
+	 */
 	public void setRiskAcceptanceParameters(List<RiskAcceptanceParameter> parameters) {
 		this.getParameters().put(Constant.PARAMETER_CATEGORY_RISK_ACCEPTANCE, parameters);
 	}
@@ -2191,6 +2513,15 @@ public class Analysis implements Cloneable {
 		this.scenarios = scenarios;
 	}
 
+	/**
+	 * Sets the value of a setting for this analysis.
+	 * If the name is null, the method returns without making any changes.
+	 * If the value is null, the setting with the given name is removed.
+	 * Otherwise, the setting with the given name is updated with the new value.
+	 *
+	 * @param name  the name of the setting
+	 * @param value the value of the setting
+	 */
 	public void setSetting(String name, Object value) {
 		if (name == null)
 			return;
@@ -2200,12 +2531,23 @@ public class Analysis implements Cloneable {
 			this.settings.put(name, String.valueOf(value));
 	}
 
+	/**
+	 * Removes the setting with the specified name from this analysis.
+	 *
+	 * @param name the name of the setting to be removed
+	 * @return the value of the removed setting, or {@code null} if the name is {@code null}
+	 */
 	public Object removeSetting(String name) {
 		if (name == null)
 			return null;
 		return this.settings.remove(name);
 	}
 
+	/**
+	 * Sets the simple parameters for this analysis.
+	 *
+	 * @param parameters the list of simple parameters to set
+	 */
 	public void setSimpleParameters(List<SimpleParameter> parameters) {
 		this.getParameters().put(Constant.PARAMETER_CATEGORY_SIMPLE, parameters);
 	}
@@ -2220,8 +2562,11 @@ public class Analysis implements Cloneable {
 		this.summaries = summaries;
 	}
 
+
 	/**
-	 * @param type the type to set
+	 * Sets the type of the analysis.
+	 *
+	 * @param type the analysis type to set
 	 */
 	public void setType(AnalysisType type) {
 		this.type = type;
@@ -2271,15 +2616,32 @@ public class Analysis implements Cloneable {
 		this.excludeAcronyms = excludeAcronyms;
 	}
 
+	/**
+	 * Returns the list of ILR impact types.
+	 *
+	 * @return the list of ILR impact types
+	 */
 	public List<ScaleType> getIlrImpactTypes() {
 		return ilrImpactTypes;
 	}
 
+	/**
+	 * Sets the list of ILR impact types for this analysis.
+	 *
+	 * @param ilrImpactTypes the list of ILR impact types to set
+	 */
 	public void setIlrImpactTypes(List<ScaleType> ilrImpactTypes) {
 		this.ilrImpactTypes = ilrImpactTypes;
 	}
 
 
+	/**
+	 * Updates the type of the analysis based on the scale types.
+	 * If no scale types are found, the type is set to QUALITATIVE.
+	 * If only one scale type is found and its name is equal to Constant.DEFAULT_IMPACT_NAME, the type is set to QUANTITATIVE.
+	 * If any of the scale types has a name equal to Constant.DEFAULT_IMPACT_NAME, the type is set to HYBRID.
+	 * Otherwise, the type is set to QUALITATIVE.
+	 */
 	@Transient
 	public void updateType() {
 		List<ScaleType> scaleTypes = findImpacts();
@@ -2381,6 +2743,14 @@ public class Analysis implements Cloneable {
 						+ recurrentInvestment) * (1 - (isFullCostRelated ?  implementationRate : 0));
 	}
 
+	/**
+	 * Finds the setting value based on the provided analysis setting and value.
+	 * 
+	 * @param <T> the type of the setting value
+	 * @param setting the analysis setting to find the value for
+	 * @param value the value to be parsed and returned
+	 * @return the parsed setting value or the default value if parsing fails
+	 */
 	@Transient
 	@SuppressWarnings("unchecked")
 	public static <T> T findSetting(AnalysisSetting setting, String value) {
@@ -2472,6 +2842,14 @@ public class Analysis implements Cloneable {
 		analysis.add(iteminfo);
 	}
 
+	/**
+	 * Parses a setting value into the specified type.
+	 *
+	 * @param <T> the type of the setting value to parse
+	 * @param value the value to parse
+	 * @param type the class representing the type to parse the value into
+	 * @return the parsed value of the specified type
+	 */
 	@Transient
 	@SuppressWarnings("unchecked")
 	public static <T> T parseSettingValue(String value, Class<T> type) {
@@ -2490,16 +2868,27 @@ public class Analysis implements Cloneable {
 		return (T) value;
 	}
 
+	/**
+	 * Represents a standard used in the analysis.
+	 */
 	public Standard findStandardByLabel(String label) {
 		return analysisStandards.values().stream().map(AnalysisStandard::getStandard)
 				.filter(a -> a.getLabel().equalsIgnoreCase(label)).findAny().orElse(null);
 	}
 
+	/**
+	 * Represents a standard used in the analysis.
+	 */
 	public Standard findStandardByName(String name) {
 		return analysisStandards.values().stream().map(AnalysisStandard::getStandard)
 				.filter(a -> a.getName().equalsIgnoreCase(name)).findAny().orElse(null);
 	}
 
+	/**
+	 * Returns a list of all analysis standards.
+	 *
+	 * @return a list of analysis standards
+	 */
 	public List<AnalysisStandard> findAllAnalysisStandard() {
 		return getAnalysisStandards().values().stream().collect(Collectors.toList());
 	}

@@ -21,9 +21,13 @@ import lu.itrust.business.ts.model.asset.Asset;
  * ActionPlanAsset: <br>
  * Represents a Asset with its ALE value inside a specific Action Plan Entry.
  * 
- * @author itrust consulting s.a.rl. : EOM, BJA, SME
+ * @author itrust consulting s.a.rl. 
  * @version 0.1
  * @since 29 janv. 2013
+ */
+/**
+ * Represents an Action Plan Asset.
+ * This class is used to store information about an asset associated with an action plan entry.
  */
 @Entity
 @Cacheable

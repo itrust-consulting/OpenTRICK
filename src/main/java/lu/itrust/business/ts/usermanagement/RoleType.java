@@ -4,6 +4,9 @@ package lu.itrust.business.ts.usermanagement;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * Represents the different types of roles in the system.
+ */
 public enum RoleType {
 
 	ROLE_IDS, ROLE_USER, ROLE_CONSULTANT, ROLE_ADMIN, ROLE_SUPERVISOR;

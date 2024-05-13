@@ -8,40 +8,44 @@ import java.util.List;
 import lu.itrust.business.ts.model.ticketing.TicketingTask;
 import lu.itrust.business.ts.model.ticketing.impl.AbstractProject;
 
+
 /**
- * @author eomar
- *
+ * Represents a Jira project.
  */
 public class JiraProject extends AbstractProject {
 
 	private List<JiraTask> tasks;
 	
 	/**
-	 * 
+	 * Constructs a new JiraProject object.
 	 */
 	public JiraProject() {
 	}
 
 	/**
-	 * @param id
-	 * @param name
-	 * @param description
-	 * @param progress
+	 * Constructs a new JiraProject object with the specified id and name.
+	 * 
+	 * @param id   the id of the project
+	 * @param name the name of the project
 	 */
 	public JiraProject(String id, String name) {
 		super(id, name);
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.ts.model.ticketing.TicketingProject#getTasks()
+	/**
+	 * Returns the list of tasks associated with this project.
+	 * 
+	 * @return the list of tasks
 	 */
 	@Override
 	public List<JiraTask> getTasks() {
 		return tasks;
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.ts.model.ticketing.TicketingProject#setTasks(java.util.List)
+	/**
+	 * Sets the list of tasks associated with this project.
+	 * 
+	 * @param tasks the list of tasks
 	 */
 	@SuppressWarnings("unchecked")
 	@Override

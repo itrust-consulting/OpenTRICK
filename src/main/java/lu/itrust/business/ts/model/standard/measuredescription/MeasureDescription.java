@@ -36,10 +36,10 @@ import lu.itrust.business.ts.model.standard.Standard;
  * <li>Measure Description Texts which represents the Domain and Description f a
  * Measure in one to more languages</li>
  * </ul>
- * 
- * @author itrust consulting s.à r.l. : SME, BJA, EOM
- * @version 0.1
- * @since Jan 28, 2013
+ */
+/**
+ * Represents a measure description.
+ * This class is used to store information about a measure, including its ID, standard, description texts, reference, and computable flag.
  */
 @Entity
 @Cacheable

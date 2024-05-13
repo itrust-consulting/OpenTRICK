@@ -11,6 +11,11 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import lu.itrust.business.ts.model.general.document.Document;
 
+
+/**
+ * Represents an attachment document.
+ * This class extends the Document class and provides additional functionality for attachments.
+ */
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @AttributeOverride(name = "id", column = @Column(name = "idAttachment"))

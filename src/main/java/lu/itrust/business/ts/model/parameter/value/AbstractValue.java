@@ -52,51 +52,77 @@ public abstract class AbstractValue implements IParameterValue {
 	}
 
 	/**
-	 * @param parameter
+	 * Constructs a new AbstractValue object with the specified parameter.
+	 *
+	 * @param parameter the level parameter associated with this value
 	 */
 	protected AbstractValue(ILevelParameter parameter) {
 		this.parameter = parameter;
 	}
 
 	/**
-	 * @return the id
+	 * Returns the ID of this AbstractValue.
+	 *
+	 * @return the ID of this AbstractValue
 	 */
 	public int getId() {
 		return id;
 	}
 
 	/**
-	 * @param id
-	 *            the id to set
+	 * Sets the ID of this AbstractValue.
+	 *
+	 * @param id the ID to set
 	 */
 	public void setId(int id) {
 		this.id = id;
 	}
 	
 	
+	/**
+	 * Returns the level parameter associated with this value.
+	 *
+	 * @return the level parameter
+	 */
 	@Override
 	public ILevelParameter getParameter() {
 		return parameter;
 	}
 
 	/**
-	 * @param parameter
-	 *            the parameter to set
+	 * Sets the level parameter associated with this value.
+	 *
+	 * @param parameter the level parameter to set
 	 */
 	public void setParameter(ILevelParameter parameter) {
 		this.parameter = parameter;
 	}
 
+	/**
+	 * Returns the level of the parameter.
+	 *
+	 * @return the level of the parameter
+	 */
 	@Override
 	public Integer getLevel() {
 		return parameter.getLevel();
 	}
 
+	/**
+	 * Returns the variable as a string.
+	 *
+	 * @return the variable as a string
+	 */
 	@Override
 	public String getVariable() {
 		return parameter.getAcronym();
 	}
 
+	/**
+	 * Returns the real value of the parameter as a Double.
+	 *
+	 * @return the real value of the parameter as a Double
+	 */
 	@Override
 	public Double getReal() {
 		return parameter.getValue().doubleValue();
@@ -106,6 +132,7 @@ public abstract class AbstractValue implements IParameterValue {
 	 * (non-Javadoc)
 	 * 
 	 * @see java.lang.Object#clone()
+	 *  @return a clone of this AbstractValue object
 	 */
 	@Override
 	public AbstractValue clone() {
@@ -120,6 +147,7 @@ public abstract class AbstractValue implements IParameterValue {
 	 * (non-Javadoc)
 	 * 
 	 * @see lu.itrust.business.ts.model.parameter.value.IValue#duplicate()
+	 * @return a duplicate of this AbstractValue object with a new ID
 	 */
 	@Override
 	public IValue duplicate() {
@@ -128,5 +156,4 @@ public abstract class AbstractValue implements IParameterValue {
 		return value;
 	}
 
-	
 }

@@ -22,10 +22,6 @@ import lu.itrust.business.ts.exception.TrickException;
  * This class represents an asset and all its data
  * 
  * This class is used to store assets. Assets are also stored in assessments
- * 
- * @author itrust consulting s.à r.l. - SME,BJA
- * @version 0.1
- * @since 2012-08-21
  */
 @Entity
 @Cacheable

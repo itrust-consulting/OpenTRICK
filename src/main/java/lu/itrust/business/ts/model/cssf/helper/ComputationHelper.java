@@ -11,6 +11,22 @@ import lu.itrust.business.ts.model.cssf.RiskRegisterItem;
 import lu.itrust.business.ts.model.parameter.ILevelParameter;
 import lu.itrust.business.ts.model.parameter.helper.ValueFactory;
 
+/**
+ * The ComputationHelper class is responsible for performing various computations and storing the results.
+ * It implements the Destroyable interface to allow for safe destruction of the object.
+ * 
+ * The class provides methods to access and modify the following data:
+ * - netALEs: a map containing the net ALE (Annual Loss Expectancy) values for each scenario
+ * - riskRegisters: a map containing risk register items
+ * - probabilityRelativeImpacts: a map containing probability relative impacts
+ * - rawALEs: a map containing raw ALE values
+ * - deltaALEs: a map containing delta ALE values
+ * 
+ * The class also provides a ValueFactory object for creating values based on a list of level parameters.
+ * 
+ * Note: The object can only be used if it has not been destroyed. If an attempt is made to use a destroyed object,
+ * a TrickException will be thrown.
+ */
 public class ComputationHelper implements Destroyable {
 
 	private boolean destroyed = false;
@@ -35,10 +51,15 @@ public class ComputationHelper implements Destroyable {
 	
 	private ValueFactory factory;
 	
+	/**
+	 * Constructs a new ComputationHelper object with the given list of parameters.
+	 *
+	 * @param parameters the list of parameters to be used for computation
+	 */
 	public ComputationHelper(List<ILevelParameter> parameters) {
 		setFactory(new ValueFactory(parameters));
 	}
-
+	
 	/**
 	 * @return the netALEs
 	 */

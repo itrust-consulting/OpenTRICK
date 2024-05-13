@@ -34,9 +34,19 @@ import lu.itrust.business.ts.model.parameter.value.impl.RealValue;
 import lu.itrust.business.ts.model.parameter.value.impl.Value;
 import lu.itrust.business.expressions.StringExpressionParser;
 
+
 /**
- * @author eomar
- *
+ * The ValueFactory class is responsible for managing and manipulating various types of parameters, such as impacts, probabilities, and dynamics.
+ * It provides methods for adding parameters, finding values based on different criteria, and retrieving parameter information.
+ * 
+ * This class is used to create instances of ValueFactory that can be used to handle parameter-related operations.
+ * 
+ * @param impacts A map of impact parameters categorized by type.
+ * @param probabilities A map of probability parameters categorized by type.
+ * @param dynamics A map of acronym parameters categorized by type.
+ * @param probabilityMapper A map that maps probability parameter acronyms to their corresponding parameters.
+ * @param dynamicMapper A map that maps acronym parameters to their corresponding parameters.
+ * @param impactMapper A map that maps impact parameters to their corresponding parameters.
  */
 public class ValueFactory {
 
@@ -67,6 +77,11 @@ public class ValueFactory {
 				.flatMap(entry -> entry.getValue().stream()).forEach(this::add);
 	}
 
+	/**
+	 * Adds the given parameter to the value factory.
+	 *
+	 * @param parameter the parameter to be added
+	 */
 	private void add(IParameter parameter) {
 		if (parameter instanceof IProbabilityParameter)
 			add((IProbabilityParameter) parameter);
@@ -77,6 +92,12 @@ public class ValueFactory {
 		}
 	}
 
+	/**
+	 * Finds the dynamic value based on the given input value.
+	 * 
+	 * @param value the input value to find the dynamic value for
+	 * @return the dynamic value corresponding to the input value, or 0.0 if the input value is null or dynamics is null
+	 */
 	public double findDyn(Object value) {
 		if (value == null || dynamics == null)
 			return 0.0;
@@ -92,11 +113,25 @@ public class ValueFactory {
 		return (value instanceof Double) ? (Double) value : toDouble(value.toString(), 0.0);
 	}
 
+	/**
+	 * Finds the probability experience level for the given value.
+	 *
+	 * @param value the value to find the probability experience level for
+	 * @return the probability experience level as an Integer
+	 */
 	public Integer findProbaExpLevel(Object value) {
 		IValue iValue = findProb(value);
 		return iValue == null ? 0 : iValue.getLevel();
 	}
 
+
+
+	/**
+	 * Finds the probability expected value for the given value.
+	 *
+	 * @param value the value to find the probability expected value for
+	 * @return the probability expected value as a Double
+	 */
 	public Double findProbaExpValue(Object value) {
 		if (value == null)
 			return 0d;
@@ -108,10 +143,19 @@ public class ValueFactory {
 		}
 	}
 
+	/**
+	 * This interface represents a value in the system.
+	 */
 	public IValue findProb(Object value) {
 		return findValue(value, PARAMETER_TYPE_PROPABILITY_NAME);
 	}
 
+	/**
+	 * Finds the probability level of a given value.
+	 *
+	 * @param value the value to find the probability level for
+	 * @return the probability level of the value
+	 */
 	public Integer findProbLevel(Object value) {
 		if (value == null)
 			return 0;
@@ -123,17 +167,37 @@ public class ValueFactory {
 		}
 	}
 
+	/**
+	 * Finds the probability parameter based on the given value.
+	 *
+	 * @param value The value used to find the probability parameter.
+	 * @return The probability parameter found, or null if not found.
+	 */
 	public IProbabilityParameter findProbParameter(Object value) {
 		IValue impact = findProb(value);
 		return impact == null || !(impact instanceof IParameterValue) ? null
 				: (IProbabilityParameter) ((IParameterValue) impact).getParameter();
 	}
 
+	/**
+	 * Finds the probability value for the given object.
+	 *
+	 * @param value the object for which to find the probability value
+	 * @return the probability value as a {@code Double}, or 0 if not found
+	 */
 	public Double findProbValue(Object value) {
 		IValue impact = findProb(value);
 		return impact == null ? 0D : impact.getReal();
 	}
 
+	/**
+	 * Adds the given probability parameter to the collection of probabilities.
+	 * If the collection is null, a new LinkedHashMap is created.
+	 * If the list of parameters for the given type name is null, a new ArrayList is created.
+	 * The parameter is then added to the list of parameters for the given type name.
+	 *
+	 * @param parameter the probability parameter to be added
+	 */
 	private void add(IProbabilityParameter parameter) {
 		if (probabilities == null)
 			probabilities = new LinkedHashMap<>();
@@ -144,6 +208,14 @@ public class ValueFactory {
 
 	}
 
+	/**
+	 * Adds an IImpactParameter to the list of impacts.
+	 * If the impacts map is null, it initializes it as a new LinkedHashMap.
+	 * If the list of parameters for the given type name is null, it initializes it as a new ArrayList.
+	 * Finally, it adds the IImpactParameter to the list of parameters for the given type name.
+	 *
+	 * @param parameter the IImpactParameter to be added
+	 */
 	private void add(IImpactParameter parameter) {
 		if (impacts == null)
 			impacts = new LinkedHashMap<>();
@@ -153,6 +225,14 @@ public class ValueFactory {
 		parameters.add(parameter);
 	}
 
+	/**
+	 * Adds an acronym parameter to the dynamics map.
+	 * If the dynamics map is null, it initializes a new LinkedHashMap.
+	 * If the list of parameters for the given type name is null, it initializes a new ArrayList.
+	 * Then, it adds the parameter to the list of parameters for the given type name.
+	 *
+	 * @param parameter the acronym parameter to be added
+	 */
 	private void add(IAcronymParameter parameter) {
 		if (dynamics == null)
 			dynamics = new LinkedHashMap<>();
@@ -162,6 +242,9 @@ public class ValueFactory {
 		parameters.add(parameter);
 	}
 
+	/**
+	 * Represents a value in the system.
+	 */
 	private IValue findByLevel(Integer level, List<? extends ILevelParameter> parameters) {
 		int mid = parameters.size() / 2;
 		ILevelParameter parameter = (ILevelParameter) parameters.get(mid);
@@ -175,6 +258,9 @@ public class ValueFactory {
 			return findByLevel(level, parameters.subList(mid, parameters.size()));
 	}
 
+	/**
+	 * Represents a value in the system.
+	 */
 	private IValue findByValue(Double value, List<? extends ILevelParameter> parameters) {
 		int mid = parameters.size() / 2;
 		IBoundedParameter parameter = (IBoundedParameter) parameters.get(mid);
@@ -190,10 +276,17 @@ public class ValueFactory {
 			return findByValue(value, parameters.subList(mid, parameters.size()));
 	}
 
+	/**
+	 * Represents a value in the system.
+	 */
 	public IValue findValue(Object value, String type) {
 		return findValue(value, type, true);
 	}
 
+	/**
+	 * Represents a value in the system.
+	 * Implementations of this interface provide methods to manipulate and retrieve values.
+	 */
 	public IValue findValue(Object value, String type, boolean includExpression) {
 		try {
 			if (value == null)
@@ -238,6 +331,9 @@ public class ValueFactory {
 		}
 	}
 
+	/**
+	 * Represents a value in the system.
+	 */
 	public IValue findDynValue(String value, String type) {
 		return findDynValue(value, type, Collections.emptyList());
 	}
@@ -264,12 +360,25 @@ public class ValueFactory {
 		return null;
 	}
 
+	/**
+	 * Checks if the given value has an acronym for the specified type.
+	 *
+	 * @param value the value to check
+	 * @param type the type to check against
+	 * @return true if the value has an acronym for the specified type, false otherwise
+	 */
 	public boolean hasAcronym(String value, String type) {
 		if (value == null || type == null)
 			return false;
 		return getParameterMapper(type).containsKey(value);
 	}
 
+	/**
+	 * Retrieves the list of parameters based on the given type.
+	 *
+	 * @param type the type of parameters to retrieve
+	 * @return the list of parameters for the given type, or null if the type is not recognized
+	 */
 	private List<? extends ILevelParameter> getParameters(String type) {
 		switch (type) {
 			case PARAMETER_TYPE_PROPABILITY_NAME:
@@ -279,6 +388,12 @@ public class ValueFactory {
 		}
 	}
 
+	/**
+	 * Retrieves the parameter mapper based on the given type.
+	 *
+	 * @param type The type of the parameter mapper to retrieve.
+	 * @return The parameter mapper as a map.
+	 */
 	private Map<String, ? extends IAcronymParameter> getParameterMapper(String type) {
 		switch (type) {
 			case PARAMETERTYPE_TYPE_DYNAMIC_NAME:
@@ -323,6 +438,14 @@ public class ValueFactory {
 
 	}
 
+	/**
+	 * Converts a string value to a Double.
+	 * If the value is null or cannot be parsed as a Double, the defaultValue is returned.
+	 *
+	 * @param value the string value to convert
+	 * @param defaultValue the default value to return if the conversion fails
+	 * @return the converted Double value or the defaultValue if the conversion fails
+	 */
 	public static Double toDouble(String value, Double defaultValue) {
 		try {
 			return value == null ? defaultValue : Double.parseDouble(value);
@@ -331,6 +454,14 @@ public class ValueFactory {
 		}
 	}
 
+	/**
+	 * Converts a string value to an integer.
+	 * If the value is null or cannot be parsed as an integer, the default value is returned.
+	 *
+	 * @param value the string value to convert
+	 * @param defaultValue the default value to return if the conversion fails
+	 * @return the converted integer value, or the default value if the conversion fails
+	 */
 	public static Integer toInt(String value, Integer defaultValue) {
 		try {
 			return value == null ? defaultValue : Integer.parseInt(value);
@@ -363,6 +494,12 @@ public class ValueFactory {
 		return findImpactLevel(impacts) * (proba == null ? 0 : proba.getLevel());
 	}
 
+	/**
+	 * Finds the impact level based on the given list of impacts.
+	 *
+	 * @param impacts the list of impacts
+	 * @return the impact level, or 0 if the list is null or empty
+	 */
 	public int findImpactLevel(List<? extends IValue> impacts) {
 		return impacts == null ? 0
 				: impacts.stream().filter(value -> !value.getName().equals(Constant.DEFAULT_IMPACT_NAME))
@@ -380,6 +517,12 @@ public class ValueFactory {
 		return findValue(value, Constant.DEFAULT_IMPACT_NAME);
 	}
 
+	/**
+	 * Finds the maximum impact level from the given array of impacts.
+	 *
+	 * @param impacts the array of impacts to search for the maximum impact level
+	 * @return the maximum impact level found in the array of impacts, or 0 if the array is empty or null
+	 */
 	public int findImpactLevel(IValue... impacts) {
 		if (impacts == null || impacts.length == 0)
 			return 0;
@@ -414,11 +557,24 @@ public class ValueFactory {
 						.min((v1, v2) -> IValue.compareByLevel(v1, v2)).orElse(null);
 	}
 
+	/**
+	 * Finds the impact level based on the maximum level for a given value.
+	 * 
+	 * @param value the value to find the impact level for
+	 * @return the impact level corresponding to the maximum level for the given value,
+	 *         or 0 if no impact level is found
+	 */
 	public int findImpactLevelByMaxLevel(double value) {
 		IValue iValue = findMaxImpactByLevel(value);
 		return iValue == null ? 0 : iValue.getLevel();
 	}
 
+	/**
+	 * Finds the real impact by the maximum level.
+	 * 
+	 * @param level the maximum level
+	 * @return the real impact value
+	 */
 	public double findRealImpactByMaxLevel(int level) {
 		IValue iValue = findMaxImpactByLevel(level);
 		return iValue == null ? 0 : iValue.getReal();
@@ -456,6 +612,11 @@ public class ValueFactory {
 		return impactMapper;
 	}
 
+	/**
+	 * Returns a collection of impact names.
+	 *
+	 * @return a collection of impact names
+	 */
 	public Collection<String> getImpactNames() {
 		return impacts == null ? Collections.emptyList() : impacts.keySet();
 	}
@@ -467,21 +628,44 @@ public class ValueFactory {
 		this.impactMapper = impactMapper;
 	}
 
+	/**
+	 * Computes the Annual Loss Expectancy (ALE) based on the given assessment.
+	 *
+	 * @param assessment the assessment object containing the impacts and likelihood
+	 * @return the computed ALE value
+	 */
 	public Double computeALE(Assessment assessment) {
 		IValue value = findMaxImpactByReal(assessment.getImpacts());
 		return value == null ? 0 : value.getReal() * findProbaExpValue(assessment.getLikelihood());
 	}
 
+	/**
+	 * Finds the exponential parameter based on the given likelihood.
+	 *
+	 * @param likelihood the likelihood value used to find the parameter
+	 * @return the exponential parameter found, or null if not found
+	 */
 	public IProbabilityParameter findExpParameter(String likelihood) {
 		IValue value = findProb(likelihood);
 		return !(value instanceof IParameterValue) ? null
 				: (IProbabilityParameter) ((IParameterValue) value).getParameter();
 	}
 
+	/**
+	 * Adds a collection of parameters to the value factory.
+	 *
+	 * @param parameters the collection of parameters to be added
+	 */
 	public void add(Collection<? extends IParameter> parameters) {
 		parameters.forEach(parameter -> add(parameter));
 	}
 
+	/**
+	 * Finds the acronyms for the given type.
+	 *
+	 * @param type the type for which to find the acronyms
+	 * @return a collection of acronyms for the given type
+	 */
 	public Collection<String> findAcronyms(String type) {
 		return getParameterMapper(type).keySet();
 	}
@@ -514,6 +698,12 @@ public class ValueFactory {
 		this.probabilities = probabilities;
 	}
 
+	/**
+	 * Finds the maximum impact value from the given array of IValue objects.
+	 *
+	 * @param impacts The array of IValue objects representing the impact values.
+	 * @return The maximum impact value as a double.
+	 */
 	public double findImpactValue(IValue... impacts) {
 		if (impacts == null || impacts.length == 0)
 			return 0.0;
@@ -525,24 +715,51 @@ public class ValueFactory {
 		return max.getReal();
 	}
 
+	/**
+	 * Finds the parameter based on the given value and type.
+	 *
+	 * @param value the value to search for
+	 * @param type the type of the parameter
+	 * @return the found parameter, or null if not found
+	 */
 	public ILevelParameter findParameter(Integer value, String type) {
 		IValue result = findValue(value, type);
 		return !(result instanceof IParameterValue) ? null
 				: ((IParameterValue) result).getParameter();
 	}
 
+	/**
+	 * Finds the level parameter based on the given value and type.
+	 *
+	 * @param value the value to search for
+	 * @param type the type of the parameter
+	 * @return the level parameter if found, otherwise null
+	 */
 	public ILevelParameter findParameter(Double value, String type) {
 		IValue result = findValue(value, type);
 		return !(result instanceof IParameterValue) ? null
 				: ((IParameterValue) result).getParameter();
 	}
 
+	/**
+	 * Finds the parameter based on the given value and type.
+	 *
+	 * @param value the value to search for
+	 * @param type the type of the value
+	 * @return the found ILevelParameter, or null if not found
+	 */
 	public ILevelParameter findParameter(Object value, String type) {
 		IValue result = findValue(value, type);
 		return !(result instanceof IParameterValue) ? null
 				: ((IParameterValue) result).getParameter();
 	}
 
+	/**
+	 * Finds the ILR (Information Loss Rate) level for the given value.
+	 * 
+	 * @param value The value for which to find the ILR level.
+	 * @return The ILR level of the value. Returns 0 if the value is null or if the ILR level cannot be determined.
+	 */
 	public int findILRLevel(IValue value) {
 		if (value == null)
 			return 0;

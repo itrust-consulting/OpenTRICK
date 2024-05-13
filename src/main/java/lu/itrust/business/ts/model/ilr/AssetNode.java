@@ -26,8 +26,9 @@ import org.hibernate.annotations.CascadeType;
 import lu.itrust.business.ts.exception.TrickException;
 import lu.itrust.business.ts.model.asset.Asset;
 
-/*****
- * 
+/**
+ * Represents a node in the asset hierarchy.
+ * An AssetNode contains information about the asset, its impact, inherited values, position, and edges to other nodes.
  */
 @Entity
 @Cacheable
@@ -81,70 +82,156 @@ public class AssetNode implements Cloneable {
         setImpact(impact);
     }
 
+    /**
+     * Returns the ID of the AssetNode.
+     *
+     * @return the ID of the AssetNode
+     */
     public long getId() {
         return id;
     }
 
+    /**
+     * Sets the ID of the AssetNode.
+     *
+     * @param id the ID to set
+     */
     public void setId(final long id) {
         this.id = id;
     }
 
+    /**
+     * Returns the asset associated with this AssetNode.
+     *
+     * @return the asset associated with this AssetNode, or null if the impact is null.
+     */
     public Asset getAsset() {
         return impact == null ? null : impact.getAsset();
     }
 
+    /**
+     * Represents the impact of an asset.
+     */
     public AssetImpact getImpact() {
         return impact;
     }
 
+    /**
+     * Sets the impact of the asset.
+     *
+     * @param impact the impact to set
+     */
     public void setImpact(final AssetImpact impact) {
         this.impact = impact;
     }
 
+    /**
+     * Returns the inherited confidentiality of the asset node.
+     *
+     * @return the inherited confidentiality value
+     */
     public int getInheritedConfidentiality() {
         return inheritedConfidentiality;
     }
 
+    /**
+     * Sets the inherited confidentiality level for the asset node.
+     *
+     * @param inheritedConfidentiality the new value for the inherited confidentiality level
+     */
     public void setInheritedConfidentiality(final int inheritedConfidentiality) {
         this.inheritedConfidentiality = inheritedConfidentiality;
     }
 
+    /**
+     * Returns the inherited integrity value of the AssetNode.
+     *
+     * @return the inherited integrity value
+     */
     public int getInheritedIntegrity() {
         return inheritedIntegrity;
     }
 
+    /**
+     * Sets the inherited integrity value for this AssetNode.
+     *
+     * @param inheritedIntegrity the inherited integrity value to set
+     */
     public void setInheritedIntegrity(final int inheritedIntegrity) {
         this.inheritedIntegrity = inheritedIntegrity;
     }
 
+    /**
+     * Returns the inherited availability of the asset node.
+     *
+     * @return the inherited availability value
+     */
     public int getInheritedAvailability() {
         return inheritedAvailability;
     }
 
+    /**
+     * Sets the inherited availability of the AssetNode.
+     *
+     * @param inheritedAvailability the inherited availability value to be set
+     */
     public void setInheritedAvailability(final int inheritedAvailability) {
         this.inheritedAvailability = inheritedAvailability;
     }
 
+    /**
+     * Returns a map of edges associated with this asset node.
+     *
+     * @return a map of edges, where the key is an AssetNode and the value is an AssetEdge
+     */
     public Map<AssetNode, AssetEdge> getEdges() {
         return edges;
     }
 
+    /**
+     * Sets the edges of the AssetNode.
+     *
+     * @param edges a map containing the edges of the AssetNode
+     */
     public void setEdges(final Map<AssetNode, AssetEdge> edges) {
         this.edges = edges;
     }
 
+    /**
+     * Returns the position of the asset node.
+     *
+     * @return the position of the asset node
+     */
     public Position getPosition() {
         return position;
     }
 
+    /**
+     * Sets the position of the asset node.
+     *
+     * @param position the new position of the asset node
+     */
     public void setPosition(Position position) {
         this.position = position;
     }
 
+    /**
+     * Checks if the current asset node is a leaf node.
+     * A leaf node is a node that has no outgoing edges.
+     *
+     * @return true if the asset node is a leaf node, false otherwise.
+     */
     public boolean isLeaf() {
         return edges == null || edges.isEmpty();
     }
 
+    /**
+     * Returns the confidentiality level of the asset node.
+     * If the impact or the confidentiality impacts are null or empty, it returns the inherited confidentiality level.
+     * Otherwise, it returns the maximum value of the confidentiality impacts.
+     *
+     * @return the confidentiality level of the asset node, or -1 if not available
+     */
     public int getConfidentiality() {
         if (impact == null || impact.getConfidentialityImpacts() == null
                 || impact.getConfidentialityImpacts().isEmpty())
@@ -154,6 +241,13 @@ public class AssetNode implements Cloneable {
                 .orElse(-1);
     }
 
+    /**
+     * Returns the availability of the AssetNode.
+     * 
+     * @return The availability value of the AssetNode. If the impact or availability impacts are null or empty, 
+     *         it returns the inherited availability value. Otherwise, it returns the maximum availability value 
+     *         from the impact's availability impacts.
+     */
     public int getAvailability() {
         if (impact == null || impact.getAvailabilityImpacts() == null
                 || impact.getAvailabilityImpacts().isEmpty())
@@ -163,6 +257,13 @@ public class AssetNode implements Cloneable {
                 .orElse(-1);
     }
 
+    /**
+     * Returns the integrity value of the asset node.
+     * If the impact or integrity impacts are null or empty, the method returns the inherited integrity value.
+     * Otherwise, it returns the maximum integrity value among all the integrity impacts.
+     *
+     * @return the integrity value of the asset node, or -1 if no integrity value is found
+     */
     public int getIntegrity() {
         if (impact == null || impact.getIntegrityImpacts() == null
                 || impact.getIntegrityImpacts().isEmpty())
@@ -195,6 +296,12 @@ public class AssetNode implements Cloneable {
 
     }
 
+        /**
+     * Creates a clone of the current AssetNode with the specified impact.
+     *
+     * @param impact The impact to be set for the cloned AssetNode.
+     * @return A new AssetNode object with the specified impact.
+     */
     public AssetNode clone(AssetImpact impact) {
         final AssetNode assetNode = clone();
         if (assetNode.impact != null)
@@ -203,6 +310,12 @@ public class AssetNode implements Cloneable {
 
     }
 
+        /**
+     * Creates a duplicate of the current AssetNode object.
+     * 
+     * @return A new AssetNode object that is a copy of the current object.
+     * @throws TrickException if cloning is not supported for AssetNode.
+     */
     public AssetNode duplicate() {
         try {
             AssetNode assetNode = (AssetNode) super.clone();
@@ -218,6 +331,12 @@ public class AssetNode implements Cloneable {
         }
     }
 
+    /**
+     * Creates a duplicate of the current AssetNode object.
+     * 
+     * @param asset The asset to be associated with the duplicated node.
+     * @return A new AssetNode object that is a duplicate of the current node.
+     */
     public AssetNode duplicate(Asset asset) {
         AssetNode assetNode = duplicate();
         if (assetNode.impact != null)
@@ -225,6 +344,12 @@ public class AssetNode implements Cloneable {
         return assetNode;
     }
 
+    /**
+     * Creates a duplicate of the current AssetNode with the specified impact.
+     * 
+     * @param impact The impact to be set for the duplicate AssetNode.
+     * @return A new AssetNode object that is a duplicate of the current AssetNode with the specified impact.
+     */
     public AssetNode duplicate(AssetImpact impact) {
         AssetNode assetNode = duplicate();
         if (assetNode.impact != null)

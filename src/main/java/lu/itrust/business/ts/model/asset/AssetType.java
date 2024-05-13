@@ -20,9 +20,6 @@ import lu.itrust.business.ts.exception.TrickException;
  * AssetType: <br>
  * Represents the Asset name of an Asset.
  * 
- * @author itrust consulting s.à r.l. : OEM, BJA, SME
- * @version 0.1
- * @since 25 janv. 2013
  */
 
 @Entity
@@ -53,72 +50,68 @@ public class AssetType implements Serializable, Cloneable {
 	 **********************************************************************************************/
 
 	/**
-	 * Constructor:<br>
+	 * Default constructor.
 	 */
 	public AssetType() {
 	}
 
 	/**
-	 * Constructor:<br>
-	 * 
-	 * @param name
-	 *             Type Name
-	 * @throws TrickException
+	 * Constructor with name parameter.
+	 *
+	 * @param name The type name of the asset.
+	 * @throws TrickException If the asset name is null or does not meet the required format.
 	 */
-	public AssetType(String type) throws TrickException {
-		setName(type);
+	public AssetType(String name) throws TrickException {
+		setName(name);
 	}
 
+	/**
+	 * Constructor with id and name parameters.
+	 *
+	 * @param id   The id of the asset type.
+	 * @param name The type name of the asset.
+	 */
 	public AssetType(int id, String name) {
 		setId(id);
 		setName(name);
 	}
-	
 
 	/***********************************************************************************************
 	 * Getters and Setters
 	 **********************************************************************************************/
 
-	
-
 	/**
-	 * getId: <br>
-	 * Returns the id field value.
-	 * 
-	 * @return The value of the id field
+	 * Returns the id of the asset type.
+	 *
+	 * @return The id of the asset type.
 	 */
 	public int getId() {
 		return id;
 	}
 
 	/**
-	 * setId: <br>
-	 * Sets the Field "id" with a value.
-	 * 
-	 * @param id
-	 *           The Value to set the id field
+	 * Sets the id of the asset type.
+	 *
+	 * @param id The id to set for the asset type.
 	 */
 	public void setId(int id) {
 		this.id = id;
 	}
 
 	/**
-	 * getType: <br>
-	 * Returns the name field value.
-	 * 
-	 * @return The value of the name field
+	 * Returns the name of the asset type.
+	 *
+	 * @return The name of the asset type.
 	 */
 	public String getName() {
 		return name;
 	}
 
 	/**
-	 * setType: <br>
-	 * Sets the Field "name" with a value.
-	 * 
-	 * @param name
-	 *             The Value to set the name field
-	 * @throws TrickException
+	 * Sets the name of the asset type.
+	 *
+	 * @param name The name to set for the asset type.
+	 * @throws TrickException If the asset name is null or does not meet the required format.
 	 */
 	public void setName(String name) throws TrickException {
 		if (name == null)
@@ -129,10 +122,10 @@ public class AssetType implements Serializable, Cloneable {
 	}
 
 	/**
-	 * clone: <br>
-	 * Description
-	 * 
-	 * @see java.lang.Object#clone()
+	 * Clones the asset type.
+	 *
+	 * @return A cloned instance of the asset type.
+	 * @throws CloneNotSupportedException If cloning is not supported for the asset type.
 	 */
 	@Override
 	public AssetType clone() throws CloneNotSupportedException {
@@ -140,10 +133,9 @@ public class AssetType implements Serializable, Cloneable {
 	}
 
 	/**
-	 * hashCode: <br>
-	 * Description
-	 * 
-	 * @see java.lang.Object#hashCode()
+	 * Generates the hash code for the asset type.
+	 *
+	 * @return The hash code for the asset type.
 	 */
 	@Override
 	public int hashCode() {
@@ -155,10 +147,10 @@ public class AssetType implements Serializable, Cloneable {
 	}
 
 	/**
-	 * equals: <br>
-	 * Description
-	 * 
-	 * @see java.lang.Object#equals(java.lang.Object)
+	 * Checks if the asset type is equal to another object.
+	 *
+	 * @param obj The object to compare with.
+	 * @return True if the asset type is equal to the other object, false otherwise.
 	 */
 	@Override
 	public boolean equals(Object obj) {
@@ -178,6 +170,12 @@ public class AssetType implements Serializable, Cloneable {
 		return true;
 	}
 
+	/**
+	 * Checks if the asset type has the same name as the given name.
+	 *
+	 * @param name The name to compare with.
+	 * @return True if the asset type has the same name as the given name, false otherwise.
+	 */
 	public boolean isSame(String name) {
 		return this.name == null ? name == null : this.name.equalsIgnoreCase(name);
 	}

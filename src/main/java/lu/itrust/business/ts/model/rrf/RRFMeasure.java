@@ -5,8 +5,7 @@ package lu.itrust.business.ts.model.rrf;
 
 
 /**
- * @author eomar
- *
+ * Represents a measurement of RRF (Relative Response Factor).
  */
 public class RRFMeasure {
 	
@@ -17,14 +16,16 @@ public class RRFMeasure {
 	private double value;
 	
 	/**
-	 * 
+	 * Default constructor.
 	 */
 	public RRFMeasure() {
 	}
 
 	/**
-	 * @param id
-	 * @param reference
+	 * Constructs a new RRFMeasure object with the specified id and reference.
+	 * 
+	 * @param id        the ID of the RRF measure
+	 * @param reference the reference of the RRF measure
 	 */
 	public RRFMeasure(int id, String reference) {
 		this.id = id;
@@ -32,9 +33,11 @@ public class RRFMeasure {
 	}
 	
 	/**
-	 * @param id
-	 * @param reference
-	 * @param value
+	 * Constructs a new RRFMeasure object with the specified id, reference, and value.
+	 * 
+	 * @param id        the ID of the RRF measure
+	 * @param reference the reference of the RRF measure
+	 * @param value     the value of the RRF measure
 	 */
 	public RRFMeasure(int id, String reference, double value) {
 		this.id = id;
@@ -43,13 +46,17 @@ public class RRFMeasure {
 	}
 
 	/**
-	 * @return the reference
+	 * Returns the reference of the RRF measure.
+	 * 
+	 * @return the reference of the RRF measure
 	 */
 	public String getReference() {
 		return reference;
 	}
 
 	/**
+	 * Sets the reference of the RRF measure.
+	 * 
 	 * @param reference the reference to set
 	 */
 	public void setReference(String reference) {
@@ -57,33 +64,38 @@ public class RRFMeasure {
 	}
 
 	/**
-	 * @return the id
+	 * Returns the ID of the RRF measure.
+	 * 
+	 * @return the ID of the RRF measure
 	 */
 	public int getId() {
 		return id;
 	}
 
 	/**
-	 * @param id the id to set
+	 * Sets the ID of the RRF measure.
+	 * 
+	 * @param id the ID to set
 	 */
 	public void setId(int id) {
 		this.id = id;
 	}
 
 	/**
-	 * @return the value
+	 * Returns the value of the RRF measure.
+	 * 
+	 * @return the value of the RRF measure
 	 */
 	public double getValue() {
 		return value;
 	}
 
 	/**
+	 * Sets the value of the RRF measure.
+	 * 
 	 * @param value the value to set
 	 */
 	public void setValue(double value) {
 		this.value = value;
 	}
-	
-	
-
 }

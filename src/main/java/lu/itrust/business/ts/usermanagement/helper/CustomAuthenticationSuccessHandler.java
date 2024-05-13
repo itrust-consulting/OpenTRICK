@@ -24,12 +24,15 @@ import lu.itrust.business.ts.model.general.LogType;
 import lu.itrust.business.ts.usermanagement.User;
 
 /**
- * AuthenticationSuccessHandler.java: <br>
- * Detailed description...
+ * This class is a custom implementation of the Spring Security's
+ * SavedRequestAwareAuthenticationSuccessHandler. It handles the logic for
+ * successful authentication and performs additional actions based on the
+ * authentication result.
  *
- * @author smenghi itrust consulting s.a.rl.:
- * @version
- * @since Sep 26, 2014
+ * The class is responsible for setting the user's locale, logging the
+ * authentication event, and managing the account locker.
+ *
+ * @see SavedRequestAwareAuthenticationSuccessHandler
  */
 @Transactional(readOnly = true)
 public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
@@ -44,8 +47,6 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
 	private AccountLockerManager accountLockerManager;
 
 
-	
-
 	public CustomAuthenticationSuccessHandler() {
 		super();
 	}
@@ -56,6 +57,16 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
 	}
 
 
+	/**
+	 * Called when a user successfully authenticates.
+	 * This method is responsible for handling the logic after a successful authentication.
+	 *
+	 * @param request        the HttpServletRequest object representing the user's request
+	 * @param response       the HttpServletResponse object representing the response to be sent back to the user
+	 * @param authentication the Authentication object representing the authenticated user
+	 * @throws ServletException if a servlet-specific error occurs
+	 * @throws IOException      if an I/O error occurs
+	 */
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
 			Authentication authentication) throws ServletException, IOException {

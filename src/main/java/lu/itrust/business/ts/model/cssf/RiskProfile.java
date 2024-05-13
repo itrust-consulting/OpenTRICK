@@ -39,9 +39,14 @@ import lu.itrust.business.ts.model.scale.ScaleType;
 import lu.itrust.business.ts.model.scenario.Scenario;
 import lu.itrust.business.ts.model.standard.measure.Measure;
 
+
 /**
- * @author eomar
- *
+ * The RiskProfile class represents a risk profile entity in the system.
+ * It contains information about the risk profile, such as the identifier, asset, scenario, risk strategy, risk treatment,
+ * action plan, measures, and probability impacts.
+ * 
+ * This class also provides methods for setting and retrieving the properties of a risk profile, as well as cloning and duplicating
+ * risk profiles.
  */
 @Entity
 @Cacheable
@@ -311,12 +316,30 @@ public class RiskProfile implements Cloneable {
 		return riskProfile;
 	}
 
+
+	/**
+	 * Creates a duplicate of the current risk profile.
+	 *
+	 * @return A new instance of the RiskProfile class with the same values as the original.
+	 * @throws CloneNotSupportedException if cloning is not supported for this object.
+	 */
 	public RiskProfile duplicate() throws CloneNotSupportedException {
 		RiskProfile riskProfile = (RiskProfile) super.clone();
 		riskProfile.id = 0;
 		return riskProfile;
 	}
+	
 
+	/**
+	 * Creates a duplicate of the risk profile with updated data.
+	 * 
+	 * @param assets     a map of asset IDs to Asset objects
+	 * @param scenarios  a map of scenario IDs to Scenario objects
+	 * @param parameters a map of parameter names to IParameter objects
+	 * @param measures   a map of measure names to Measure objects
+	 * @return a duplicate RiskProfile object with updated data
+	 * @throws CloneNotSupportedException if cloning is not supported
+	 */
 	public RiskProfile duplicate(Map<Integer, Asset> assets, Map<Integer, Scenario> scenarios,
 			Map<String, IParameter> parameters, Map<String, Measure> measures)
 			throws CloneNotSupportedException {
@@ -326,6 +349,15 @@ public class RiskProfile implements Cloneable {
 		return riskProfile;
 	}
 
+	/**
+	 * Updates the data of the RiskProfile object.
+	 * 
+	 * @param assets     a map of asset IDs to Asset objects
+	 * @param scenarios  a map of scenario IDs to Scenario objects
+	 * @param parameters a map of parameter names to IParameter objects
+	 * @param measures   a map of measure names to Measure objects
+	 * @throws CloneNotSupportedException if cloning is not supported for the rawProbaImpact or expProbaImpact objects
+	 */
 	public void updateData(Map<Integer, Asset> assets, Map<Integer, Scenario> scenarios,
 			Map<String, IParameter> parameters, Map<String, Measure> measures)
 			throws CloneNotSupportedException {
@@ -340,10 +372,20 @@ public class RiskProfile implements Cloneable {
 				.collect(Collectors.toList());
 	}
 
+	/**
+	 * Returns a Boolean value indicating whether the asset and scenario are selected.
+	 *
+	 * @return true if both the asset and scenario are selected, false otherwise
+	 */
 	public Boolean isSelected() {
 		return asset.isSelected() && scenario.isSelected();
 	}
 
+	/**
+	 * Removes the impacts associated with the given scale type from the risk profile.
+	 *
+	 * @param scaleType the scale type to remove impacts for
+	 */
 	public void remove(ScaleType scaleType) {
 		if (rawProbaImpact != null)
 			rawProbaImpact.getImpacts().removeIf(parameter -> parameter.isMatch(scaleType.getName()));

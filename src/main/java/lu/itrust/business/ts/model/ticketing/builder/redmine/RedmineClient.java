@@ -60,8 +60,8 @@ import lu.itrust.business.ts.model.ticketing.impl.redmine.RedmineProject;
 import lu.itrust.business.ts.model.ticketing.impl.redmine.RedmineTask;
 
 /**
- * @author eomar
- *
+ * The RedmineClient class is responsible for connecting to a Redmine ticketing system and performing various operations such as creating issues and checking task ownership.
+ * It implements the Client interface.
  */
 public class RedmineClient implements Client {
 
@@ -634,14 +634,31 @@ public class RedmineClient implements Client {
 		return tasks;
 	}
 
+	/**
+	 * Returns the URL of the Redmine client.
+	 *
+	 * @return the URL of the Redmine client
+	 */
 	public String getUrl() {
 		return url;
 	}
 
+	/**
+	 * Sets the URL for the Redmine client.
+	 * 
+	 * @param url the URL to set
+	 */
 	public void setUrl(String url) {
 		this.url = ClientBuilder.getURL(url);
 	}
 
+	/**
+	 * Connects to the Redmine server using the specified URL and token.
+	 * 
+	 * @param url   the URL of the Redmine server
+	 * @param token the authentication token for the Redmine server
+	 * @return true if the connection is successful, false otherwise
+	 */
 	@Override
 	public boolean connect(String url, String token) {
 		try {

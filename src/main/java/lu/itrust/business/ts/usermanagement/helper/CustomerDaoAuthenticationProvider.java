@@ -10,8 +10,9 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 
 /**
- * @author eomar
- *
+ * This class extends the {@link DaoAuthenticationProvider} class and provides additional authentication checks for the customer.
+ * It overrides the {@link DaoAuthenticationProvider#additionalAuthenticationChecks(UserDetails, UsernamePasswordAuthenticationToken)} method
+ * to perform custom password validation.
  */
 public class CustomerDaoAuthenticationProvider extends DaoAuthenticationProvider {
 

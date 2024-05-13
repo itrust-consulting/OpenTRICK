@@ -63,8 +63,8 @@ import lu.itrust.business.ts.model.ticketing.impl.jira.JiraProject;
 import lu.itrust.business.ts.model.ticketing.impl.jira.JiraTask;
 
 /**
- * @author eomar
- *
+ * The JiraClient class is an implementation of the Client interface that provides methods for interacting with Jira.
+ * It allows connecting to a Jira instance, retrieving projects and tasks, creating new issues, and more.
  */
 public class JiraClient implements Client {
 

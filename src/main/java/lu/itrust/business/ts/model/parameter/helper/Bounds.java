@@ -9,9 +9,6 @@ import lu.itrust.business.ts.exception.TrickException;
  * Bounds: <br>
  * This class represents the bound of an extended parameter. Values from and to are represented.
  * 
- * @author itrust consulting s.� r.l. - SME,BJA,EOM
- * @version 0.1
- * @since 2012-12-17
  */
 @Embeddable
 public class Bounds implements Cloneable {

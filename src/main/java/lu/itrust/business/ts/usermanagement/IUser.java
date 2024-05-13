@@ -3,53 +3,55 @@ package lu.itrust.business.ts.usermanagement;
 public interface IUser {
 
 	/**
-	 * getLogin: <br>
-	 * Description
+	 * Returns the login of the user.
 	 * 
-	 * @return
+	 * @return the login of the user
 	 */
 	String getLogin();
 
 	/**
-	 * getPassword: <br>
-	 * Description
+	 * Returns the password of the user.
 	 * 
-	 * @return
+	 * @return the password of the user
 	 */
 	String getPassword();
 
 	/**
-	 * isEnable: <br>
-	 * Description
+	 * Returns whether the user is enabled or not.
 	 * 
-	 * @return
+	 * @return true if the user is enabled, false otherwise
 	 */
 	boolean isEnable();
 	
 	/**
-	 * Retrieve 2 factor secrete
-	 * @return secrete
+	 * Retrieves the two-factor secret for the user.
+	 * 
+	 * @return the two-factor secret
 	 */
 	default String getSecret(){
 		return null;
 	}
 	
 	/**
-	 * User enable two factor authentication
-	 * @return using2FA
+	 * Returns whether the user is using two-factor authentication or not.
+	 * 
+	 * @return true if the user is using two-factor authentication, false otherwise
 	 */
 	default boolean isUsing2FA(){
 		return false;
 	}
 
 	/**
-	 * @return Right
+	 * Returns the access rights of the user.
+	 * 
+	 * @return the access rights of the user
 	 */
 	RoleType getAccess();
 	
 	/**
+	 * Returns the full name of the user.
 	 * 
-	 * @return
+	 * @return the full name of the user
 	 */
 	String getFullname();
 

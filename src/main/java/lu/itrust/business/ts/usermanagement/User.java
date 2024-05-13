@@ -36,10 +36,6 @@ import lu.itrust.business.ts.model.general.TicketingSystem;
 /**
  * User: <br>
  * Detailed description...
- *
- * @author oensuifudine itrust consulting s.a.rl.:
- * @version
- * @since Aug 19, 2012
  */
 @Entity
 @Cacheable
@@ -650,10 +646,21 @@ public class User implements Serializable, IUser {
 		this.roles = roles;
 	}
 
+	/**
+	 * Sets the secret for the user's two-factor authentication.
+	 * 
+	 * @param secret the secret to set
+	 */
 	public void setSecret(String secret) {
 		setSetting(USER_2_FACTOR_SECRET, secret);
 	}
 
+	/**
+	 * Sets the value of a user setting.
+	 * 
+	 * @param name  the name of the setting
+	 * @param value the value to be set
+	 */
 	public void setSetting(String name, Object value) {
 		if (name == null)
 			return;
@@ -663,36 +670,71 @@ public class User implements Serializable, IUser {
 			this.userSettings.put(name, String.valueOf(value));
 	}
 
+	/**
+	 * Sets the user settings.
+	 *
+	 * @param userSettings a map containing the user settings
+	 */
 	public void setUserSettings(Map<String, String> userSettings) {
 		this.userSettings = userSettings;
 	}
 
+	/**
+	 * Sets the value indicating whether the user is using 2-factor authentication.
+	 *
+	 * @param using2FA true if the user is using 2-factor authentication, false otherwise
+	 */
 	public void setUsing2FA(boolean using2FA) {
 		setSetting(USER_USING_2_FACTOR_AUTHENTICATION, using2FA);
 	}
 
-	private boolean clearRole() {
-		if (roles == null)
-			return true;
-		else
-			roles.clear();
-		return roles.isEmpty();
-	}
+    /**
+     * Clears the roles associated with this object.
+     *
+     * @return true if the roles were successfully cleared, false otherwise.
+     */
+    private boolean clearRole() {
+        if (roles == null)
+            return true;
+        else
+            roles.clear();
+        return roles.isEmpty();
+    }
 
-	public boolean isEmailValidated() {
-		return emailValidated;
-	}
+    /**
+     * Checks if the email is validated.
+     *
+     * @return true if the email is validated, false otherwise.
+     */
+    public boolean isEmailValidated() {
+        return emailValidated;
+    }
 
-	public void setEmailValidated(boolean emailValidated) {
-		this.emailValidated = emailValidated;
-	}
+    /**
+     * Sets the email validation status.
+     *
+     * @param emailValidated the email validation status to set.
+     */
+    public void setEmailValidated(boolean emailValidated) {
+        this.emailValidated = emailValidated;
+    }
 
-	public Map<TicketingSystem, UserCredential> getCredentials() {
-		return credentials;
-	}
+    /**
+     * Gets the credentials associated with this object.
+     *
+     * @return the credentials as a map of TicketingSystem and UserCredential.
+     */
+    public Map<TicketingSystem, UserCredential> getCredentials() {
+        return credentials;
+    }
 
-	public void setCredentials(Map<TicketingSystem, UserCredential> credentials) {
-		this.credentials = credentials;
-	}
+    /**
+     * Sets the credentials for this object.
+     *
+     * @param credentials the credentials to set as a map of TicketingSystem and UserCredential.
+     */
+    public void setCredentials(Map<TicketingSystem, UserCredential> credentials) {
+        this.credentials = credentials;
+    }
 
 }

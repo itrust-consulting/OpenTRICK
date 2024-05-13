@@ -34,12 +34,10 @@ import lu.itrust.business.ts.model.standard.measure.AbstractNormalMeasure;
 import lu.itrust.business.ts.model.standard.measure.Measure;
 
 /**
- * RiskSheetComputation: <br>
+ * The RiskSheetComputation class is responsible for calculating the Risk Register and performing CSSF computations.
  * Computes NET Evaluation, RAW Evaluation and Expected Importance.
- * 
- * @author itrust consulting s.�.rl. : BJA, EOM, SME
- * @version 0.1
- * @since 1/04/2016
+ * It contains methods for computing the Risk Register, generating TMAs, and computing impact and probability.
+ * The class also provides constructors and getter/setter methods for accessing and modifying the analysis and factory objects.
  */
 public class RiskSheetComputation {
 

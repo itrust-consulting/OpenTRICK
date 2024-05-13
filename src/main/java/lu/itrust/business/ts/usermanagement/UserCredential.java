@@ -20,9 +20,10 @@ import org.hibernate.annotations.CascadeType;
 import lu.itrust.business.ts.model.general.Credential;
 import lu.itrust.business.ts.model.general.TicketingSystem;
 
+
 /**
- * @author eomar
- *
+ * Represents a user credential in the system.
+ * Extends the base class Credential.
  */
 @Entity
 @Cacheable
@@ -44,14 +45,29 @@ public class UserCredential extends Credential {
 		return ticketingSystem;
 	}
 
+	/**
+	 * Sets the ticketing system for the user credential.
+	 *
+	 * @param ticketingSystem the ticketing system to be set
+	 */
 	public void setTicketingSystem(TicketingSystem ticketingSystem) {
 		this.ticketingSystem = ticketingSystem;
 	}
 
+	/**
+	 * Returns the public URL.
+	 *
+	 * @return the public URL as a String.
+	 */
 	public String getPublicUrl() {
 		return publicUrl;
 	}
 
+	/**
+	 * Sets the public URL for the user credential.
+	 *
+	 * @param publicUrl the public URL to set
+	 */
 	public void setPublicUrl(String publicUrl) {
 		this.publicUrl = publicUrl;
 	}

@@ -9,8 +9,17 @@ import lu.itrust.business.ts.model.standard.measure.impl.MeasureProperties;
 import lu.itrust.business.ts.model.standard.measure.impl.NormalMeasure;
 
 /**
- * @author eomar
+ * This class is a validator for the NormalMeasure class. It extends the MeasureValidator class and provides validation logic for various fields of a NormalMeasure object.
  * 
+ * The fields that are validated by this class include:
+ * - implementationRate: The implementation rate value of the NormalMeasure object.
+ * - assetTypeValues: The asset type values of the NormalMeasure object.
+ * - measurePropertyList: The measure property list of the NormalMeasure object.
+ * - toCheck: The to check value of the NormalMeasure object.
+ * 
+ * This class provides validation methods for each of these fields, and returns an error message if the validation fails.
+ * 
+ * This class also overrides the supported() method from the MeasureValidator class to specify that it supports the NormalMeasure class.
  */
 public class NormalMeasureValidator extends MeasureValidator {
 	private static final String IMPLEMENTATION_RATE = "implementationRate";

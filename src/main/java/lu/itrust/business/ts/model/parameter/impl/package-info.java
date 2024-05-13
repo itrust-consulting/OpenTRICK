@@ -8,8 +8,4 @@
 /**
  * 
  */
-/**
- * @author eomar
- *
- */
 package lu.itrust.business.ts.model.parameter.impl;

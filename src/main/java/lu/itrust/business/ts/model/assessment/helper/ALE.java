@@ -5,9 +5,9 @@ package lu.itrust.business.ts.model.assessment.helper;
 
 import java.util.Comparator;
 
+
 /**
- * @author eom
- *
+ * The ALE (Annual Loss Expectancy) class represents an asset's name and its corresponding value.
  */
 public class ALE {
 
@@ -16,8 +16,10 @@ public class ALE {
 	private double value;
 
 	/**
-	 * @param assetName
-	 * @param value
+	 * Constructs a new ALE object with the specified asset name and value.
+	 *
+	 * @param assetName the name of the asset
+	 * @param value the value of the asset
 	 */
 	public ALE(String assetName, double value) {
 		this.assetName = assetName;
@@ -25,35 +27,46 @@ public class ALE {
 	}
 
 	/**
-	 * @return the assetName
+	 * Returns the name of the asset.
+	 *
+	 * @return the asset name
 	 */
 	public String getAssetName() {
 		return assetName;
 	}
 
 	/**
-	 * @param assetName
-	 *            the assetName to set
+	 * Sets the name of the asset.
+	 *
+	 * @param assetName the asset name to set
 	 */
 	public void setAssetName(String assetName) {
 		this.assetName = assetName;
 	}
 
 	/**
-	 * @return the value
+	 * Returns the value of the asset.
+	 *
+	 * @return the asset value
 	 */
 	public double getValue() {
 		return value;
 	}
 
 	/**
-	 * @param value
-	 *            the value to set
+	 * Sets the value of the asset.
+	 *
+	 * @param value the asset value to set
 	 */
 	public void setValue(double value) {
 		this.value = value;
 	}
 
+	/**
+	 * Returns a comparator for comparing ALE objects based on their values and asset names.
+	 *
+	 * @return a comparator for ALE objects
+	 */
 	public static Comparator<? super ALE> Comparator() {
 		return (E1, E2) -> {
 			int result = Double.compare(E1.getValue(), E2.getValue());

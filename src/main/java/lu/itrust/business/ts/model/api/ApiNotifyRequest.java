@@ -4,7 +4,6 @@ import java.util.List;
 
 /**
  * Represents an API request which contains external notifications.
- * @author Steve Muller (SMU), itrust consulting s.à r.l.
  *
  */
 public class ApiNotifyRequest {

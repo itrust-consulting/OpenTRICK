@@ -3,9 +3,9 @@
  */
 package lu.itrust.business.ts.model.scale;
 
+
 /**
- * @author eomar
- *
+ * Represents a scale used in a measurement system.
  */
 public class Scale {
 
@@ -16,63 +16,83 @@ public class Scale {
 	private double maxValue;
 
 	/**
-	 * 
+	 * Default constructor for the Scale class.
 	 */
 	public Scale() {
 	}
 
+	/**
+	 * Constructs a Scale object with the specified type, level, and maximum value.
+	 *
+	 * @param type      the type of the scale
+	 * @param level     the level of the scale
+	 * @param maxValue  the maximum value of the scale
+	 */
 	public Scale(ScaleType type, int level, double maxValue) {
 		setType(type);
 		setLevel(level);
 		setMaxValue(maxValue);
 	}
 
-
 	/**
-	 * @return the type
+	 * Returns the type of the scale.
+	 *
+	 * @return the type of the scale
 	 */
 	public ScaleType getType() {
 		return type;
 	}
 
 	/**
-	 * @param type
-	 *            the type to set
+	 * Sets the type of the scale.
+	 *
+	 * @param type the type of the scale to set
 	 */
 	public void setType(ScaleType type) {
 		this.type = type;
 	}
 
 	/**
-	 * @return the level
+	 * Returns the level of the scale.
+	 *
+	 * @return the level of the scale
 	 */
 	public int getLevel() {
 		return level;
 	}
 
 	/**
-	 * @param level
-	 *            the level to set
+	 * Sets the level of the scale.
+	 *
+	 * @param level the level of the scale to set
 	 */
 	public void setLevel(int level) {
 		this.level = level;
 	}
 
 	/**
-	 * @return the maxValue
+	 * Returns the maximum value of the scale.
+	 *
+	 * @return the maximum value of the scale
 	 */
 	public double getMaxValue() {
 		return maxValue;
 	}
 
 	/**
-	 * @param maxValue
-	 *            the maxValue to set
+	 * Sets the maximum value of the scale.
+	 *
+	 * @param maxValue the maximum value of the scale to set
 	 */
 	public void setMaxValue(double maxValue) {
 		this.maxValue = maxValue;
 	}
 	
+	/**
+	 * Merges the properties of the specified scale into this scale.
+	 *
+	 * @param scale the scale to merge
+	 */
 	public void merge(Scale scale) {
 		if (scale.type != null)
 			scale.type.forEach((local, translate) -> this.type.put(local, translate));

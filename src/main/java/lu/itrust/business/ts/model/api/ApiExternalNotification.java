@@ -3,8 +3,6 @@ package lu.itrust.business.ts.model.api;
 /**
  * Represents a notification sent by an external provider (e.g. an IDS).
  * This model is only used to describe notification objects passed to an API.
- * @author Steve Muller (SMU), itrust consulting s.à r.l.
- * @since Jun 5, 2015
  */
 public class ApiExternalNotification {
 	/**

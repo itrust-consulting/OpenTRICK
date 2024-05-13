@@ -24,9 +24,13 @@ import lu.itrust.business.ts.model.asset.Asset;
 import lu.itrust.business.ts.model.scenario.Scenario;
 
 /**
- * RiskRegisterItem: <br>
- * This Class represents a single Entry inside the Risk Register. A Item has as
- * fields:<br>
+ * Represents a Risk Register Item.
+ * 
+ * This class is used to store information about a risk register item, including its identifier, scenario, asset, and evaluation data.
+ * It provides methods to get and set the values of its fields, as well as merge the properties of another risk register item into this one.
+ * It also provides a method to check if the asset and scenario IDs match the IDs of the current RiskRegisterItem.
+ * 
+ * This Class represents a single Entry inside the Risk Register. An Item has fields:<br>
  * <ul>
  * <li>Scenario Object</li>
  * <li>Position in the List</li>
@@ -35,10 +39,6 @@ import lu.itrust.business.ts.model.scenario.Scenario;
  * <li>Expected: Probability - Impact - Importance</li>
  * <li>Strategy</li>
  * </ul>
- * 
- * @author itrust consulting s.a r.l. - BJA, SME, EOM
- * @version 0.1
- * @since 2012-12-11
  */
 @Entity
 @Cacheable
@@ -246,6 +246,12 @@ public class RiskRegisterItem {
 		this.asset = asset;
 	}
 
+	/**
+	 * Merges the properties of the given risk register item into this risk register item.
+	 * 
+	 * @param riskRegister The risk register item to merge.
+	 * @return The merged risk register item.
+	 */
 	public RiskRegisterItem merge(RiskRegisterItem riskRegister) {
 		if (riskRegister != null) {
 			this.expectedEvaluation = riskRegister.expectedEvaluation;
@@ -255,6 +261,13 @@ public class RiskRegisterItem {
 		return this;
 	}
 
+	/**
+	 * Checks if the given asset and scenario IDs match the IDs of the current RiskRegisterItem.
+	 * 
+	 * @param idAsset The ID of the asset to compare.
+	 * @param idScenario The ID of the scenario to compare.
+	 * @return {@code true} if the asset and scenario IDs match, {@code false} otherwise.
+	 */
 	public Boolean is(int idAsset, int idScenario) {
 		return asset.getId() == idAsset && scenario.getId() == idScenario;
 	}
@@ -295,6 +308,15 @@ public class RiskRegisterItem {
 		return asset.getName() + "^NAME-'RISK_REGISTER'-NAME^" + scenario.getName();
 	}
 
+	/**
+	 * Checks if the risk register item is compliant based on the given impact and probability values.
+	 *
+	 * @param impact the impact value to compare with the net evaluation impact
+	 * @param probability the probability value to compare with the net evaluation probability
+	 * @return true if the net evaluation impact is greater than or equal to the given impact
+	 *         and the net evaluation probability is greater than or equal to the given probability,
+	 *         false otherwise
+	 */
 	public boolean isCompliant(double impact, double probability) {
 		return netEvaluation.getImpact() >= impact && netEvaluation.getProbability() >= probability;
 	}

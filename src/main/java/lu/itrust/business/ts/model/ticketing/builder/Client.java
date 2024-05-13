@@ -16,8 +16,9 @@ import lu.itrust.business.ts.model.ticketing.TicketingProject;
 import lu.itrust.business.ts.model.ticketing.TicketingTask;
 
 /**
- * @author eomar
- *
+ * The Client interface represents a client for interacting with a ticketing system.
+ * It provides methods for connecting to the ticketing system, creating and finding tasks,
+ * and retrieving project information.
  */
 public interface Client extends Closeable {
 	

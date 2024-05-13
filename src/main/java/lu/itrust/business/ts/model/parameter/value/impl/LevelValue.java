@@ -1,6 +1,3 @@
-/**
- * 
- */
 package lu.itrust.business.ts.model.parameter.value.impl;
 
 import jakarta.persistence.Access;
@@ -17,9 +14,11 @@ import lu.itrust.business.ts.model.parameter.ILevelParameter;
 import lu.itrust.business.ts.model.parameter.value.IValue;
 import lu.itrust.business.ts.model.parameter.value.NumericValue;
 
+
 /**
- * @author eomar
- *
+ * Represents a level value in the system.
+ * Extends the NumericValue class and implements the IValue interface.
+ * Provides methods to get and set the level value, as well as merge with another value.
  */
 @Entity
 @Cacheable
@@ -63,6 +62,12 @@ public class LevelValue extends NumericValue {
 		return getParameter().getValue();
 	}
 
+	/**
+	 * Merges the given value with this LevelValue.
+	 * 
+	 * @param value the value to merge with
+	 * @return true if the merge was successful, false otherwise
+	 */
 	@Override
 	public boolean merge(IValue value) {
 		if (value == null || !(value instanceof LevelValue))
@@ -72,6 +77,11 @@ public class LevelValue extends NumericValue {
 		return true;
 	}
 
+	/**
+	 * Returns the raw value of the LevelValue object.
+	 *
+	 * @return the raw value as an Object
+	 */
 	@Override
 	public Object getRaw() {
 		return getVariable();

@@ -35,10 +35,6 @@ import lu.itrust.business.ts.model.standard.measuredescription.MeasureDescriptio
  * <br>
  * - Asset Type Values <br>
  * - Data for measures of Analysisstandard 27001, 27002 and custom standards
- * 
- * @author itrust consulting s.à r.l. - BJA,SME
- * @version 0.1
- * @since 2012-08-21
  */
 @Entity
 @PrimaryKeyJoinColumn(name = "idNormalMeasure")

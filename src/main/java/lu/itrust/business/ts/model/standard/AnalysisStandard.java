@@ -35,10 +35,6 @@ import lu.itrust.business.ts.model.standard.measuredescription.MeasureDescriptio
 /**
  * AnalysisStandard: <br>
  * This class represents a AnalysisStandard and its data
- * 
- * @author itrust consulting s.à r.l. - BJA,SME
- * @version 0.1
- * @since 2012-08-21
  */
 @Entity
 @Cacheable
@@ -309,6 +305,11 @@ public abstract class AnalysisStandard implements Cloneable {
 
 	public abstract void add(Measure measure);
 
+	/**
+	 * Adds a measure description to this analysis standard.
+	 *
+	 * @param measureDescription the measure description to be added
+	 */
 	public abstract void add(MeasureDescription measureDescription);
 
 }

@@ -12,9 +12,30 @@ import lu.itrust.business.ts.model.standard.measure.Measure;
 import lu.itrust.business.ts.model.standard.measuredescription.MeasureDescription;
 import lu.itrust.business.ts.validator.field.ValidatorFieldImpl;
 
+
 /**
- * @author eomar
+ * This class is responsible for validating the fields of a measure.
+ * It extends the ValidatorFieldImpl class.
  * 
+ * The following fields are used for validation:
+ * - IMPORTANCE: Represents the importance of the measure.
+ * - ANALYSIS_STANDARD: Represents the analysis standard attached to the measure.
+ * - MEASURE_DESCRIPTION: Represents the description of the measure.
+ * - PHASE: Represents the phase in which the measure belongs.
+ * - STATUS: Represents the status of the measure.
+ * - INTERNAL_WL: Represents the internal workload of the measure.
+ * - EXTERNAL_WL: Represents the external workload of the measure.
+ * - INVESTMENT: Represents the investment required for the measure.
+ * - LIFETIME: Represents the lifetime of the measure.
+ * - MAINTENANCE: Represents the maintenance recurrent investment of the measure.
+ * - COST: Represents the cost of the measure.
+ * - COMMENT: Represents the comment associated with the measure.
+ * - TO_DO: Represents the to-do list associated with the measure.
+ * 
+ * The class provides a validate() method that takes a field name and a candidate value as parameters.
+ * It validates the candidate value based on the field name and returns an error message if the validation fails.
+ * 
+ * Note: This class assumes the existence of certain error messages for validation failures.
  */
 public class MeasureValidator extends ValidatorFieldImpl {
 

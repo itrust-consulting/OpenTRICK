@@ -28,8 +28,17 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import lu.itrust.business.ts.constants.Constant;
 
 /**
- * @author eomar
- *
+ * This class is a filter that handles API authentication for incoming requests.
+ * It extends the OncePerRequestFilter class from Spring Security.
+ * 
+ * The filter is responsible for authenticating requests based on the provided token.
+ * If a token is present in the request header, the filter will attempt to authenticate the token.
+ * If the authentication is successful, the authenticated user is stored in the SecurityContextHolder.
+ * 
+ * The filter can be configured with an AuthenticationManager, AuthenticationEntryPoint,
+ * AuthenticationDetailsSource, RememberMeServices, and an option to ignore authentication failures.
+ * 
+ * This filter should be added to the Spring Security filter chain to enable API authentication.
  */
 public class ApiAuthenticationFilter extends OncePerRequestFilter {
 

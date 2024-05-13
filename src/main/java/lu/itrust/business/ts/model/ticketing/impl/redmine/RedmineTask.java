@@ -13,8 +13,8 @@ import lu.itrust.business.ts.model.ticketing.TicketingTask;
 import lu.itrust.business.ts.model.ticketing.impl.AbstractTask;
 
 /**
- * @author eomar
- *
+ * Represents a Redmine task.
+ * Extends the AbstractTask class.
  */
 public class RedmineTask extends AbstractTask {
 	

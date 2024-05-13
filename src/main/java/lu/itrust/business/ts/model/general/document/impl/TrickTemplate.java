@@ -1,6 +1,3 @@
-/**
- * 
- */
 package lu.itrust.business.ts.model.general.document.impl;
 
 import org.hibernate.annotations.Cache;
@@ -22,8 +19,9 @@ import lu.itrust.business.ts.model.general.Language;
 import lu.itrust.business.ts.model.general.document.AnalysisDocument;
 
 /**
- * @author eomar
- *
+ * Represents a Trick Template, which is a specific type of Analysis Document.
+ * It contains information about the template's analysis type, language, editability, type, and version.
+ * It also provides methods to update the template and retrieve its key.
  */
 @Entity
 @Cacheable
@@ -63,6 +61,11 @@ public class TrickTemplate extends AnalysisDocument {
 		setAnalysisType(analysisType);
 	}
 
+	/**
+	 * Represents a Trick Template.
+	 * 
+	 * This class provides a constructor to create a Trick Template object with the specified parameters.
+	 */
 	public TrickTemplate(TrickTemplateType type, Language language, String label, String version, String filename,
 			byte[] file, long size) {
 		this(type, AnalysisType.HYBRID, language, label, version, filename, file, size);
@@ -88,20 +91,41 @@ public class TrickTemplate extends AnalysisDocument {
 		setAnalysisType(analysisType);
 	}
 
+	/**
+	 * Returns the language of the document.
+	 *
+	 * @return the language of the document
+	 */
 	public Language getLanguage() {
 		return language;
 	}
 
+	/**
+	 * Sets the language of the trick template.
+	 *
+	 * @param language the language to set
+	 */
 	public void setLanguage(Language language) {
 		this.language = language;
 	}
 
+	/**
+	 * Returns the key for the TrickTemplate.
+	 *
+	 * @return the key in the format: "{analysisType}-_-Report-#$#-TS-{type}-#&#-Template-_-{language}"
+	 */
 	@Transient
 	public String getKey() {
 		return String.format("%s-_-Report-#$#-TS-%s-#&#-Template-_-%s", getAnalysisType(), getType(),
 				getLanguage() == null ? "ALL" : getLanguage().getAlpha3());
 	}
 
+	/**
+	 * Updates the current TrickTemplate object with the values from the provided template.
+	 * If the provided template has non-null data, the data and name fields of the current object are updated as well.
+	 *
+	 * @param template The TrickTemplate object containing the updated values.
+	 */
 	public void update(TrickTemplate template) {
 		setType(template.getType());
 		setAnalysisType(template.getAnalysisType());
@@ -116,34 +140,72 @@ public class TrickTemplate extends AnalysisDocument {
 		}
 	}
 
+	/**
+	 * Returns a boolean value indicating whether the document is editable or not.
+	 *
+	 * @return true if the document is editable, false otherwise
+	 */
 	public boolean isEditable() {
 		return editable;
 	}
 
+	/**
+	 * Sets the editable flag for this TrickTemplate.
+	 *
+	 * @param editable true if the TrickTemplate is editable, false otherwise
+	 */
 	public void setEditable(boolean editable) {
 		this.editable = editable;
 	}
 
+	/**
+	 * Checks if the trick template is out of date.
+	 *
+	 * @return true if the trick template is out of date, false otherwise.
+	 */
 	public boolean isOutToDate() {
 		return outToDate;
 	}
 
+	/**
+	 * Sets the flag indicating whether the document is out of date.
+	 *
+	 * @param outToDate true if the document is out of date, false otherwise
+	 */
 	public void setOutToDate(boolean outToDate) {
 		this.outToDate = outToDate;
 	}
 
+	/**
+	 * Returns the analysis type of the trick template.
+	 *
+	 * @return the analysis type of the trick template
+	 */
 	public AnalysisType getAnalysisType() {
 		return analysisType;
 	}
 
+	/**
+	 * Sets the analysis type for the TrickTemplate.
+	 *
+	 * @param analysisType the analysis type to be set
+	 */
 	public void setAnalysisType(AnalysisType analysisType) {
 		this.analysisType = analysisType;
 	}
 
+	/**
+	 * Represents the type of a trick template.
+	 */
 	public TrickTemplateType getType() {
 		return type;
 	}
 
+	/**
+	 * Sets the type of the TrickTemplate.
+	 *
+	 * @param type the TrickTemplateType to set
+	 */
 	public void setType(TrickTemplateType type) {
 		this.type = type;
 	}

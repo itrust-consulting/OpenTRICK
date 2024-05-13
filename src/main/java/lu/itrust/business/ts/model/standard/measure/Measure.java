@@ -39,10 +39,18 @@ import lu.itrust.business.ts.model.standard.measuredescription.MeasureDescriptio
  * This class represents a Measure and its data. This class has fields that are
  * used in Maturity and AnalysisStandard Meaure classes. (Both are extended by
  * this class)
+ */
+/**
+ * This class represents a Measure and its data. This class has fields that are
+ * used in Maturity and AnalysisStandard Meaure classes. (Both are extended by
+ * this class)
+ * Measure is an abstract class that represents a measure in the system.
+ * It provides fields and methods to manage various properties of a measure,
+ * such as its identifier, status, implementation rate, workloads, investment,
+ * lifetime, cost, comment, and to-do.
  * 
- * @author itrust consulting s.à r.l. - BJA,SME
- * @version 0.1
- * @since 2012-08-21
+ * This class is intended to be extended by concrete measure classes that
+ * define specific types of measures.
  */
 @Entity
 @Cacheable

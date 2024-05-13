@@ -17,13 +17,10 @@ import org.hibernate.annotations.ColumnDefault;
 import freemarker.template.utility.NullArgumentException;
 import lu.itrust.business.ts.model.standard.AnalysisStandard;
 
+
 /**
- * SummaryStandardConformance.java: <br>
- * Detailed description...
- *
- * @author smenghi itrust consulting s.a.rl.:
- * @version
- * @since Aug 26, 2014
+ * Represents a summary of standard conformance for an action plan.
+ * This class is used to store information about the conformance level and the number of not compliant measures for a specific analysis standard.
  */
 @Entity
 @Cacheable

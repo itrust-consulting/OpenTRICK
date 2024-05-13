@@ -22,8 +22,11 @@ import lu.itrust.business.ts.model.parameter.impl.LikelihoodParameter;
 import lu.itrust.business.ts.model.scale.ScaleType;
 
 /**
- * @author eomar
- *
+ * The ScaleLevelConvertor class is responsible for converting and mapping scale levels and parameters.
+ * It provides methods to set up likelihood parameters and impact parameters based on given mappers and lists.
+ * The class also includes methods to compute likelihoods and impacts based on maximum values.
+ * It maintains mappings between parameters, acronyms, and levels using LinkedHashMaps.
+ * The class implements the IBoundedParameter interface and provides methods to find parameters based on various criteria.
  */
 public class ScaleLevelConvertor {
 
@@ -53,6 +56,12 @@ public class ScaleLevelConvertor {
 
 	}
 
+	/**
+	 * Sets up the likelihood parameters based on the given mappers and likelihoods.
+	 *
+	 * @param mappers     the map of levels and matching levels
+	 * @param likelihoods the list of likelihood parameters
+	 */
 	private void setUpLikelihood(Map<Integer, List<Integer>> mappers, List<LikelihoodParameter> likelihoods) {
 		final Map<Integer, LikelihoodParameter> levelMapping = likelihoods.stream()
 				.collect(Collectors.toMap(LikelihoodParameter::getLevel, Function.identity()));
@@ -87,6 +96,12 @@ public class ScaleLevelConvertor {
 		}
 	}
 
+	/**
+	 * Sets up the impacts by mapping impact parameters to their corresponding levels.
+	 * 
+	 * @param mappers           a map of levels and matching levels
+	 * @param impactParameters  a list of impact parameters
+	 */
 	private void setUpImpacts(Map<Integer, List<Integer>> mappers, List<ImpactParameter> impactParameters) {
 		final Map<ScaleType, List<ImpactParameter>> mappedImpacts = new LinkedHashMap<>();
 		impactParameters.stream().collect(Collectors.groupingBy(ImpactParameter::getType)).forEach((type, impacts) -> {
@@ -127,6 +142,12 @@ public class ScaleLevelConvertor {
 
 	}
 
+	/**
+	 * Computes the likelihoods based on the given maximum value and a list of LikelihoodParameter objects.
+	 *
+	 * @param maxValue    the maximum value to be used for computing the likelihoods
+	 * @param likelihoods the list of LikelihoodParameter objects to be updated with computed values
+	 */
 	public static void computeLikelihoods(double maxValue, List<LikelihoodParameter> likelihoods) {
 		final int maxLevel = likelihoods.size();
 		double currentValue = maxValue;
@@ -155,6 +176,12 @@ public class ScaleLevelConvertor {
 
 	}
 
+	/**
+	 * Computes the impacts based on the given maximum value and list of impact parameters.
+	 *
+	 * @param maxValue The maximum value to compute impacts for.
+	 * @param impacts  The list of impact parameters.
+	 */
 	public static void computeImpacts(double maxValue, List<ImpactParameter> impacts) {
 		final int maxLevel = impacts.size();
 		double currentValue = maxValue;
@@ -183,44 +210,92 @@ public class ScaleLevelConvertor {
 
 	}
 
+	/**
+	 * Initializes the ScaleLevelConvertor with the specified capacity.
+	 *
+	 * @param i the initial capacity of the LinkedHashMaps
+	 */
 	private void initialise(int i) {
 		acronymMappers = new LinkedHashMap<>(i);
 		levelMappers = new LinkedHashMap<>(i);
 		parameterMapper = new LinkedHashMap<>(i);
 	}
 
+	/**
+	 * Returns the map of acronym mappers.
+	 *
+	 * @return The map of acronym mappers.
+	 */
 	protected Map<String, IBoundedParameter> getAcronymMappers() {
 		return acronymMappers;
 	}
 
+	/**
+	 * Sets the acronym mappers for the ScaleLevelConvertor.
+	 *
+	 * @param acronymMappers the map of acronym mappers to set
+	 */
 	protected void setAcronymMappers(Map<String, IBoundedParameter> acronymMappers) {
 		this.acronymMappers = acronymMappers;
 	}
 
+	/**
+	 * Returns the level mappers map.
+	 *
+	 * @return the level mappers map
+	 */
 	protected Map<String, IBoundedParameter> getLevelMappers() {
 		return levelMappers;
 	}
 
+	/**
+	 * Sets the level mappers for the ScaleLevelConvertor.
+	 *
+	 * @param levelMappers a map of level mappers to be set
+	 */
 	protected void setLevelMappers(Map<String, IBoundedParameter> levelMappers) {
 		this.levelMappers = levelMappers;
 	}
 
+	/**
+	 * Returns the parameter mapper, which is a map of bounded parameters.
+	 *
+	 * @return the parameter mapper
+	 */
 	protected Map<IBoundedParameter, IBoundedParameter> getParameterMapper() {
 		return parameterMapper;
 	}
 
+	/**
+	 * Sets the parameter mapper for this ScaleLevelConvertor.
+	 *
+	 * @param parameterMapper the parameter mapper to be set
+	 */
 	protected void setParameterMapper(Map<IBoundedParameter, IBoundedParameter> parameterMapper) {
 		this.parameterMapper = parameterMapper;
 	}
 
+	/**
+	 * Returns the list of bounded parameters.
+	 *
+	 * @return the list of bounded parameters
+	 */
 	public List<IBoundedParameter> getParameters() {
 		return parameters;
 	}
 
+	/**
+	 * Sets the list of parameters for the ScaleLevelConvertor.
+	 *
+	 * @param parameters the list of IBoundedParameter objects to set
+	 */
 	protected void setParameters(List<IBoundedParameter> parameters) {
 		this.parameters = parameters;
 	}
 
+	/**
+	 * finds the parameters corresponding to likelihood parameter
+	 * */
 	public IBoundedParameter find(IBoundedParameter parameter) {
 		return parameterMapper.get(parameter);
 	}
@@ -233,6 +308,9 @@ public class ScaleLevelConvertor {
 		return acronymMappers.get(acronym);
 	}
 
+	/**
+	 * Clears all the mappings and parameters in the ScaleLevelConvertor.
+	 */
 	public void clear() {
 		this.acronymMappers.clear();
 		this.levelMappers.clear();
@@ -240,6 +318,11 @@ public class ScaleLevelConvertor {
 		this.parameters.clear();
 	}
 
+	/**
+	 * Returns a collection of deletable IBoundedParameters.
+	 *
+	 * @return a collection of deletable IBoundedParameters
+	 */
 	public Collection<IBoundedParameter> getDeletables() {
 		return parameterMapper.keySet();
 	}

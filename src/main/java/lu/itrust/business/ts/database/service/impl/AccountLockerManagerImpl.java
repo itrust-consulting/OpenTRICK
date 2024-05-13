@@ -127,7 +127,7 @@ public class AccountLockerManagerImpl implements AccountLockerManager, Serializa
 			synchronized (lockedUsers) {
 				if (!lockedUsers.isEmpty())
 					lockedUsers.entrySet()
-							.removeIf(entry -> (entry.getValue().getLastAttemption() + lockTime) < currentTime
+							.removeIf(entry -> (entry.getValue().getLastAttempt() + lockTime) < currentTime
 									&& entry.getValue().getLockTime() < currentTime);
 			}
 			if (!unlockCodes.isEmpty()) {
@@ -162,7 +162,7 @@ public class AccountLockerManagerImpl implements AccountLockerManager, Serializa
 
 	@Value("${app.settings.max.attempt}")
 	public void setAttemptionCount(int attemption) {
-		Constant.APPLICATION_SECURITY_MAX_ATTEMPTION = attemption;
+		Constant.APPLICATION_SECURITY_MAX_ATTEMPTS = attemption;
 	}
 
 	@Override

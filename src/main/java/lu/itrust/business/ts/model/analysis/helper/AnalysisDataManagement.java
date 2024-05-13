@@ -9,17 +9,17 @@ import lu.itrust.business.ts.model.general.Phase;
 import lu.itrust.business.ts.model.iteminformation.ItemInformation;
 import lu.itrust.business.ts.model.standard.measure.Measure;
 
+
 /**
- * @author eomar
- *
+ * The AnalysisDataManagement class provides utility methods for initializing item information, computing costs, and finding phases in an analysis.
  */
 public final class AnalysisDataManagement {
 
 	/**
-	 * initialiseEmptyItemInformation: <br>
-	 * Description
-	 * 
-	 * @param analysis
+	 * Initializes the item information for the given analysis.
+	 * If the analysis is null, the method returns without performing any action.
+	 *
+	 * @param analysis the analysis for which to initialize the item information
 	 */
 	public static final void initialiseEmptyItemInformation(Analysis analysis) {
 		if (analysis == null)
@@ -172,18 +172,30 @@ public final class AnalysisDataManagement {
 		return cost;
 	}
 
+	/**
+	 * Finds the Phase based on ID in an analysis
+	 */
 	public static Phase findPhaseById(int id, Analysis analysis) {
 		return analysis.getPhases().stream().filter(p -> p.getId() == id).findAny().orElse(null);
 	}
 
+	/**
+	 * Finds the Last Phase in an analysis
+	 */
 	public static Phase findLastPhase(Analysis analysis) {
 		return analysis.getPhases().stream().max((p1, p2) -> Integer.compare(p1.getNumber(), p2.getNumber())).orElse(null);
 	}
 
+	/**
+	 * Finds the Phase previous to the specified phase in an analysis
+	 */
 	public static Phase findPreviousPhase(Phase phase, Analysis analysis) {
 		return phase.getNumber() <= 1 ? null : findPhaseByNumber(phase.getNumber() - 1, analysis);
 	}
 
+	/**
+	 * Finds the Phase based on phase number in an analysis
+	*/
 	public static Phase findPhaseByNumber(final int number, Analysis analysis) {
 		return analysis.getPhases().stream().filter(p -> p.getNumber() == number).findAny().orElse(null);
 	}

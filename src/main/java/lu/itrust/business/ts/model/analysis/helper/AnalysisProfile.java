@@ -8,114 +8,106 @@ import java.util.List;
 
 import lu.itrust.business.ts.model.standard.Standard;
 
+
 /**
- * AnalysisProfile.java: <br>
- * Detailed description...
- *
- * @author eomar, itrust consulting s.à.rl.
- * @version 
- * @since Feb 12, 2014
+ * Represents an analysis profile.
  */
 public class AnalysisProfile {
 
-	/** name */
+	/** The name of the analysis profile. */
 	private String name;
 
+	/** The ID of the analysis. */
 	private int idAnalysis;
 
+	/** The list of standards associated with the analysis profile. */
 	private List<Standard> standards = new ArrayList<Standard>();
 
+	/** Indicates whether the analysis profile is a scenario. */
 	private boolean scenario = true;
 
 	/**
-	 * Constructor: <br>
+	 * Default constructor for the AnalysisProfile class.
 	 */
 	public AnalysisProfile() {
 	}
 
 	/**
-	 * Constructor: <br>
-	 * @param analysisId
+	 * Constructor for the AnalysisProfile class.
+	 * 
+	 * @param analysisId The ID of the analysis.
 	 */
 	public AnalysisProfile(int analysisId) {
 		setIdAnalysis(analysisId);
 	}
 
 	/**
-	 * getName: <br>
-	 * Description
+	 * Gets the name of the analysis profile.
 	 * 
-	 * @return
+	 * @return The name of the analysis profile.
 	 */
 	public String getName() {
 		return name;
 	}
 
 	/**
-	 * setName: <br>
-	 * Description
+	 * Sets the name of the analysis profile.
 	 * 
-	 * @param name
+	 * @param name The name of the analysis profile.
 	 */
 	public void setName(String name) {
 		this.name = name;
 	}
 
 	/**
-	 * getStandards: <br>
-	 * Description
+	 * Gets the list of standards associated with the analysis profile.
 	 * 
-	 * @return
+	 * @return The list of standards associated with the analysis profile.
 	 */
 	public List<Standard> getStandards() {
 		return standards;
 	}
 
 	/**
-	 * setStandards: <br>
-	 * Description
+	 * Sets the list of standards associated with the analysis profile.
 	 * 
-	 * @param standards
+	 * @param standards The list of standards associated with the analysis profile.
 	 */
 	public void setStandards(List<Standard> standards) {
 		this.standards = standards;
 	}
 
 	/**
-	 * getIdAnalysis: <br>
-	 * Description
+	 * Gets the ID of the analysis.
 	 * 
-	 * @return
+	 * @return The ID of the analysis.
 	 */
 	public int getIdAnalysis() {
 		return idAnalysis;
 	}
 
 	/**
-	 * setIdAnalysis: <br>
-	 * Description
+	 * Sets the ID of the analysis.
 	 * 
-	 * @param idAnalysis
+	 * @param idAnalysis The ID of the analysis.
 	 */
 	public void setIdAnalysis(int idAnalysis) {
 		this.idAnalysis = idAnalysis;
 	}
 
 	/**
-	 * isScenario: <br>
-	 * Description
+	 * Checks if the analysis profile is a scenario.
 	 * 
-	 * @return
+	 * @return true if the analysis profile is a scenario, false otherwise.
 	 */
 	public boolean isScenario() {
 		return scenario;
 	}
 
 	/**
-	 * setScenario: <br>
-	 * Description
+	 * Sets whether the analysis profile is a scenario.
 	 * 
-	 * @param scenario
+	 * @param scenario true if the analysis profile is a scenario, false otherwise.
 	 */
 	public void setScenario(boolean scenario) {
 		this.scenario = scenario;

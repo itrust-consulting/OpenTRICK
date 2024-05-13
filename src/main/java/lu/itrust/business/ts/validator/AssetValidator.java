@@ -12,6 +12,11 @@ import lu.itrust.business.ts.model.asset.Asset;
 import lu.itrust.business.ts.model.asset.AssetType;
 import lu.itrust.business.ts.validator.field.ValidatorFieldImpl;
 
+/**
+ * The AssetValidator class is responsible for validating assets.
+ * It implements the Validator interface and extends the ValidatorFieldImpl class.
+ * This class provides methods to validate various fields of an asset object.
+ */
 public class AssetValidator extends ValidatorFieldImpl implements Validator {
 
 	private Pattern editableField = Pattern.compile("comment|hiddenComment|relatedName");
@@ -24,6 +29,13 @@ public class AssetValidator extends ValidatorFieldImpl implements Validator {
 		return editableField.matcher(fieldName).find();
 	}
 
+	/**
+	 * Validates the given field name and candidate value.
+	 * 
+	 * @param fieldName  the name of the field to validate
+	 * @param candidate  the value of the field to validate
+	 * @return           an error message if validation fails, otherwise null
+	 */
 	@Override
 	public String validate(String fieldName, Object candidate) {
 		if (fieldName == null || fieldName.trim().isEmpty())
@@ -57,11 +69,31 @@ public class AssetValidator extends ValidatorFieldImpl implements Validator {
 		return null;
 	}
 
+	/**
+	 * Validates the given object and returns a string representation of the validation result.
+	 *
+	 * @param o the object to be validated
+	 * @param fieldName the name of the field being validated
+	 * @param candidate the candidate value to be validated
+	 * @param choose an array of objects to choose from during validation
+	 * @return a string representation of the validation result
+	 * @throws TrickException if an error occurs during validation
+	 */
 	@Override
 	public String validate(Object o, String fieldName, Object candidate, Object[] choose) throws TrickException {
 		return validate(o, fieldName, candidate);
 	}
 
+	/**
+	 * Validates the given object and returns a string representation of the validation result.
+	 *
+	 * @param o the object to be validated
+	 * @param fieldName the name of the field being validated
+	 * @param candidate the candidate value to be validated
+	 * @param choose a collection of objects to choose from during validation
+	 * @return a string representation of the validation result
+	 * @throws TrickException if an error occurs during validation
+	 */
 	@Override
 	public String validate(Object o, String fieldName, Object candidate, Collection<Object> choose) throws TrickException {
 		return validate(o, fieldName, candidate);
@@ -72,6 +104,12 @@ public class AssetValidator extends ValidatorFieldImpl implements Validator {
 		return Asset.class;
 	}
 
+	/**
+	 * Validates the given object and populates the provided Errors object with any validation errors.
+	 *
+	 * @param arg0 The object to be validated.
+	 * @param arg1 The Errors object to store validation errors.
+	 */
 	@Override
 	public void validate(Object arg0, Errors arg1) {
 		

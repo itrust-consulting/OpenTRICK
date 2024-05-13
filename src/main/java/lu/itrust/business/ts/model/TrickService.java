@@ -14,10 +14,6 @@ import org.springframework.beans.factory.annotation.Value;
 /** 
  * TrickService.java: <br>
  * Detailed description...
- *
- * @author smenghi, itrust consulting s.à.rl.
- * @version 
- * @since Apr 23, 2014
  */
 @Entity
 @Cacheable

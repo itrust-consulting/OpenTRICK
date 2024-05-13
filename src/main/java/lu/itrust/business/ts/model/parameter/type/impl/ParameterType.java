@@ -13,11 +13,7 @@ import lu.itrust.business.ts.exception.TrickException;
 /**
  * ParameterType: <br>
  * Represents the SimpleParameter Type as Name.
- * 
- * @author itrust consulting s.à r.l. : EOM, BJA, SME
- * @version 0.1
- * @since 25 janv. 2013
- */
+  */
 @Entity
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)

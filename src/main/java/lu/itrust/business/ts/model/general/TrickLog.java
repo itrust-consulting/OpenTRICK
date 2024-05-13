@@ -27,8 +27,15 @@ import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
 /**
- * @author eomar
- *
+ * The TrickLog class represents a log entry for a trick in the system.
+ * It contains information such as the log level, log type, code, message, author, action, creation timestamp, and parameters.
+ * 
+ * This class is annotated with JPA annotations to map it to a database table.
+ * It also includes various constructors and getter/setter methods for accessing and modifying the log properties.
+ * 
+ * The class provides a utility method to convert an array to a list.
+ * 
+ * The class also includes a method to format the log entry in the Log4J format.
  */
 @Entity
 @Cacheable
@@ -220,6 +227,13 @@ public class TrickLog {
 		this.parameters = ToList(parameters);
 	}
 
+	/**
+	 * Converts an array to a list.
+	 *
+	 * @param array the array to be converted
+	 * @param <T>   the type of elements in the array
+	 * @return a list containing the elements of the array
+	 */
 	public static <T> List<T> ToList(T[] array) {
 		if (array == null)
 			return new LinkedList<T>();
@@ -229,78 +243,167 @@ public class TrickLog {
 		return tList;
 	}
 
+	/**
+	 * Returns the ID of the TrickLog.
+	 *
+	 * @return the ID of the TrickLog
+	 */
 	public long getId() {
 		return id;
 	}
 
+	/**
+	 * Sets the ID of the TrickLog.
+	 *
+	 * @param id the ID to set
+	 */
 	public void setId(long id) {
 		this.id = id;
 	}
 
+	/**
+	 * Represents the log level of a trick log.
+	 */
 	public LogLevel getLevel() {
 		return level;
 	}
 
+	/**
+	 * Sets the log level for this TrickLog instance.
+	 *
+	 * @param level the log level to set
+	 */
 	public void setLevel(LogLevel level) {
 		this.level = level;
 	}
 
+	/**
+	 * Represents the type of a log.
+	 */
 	public LogType getType() {
 		return type;
 	}
 
+	/**
+	 * Sets the type of the trick log.
+	 *
+	 * @param type the type of the trick log
+	 */
 	public void setType(LogType type) {
 		this.type = type;
 	}
 
+	/**
+	 * Returns the code associated with this TrickLog.
+	 *
+	 * @return the code associated with this TrickLog
+	 */
 	public String getCode() {
 		return code;
 	}
 
+	/**
+	 * Sets the code for the TrickLog.
+	 *
+	 * @param code the code to set
+	 */
 	public void setCode(String code) {
 		this.code = code;
 	}
 
+	/**
+	 * Returns the message associated with this TrickLog.
+	 *
+	 * @return the message associated with this TrickLog
+	 */
 	public String getMessage() {
 		return message;
 	}
 
+	/**
+	 * Sets the message for the TrickLog.
+	 *
+	 * @param message the message to set
+	 */
 	public void setMessage(String message) {
 		this.message = message;
 	}
 
+	/**
+	 * Returns the timestamp when the TrickLog was created.
+	 *
+	 * @return the created timestamp
+	 */
 	public Timestamp getCreated() {
 		return created;
 	}
 
+	/**
+	 * Sets the timestamp when the trick log was created.
+	 *
+	 * @param created the timestamp when the trick log was created
+	 */
 	public void setCreated(Timestamp created) {
 		this.created = created;
 	}
 
+	/**
+	 * Returns the list of parameters associated with this TrickLog.
+	 *
+	 * @return the list of parameters
+	 */
 	public List<String> getParameters() {
 		return parameters;
 	}
 
+	/**
+	 * Sets the parameters for the TrickLog.
+	 *
+	 * @param parameters the list of parameters to set
+	 */
 	public void setParameters(List<String> parameters) {
 		this.parameters = parameters;
 	}
 
+	/**
+	 * Returns the author of the trick log.
+	 *
+	 * @return the author of the trick log
+	 */
 	public String getAuthor() {
 		return author;
 	}
 
+	/**
+	 * Sets the author of the trick log.
+	 *
+	 * @param author the author to set
+	 */
 	public void setAuthor(String author) {
 		this.author = author;
 	}
 
+	/**
+	 * Represents an action performed in a log entry.
+	 */
 	public LogAction getAction() {
 		return action;
 	}
 
+	/**
+	 * Sets the action for the TrickLog.
+	 *
+	 * @param action the action to set
+	 */
 	public void setAction(LogAction action) {
 		this.action = action;
 	}
 
+	/**
+	 * Converts the TrickLog object to a formatted string in the Log4J format.
+	 *
+	 * @return The formatted string representation of the TrickLog object.
+	 */
 	public String toLog4J() {
 		return String.format("%s %s %s %s %s %s", created, level, type, action, author, message);
 	}

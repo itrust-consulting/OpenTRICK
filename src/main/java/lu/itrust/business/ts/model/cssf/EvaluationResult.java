@@ -15,10 +15,6 @@ import lu.itrust.business.ts.exception.TrickException;
  * <li>Impact</li>
  * <li>Importance</li>
  * </ul>
- * 
- * @author itrust consulting s.a.rl. - BJA, SME, EOM
- * @version 0.1
- * @since 2012-12-11
  */
 @Embeddable 
 public class EvaluationResult {

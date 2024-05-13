@@ -14,10 +14,6 @@ import lu.itrust.business.ts.model.scenario.Scenario;
  * <li>SQLite <-> MySQL</li>
  * <li>Scenario type -> Generic Type</li>
  * </ul>
- * 
- * @author itrust consulting s.�.rl. : BJA, EOM, SME
- * @version 0.1
- * @since 4 janv. 2013
  */
 public class CategoryConverter {
 

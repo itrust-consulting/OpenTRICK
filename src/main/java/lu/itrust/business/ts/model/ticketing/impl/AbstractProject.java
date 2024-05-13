@@ -5,9 +5,10 @@ package lu.itrust.business.ts.model.ticketing.impl;
 
 import lu.itrust.business.ts.model.ticketing.TicketingProject;
 
+
 /**
- * @author eomar
- *
+ * This class represents an abstract implementation of a ticketing project.
+ * It provides basic functionality for managing project details such as id and name.
  */
 public abstract class AbstractProject implements TicketingProject {
 	
@@ -16,48 +17,56 @@ public abstract class AbstractProject implements TicketingProject {
 	private String name;
 	
 	/**
-	 * 
+	 * Default constructor for the AbstractProject class.
 	 */
 	public AbstractProject() {
 	}
 	
 	/**
-	 * @param id
-	 * @param name
-	 * @param description
-	 * @param progress
+	 * Constructor for the AbstractProject class with id and name parameters.
+	 * 
+	 * @param id   the unique identifier of the project
+	 * @param name the name of the project
 	 */
 	public AbstractProject(String id, String name) {
 		this.id = id;
 		this.name = name;
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.ts.model.ticketing.TicketingBase#getId()
+	/**
+	 * Retrieves the id of the project.
+	 * 
+	 * @return the id of the project
 	 */
 	@Override
 	public String getId() {
 		return this.id;
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.ts.model.ticketing.TicketingBase#getName()
+	/**
+	 * Retrieves the name of the project.
+	 * 
+	 * @return the name of the project
 	 */
 	@Override
 	public String getName() {
 		return this.name;
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.ts.model.ticketing.TicketingBase#setId(java.lang.String)
+	/**
+	 * Sets the id of the project.
+	 * 
+	 * @param id the id to set for the project
 	 */
 	@Override
 	public void setId(String id) {
 		this.id = id;
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.ts.model.ticketing.TicketingBase#setName(java.lang.String)
+	/**
+	 * Sets the name of the project.
+	 * 
+	 * @param name the name to set for the project
 	 */
 	@Override
 	public void setName(String name) {

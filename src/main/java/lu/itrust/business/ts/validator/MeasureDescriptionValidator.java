@@ -11,15 +11,13 @@ import lu.itrust.business.ts.model.standard.Standard;
 import lu.itrust.business.ts.model.standard.measuredescription.MeasureDescription;
 import lu.itrust.business.ts.validator.field.ValidatorFieldImpl;
 
+
 /**
- * @author eomar
- *
+ * This class is responsible for validating the fields of a MeasureDescription object.
+ * It extends the ValidatorFieldImpl class.
  */
 public class MeasureDescriptionValidator extends ValidatorFieldImpl {
 
-	/**
-	 *
-	 */
 	private static final String MEASURE_DESCRIPTION_TEXTS = "measureDescriptionTexts";
 	private static final String STANDARD = "standard";
 	private static final String LEVEL = "level";

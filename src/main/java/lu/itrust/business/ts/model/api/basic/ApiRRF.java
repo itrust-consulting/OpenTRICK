@@ -7,8 +7,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * @author eomar
- *
+ * The `ApiRRF` class represents a Risk Response Factor (RRF) in the API model.
+ * It contains information about the analysis ID, impact, probability, asset, scenario, and standards.
  */
 public class ApiRRF {
 

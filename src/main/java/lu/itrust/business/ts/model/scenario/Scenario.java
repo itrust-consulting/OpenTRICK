@@ -36,10 +36,6 @@ import lu.itrust.business.ts.model.general.SecurityCriteria;
 /**
  * Scenario: <br>
  * This class represents a Scenario and its data.
- * 
- * @author itrust consulting s.à r.l. - BJA,SME
- * @version 0.1
- * @since 2012-08-21
  */
 @Entity
 @PrimaryKeyJoinColumn(name = "idScenario")

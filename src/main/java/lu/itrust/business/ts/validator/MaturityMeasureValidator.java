@@ -8,9 +8,11 @@ import lu.itrust.business.ts.model.parameter.IParameter;
 import lu.itrust.business.ts.model.parameter.impl.SimpleParameter;
 import lu.itrust.business.ts.model.standard.measure.impl.MaturityMeasure;
 
+
 /**
- * @author eomar
- * 
+ * This class is responsible for validating maturity measures. It extends the MeasureValidator class.
+ * It provides validation logic for various fields such as reached level, implementation rate, and SML costs.
+ * The class supports the MaturityMeasure class.
  */
 public class MaturityMeasureValidator extends MeasureValidator {
 

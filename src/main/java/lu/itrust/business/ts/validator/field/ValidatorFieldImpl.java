@@ -16,8 +16,9 @@ import lu.itrust.business.expressions.ExpressionParser;
 import lu.itrust.business.expressions.StringExpressionParser;
 
 /**
- * @author eomar
- * 
+ * The abstract class ValidatorFieldImpl implements the ValidatorField interface and provides common functionality for field validation.
+ * It contains methods for checking the validity of expressions, validating objects and fields, and checking if an object contains a specific element.
+ * Subclasses can extend this class to implement specific validation logic.
  */
 public abstract class ValidatorFieldImpl implements ValidatorField {
 

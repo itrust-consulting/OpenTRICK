@@ -24,9 +24,10 @@ import org.hibernate.annotations.CascadeType;
 
 import lu.itrust.business.ts.model.analysis.Analysis;
 
+
 /**
- * @author eomar
- *
+ * Represents an IDS (Intrusion Detection System) user.
+ * Implements the IUser interface.
  */
 @Entity
 @Cacheable
@@ -71,8 +72,7 @@ public class IDS implements IUser {
 	}
 
 	/**
-	 * @param id
-	 *            the id to set
+	 * @param id the id to set
 	 */
 	public void setId(int id) {
 		this.id = id;
@@ -86,8 +86,7 @@ public class IDS implements IUser {
 	}
 
 	/**
-	 * @param prefix
-	 *            the prefix to set
+	 * @param prefix the prefix to set
 	 */
 	public void setPrefix(String prefix) {
 		this.prefix = prefix;
@@ -101,8 +100,7 @@ public class IDS implements IUser {
 	}
 
 	/**
-	 * @param description
-	 *            the description to set
+	 * @param description the description to set
 	 */
 	public void setDescription(String description) {
 		this.description = description;
@@ -116,8 +114,7 @@ public class IDS implements IUser {
 	}
 
 	/**
-	 * @param token
-	 *            the token to set
+	 * @param token the token to set
 	 */
 	public void setToken(String token) {
 		this.token = token;
@@ -131,8 +128,7 @@ public class IDS implements IUser {
 	}
 
 	/**
-	 * @param lastUpdate
-	 *            the lastUpdate to set
+	 * @param lastUpdate the lastUpdate to set
 	 */
 	public void setLastUpdate(Timestamp lastUpdate) {
 		this.lastUpdate = lastUpdate;
@@ -146,8 +142,7 @@ public class IDS implements IUser {
 	}
 
 	/**
-	 * @param lastAlert
-	 *            the lastAlert to set
+	 * @param lastAlert the lastAlert to set
 	 */
 	public void setLastAlert(Timestamp lastAlert) {
 		this.lastAlert = lastAlert;
@@ -161,15 +156,15 @@ public class IDS implements IUser {
 	}
 
 	/**
-	 * @param subscribers
-	 *            the subscribers to set
+	 * @param subscribers the subscribers to set
 	 */
 	public void setSubscribers(List<Analysis> subscribers) {
 		this.subscribers = subscribers;
 	}
 
 	/**
-	 * return {@link #prefix}
+	 * Returns the login prefix of the IDS user.
+	 * @return the login prefix
 	 */
 	@Override
 	public String getLogin() {
@@ -177,7 +172,8 @@ public class IDS implements IUser {
 	}
 
 	/**
-	 * return {@link IDS#token}
+	 * Returns the token of the IDS user.
+	 * @return the token
 	 */
 	@Override
 	public String getPassword() {
@@ -185,7 +181,8 @@ public class IDS implements IUser {
 	}
 
 	/**
-	 * return {@link IDS#enabled}
+	 * Returns whether the IDS user is enabled or not.
+	 * @return true if enabled, false otherwise
 	 */
 	@Override
 	public boolean isEnable() {
@@ -193,15 +190,16 @@ public class IDS implements IUser {
 	}
 
 	/**
-	 * @param enabled
-	 *            the enabled to set
+	 * Sets the enable status of the IDS user.
+	 * @param enable the enable status to set
 	 */
 	public void setEnable(boolean enable) {
 		this.enable = enable;
 	}
 
 	/**
-	 * return {@link RoleType#ROLE_IDS}
+	 * Returns the access role of the IDS user.
+	 * @return the access role
 	 */
 	@Override
 	public RoleType getAccess() {
@@ -209,18 +207,27 @@ public class IDS implements IUser {
 	}
 
 	/**
-	 * return {@link #description}
+	 * Returns the full name of the IDS user.
+	 * @return the full name
 	 */
 	@Override
 	public String getFullname() {
 		return this.description;
 	}
 
+	/**
+	 * Notifies an alert for the IDS user and updates the last alert and last update timestamps.
+	 * @return the updated IDS object
+	 */
 	public IDS notifyAlert() {
 		this.lastAlert = this.lastUpdate = new Timestamp(System.currentTimeMillis());
 		return this;
 	}
-	
+
+	/**
+	 * Notifies an update for the IDS user and updates the last update timestamp.
+	 * @return the updated IDS object
+	 */
 	public IDS notifyUpdate(){
 		this.lastUpdate = new Timestamp(System.currentTimeMillis());
 		return this;

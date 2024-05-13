@@ -20,9 +20,10 @@ import javax.crypto.spec.SecretKeySpec;
 
 import org.springframework.util.StringUtils;
 
+
 /**
- * @author eomar
- *
+ * The PasswordEncryptionHelper class provides methods for encrypting and decrypting passwords using AES encryption.
+ * It also provides a method to check if a given string is encrypted.
  */
 public final class PasswordEncryptionHelper {
 
