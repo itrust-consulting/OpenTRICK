@@ -94,10 +94,15 @@ import lu.itrust.business.ts.usermanagement.User;
 import lu.itrust.business.ts.validator.HistoryValidator;
 
 /**
- * ControllerAnalysis is a controller class that handles requests related to analysis operations.
- * It is responsible for managing analysis versions, archiving analysis, creating new versions, deleting analysis, and selecting/deselecting analysis.
- * This class extends the AbstractController class and is annotated with @Controller to indicate that it is a Spring MVC controller.
- * It also uses Spring Security's @PreAuthorize annotation to enforce authorization rules for different methods.
+ * ControllerAnalysis is a controller class that handles requests related to
+ * analysis operations.
+ * It is responsible for managing analysis versions, archiving analysis,
+ * creating new versions, deleting analysis, and selecting/deselecting analysis.
+ * This class extends the AbstractController class and is annotated
+ * with @Controller to indicate that it is a Spring MVC controller.
+ * It also uses Spring Security's @PreAuthorize annotation to enforce
+ * authorization rules for different methods.
+ * 
  * @author itrust consulting s.à.rl. : https://www.itrust.lu
  * @since Oct 22, 2013
  */
@@ -130,13 +135,17 @@ public class ControllerAnalysis extends AbstractController {
 	@Autowired
 	private ServiceUserAnalysisRight serviceUserAnalysisRight;
 
+	@Autowired
+	private PermissionEvaluator permissionEvaluator;
+
 	/**
 	 * Retrieves the path to the JSP file for creating a new version of an analysis.
 	 *
 	 * @param analysisId the ID of the analysis
-	 * @param model the map containing the model data
-	 * @param principal the principal object representing the currently authenticated user
-	 * @param session the HttpSession object
+	 * @param model      the map containing the model data
+	 * @param principal  the principal object representing the currently
+	 *                   authenticated user
+	 * @param session    the HttpSession object
 	 * @return the path to the JSP file for creating a new version of an analysis
 	 * @throws Exception if an error occurs during the retrieval of user data
 	 */
@@ -156,9 +165,10 @@ public class ControllerAnalysis extends AbstractController {
 	/**
 	 * Handles the request for "/All" and returns a String.
 	 * 
-	 * @param model the model object for the view
-	 * @param principal the principal object representing the currently authenticated user
-	 * @param session the HttpSession object for storing session attributes
+	 * @param model     the model object for the view
+	 * @param principal the principal object representing the currently
+	 *                  authenticated user
+	 * @param session   the HttpSession object for storing session attributes
 	 * @return a String representing the view name
 	 * @throws Exception if an error occurs during the analysis loading process
 	 */
@@ -174,9 +184,11 @@ public class ControllerAnalysis extends AbstractController {
 	 * Archives an analysis identified by the given analysisId.
 	 *
 	 * @param analysisId the ID of the analysis to be archived
-	 * @param request the HttpServletRequest object
-	 * @param principal the Principal object representing the currently authenticated user
-	 * @param locale the Locale object representing the desired language for error/success messages
+	 * @param request    the HttpServletRequest object
+	 * @param principal  the Principal object representing the currently
+	 *                   authenticated user
+	 * @param locale     the Locale object representing the desired language for
+	 *                   error/success messages
 	 * @return a JSON string representing the result of the archiving operation
 	 */
 	@RequestMapping(value = "/Archive/{analysisId}", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
@@ -211,12 +223,13 @@ public class ControllerAnalysis extends AbstractController {
 	/**
 	 * Creates a new version of an analysis.
 	 *
-	 * @param value     The request body containing the analysis data.
-	 * @param result    The binding result for validation errors.
+	 * @param value      The request body containing the analysis data.
+	 * @param result     The binding result for validation errors.
 	 * @param analysisId The ID of the analysis.
-	 * @param principal The principal object representing the authenticated user.
-	 * @param locale    The locale for error messages.
-	 * @return A map containing any validation errors encountered during the creation of the new version.
+	 * @param principal  The principal object representing the authenticated user.
+	 * @param locale     The locale for error messages.
+	 * @return A map containing any validation errors encountered during the
+	 *         creation of the new version.
 	 */
 	@RequestMapping(value = "/Duplicate/{analysisId}", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.hasPermission(#analysisId, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).EXPORT)")
@@ -231,68 +244,70 @@ public class ControllerAnalysis extends AbstractController {
 			if (analysis == null)
 				errors.put("analysis", messageSource.getMessage("error.analysis.not_found", null,
 						"Analysis cannot be found!", locale));
-
-			final String lastVersion = serviceAnalysis.getAllVersion(analysis.getIdentifier()).stream()
-					.sorted((v0, v1) -> {
-						return NaturalOrderComparator.compareTo(v1, v0);
-					}).findFirst().get();
-
-			HistoryValidator validator = (HistoryValidator) serviceDataValidation.findByClass(History.class);
-
-			if (validator == null)
-				serviceDataValidation.register(validator = new HistoryValidator());
-
-			final History history = new History();
-
-			final JsonNode jsonNode = new ObjectMapper().readTree(value);
-
-			final String author = jsonNode.get("author").asText();
-
-			final Date date = new Date(System.currentTimeMillis());
-
-			final String version = jsonNode.get("version").asText();
-
-			final String comment = jsonNode.get("comment").asText();
-
-			String error = validator.validate(history, "author", author);
-			if (error != null)
-				errors.put("author", serviceDataValidation.ParseError(error, messageSource, locale));
-			else
-				history.setAuthor(author);
-
-			error = validator.validate(history, "version", version);
-			if (error != null)
-				errors.put("version", serviceDataValidation.ParseError(error, messageSource, locale));
 			else {
-				if (NaturalOrderComparator.compareTo(lastVersion, version) >= 0)
-					errors.put("version",
-							messageSource.getMessage("error.history.version.invalid", new String[] { lastVersion },
-									String.format("Version has to be bigger than last %s", lastVersion), locale));
+
+				final String lastVersion = serviceAnalysis.getAllVersion(analysis.getIdentifier()).stream()
+						.sorted((v0, v1) -> {
+							return NaturalOrderComparator.compareTo(v1, v0);
+						}).findFirst().get();
+
+				HistoryValidator validator = (HistoryValidator) serviceDataValidation.findByClass(History.class);
+
+				if (validator == null)
+					serviceDataValidation.register(validator = new HistoryValidator());
+
+				final History history = new History();
+
+				final JsonNode jsonNode = new ObjectMapper().readTree(value);
+
+				final String author = jsonNode.get("author").asText();
+
+				final Date date = new Date(System.currentTimeMillis());
+
+				final String version = jsonNode.get("version").asText();
+
+				final String comment = jsonNode.get("comment").asText();
+
+				String error = validator.validate(history, "author", author);
+				if (error != null)
+					errors.put("author", serviceDataValidation.ParseError(error, messageSource, locale));
 				else
-					history.setVersion(version);
+					history.setAuthor(author);
+
+				error = validator.validate(history, "version", version);
+				if (error != null)
+					errors.put("version", serviceDataValidation.ParseError(error, messageSource, locale));
+				else {
+					if (NaturalOrderComparator.compareTo(lastVersion, version) >= 0)
+						errors.put("version",
+								messageSource.getMessage("error.history.version.invalid", new String[] { lastVersion },
+										String.format("Version has to be bigger than last %s", lastVersion), locale));
+					else
+						history.setVersion(version);
+				}
+
+				error = validator.validate(history, "comment", comment);
+				if (error != null)
+					errors.put("comment", serviceDataValidation.ParseError(error, messageSource, locale));
+				else
+					history.setComment(comment);
+
+				// update date of history object
+				history.setDate(date);
+
+				if (!errors.isEmpty())
+					// return error on failure
+					return errors;
+
+				final Worker worker = new WorkerCreateAnalysisVersion(analysisId, history, principal.getName());
+				// register worker to tasklist
+				if (serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale)) {
+					executor.execute(worker);
+					errors.put(ANALYSIS_TASK_ID, worker.getId());
+				} else
+					errors.put("analysis", messageSource.getMessage("error.task_manager.too.many", null,
+							"Too many tasks running in background", locale));
 			}
-
-			error = validator.validate(history, "comment", comment);
-			if (error != null)
-				errors.put("comment", serviceDataValidation.ParseError(error, messageSource, locale));
-			else
-				history.setComment(comment);
-
-			// update date of history object
-			history.setDate(date);
-
-			if (!errors.isEmpty())
-				// return error on failure
-				return errors;
-
-			final Worker worker = new WorkerCreateAnalysisVersion(analysisId, history, principal.getName());
-			// register worker to tasklist
-			if (serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale)) {
-				executor.execute(worker);
-				errors.put(ANALYSIS_TASK_ID, worker.getId());
-			} else
-				errors.put("analysis", messageSource.getMessage("error.task_manager.too.many", null,
-						"Too many tasks running in background", locale));
 
 		} catch (TrickException e) {
 			TrickLogManager.Persist(e);
@@ -309,13 +324,15 @@ public class ControllerAnalysis extends AbstractController {
 	/**
 	 * Deletes an analysis with the specified analysisId.
 	 *
-	 * @param analysisId   The ID of the analysis to be deleted.
-	 * @param attributes   The redirect attributes.
-	 * @param principal    The principal object representing the currently authenticated user.
-	 * @param session      The HttpSession object.
-	 * @param locale       The locale object representing the user's preferred language.
-	 * @return             A string representing the result of the deletion operation.
-	 * @throws Exception   If an error occurs during the deletion process.
+	 * @param analysisId The ID of the analysis to be deleted.
+	 * @param attributes The redirect attributes.
+	 * @param principal  The principal object representing the currently
+	 *                   authenticated user.
+	 * @param session    The HttpSession object.
+	 * @param locale     The locale object representing the user's preferred
+	 *                   language.
+	 * @return A string representing the result of the deletion operation.
+	 * @throws Exception If an error occurs during the deletion process.
 	 */
 	@RequestMapping(value = "/Delete/{analysisId}", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.hasDeletePermission(#analysisId, #principal, false)")
@@ -342,7 +359,7 @@ public class ControllerAnalysis extends AbstractController {
 	 * Deselects the currently selected analysis.
 	 *
 	 * @param session The HttpSession object.
-	 * @return        A string representing the result of the deselection operation.
+	 * @return A string representing the result of the deselection operation.
 	 * @throws Exception If an error occurs during the deselection process.
 	 */
 	@RequestMapping("/Deselect")
@@ -361,15 +378,14 @@ public class ControllerAnalysis extends AbstractController {
 
 	}
 
-	
 	/**
 	 * Handles the home request and redirects to the appropriate analysis page.
 	 *
 	 * @param principal the principal object representing the authenticated user
-	 * @param model the model object for passing data to the view
-	 * @param session the HttpSession object for storing session attributes
-	 * @param locale the Locale object representing the user's locale
-	 * @param request the HttpServletRequest object representing the HTTP request
+	 * @param model     the model object for passing data to the view
+	 * @param session   the HttpSession object for storing session attributes
+	 * @param locale    the Locale object representing the user's locale
+	 * @param request   the HttpServletRequest object representing the HTTP request
 	 * @return a String representing the redirect URL
 	 * @throws Exception if an error occurs during the request handling
 	 */
@@ -394,7 +410,6 @@ public class ControllerAnalysis extends AbstractController {
 	// * request edit analysis
 	// *****************************************************************
 
-	
 	/**
 	 * Loads the setting manager for analysis.
 	 *
@@ -425,61 +440,71 @@ public class ControllerAnalysis extends AbstractController {
 	// * save or update analysis object
 	// *****************************************************************
 
-	
 	/**
 	 * Handles the request to edit an analysis.
 	 * 
-	 * @param principal   the principal object representing the currently authenticated user
-	 * @param analysisId  the ID of the analysis to be edited
-	 * @param model       the model object to be populated with data for the view
-	 * @param locale      the locale object representing the user's preferred language
-	 * @return            the name of the view to be rendered for editing the analysis
-	 * @throws Exception  if an error occurs during the processing of the request
+	 * @param principal  the principal object representing the currently
+	 *                   authenticated user
+	 * @param analysisId the ID of the analysis to be edited
+	 * @param model      the model object to be populated with data for the view
+	 * @param locale     the locale object representing the user's preferred
+	 *                   language
+	 * @return the name of the view to be rendered for editing the analysis
+	 * @throws Exception if an error occurs during the processing of the request
 	 */
 	@RequestMapping("/Edit/{analysisId}")
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).MODIFY)")
 	public String requestEditAnalysis(Principal principal, @PathVariable("analysisId") Integer analysisId,
 			Map<String, Object> model, Locale locale) throws Exception {
 		// retrieve analysis
-		Analysis analysis = serviceAnalysis.get(analysisId);
+		/*Analysis analysis = ;
 		if (analysis == null)
 			throw new ResourceNotFoundException(
 					messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found!", locale));
-		// prepare permission evaluator
-		PermissionEvaluatorImpl permissionEvaluator = new PermissionEvaluatorImpl(serviceUser, serviceAnalysis,
-				serviceUserAnalysisRight);
+		
+		 * // prepare permission evaluator
+		 * PermissionEvaluatorImpl permissionEvaluator = new
+		 * PermissionEvaluatorImpl(serviceUser, serviceAnalysis,
+		 * serviceUserAnalysisRight);
+		 * 
+		 * if (permissionEvaluator.userIsAuthorized(analysisId, principal,
+		 * AnalysisRight.MODIFY)) {
+		 */
 
-		if (permissionEvaluator.userIsAuthorized(analysisId, principal, AnalysisRight.MODIFY)) {
+		// add languages
+		model.put("languages", serviceLanguage.getAll());
 
-			// add languages
-			model.put("languages", serviceLanguage.getAll());
+		// add customers of user
+		model.put("customers", serviceCustomer.getAllNotProfileOfUser(principal.getName()));
 
-			// add customers of user
-			model.put("customers", serviceCustomer.getAllNotProfileOfUser(principal.getName()));
+		model.put("types", AnalysisType.values());
 
-			model.put("types", AnalysisType.values());
+		// add the analysis object
+		model.put("analysis", serviceAnalysis.get(analysisId));
 
-			// add the analysis object
-			model.put("analysis", analysis);
-
-			return "jsp/analyses/all/forms/editAnalysis";
-		}
-
-		throw new AccessDeniedException(
-				messageSource.getMessage("error.permission_denied", null, "Permission denied!", locale));
+		return "jsp/analyses/all/forms/editAnalysis";
+		/*
+		 * }
+		 * 
+		 * throw new AccessDeniedException(
+		 * messageSource.getMessage("error.permission_denied", null,
+		 * "Permission denied!", locale));
+		 */
 	}
 
 	// *****************************************************************
 	// * delete analysis
 	// *****************************************************************
 
-	
 	/**
 	 * Saves the analysis with the provided value.
 	 *
-	 * @param value    The value of the analysis to be saved.
-	 * @param session  The HttpSession object.
-	 * @param principal The Principal object representing the currently authenticated user.
-	 * @param locale   The Locale object representing the user's preferred language.
+	 * @param value     The value of the analysis to be saved.
+	 * @param session   The HttpSession object.
+	 * @param principal The Principal object representing the currently
+	 *                  authenticated user.
+	 * @param locale    The Locale object representing the user's preferred
+	 *                  language.
 	 * @return A Map containing any errors that occurred during the save operation.
 	 */
 	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
@@ -523,11 +548,12 @@ public class ControllerAnalysis extends AbstractController {
 	 * Saves the setting manager with the given current settings.
 	 * 
 	 * @param currentSettings the map of current settings
-	 * @param session the HttpSession object
-	 * @param model the Model object
-	 * @param principal the Principal object
-	 * @param locale the Locale object
-	 * @return a String representing the success message after updating the analysis settings
+	 * @param session         the HttpSession object
+	 * @param model           the Model object
+	 * @param principal       the Principal object
+	 * @param locale          the Locale object
+	 * @return a String representing the success message after updating the analysis
+	 *         settings
 	 */
 	@RequestMapping(value = "Manage-settings/Save", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).MODIFY)")
@@ -554,7 +580,8 @@ public class ControllerAnalysis extends AbstractController {
 	 * Handles the "/Section" request and returns a String.
 	 *
 	 * @param request   the HttpServletRequest object
-	 * @param principal the Principal object representing the currently authenticated user
+	 * @param principal the Principal object representing the currently
+	 *                  authenticated user
 	 * @param model     the Model object used to pass data to the view
 	 * @return a String representing the result of the request
 	 * @throws Exception if an error occurs during the request handling
@@ -568,15 +595,14 @@ public class ControllerAnalysis extends AbstractController {
 	// * import form and import action
 	// *****************************************************************
 
-	
 	/**
 	 * Handles the section request for displaying analysis by customer.
 	 *
 	 * @param idCustomer The ID of the customer.
-	 * @param name The name of the analysis.
-	 * @param session The HttpSession object.
-	 * @param principal The Principal object.
-	 * @param model The Model object.
+	 * @param name       The name of the analysis.
+	 * @param session    The HttpSession object.
+	 * @param principal  The Principal object.
+	 * @param model      The Model object.
 	 * @return The result of loading user analyses.
 	 * @throws Exception if an error occurs during the process.
 	 */
@@ -596,21 +622,23 @@ public class ControllerAnalysis extends AbstractController {
 		return LoadUserAnalyses(session, principal, model, user);
 	}
 
-	
 	/**
-	 * Selects an analysis based on the provided analysis ID and performs necessary operations.
+	 * Selects an analysis based on the provided analysis ID and performs necessary
+	 * operations.
 	 *
-	 * @param model        the model object for the view
-	 * @param principal    the principal object representing the currently authenticated user
-	 * @param analysisId   the ID of the analysis to be selected
-	 * @param open         the mode in which the analysis should be opened (default is "edit")
-	 * @param session      the HttpSession object for storing session attributes
-	 * @param locale       the locale object representing the user's preferred language
+	 * @param model      the model object for the view
+	 * @param principal  the principal object representing the currently
+	 *                   authenticated user
+	 * @param analysisId the ID of the analysis to be selected
+	 * @param open       the mode in which the analysis should be opened (default is
+	 *                   "edit")
+	 * @param session    the HttpSession object for storing session attributes
+	 * @param locale     the locale object representing the user's preferred
+	 *                   language
 	 * @return the name of the view to be rendered
 	 * @throws Exception if an error occurs during the selection process
 	 */
 	@RequestMapping("/{analysisId}/Select")
-	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).READ)")
 	public String selectAnalysis(Model model, Principal principal, @PathVariable("analysisId") Integer analysisId,
 			@RequestParam(value = "open", defaultValue = "edit") String open,
 			HttpSession session, Locale locale) throws Exception {
@@ -618,8 +646,6 @@ public class ControllerAnalysis extends AbstractController {
 		OpenMode mode = OpenMode.parseOrDefault(open);
 		session.setAttribute(SELECTED_ANALYSIS, analysisId);
 		session.setAttribute(OPEN_MODE, mode);
-		PermissionEvaluatorImpl permissionEvaluator = new PermissionEvaluatorImpl(serviceUser, serviceAnalysis,
-				serviceUserAnalysisRight);
 		Analysis analysis = serviceAnalysis.get(analysisId);
 		if (analysis == null)
 			throw new ResourceNotFoundException(
@@ -630,7 +656,7 @@ public class ControllerAnalysis extends AbstractController {
 
 		boolean hasMaturity = false;
 		boolean hasPermission = analysis.isProfile() ? user.isAutorised(RoleType.ROLE_CONSULTANT)
-				: readOnly ? true : permissionEvaluator.userIsAuthorized(analysisId, principal, AnalysisRight.MODIFY);
+				: readOnly ? true : permissionEvaluator.userIsAuthorized(analysisId, principal, AnalysisRight.READ);
 		if (hasPermission) {
 			Collections.reverse(analysis.getHistories());
 			Collections.sort(analysis.getItemInformations(), new ComparatorItemInformation());
@@ -725,16 +751,18 @@ public class ControllerAnalysis extends AbstractController {
 	// * export and download
 	// *****************************************************************
 
-	
 	/**
-	 * Selects the analysis with the specified analysisId and sets the open mode for the session.
+	 * Selects the analysis with the specified analysisId and sets the open mode for
+	 * the session.
 	 * 
-	 * @param principal   the principal object representing the currently authenticated user
-	 * @param analysisId  the ID of the analysis to be selected
-	 * @param open        the open mode for the session (default value is "read-only")
-	 * @param session     the HttpSession object for storing session attributes
-	 * @return            true if the analysis was successfully selected, false otherwise
-	 * @throws Exception  if an error occurs during the selection process
+	 * @param principal  the principal object representing the currently
+	 *                   authenticated user
+	 * @param analysisId the ID of the analysis to be selected
+	 * @param open       the open mode for the session (default value is
+	 *                   "read-only")
+	 * @param session    the HttpSession object for storing session attributes
+	 * @return true if the analysis was successfully selected, false otherwise
+	 * @throws Exception if an error occurs during the selection process
 	 */
 	@RequestMapping(value = "/{analysisId}/SelectOnly", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#analysisId, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).READ)")
@@ -747,12 +775,11 @@ public class ControllerAnalysis extends AbstractController {
 		return session.getAttribute(SELECTED_ANALYSIS) == analysisId;
 	}
 
-	
 	/**
 	 * Updates the ALE (Annual Loss Expectancy) for the selected analysis.
 	 * 
 	 * @param session the HttpSession object
-	 * @param locale the Locale object representing the user's locale
+	 * @param locale  the Locale object representing the user's locale
 	 * @return a String representing the result of the update operation
 	 * @throws Exception if an error occurs during the update process
 	 */
@@ -782,7 +809,7 @@ public class ControllerAnalysis extends AbstractController {
 	 * Finds the ID associated with the given name in the provided JSON node.
 	 *
 	 * @param jsonNode the JSON node to search in
-	 * @param name the name to search for
+	 * @param name     the name to search for
 	 * @return the ID associated with the name, or -1 if not found
 	 */
 	private int findId(JsonNode jsonNode, String name) {
@@ -793,9 +820,11 @@ public class ControllerAnalysis extends AbstractController {
 	 * Loads the user analyses and returns a String representing the view name.
 	 * 
 	 * @param session   the HttpSession object
-	 * @param principal the Principal object representing the currently authenticated user
+	 * @param principal the Principal object representing the currently
+	 *                  authenticated user
 	 * @param model     the Model object for adding attributes to the view
-	 * @param user      the User object representing the currently authenticated user
+	 * @param user      the User object representing the currently authenticated
+	 *                  user
 	 * @return a String representing the view name
 	 * @throws Exception if an error occurs during the loading of user analyses
 	 */
@@ -852,13 +881,13 @@ public class ControllerAnalysis extends AbstractController {
 		return "jsp/analyses/all/home";
 	}
 
-	
 	/**
 	 * Maps a collection of analysis standards to a map of measures.
 	 * The measures are sorted using a comparator before being added to the map.
 	 *
 	 * @param standards the collection of analysis standards
-	 * @return a map of measures, where the key is the name of the standard and the value is a list of measures
+	 * @return a map of measures, where the key is the name of the standard and the
+	 *         value is a list of measures
 	 */
 	private Map<String, List<Measure>> mapMeasures(Collection<AnalysisStandard> standards) {
 		final Comparator<Measure> comparator = new MeasureComparator();
@@ -870,14 +899,15 @@ public class ControllerAnalysis extends AbstractController {
 		return measuresmap;
 	}
 
-	
 	/**
-	 * Saves the analysis with the specified ID, owner, contents, errors, and locale.
+	 * Saves the analysis with the specified ID, owner, contents, errors, and
+	 * locale.
 	 * 
 	 * @param id       The ID of the analysis.
 	 * @param owner    The owner of the analysis.
 	 * @param contents The JSON contents of the analysis.
-	 * @param errors   The map to store any errors encountered during the save process.
+	 * @param errors   The map to store any errors encountered during the save
+	 *                 process.
 	 * @param locale   The locale for error messages.
 	 * @return True if the analysis was successfully saved, false otherwise.
 	 */
@@ -1035,7 +1065,8 @@ public class ControllerAnalysis extends AbstractController {
 	}
 
 	/**
-	 * Splits the given map of measures by standard into a nested map of measures by chapter.
+	 * Splits the given map of measures by standard into a nested map of measures by
+	 * chapter.
 	 *
 	 * @param measuresByStandard a map of measures grouped by standard
 	 * @return a nested map of measures grouped by standard and chapter

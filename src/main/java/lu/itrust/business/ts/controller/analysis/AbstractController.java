@@ -5,7 +5,6 @@ package lu.itrust.business.ts.controller.analysis;
 
 import static lu.itrust.business.ts.constants.Constant.ADMIN_ALLOWED_TICKETING;
 import static lu.itrust.business.ts.constants.Constant.ALLOWED_TICKETING;
-import static lu.itrust.business.ts.constants.Constant.ROLE_MIN_USER;
 import static lu.itrust.business.ts.constants.Constant.TICKETING_NAME;
 import static lu.itrust.business.ts.constants.Constant.TICKETING_URL;
 
@@ -19,7 +18,6 @@ import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.core.task.TaskExecutor;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 

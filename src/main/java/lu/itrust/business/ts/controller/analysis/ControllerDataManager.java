@@ -167,10 +167,14 @@ import lu.itrust.business.ts.model.standard.measuredescription.MeasureDescriptio
 import lu.itrust.business.ts.model.standard.measuredescription.MeasureDescriptionText;
 
 /**
- * This class is a controller that handles data management operations for the Analysis module.
- * It provides endpoints for exporting various types of data related to an analysis, such as action plans, assets, risk information, measures, reports, etc.
+ * This class is a controller that handles data management operations for the
+ * Analysis module.
+ * It provides endpoints for exporting various types of data related to an
+ * analysis, such as action plans, assets, risk information, measures, reports,
+ * etc.
  * The exported data is in Excel format.
- * This controller requires the user to have the necessary authorization to perform the export operations.
+ * This controller requires the user to have the necessary authorization to
+ * perform the export operations.
  */
 @PreAuthorize(ROLE_MIN_USER)
 @Controller
@@ -375,17 +379,24 @@ public class ControllerDataManager {
 
 	/**
 	 * Exportation method that returns a String.
-	 * This method exports data related to the analysis identified by the given analysisId.
-	 * The exported data includes action plans, assets, risk information, measures, word reports,
-	 * risk estimations, risk registers, risk sheets, RRF raw data, scenarios, SOA data, and ILR data.
-	 * The exported data is added to the model and the maximum file size for upload is also added to the model.
-	 * The method returns the name of the JSP file that will be used to render the export view.
+	 * This method exports data related to the analysis identified by the given
+	 * analysisId.
+	 * The exported data includes action plans, assets, risk information, measures,
+	 * word reports,
+	 * risk estimations, risk registers, risk sheets, RRF raw data, scenarios, SOA
+	 * data, and ILR data.
+	 * The exported data is added to the model and the maximum file size for upload
+	 * is also added to the model.
+	 * The method returns the name of the JSP file that will be used to render the
+	 * export view.
 	 *
 	 * @param idAnalysis The ID of the analysis to export.
-	 * @param model The model to add the exported data and maximum file size.
-	 * @param session The HttpSession object.
-	 * @param principal The Principal object representing the currently authenticated user.
-	 * @param locale The Locale object representing the user's preferred language.
+	 * @param model      The model to add the exported data and maximum file size.
+	 * @param session    The HttpSession object.
+	 * @param principal  The Principal object representing the currently
+	 *                   authenticated user.
+	 * @param locale     The Locale object representing the user's preferred
+	 *                   language.
 	 * @return The name of the JSP file that will be used to render the export view.
 	 */
 	@GetMapping(value = "/Export", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
@@ -445,10 +456,10 @@ public class ControllerDataManager {
 	/**
 	 * Export the ILR form.
 	 *
-	 * @param model    the model object
-	 * @param session  the HttpSession object
-	 * @param principal  the Principal object
-	 * @param locale  the Locale object
+	 * @param model     the model object
+	 * @param session   the HttpSession object
+	 * @param principal the Principal object
+	 * @param locale    the Locale object
 	 * @return the view name for the ILR export form
 	 */
 	@GetMapping(value = "/ILR/Export-form", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
@@ -464,7 +475,8 @@ public class ControllerDataManager {
 	 *
 	 * @param model     the model object to be populated with data
 	 * @param session   the HttpSession object
-	 * @param principal the Principal object representing the currently authenticated user
+	 * @param principal the Principal object representing the currently
+	 *                  authenticated user
 	 * @param locale    the Locale object representing the user's preferred language
 	 * @return the name of the JSP file to be rendered
 	 */
@@ -480,14 +492,15 @@ public class ControllerDataManager {
 	/**
 	 * Exports the ILR process data.
 	 *
-	 * @param ilrData      The ILR data file to be exported.
-	 * @param mappingFile  The mapping file (optional) used for exporting the ILR data.
-	 * @param request      The HTTP servlet request.
-	 * @param response     The HTTP servlet response.
-	 * @param session      The HTTP session.
-	 * @param principal    The principal object representing the authenticated user.
-	 * @param locale       The locale for the export operation.
-	 * @throws Exception   If an error occurs during the export process.
+	 * @param ilrData     The ILR data file to be exported.
+	 * @param mappingFile The mapping file (optional) used for exporting the ILR
+	 *                    data.
+	 * @param request     The HTTP servlet request.
+	 * @param response    The HTTP servlet response.
+	 * @param session     The HTTP session.
+	 * @param principal   The principal object representing the authenticated user.
+	 * @param locale      The locale for the export operation.
+	 * @throws Exception If an error occurs during the export process.
 	 */
 	@PostMapping(value = "/ILR/Export-process", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal,T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).EXPORT)")
@@ -540,15 +553,16 @@ public class ControllerDataManager {
 
 	/**
 	 * Exports the estimation process for risk analysis.
-	 * This method handles the export of the risk estimation process in Excel format.
+	 * This method handles the export of the risk estimation process in Excel
+	 * format.
 	 *
-	 * @param extrasFormula   The extras formula file (optional).
-	 * @param request         The HTTP servlet request.
-	 * @param response        The HTTP servlet response.
-	 * @param session         The HTTP session.
-	 * @param locale          The locale.
-	 * @param principal       The principal.
-	 * @throws Exception      If an error occurs during the export process.
+	 * @param extrasFormula The extras formula file (optional).
+	 * @param request       The HTTP servlet request.
+	 * @param response      The HTTP servlet response.
+	 * @param session       The HTTP session.
+	 * @param locale        The locale.
+	 * @param principal     The principal.
+	 * @throws Exception If an error occurs during the export process.
 	 */
 	@RequestMapping(value = "/Risk-estimation/Export-process", method = { RequestMethod.GET,
 			RequestMethod.POST }, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
@@ -650,14 +664,23 @@ public class ControllerDataManager {
 	}
 
 	private void exportProbability(Analysis analysis, SpreadsheetMLPackage mlPackage) throws Exception {
-		final String name = "Probabilty";
+		final String name = "Probability";
 		final ObjectFactory factory = Context.getsmlObjectFactory();
-		final String[] columns = new String[] { "Level", "Label", "ILR" };
+		final String[] columns = new String[] { "Level", "Label", "Value", "ILR" };
 		final WorksheetPart worksheetPart = createWorkSheetPart(mlPackage, name);
 		final SheetData sheet = worksheetPart.getContents().getSheetData();
 		final List<LikelihoodParameter> parameters = analysis.getLikelihoodParameters();
-		createHeader(worksheetPart, name, defaultExcelTableStyle, columns, parameters.size());
 		parameters.sort((e1, e2) -> Integer.compare(e1.getLevel(), e2.getLevel()));
+		if (!parameters.isEmpty()) {
+			final LikelihoodParameter firstEntry = parameters.get(0).clone();
+			firstEntry.setAcronym("0");
+			parameters.add(0, firstEntry.clone());
+			firstEntry.setAcronym("na");
+			parameters.add(0, firstEntry);
+		}
+
+		createHeader(worksheetPart, name, defaultExcelTableStyle, columns, parameters.size());
+
 		for (LikelihoodParameter parameter : parameters) {
 			Row row = factory.createRow();
 			for (int i = 0; i <= columns.length; i++) {
@@ -667,8 +690,8 @@ public class ControllerDataManager {
 			setValue(row.getC().get(0), parameter.getAcronym());
 			setValue(row.getC().get(1),
 					parameter.getLabel());
-			setValue(row.getC().get(2), parameter.getIlrLevel());
-
+			setValue(row.getC().get(2), parameter.getValue() * 0.01);
+			setValue(row.getC().get(3), parameter.getIlrLevel());
 			sheet.getRow().add(row);
 		}
 		ExcelHelper.applyHeaderAndFooter(headerFooterSheetName, name, mlPackage);

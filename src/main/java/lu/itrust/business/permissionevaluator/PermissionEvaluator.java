@@ -13,7 +13,7 @@ import lu.itrust.business.ts.model.general.TSSettingName;
  * @version
  * @since Jan 16, 2014
  */
-public interface PermissionEvaluator extends org.springframework.security.access.PermissionEvaluator {
+public interface PermissionEvaluator{
 
 	/**
 	 * Checks if the specified principal has delete permission for the given analysis ID.

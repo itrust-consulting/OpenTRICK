@@ -257,11 +257,11 @@ public class SecurityConfig {
          * This class provides the necessary methods to evaluate method-level security expressions.
          * It uses a {@link PermissionEvaluator} to evaluate permissions for the expressions.
          */
-        @Bean
+       // @Bean
         public DefaultMethodSecurityExpressionHandler methodSecurityExpressionHandler(
                         PermissionEvaluator permissionEvaluator) {
                 var handler = new DefaultMethodSecurityExpressionHandler();
-                handler.setPermissionEvaluator(permissionEvaluator);
+               // handler.setPermissionEvaluator(permissionEvaluator);
                 return handler;
         }
 

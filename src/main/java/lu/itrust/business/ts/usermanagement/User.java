@@ -92,8 +92,8 @@ public class User implements Serializable, IUser {
 	@ManyToMany
 	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@JoinTable(name = "UserCustomer", joinColumns = {
-			@JoinColumn(name = "fiUser", nullable = false, updatable = false) }, inverseJoinColumns = {
-					@JoinColumn(name = "fiCustomer", nullable = false, updatable = false) }, uniqueConstraints = @UniqueConstraint(columnNames = {
+			@JoinColumn(name = "fiUser", nullable = false,insertable = false, updatable = false) }, inverseJoinColumns = {
+					@JoinColumn(name = "fiCustomer", nullable = false,insertable = false, updatable = false) }, uniqueConstraints = @UniqueConstraint(columnNames = {
 							"fiUser", "fiCustomer" }))
 	@Cascade(CascadeType.ALL)
 	private List<Customer> customers = new ArrayList<>();
@@ -128,8 +128,8 @@ public class User implements Serializable, IUser {
 	@ManyToMany
 	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@JoinTable(name = "UserRole", joinColumns = {
-			@JoinColumn(name = "fiUser", nullable = false, updatable = false) }, inverseJoinColumns = {
-					@JoinColumn(name = "fiRole", nullable = false, updatable = false) })
+			@JoinColumn(name = "fiUser", nullable = false, insertable = false, updatable = false) }, inverseJoinColumns = {
+					@JoinColumn(name = "fiRole", nullable = false,insertable = false, updatable = false) })
 	private List<Role> roles = new ArrayList<>();
 
 	@ElementCollection

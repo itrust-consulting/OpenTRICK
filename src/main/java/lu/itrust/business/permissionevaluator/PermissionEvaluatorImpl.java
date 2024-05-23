@@ -4,7 +4,9 @@ import java.io.Serializable;
 import java.security.InvalidParameterException;
 import java.security.Principal;
 
+import org.checkerframework.checker.fenum.qual.SwingCompassDirection;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.security.acls.model.NotFoundException;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
@@ -41,18 +43,24 @@ import lu.itrust.business.ts.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.ts.model.general.OpenMode;
 import lu.itrust.business.ts.model.general.TSSettingName;
 
-
 /**
- * This class implements the PermissionEvaluator interface and provides the implementation for evaluating permissions in the application.
- * It is responsible for checking if a user has permission to perform certain actions on specific objects or resources.
+ * This class implements the PermissionEvaluator interface and provides the
+ * implementation for evaluating permissions in the application.
+ * It is responsible for checking if a user has permission to perform certain
+ * actions on specific objects or resources.
  * The class uses various service dependencies to perform the permission checks.
  * 
- * The class provides methods for checking permissions based on different parameters such as authentication, target domain object, target ID, etc.
- * It also provides methods for checking if a user is authorized to perform certain actions on specific elements or resources.
+ * The class provides methods for checking permissions based on different
+ * parameters such as authentication, target domain object, target ID, etc.
+ * It also provides methods for checking if a user is authorized to perform
+ * certain actions on specific elements or resources.
  * 
- * The class also provides methods for checking if a user or owner is authorized to perform certain actions on an analysis.
+ * The class also provides methods for checking if a user or owner is authorized
+ * to perform certain actions on an analysis.
  * 
- * Note: This class is annotated with @Component to be recognized as a Spring bean and can be injected into other components or services.
+ * Note: This class is annotated with @Component to be recognized as a Spring
+ * bean and can be injected into other components or services.
+ * 
  * @author itrust consulting s.à.rl. :
  * @version
  * @since Jan 16, 2014
@@ -142,17 +150,6 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 		this.serviceUserAnalysisRight = serviceUserAnalysisRight;
 	}
 
-	@Override
-	public boolean hasPermission(Authentication authentication, Object targetDomainObject, Object permission) {
-		return false;
-	}
-
-	@Override
-	public boolean hasPermission(Authentication authentication, Serializable targetId, String targetType,
-			Object permission) {
-		return false;
-	}
-
 	public void setServiceUserAnalysisRight(ServiceUserAnalysisRight serviceUserAnalysisRight) {
 		this.serviceUserAnalysisRight = serviceUserAnalysisRight;
 	}
@@ -187,13 +184,14 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 	}
 
 	/**
-	 * Checks if a user is authorized to perform a specific action on a given element in an analysis.
+	 * Checks if a user is authorized to perform a specific action on a given
+	 * element in an analysis.
 	 *
 	 * @param analysisId the ID of the analysis
-	 * @param elementId the ID of the element
-	 * @param className the name of the class representing the element
-	 * @param principal the principal object representing the user
-	 * @param right the analysis right required to perform the action
+	 * @param elementId  the ID of the element
+	 * @param className  the name of the class representing the element
+	 * @param principal  the principal object representing the user
+	 * @param right      the analysis right required to perform the action
 	 * @return true if the user is authorized, false otherwise
 	 */
 	@Override
@@ -372,9 +370,11 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 	}
 
 	private Integer isAuthorised(HttpSession session, Principal principal, AnalysisRight right) {
+		//if (session == null || principal == null || right == null)
+		//	return null;
 		Integer analysisId = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		OpenMode open = (OpenMode) session.getAttribute(Constant.OPEN_MODE);
-		if (analysisId == null || principal == null || right == null)
+		if (analysisId == null)
 			return null;
 		if (OpenMode.isReadOnly(open) && right != AnalysisRight.READ)
 			return null;
