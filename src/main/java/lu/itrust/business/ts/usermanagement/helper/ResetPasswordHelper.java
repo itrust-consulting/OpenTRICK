@@ -2,18 +2,20 @@ package lu.itrust.business.ts.usermanagement.helper;
 
 import org.springframework.util.StringUtils;
 
+/**
+ * The ResetPasswordHelper class represents a helper class for resetting passwords.
+ * It stores the username and email associated with the password reset request.
+ */
 public class ResetPasswordHelper {
 
 	private String username;
 
 	private String email;
 
-	/**
-	 * 
-	 */
 	public ResetPasswordHelper() {
 	}
 
+	/** Getters and Setters **/
 	public String getUsername() {
 		return username;
 	}

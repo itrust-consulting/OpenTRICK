@@ -61,7 +61,7 @@ import lu.itrust.business.ts.model.standard.measure.impl.MeasureProperties;
  * After the Action Plans are calculated, this class will save the results to
  * the MySQL Database.
  * 
- * @author itrust consulting s.à.rl. : SME
+ * @author itrust consulting s.à.rl. 
  * @version 0.1
  * @since 9 janv. 2013
  */
@@ -262,6 +262,14 @@ public class ActionPlanComputation {
 		}
 	}
 
+	/**
+	 * Computes the qualitative action plan based on the risk profiles and measures in the analysis.
+	 * This method generates an action plan from the risk profile and assigns positions and orders to the action plan entries.
+	 * It also creates a summary for the normal phase action plan summary.
+	 *
+	 * @return The progress percentage of the action plan computation.
+	 * @throws Exception If there is an error during the computation.
+	 */
 	private int qualitativeActionPlan() throws Exception {
 		int position[] = { 0 };
 		// get actionplantype by given mode
@@ -346,6 +354,12 @@ public class ActionPlanComputation {
 		};
 	}
 
+	/**
+	 * Calculates the quantitative action plan.
+	 *
+	 * @return The progress of the action plan computation.
+	 * @throws Exception if an error occurs during the computation.
+	 */
 	protected int quantitativeActionPlan() throws Exception {
 
 		ISummaryComputation summaryComputation = new SummaryComputationQuantitative(analysis, factory, standards);
@@ -1072,6 +1086,13 @@ public class ActionPlanComputation {
 		};
 	}
 
+	/**
+	 * Sets the SOA (State of the Art) risk for the given ActionPlanEntry and list of TMAs (Threat Model Assessments).
+	 * 
+	 * @param entry The ActionPlanEntry for which to set the SOA risk.
+	 * @param tmas The list of TMAs to search for the highest delta ALE (Annual Loss Expectancy).
+	 * @throws TrickException If an error occurs during the computation.
+	 */
 	private void setSOARisk(ActionPlanEntry entry, List<TMA> tmas) throws TrickException {
 		
 		if (!analysis.getAnalysisStandards().get(entry.getMeasure().getMeasureDescription().getStandard().getName())

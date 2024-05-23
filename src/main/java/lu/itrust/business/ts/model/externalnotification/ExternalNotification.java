@@ -16,8 +16,6 @@ import lu.itrust.business.ts.exception.TrickException;
 
 /**
  * Represents a notification sent by an external provider (e.g. an IDS).
- * @author Steve Muller (SMU), itrust consulting s.à r.l.
- * @date Jun 8, 2015
  */
 @Entity
 @Cacheable

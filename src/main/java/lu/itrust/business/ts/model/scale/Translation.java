@@ -6,10 +6,6 @@ package lu.itrust.business.ts.model.scale;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 
-/**
- * @author eomar
- *
- */
 @Embeddable
 public class Translation {
 
@@ -20,15 +16,16 @@ public class Translation {
 	private String shortName;
 
 	/**
-	 * 
+	 * Default constructor for the Translation class.
 	 */
 	public Translation() {
 	}
 
 	/**
-	 * @param language
-	 * @param name
-	 * @param shortName
+	 * Constructor for the Translation class.
+	 * 
+	 * @param name      the name of the translation
+	 * @param shortName the short name of the translation
 	 */
 	public Translation(String name, String shortName) {
 		this.name = name;
@@ -36,30 +33,36 @@ public class Translation {
 	}
 
 	/**
-	 * @return the name
+	 * Get the name of the translation.
+	 * 
+	 * @return the name of the translation
 	 */
 	public String getName() {
 		return name;
 	}
 
 	/**
-	 * @param name
-	 *            the name to set
+	 * Set the name of the translation.
+	 * 
+	 * @param name the name of the translation to set
 	 */
 	public void setName(String name) {
 		this.name = name;
 	}
 
 	/**
-	 * @return the shortName
+	 * Get the short name of the translation.
+	 * 
+	 * @return the short name of the translation
 	 */
 	public String getShortName() {
 		return shortName;
 	}
 
 	/**
-	 * @param shortName
-	 *            the shortName to set
+	 * Set the short name of the translation.
+	 * 
+	 * @param shortName the short name of the translation to set
 	 */
 	public void setShortName(String shortName) {
 		this.shortName = shortName;

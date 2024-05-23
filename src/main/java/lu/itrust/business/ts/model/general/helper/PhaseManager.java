@@ -14,14 +14,29 @@ import lu.itrust.business.ts.model.parameter.helper.ValueFactory;
 import lu.itrust.business.ts.model.standard.AnalysisStandard;
 import lu.itrust.business.ts.model.standard.measure.Measure;
 
+/**
+ * The PhaseManager class provides utility methods for updating statistics and computing totals for phases in an analysis.
+ */
 public final class PhaseManager {
 
+	/**
+	 * Updates the statistics for the given analysis.
+	 *
+	 * @param analysis The analysis object for which the statistics need to be updated.
+	 */
 	public static void updateStatistics(Analysis analysis) {
 		final ValueFactory factory = new ValueFactory(analysis.getParameters());
 		final double soaThreshold = analysis.findParameter(PARAMETERTYPE_TYPE_SINGLE_NAME, SOA_THRESHOLD, 100.0);
 		updateStatistics(analysis.getAnalysisStandards().values().stream().map(AnalysisStandard::getMeasures).collect(Collectors.toList()), factory, soaThreshold);
 	}
 
+	/**
+	 * Updates the statistics for a collection of measures.
+	 *
+	 * @param measures     the collection of measures
+	 * @param valueFactory the value factory used for computing values
+	 * @param soaThreshold the threshold for compliance rate
+	 */
 	public static void updateStatistics(Collection<List<Measure>> measures, ValueFactory valueFactory, final double soaThreshold) {
 		measures.stream().flatMap(c -> c.stream()).collect(Collectors.groupingBy(Measure::getPhase)).entrySet().stream().forEach(e -> {
 			e.getKey().setRemovable(false);
@@ -44,6 +59,9 @@ public final class PhaseManager {
 
 	}
 
+	/**
+	 * Represents a phase in a project.
+	 */
 	public static Phase computeTotal(List<Phase> phases) {
 		final Phase total = new Phase(phases.size());
 		for (Phase phase : phases) {

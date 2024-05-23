@@ -6,13 +6,9 @@ import java.util.List;
 import lu.itrust.business.ts.model.standard.AnalysisStandard;
 import lu.itrust.business.ts.model.standard.measure.Measure;
 
+
 /**
- * SummaryStandardHelper.java: <br>
- * Detailed description...
- *
- * @author smenghi itrust consulting s.a.rl.:
- * @version
- * @since Aug 25, 2014
+ * The SummaryStandardHelper class represents a helper class for summary standard operations.
  */
 public class SummaryStandardHelper {
 
@@ -24,6 +20,11 @@ public class SummaryStandardHelper {
 
 	public List<Measure> measures = new ArrayList<Measure>();
 
+	/**
+	 * Constructs a SummaryStandardHelper object with the specified analysis standard.
+	 *
+	 * @param standard the analysis standard to be associated with the helper
+	 */
 	public SummaryStandardHelper(AnalysisStandard standard) {
 		this.standard = standard;
 	}

@@ -14,9 +14,10 @@ import lu.itrust.business.ts.exception.TrickException;
 import lu.itrust.business.ts.usermanagement.User;
 import lu.itrust.business.ts.validator.field.ValidatorFieldImpl;
 
+
 /**
- * @author oensuifudine
- * 
+ * This class is responsible for validating user objects. It implements the Spring Framework's Validator interface
+ * and provides validation logic for various fields of the User class.
  */
 public class UserValidator extends ValidatorFieldImpl implements Validator {
 
@@ -73,6 +74,13 @@ public class UserValidator extends ValidatorFieldImpl implements Validator {
 
 	}
 
+	/**
+	 * The `String` class represents a sequence of characters. It provides various methods for manipulating and working with strings.
+	 * Strings in Java are immutable, meaning that once a string object is created, its value cannot be changed.
+	 * However, you can create new strings by concatenating existing strings or using methods that modify the string.
+	 *
+	 * @see java.lang.Object
+	 */
 	@Override
 	public String validate(Object o, String fieldName, Object candidate) throws TrickException {
 		if (o == null || !supports(o.getClass()) || fieldName == null || fieldName.trim().isEmpty())
@@ -92,21 +100,54 @@ public class UserValidator extends ValidatorFieldImpl implements Validator {
 		return null;
 	}
 
+	/**
+	 * Validates the given object and returns a validation result as a string.
+	 *
+	 * @param o the object to be validated
+	 * @param fieldName the name of the field being validated
+	 * @param candidate the candidate value to be validated
+	 * @param choose an array of options to choose from during validation
+	 * @return a string representing the validation result
+	 * @throws TrickException if an error occurs during validation
+	 */
 	@Override
 	public String validate(Object o, String fieldName, Object candidate, Object[] choose) throws TrickException {
 		return validate(o, fieldName, candidate);
 	}
 
+	/**
+	 * Validates the given object and returns a string representation of the validation result.
+	 *
+	 * @param o the object to be validated
+	 * @param fieldName the name of the field being validated
+	 * @param candidate the candidate value to be validated
+	 * @param choose a collection of objects to choose from during validation
+	 * @return a string representation of the validation result
+	 * @throws TrickException if an error occurs during validation
+	 */
 	@Override
 	public String validate(Object o, String fieldName, Object candidate, Collection<Object> choose) throws TrickException {
 		return validate(o, fieldName, candidate);
 	}
 
+	/**
+	 * Returns the class that this validator supports.
+	 *
+	 * @return the class that this validator supports
+	 */
 	@Override
 	public Class<?> supported() {
 		return User.class;
 	}
 
+	/**
+	 * Validates the given field name and candidate value.
+	 * 
+	 * @param fieldName  the name of the field to validate
+	 * @param candidate  the value of the field to validate
+	 * @return           an error message if the field is invalid, otherwise null
+	 * @throws TrickException if the validation method is not allowed for the given field
+	 */
 	@Override
 	public String validate(String fieldName, Object candidate) throws TrickException {
 		if (fieldName == null || fieldName.trim().isEmpty())

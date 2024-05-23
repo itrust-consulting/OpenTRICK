@@ -30,6 +30,17 @@ import lu.itrust.business.ts.model.standard.measure.impl.MeasureProperties;
 import lu.itrust.business.ts.model.standard.measuredescription.MeasureDescription;
 import lu.itrust.business.expressions.StringExpressionParser;
 
+/**
+ * AbstractNormalMeasure is an abstract class that represents a normal measure.
+ * It extends the Measure class and implements the Cloneable interface.
+ * 
+ * This class provides common functionality and properties for normal measures.
+ * It includes methods for managing measure properties, checking the measure,
+ * getting the implementation rate, and cloning the measure.
+ * 
+ * Subclasses of AbstractNormalMeasure should implement their specific behavior
+ * and properties.
+ */
 @Cacheable
 @MappedSuperclass
 public abstract class AbstractNormalMeasure extends Measure implements Cloneable {
@@ -205,6 +216,14 @@ public abstract class AbstractNormalMeasure extends Measure implements Cloneable
 		super.setImplementationRate(implementationRate.toString());
 	}
 
+
+
+	/**
+	 * Creates a clone of the abstract normal measure.
+	 *
+	 * @return A clone of the abstract normal measure.
+	 * @throws CloneNotSupportedException if cloning is not supported.
+	 */
 	@Override
 	public AbstractNormalMeasure clone() throws CloneNotSupportedException {
 		AbstractNormalMeasure measure = (AbstractNormalMeasure) super.clone();
@@ -212,11 +231,20 @@ public abstract class AbstractNormalMeasure extends Measure implements Cloneable
 		return measure;
 	}
 
-	@Override
+
+	/**
+	 * Creates a duplicate of the measure with the specified analysis standard and phase.
+	 *
+	 * @param astandard The analysis standard to be used for the duplicate measure.
+	 * @param phase     The phase to be used for the duplicate measure.
+	 * @return A duplicate of the measure with the specified analysis standard and phase.
+	 * @throws CloneNotSupportedException If cloning is not supported for the measure.
+	 */
 	public AbstractNormalMeasure duplicate(AnalysisStandard astandard, Phase phase) throws CloneNotSupportedException {
 		AbstractNormalMeasure measure = (AbstractNormalMeasure) super.duplicate(astandard, phase);
 		measure.measurePropertyList = (MeasureProperties) measure.measurePropertyList.duplicate();
 		return measure;
 	}
+	
 
 }

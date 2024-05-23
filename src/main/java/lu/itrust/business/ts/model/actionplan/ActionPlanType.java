@@ -13,12 +13,16 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
- * ActionPlanType: <br>
- * Represents the actionplan type by name.
+ * Represents an action plan type.
  * 
- * @author itrust consulting s.a.rl. : EOM, BJA, SME
- * @version 0.1
- * @since 28 janv. 2013
+ * This class is an entity that is used to store information about different action plan types.
+ * It contains fields for the action plan type id and name.
+ * 
+ * The id field represents the unique identifier for the action plan type.
+ * The name field represents the name of the action plan type.
+ * 
+ * This class provides constructors to create an instance of the ActionPlanType class.
+ * It also provides getters and setters to access and modify the id and name fields.
  */
 @Entity 
 @Cacheable

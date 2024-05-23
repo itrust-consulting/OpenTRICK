@@ -15,8 +15,9 @@ import lu.itrust.business.ts.usermanagement.IDS;
 import lu.itrust.business.ts.validator.field.ValidatorFieldImpl;
 
 /**
- * @author eomar
- *
+ * This class represents a validator for IDS (Intrusion Detection System) objects.
+ * It implements the Validator interface and extends the ValidatorFieldImpl class.
+ * IDSValidator is responsible for validating the fields of an IDS object.
  */
 public class IDSValidator extends ValidatorFieldImpl implements Validator {
 
@@ -83,6 +84,12 @@ public class IDSValidator extends ValidatorFieldImpl implements Validator {
 		return IDS.class;
 	}
 
+	/**
+	 * Validates the given target object and populates any validation errors in the provided Errors object.
+	 *
+	 * @param target  the object to be validated
+	 * @param errors  the Errors object to store any validation errors
+	 */
 	@Override
 	public void validate(Object target, Errors errors) {
 		ValidationUtils.rejectIfEmptyOrWhitespace(errors, PREFIX, "error.ids.prefix.empty", "Name cannot be empty");

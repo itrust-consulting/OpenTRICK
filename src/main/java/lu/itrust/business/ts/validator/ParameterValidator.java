@@ -10,9 +10,10 @@ import lu.itrust.business.ts.model.parameter.impl.SimpleParameter;
 import lu.itrust.business.ts.model.parameter.type.impl.ParameterType;
 import lu.itrust.business.ts.validator.field.ValidatorFieldImpl;
 
+
 /**
- * @author eomar
- * 
+ * This class is responsible for validating the parameters of a SimpleParameter object.
+ * It extends the ValidatorFieldImpl class.
  */
 public class ParameterValidator extends ValidatorFieldImpl {
 
@@ -66,12 +67,32 @@ public class ParameterValidator extends ValidatorFieldImpl {
 		return SimpleParameter.class;
 	}
 
+	/**
+	 * Validates the given object and returns a string representation of the validation result.
+	 *
+	 * @param o the object to be validated
+	 * @param fieldName the name of the field being validated
+	 * @param candidate the candidate value to be validated
+	 * @param choose an array of objects to choose from during validation
+	 * @return a string representation of the validation result
+	 * @throws TrickException if an error occurs during validation
+	 */
 	@Override
 	public String validate(Object o, String fieldName, Object candidate,
 			Object[] choose) throws TrickException {
 		return validate(choose, fieldName, candidate);
 	}
 
+	/**
+	 * Validates the given object against the specified field name and candidate value.
+	 * 
+	 * @param o the object to be validated
+	 * @param fieldName the name of the field being validated
+	 * @param candidate the candidate value to be validated against
+	 * @param choose a collection of objects to choose from during validation
+	 * @return a string representing the validation result
+	 * @throws TrickException if an error occurs during validation
+	 */
 	@Override
 	public String validate(Object o, String fieldName, Object candidate,
 			Collection<Object> choose) throws TrickException {

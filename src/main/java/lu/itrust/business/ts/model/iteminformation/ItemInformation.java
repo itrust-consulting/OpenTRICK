@@ -20,10 +20,6 @@ import lu.itrust.business.ts.exception.TrickException;
  * This class represents an ItemInformation and all its data.
  * 
  * This class is used to store ItemInformation
- * 
- * @author itrust consulting s.à r.l. - SME,BJA
- * @version 0.1
- * @since 2012-08-21
  */
 @Entity
 @Cacheable

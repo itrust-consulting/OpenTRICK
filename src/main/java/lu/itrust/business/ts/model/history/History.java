@@ -25,10 +25,6 @@ import lu.itrust.business.ts.exception.TrickException;
  * This class is used to store History. Each analysis has only one single
  * history. Each analysis in the knowledgebase can be the same, but has
  * different histories (versions).
- * 
- * @author itrust consulting s.à r.l. - SME,BJA
- * @version 0.1
- * @since 2012-08-21
  */
 @Entity
 @Cacheable
@@ -239,6 +235,11 @@ public class History implements Cloneable {
 		return history;
 	}
 
+	/**
+		* Generates a new Date object representing the current date and time.
+		* 
+		* @return the generated Date object
+		*/
 	@Transient
 	public Date generateDate() {
 		return date = new Timestamp(System.currentTimeMillis());

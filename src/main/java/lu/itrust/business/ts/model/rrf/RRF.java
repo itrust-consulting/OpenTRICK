@@ -23,10 +23,7 @@ import lu.itrust.business.ts.model.standard.measure.impl.NormalMeasure;
  * RRF.java: <br>
  * Detailed description...
  *
- * @author smenghi itrust consulting s.a.rl.:
- * @version
- * @since Nov 5, 2014
- */
+ *  */
 public class RRF {
 	/***********************************************************************************************
 	 * RRF - BEGIN

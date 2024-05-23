@@ -7,8 +7,8 @@ import lu.itrust.business.ts.helper.NaturalOrderComparator;
 import lu.itrust.business.ts.model.cssf.RiskProfile;
 
 /**
- * @author eomar
- *
+ * This class implements the NaturalOrderComparator interface and provides a comparison method for RiskProfile objects.
+ * It compares the RiskProfile objects based on their identifiers.
  */
 public class RiskSheetExportComparator implements NaturalOrderComparator<RiskProfile> {
 

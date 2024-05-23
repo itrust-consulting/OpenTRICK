@@ -10,9 +10,11 @@ import lu.itrust.business.ts.exception.TrickException;
 import lu.itrust.business.ts.model.general.Language;
 import lu.itrust.business.ts.validator.field.ValidatorFieldImpl;
 
+
 /**
- * @author eomar
- * 
+ * This class is responsible for validating the fields of a Language object.
+ * It extends the ValidatorFieldImpl class and provides validation logic for the
+ * "name", "altName", and "alpha3" fields.
  */
 public class LanguageValidator extends ValidatorFieldImpl {
 

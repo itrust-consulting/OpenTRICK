@@ -10,10 +10,6 @@ import lu.itrust.business.ts.model.cssf.RiskRegisterItem;
  * Compare two RiskRegisterItem on based on importance net. Priority is on the
  * net importance. This class is used inside the Collections class as algorithm
  * to decide on Ascending comparation.
- *
- * @author itrust consulting s.�.rl. : BJA, EOM, SME
- * @version 0.2
- * @since 27 d�c. 2012
  */
 public class NetImportanceComparator implements Comparator<RiskRegisterItem> {
 

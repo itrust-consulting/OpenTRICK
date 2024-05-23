@@ -19,9 +19,10 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
+
 /**
- * @author eomar
- *
+ * Represents a reset password entity.
+ * This class is used to store information about a password reset request.
  */
 @Entity
 @Cacheable
@@ -62,34 +63,74 @@ public class ResetPassword {
 	}
 
 
+	/**
+	 * Returns the ID of the object.
+	 *
+	 * @return the ID of the object
+	 */
 	public Long getId() {
 		return id;
 	}
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    /**
+     * Sets the ID of the Temp object.
+     * 
+     * @param id the ID to set
+     */
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	public User getUser() {
-		return user;
-	}
+    /**
+     * Gets the User associated with the Temp object.
+     * 
+     * @return the User object
+     */
+    public User getUser() {
+        return user;
+    }
 
-	public void setUser(User user) {
-		this.user = user;
-	}
+    /**
+     * Sets the User associated with the Temp object.
+     * 
+     * @param user the User object to set
+     */
+    public void setUser(User user) {
+        this.user = user;
+    }
 
-	public String getKeyControl() {
-		return keyControl;
-	}
+    /**
+     * Gets the key control of the Temp object.
+     * 
+     * @return the key control
+     */
+    public String getKeyControl() {
+        return keyControl;
+    }
 
+	/**
+	 * Sets the key control for resetting the password.
+	 *
+	 * @param keyControl the key control to set
+	 */
 	public void setKeyControl(String keyControl) {
 		this.keyControl = keyControl;
 	}
 
+	/**
+	 * Returns the limit time for password reset.
+	 *
+	 * @return the limit time as a Timestamp object
+	 */
 	public Timestamp getLimitTime() {
 		return limitTime;
 	}
 
+	/**
+	 * Sets the limit time for password reset.
+	 *
+	 * @param limitTime the limit time to set
+	 */
 	public void setLimitTime(Timestamp limitTime) {
 		this.limitTime = limitTime;
 	}

@@ -24,8 +24,19 @@ import org.springframework.web.filter.GenericFilterBean;
 import lu.itrust.business.ts.constants.Constant;
 
 /**
- * @author eomar
- *
+ * This class is a filter that handles OTP (One-Time Password) authentication.
+ * It extends the GenericFilterBean class.
+ * 
+ * The filter checks if the incoming request matches the specified request matcher.
+ * If it does, it retrieves the authentication object from the session and sets it as the current authentication in the SecurityContextHolder.
+ * It also redirects the user to the specified redirect URL after successful authentication.
+ * 
+ * The filter can be configured with a custom redirect strategy, redirect URL, and request matcher.
+ * 
+ * Example usage:
+ * OTPAuthenticationFilter filter = new OTPAuthenticationFilter("/login", "/OTP/Authorise");
+ * 
+ * @see GenericFilterBean
  */
 public class OTPAuthenticationFilter extends GenericFilterBean {
 

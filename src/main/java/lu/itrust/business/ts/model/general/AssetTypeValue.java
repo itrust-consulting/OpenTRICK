@@ -17,10 +17,6 @@ import lu.itrust.business.ts.model.asset.AssetType;
  * AssetTypeValue: <br>
  * This class represents an AssetTypeValue and all its data. This class is used
  * to store AssetTypeValues of either Scenarios or Measures.
- * 
- * @author itrust consulting s.à r.l. - SME,BJA
- * @version 0.1
- * @since 2012-08-21
  */
 @Entity
 public class AssetTypeValue implements Cloneable {
@@ -176,6 +172,12 @@ public class AssetTypeValue implements Cloneable {
 		this.id = id;
 	}
 
+	/**
+		 * Returns a hash code value for the object. This method is used by the hashing
+		 * algorithms, such as those used in hash tables.
+		 *
+		 * @return the hash code value for this object
+		 */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -186,6 +188,12 @@ public class AssetTypeValue implements Cloneable {
 		return result;
 	}
 
+	/**
+	 * Indicates whether some other object is "equal to" this one.
+	 * 
+	 * @param obj the reference object with which to compare
+	 * @return {@code true} if this object is the same as the obj argument; {@code false} otherwise
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -205,6 +213,12 @@ public class AssetTypeValue implements Cloneable {
 		return true;
 	}
 
+	/**
+	 * Checks if the asset has the same type as the specified type.
+	 * 
+	 * @param type the type to compare with
+	 * @return true if the asset has the same type, false otherwise
+	 */
 	public boolean hasSameType(String type) {
 		return assetType == null ? (type == null ? true : false) : assetType.isSame(type);
 	}

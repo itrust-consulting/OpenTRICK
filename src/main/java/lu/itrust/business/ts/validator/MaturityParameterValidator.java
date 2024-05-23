@@ -10,9 +10,10 @@ import lu.itrust.business.ts.model.parameter.impl.SimpleParameter;
 import lu.itrust.business.ts.model.parameter.type.impl.ParameterType;
 import lu.itrust.business.ts.validator.field.ValidatorFieldImpl;
 
+
 /**
- * @author eomar
- * 
+ * This class is responsible for validating maturity parameters.
+ * It extends the ValidatorFieldImpl class.
  */
 public class MaturityParameterValidator extends ValidatorFieldImpl {
 
@@ -106,11 +107,31 @@ public class MaturityParameterValidator extends ValidatorFieldImpl {
 		return SimpleParameter.class;
 	}
 
+	/**
+	 * Validates the maturity parameter.
+	 *
+	 * @param o the object to validate
+	 * @param fieldName the name of the field being validated
+	 * @param candidate the candidate value to validate
+	 * @param choose the available choices for validation
+	 * @return the validation result as a string
+	 * @throws TrickException if an error occurs during validation
+	 */
 	@Override
 	public String validate(Object o, String fieldName, Object candidate, Object[] choose) throws TrickException {
 		return validate(choose, fieldName, candidate);
 	}
 
+	/**
+	 * Validates the given parameters and returns a string representation of the validation result.
+	 *
+	 * @param o The object to be validated.
+	 * @param fieldName The name of the field being validated.
+	 * @param candidate The candidate value to be validated.
+	 * @param choose The collection of objects to choose from during validation.
+	 * @return A string representation of the validation result.
+	 * @throws TrickException If an error occurs during validation.
+	 */
 	@Override
 	public String validate(Object o, String fieldName, Object candidate, Collection<Object> choose) throws TrickException {
 		return validate(choose, fieldName, candidate);

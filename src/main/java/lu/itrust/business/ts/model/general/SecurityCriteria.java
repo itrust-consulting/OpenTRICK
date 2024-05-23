@@ -25,10 +25,6 @@ import lu.itrust.business.ts.model.cssf.tools.CategoryConverter;
  * SecurityCriteria: <br>
  * This class represents SecurityCriteria which are properties of either a
  * Measure or a Scenario.
- * 
- * @author itrust consulting s.à r.l. - BJA,SME
- * @version 0.1
- * @since 2012-11-26
  */
 @Entity
 @Cacheable

@@ -29,8 +29,18 @@ import lu.itrust.business.ts.model.parameter.value.IParameterValue;
 import lu.itrust.business.ts.model.scenario.Scenario;
 
 /**
- * @author eomar
- *
+ * The Estimation class represents an estimation of risk evaluation for a specific assessment.
+ * It contains information about the owner, argumentation, net evaluation, risk profile, and assessment ID.
+ * 
+ * This class provides methods to get and set the net evaluation, identifier, asset, scenario, risk strategy, risk treatment,
+ * action plan, raw probability impact, expected probability impact, computed raw importance, computed expected importance,
+ * net importance, selection status, compliance with impact and probability, risk profile, owner, and argumentation.
+ * 
+ * It also provides a static comparator for sorting estimations based on net importance.
+ * 
+ * The class includes methods to generate risk estimations based on an analysis, CSSF filter, value factory, and comparator.
+ * The generated estimations can be grouped into direct, indirect, and CIA (Confidentiality, Integrity, Availability) categories.
+ * The estimations can be sorted based on the group.
  */
 public class Estimation {
 

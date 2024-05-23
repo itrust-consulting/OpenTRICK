@@ -5,9 +5,6 @@ package lu.itrust.business.ts.model.cssf.helper;
 
 /**
  * For direct, indirect and cia : -2 : exclude  -1: all, 0: conform
- * 
- * @author eomar
- *
  */
 public class CSSFFilter {
 

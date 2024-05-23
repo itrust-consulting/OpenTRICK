@@ -18,8 +18,8 @@ import lu.itrust.business.ts.exception.TrickException;
 import lu.itrust.business.ts.model.parameter.value.IValue;
 
 /**
- * @author eomar
- *
+ * Represents a formula value in the system.
+ * This class implements the IValue interface and provides methods to manipulate and retrieve formula values.
  */
 @Entity
 @Cacheable
@@ -41,84 +41,123 @@ public class FormulaValue implements IValue {
 	private int level;
 
 	/**
-	 * 
+	 * Default constructor.
 	 */
 	public FormulaValue() {
 	}
 	
 	/**
-	 * @param variable
-	 * @param value
+	 * Constructor with variable and value.
+	 * 
+	 * @param variable the variable name
+	 * @param value the value
 	 */
 	public FormulaValue(String variable, double value) {
 		update(variable, value, -1);
 	}
 
 	/**
-	 * @param variable
-	 * @param value
-	 * @param level
+	 * Constructor with variable, value, and level.
+	 * 
+	 * @param variable the variable name
+	 * @param value the value
+	 * @param level the level
 	 */
 	public FormulaValue(String variable, double value, int level) {
 		update(variable, value, level);
-		
 	}
 
 	/**
-	 * @return the id
+	 * Get the ID of the formula value.
+	 * 
+	 * @return the ID
 	 */
 	public int getId() {
 		return id;
 	}
 
 	/**
-	 * @param id the id to set
+	 * Set the ID of the formula value.
+	 * 
+	 * @param id the ID to set
 	 */
 	public void setId(int id) {
 		this.id = id;
 	}
 
 	/**
-	 * @param variable the variable to set
+	 * Set the variable name.
+	 * 
+	 * @param variable the variable name to set
 	 */
 	public void setVariable(String variable) {
 		this.variable = variable;
 	}
 
 	/**
+	 * Set the level.
+	 * 
 	 * @param level the level to set
 	 */
 	public void setLevel(int level) {
 		this.level = level;
 	}
 
+	/**
+	 * Returns the level of the formula value.
+	 *
+	 * @return the level of the formula value
+	 */
 	@Override
 	public Integer getLevel() {
 		return level;
 	}
 
+	/**
+	 * Returns the variable associated with this formula value.
+	 *
+	 * @return the variable as a String
+	 */
 	@Override
 	public String getVariable() {
 		return variable;
 	}
 
+	/**
+	 * Returns the real value of the formula.
+	 *
+	 * @return the real value of the formula
+	 */
 	@Override
 	public Double getReal() {
 		return value;
 	}
 	
 	/**
-	 * @param value
+	 * Set the real value.
+	 * 
+	 * @param value the real value to set
 	 */
 	public void setReal(double value) {
 		this.value = value;
 	}
 
+	/**
+	 * Returns the raw value of the formula.
+	 *
+	 * @return the raw value of the formula as an Object
+	 */
 	@Override
 	public Object getRaw() {
 		return variable;
 	}
 
+	/**
+	 * Merges the given value with this FormulaValue.
+	 * 
+	 * @param value the value to merge with
+	 * @return true if the merge was successful, false otherwise
+	 */
 	@Override
 	public boolean merge(IValue value) {
 		if (value == null || !(value instanceof FormulaValue))
@@ -129,19 +168,28 @@ public class FormulaValue implements IValue {
 		return true;
 	}
 	
+	/**
+	 * Update the formula value with the given variable, value, and level.
+	 * 
+	 * @param variable the variable name
+	 * @param value the value
+	 * @param level the level
+	 */
 	public void update(String variable, double value, int level) {
 		this.variable = variable;
 		this.value = value;
 		this.level = level;
 	}
 
-
+	/**
+	 * Returns the name of the formula value.
+	 *
+	 * @return the name of the formula value
+	 */
 	@Override
 	public String getName() {
 		return Constant.PARAMETER_TYPE_IMPACT_NAME;
 	}
-	
-	
 	
 	/*
 	 * (non-Javadoc)
@@ -169,4 +217,13 @@ public class FormulaValue implements IValue {
 		return value;
 	}
 
+	/**
+	 * Returns a string representation of the FormulaValue object.
+	 * 
+	 * @return a string representation of the object
+	 */
+	@Override
+	public String toString() {
+		return "FormulaValue [id=" + id + ", variable=" + variable + ", value=" + value + ", level=" + level + "]";
+	}
 }

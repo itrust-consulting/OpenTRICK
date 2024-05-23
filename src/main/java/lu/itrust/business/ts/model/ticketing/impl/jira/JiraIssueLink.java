@@ -5,45 +5,46 @@ package lu.itrust.business.ts.model.ticketing.impl.jira;
 
 import lu.itrust.business.ts.model.ticketing.impl.AbstractField;
 
+
 /**
- * @author eomar
- *
+ * Represents a Jira issue link.
  */
 public class JiraIssueLink extends AbstractField {
 
 	private String link;
 
 	/**
-	 * 
+	 * Default constructor.
 	 */
 	public JiraIssueLink() {
 	}
 
 	/**
-	 * @param id
-	 * @param name
+	 * Constructs a JiraIssueLink object with the specified id, name, and link.
+	 *
+	 * @param id   the id of the issue link
+	 * @param name the name of the issue link
+	 * @param link the link associated with the issue
 	 */
 	public JiraIssueLink(String id, String name, String link) {
 		super(id, name);
 		setValue(link);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see lu.itrust.business.ts.model.ticketing.TicketingField#getValue()
+	/**
+	 * Returns the value of the issue link.
+	 *
+	 * @return the link associated with the issue
 	 */
 	@Override
 	public String getValue() {
 		return getLink();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * lu.itrust.business.ts.model.ticketing.TicketingField#setValue(java.lang.
-	 * Object)
+	/**
+	 * Sets the value of the issue link.
+	 *
+	 * @param value the link associated with the issue
 	 */
 	@Override
 	public void setValue(Object value) {
@@ -51,15 +52,18 @@ public class JiraIssueLink extends AbstractField {
 	}
 
 	/**
-	 * @return the link
+	 * Returns the link associated with the issue.
+	 *
+	 * @return the link associated with the issue
 	 */
 	public String getLink() {
 		return link;
 	}
 
 	/**
-	 * @param link
-	 *            the link to set
+	 * Sets the link associated with the issue.
+	 *
+	 * @param link the link to set
 	 */
 	public void setLink(String link) {
 		this.link = link;

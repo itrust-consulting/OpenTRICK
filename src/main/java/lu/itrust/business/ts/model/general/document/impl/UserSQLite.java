@@ -1,6 +1,3 @@
-/**
- * 
- */
 package lu.itrust.business.ts.model.general.document.impl;
 
 import java.sql.Timestamp;
@@ -17,8 +14,8 @@ import lu.itrust.business.ts.model.general.document.UserDocument;
 import lu.itrust.business.ts.usermanagement.User;
 
 /**
- * @author eomar
- * 
+ * Represents a UserSQLite object, which extends the UserDocument class.
+ * UserSQLite objects are used to store user-specific data in an SQLite database.
  */
 @Entity
 @Cacheable
@@ -60,8 +57,7 @@ public class UserSQLite extends UserDocument {
 	}
 
 	/**
-	 * @param deleteTime
-	 *                   the deleteTime to set
+	 * @param deleteTime the deleteTime to set
 	 */
 	public void setDeleteTime(Timestamp deleteTime) {
 		this.deleteTime = deleteTime;

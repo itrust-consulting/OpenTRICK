@@ -20,9 +20,12 @@ import lu.itrust.business.ts.exception.TrickException;
 import lu.itrust.business.ts.model.parameter.IBoundedParameter;
 import lu.itrust.business.ts.model.parameter.helper.Bounds;
 
+
 /**
- * @author eomar
- *
+ * Represents a likelihood parameter used in a business model.
+ * This class extends the AbstractProbability class and implements the IBoundedParameter interface.
+ * It provides methods to set and retrieve the level, bounds, label, and ILR level of the likelihood parameter.
+ * The likelihood parameter is used to calculate scales and compute probabilities in the business model.
  */
 @Entity
 @Cacheable

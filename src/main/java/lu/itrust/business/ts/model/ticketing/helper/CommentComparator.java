@@ -7,9 +7,9 @@ import java.util.Comparator;
 
 import lu.itrust.business.ts.model.ticketing.TickectingComment;
 
+
 /**
- * @author eomar
- *
+ * This class represents a comparator for comparing TickectingComment objects based on their creation date.
  */
 public class CommentComparator implements Comparator<TickectingComment> {
 

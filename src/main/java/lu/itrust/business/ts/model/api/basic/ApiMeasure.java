@@ -4,29 +4,28 @@
 package lu.itrust.business.ts.model.api.basic;
 
 /**
- * @author eomar
- *
+ * Represents an API measure.
  */
 public class ApiMeasure extends ApiNamable {
 	
 	private int implRate;
-	
 	private double cost;
-	
 	private double rrf;
 
 	/**
-	 * 
+	 * Default constructor.
 	 */
 	public ApiMeasure() {
 	}
 
 	/**
-	 * @param id
-	 * @param name
-	 * @param implRate
-	 * @param cost
-	 * @param rrf
+	 * Constructs an ApiMeasure object with the specified parameters.
+	 *
+	 * @param id       the ID of the measure
+	 * @param name     the name of the measure
+	 * @param implRate the implementation rate of the measure
+	 * @param cost     the cost of the measure
+	 * @param rrf      the relative risk factor of the measure
 	 */
 	public ApiMeasure(Integer id, String name, int implRate, double cost, double rrf) {
 		super(id, name);
@@ -36,20 +35,26 @@ public class ApiMeasure extends ApiNamable {
 	}
 
 	/**
-	 * @return the implRate
+	 * Returns the implementation rate of the measure.
+	 *
+	 * @return the implementation rate
 	 */
 	public int getImplRate() {
 		return implRate;
 	}
 
 	/**
-	 * @param implRate the implRate to set
+	 * Sets the implementation rate of the measure.
+	 *
+	 * @param implRate the implementation rate to set
 	 */
 	public void setImplRate(int implRate) {
 		this.implRate = implRate;
 	}
 
 	/**
+	 * Returns the cost of the measure.
+	 *
 	 * @return the cost
 	 */
 	public double getCost() {
@@ -57,6 +62,8 @@ public class ApiMeasure extends ApiNamable {
 	}
 
 	/**
+	 * Sets the cost of the measure.
+	 *
 	 * @param cost the cost to set
 	 */
 	public void setCost(double cost) {
@@ -64,17 +71,20 @@ public class ApiMeasure extends ApiNamable {
 	}
 
 	/**
-	 * @return the rrf
+	 * Returns the relative risk factor of the measure.
+	 *
+	 * @return the relative risk factor
 	 */
 	public double getRrf() {
 		return rrf;
 	}
 
 	/**
-	 * @param rrf the rrf to set
+	 * Sets the relative risk factor of the measure.
+	 *
+	 * @param rrf the relative risk factor to set
 	 */
 	public void setRrf(double rrf) {
 		this.rrf = rrf;
 	}
-	
 }

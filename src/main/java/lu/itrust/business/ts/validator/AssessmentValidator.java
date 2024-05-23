@@ -11,9 +11,11 @@ import lu.itrust.business.ts.model.asset.Asset;
 import lu.itrust.business.ts.model.scenario.Scenario;
 import lu.itrust.business.ts.validator.field.ValidatorFieldImpl;
 
+
 /**
- * @author eomar
- * 
+ * The AssessmentValidator class is responsible for validating assessment fields.
+ * It extends the ValidatorFieldImpl class and provides methods to validate different fields based on their types.
+ * This class supports the Assessment class.
  */
 public class AssessmentValidator extends ValidatorFieldImpl {
 

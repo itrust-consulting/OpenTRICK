@@ -8,10 +8,6 @@ import lu.itrust.business.ts.exception.TrickException;
 /**
  * ScenarioType: <br>
  * Represents the Scenario Type with a Name.
- * 
- * @author itrust consulting s.à .r.l. : EOM, BJA, SME
- * @version 0.1
- * @since 23 janv. 2013
  */
 public enum ScenarioType {
 

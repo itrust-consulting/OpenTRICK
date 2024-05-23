@@ -26,9 +26,10 @@ import lu.itrust.business.ts.model.standard.AnalysisStandard;
 import lu.itrust.business.ts.model.standard.measure.AbstractNormalMeasure;
 import lu.itrust.business.ts.model.standard.measure.Measure;
 
+
 /**
- * @author eomar
- *
+ * This class represents the qualitative summary computation for an analysis. It extends the base class SummaryComputation.
+ * It performs the computation of summary stages based on qualitative measures and analysis standards.
  */
 public class SummaryComputationQualitative extends SummaryComputation {
 
@@ -65,6 +66,9 @@ public class SummaryComputationQualitative extends SummaryComputation {
 
 	}
 
+	/**
+	 * Represents an analysis standard used in the computation of a summary in the qualitative analysis.
+	 */
 	private AnalysisStandard loadStandard(Analysis analysis, AnalysisStandard analysisStandard) {
 		AnalysisStandard std = analysis.getAnalysisStandards().get(analysisStandard.getStandard().getName());
 		if (std == null)
@@ -74,6 +78,11 @@ public class SummaryComputationQualitative extends SummaryComputation {
 
 	}
 
+	/**
+	 * Generates the pre-maintenance based on the provided list of analysis standards.
+	 * 
+	 * @param analysisStandards the list of analysis standards
+	 */
 	private void generatePreMaintenance(List<AnalysisStandard> analysisStandards) {
 		final Map<String, Boolean> selectedMeasures = analysisStandards.stream()
 				.flatMap(analysisStandard -> analysisStandard.getMeasures().stream())
@@ -153,6 +162,12 @@ public class SummaryComputationQualitative extends SummaryComputation {
 		getCurrentValues().totalCost = 0;
 	}
 
+	/**
+	 * Adds the given action plan entry to the current summary computation.
+	 * Updates various values related to measures, workload, investment, and maintenance.
+	 *
+	 * @param actionPlanEntry The action plan entry to be added.
+	 */
 	private void nextActionEntry(ActionPlanEntry actionPlanEntry) {
 		Measure measure = actionPlanEntry.getMeasure();
 		SummaryStandardHelper helper = getCurrentValues().conformanceHelper
@@ -183,6 +198,14 @@ public class SummaryComputationQualitative extends SummaryComputation {
 		}
 	}
 
+	/**
+	 * Generates a stage for the summary computation.
+	 *
+	 * @param name     The name of the stage.
+	 * @param isFirst  Indicates if it is the first stage.
+	 * @param number   The number of the stage.
+	 * @param measures The list of measures.
+	 */
 	private void generateStage(String name, boolean isFirst, int number, final List<Measure> measures) {
 		double phaseTime = 0;
 		boolean isFirstValidPhase = false;

@@ -32,11 +32,18 @@ import lu.itrust.business.ts.usermanagement.RoleType;
 import lu.itrust.business.ts.usermanagement.User;
 
 /**
- * Base on org.springframework.security.ldap.userdetails.LdapUserDetailsMapper
+ * Based on org.springframework.security.ldap.userdetails.LdapUserDetailsMapper
  * by Luke Taylor supported role
  * ROLE_USER,ROLE_CONSULTANT,ROLE_ADMIN,ROLE_SUPERVISOR
- * 
- * @author eomar
+ * This class is an implementation of the UserDetailsContextMapper interface
+ * and is responsible for mapping LDAP user details to a custom User object.
+ * It provides methods for configuring various attributes and roles used during
+ * the mapping process.
+ *
+ * The class also includes methods for loading and formatting roles, mapping
+ * the user's password, and creating authorities from role attributes.
+ *
+ * Note: This class requires the DAOUser and DAORole beans to be autowired.
  */
 public class TRICKLdapUserDetailsMapper implements UserDetailsContextMapper {
 
@@ -92,6 +99,12 @@ public class TRICKLdapUserDetailsMapper implements UserDetailsContextMapper {
 		}
 	}
 
+	/**
+	 * Interface representing the details of a user.
+	 * Implementations of this interface are responsible for providing the necessary information
+	 * about a user, such as their username, password, authorities, and other attributes.
+	 * This information is used by the authentication and authorization processes in an application.
+	 */
 	@Transactional
 	@Override
 	public UserDetails mapUserFromContext(DirContextOperations ctx, String username,
@@ -174,6 +187,15 @@ public class TRICKLdapUserDetailsMapper implements UserDetailsContextMapper {
 		}
 	}
 
+	/**
+	 * Loads the roles for the user from the LDAP context and adds them to the user details.
+	 *
+	 * @param ctx         the DirContextOperations object representing the LDAP context
+	 * @param authorities the collection of GrantedAuthority objects representing the user's authorities
+	 * @param essence     the LdapUserDetailsImpl.Essence object representing the user details essence
+	 * @param user        the User object representing the user
+	 * @throws Exception if an error occurs while loading the roles
+	 */
 	private void loadRoles(DirContextOperations ctx, Collection<? extends GrantedAuthority> authorities,
 			LdapUserDetailsImpl.Essence essence, User user) throws Exception {
 		// Map the roles
@@ -216,12 +238,29 @@ public class TRICKLdapUserDetailsMapper implements UserDetailsContextMapper {
 
 	}
 
+	/**
+	 * Adds a role to the specified `LdapUserDetailsImpl.Essence` object if the given authority is present in the roles list.
+	 * 
+	 * @param essence The `LdapUserDetailsImpl.Essence` object to which the role will be added.
+	 * @param authority The `GrantedAuthority` object representing the authority to check against the roles list.
+	 * @param roles The list of roles to check against.
+	 * @param roleName The name of the role to add if the authority is present in the roles list.
+	 */
 	private void AddRole(LdapUserDetailsImpl.Essence essence, GrantedAuthority authority, List<String> roles,
 			String roleName) {
 		if (roles != null && roles.stream().anyMatch(role -> role.equalsIgnoreCase(authority.getAuthority())))
 			essence.addAuthority(new SimpleGrantedAuthority(roleName));
 	}
 
+	/**
+	 * Maps the given UserDetails object to the provided DirContextAdapter object.
+	 * This method is not supported in the TRICKLdapUserDetailsMapper class and will throw an UnsupportedOperationException.
+	 * Subclasses should override this method if mapUserToContext() functionality is required.
+	 *
+	 * @param user The UserDetails object to be mapped.
+	 * @param ctx The DirContextAdapter object to which the user details will be mapped.
+	 * @throws UnsupportedOperationException if called in the TRICKLdapUserDetailsMapper class.
+	 */
 	public void mapUserToContext(UserDetails user, DirContextAdapter ctx) {
 		throw new UnsupportedOperationException("LdapUserDetailsMapper only supports reading from a context. Please"
 				+ "use a subclass if mapUserToContext() is required.");
@@ -316,31 +355,66 @@ public class TRICKLdapUserDetailsMapper implements UserDetailsContextMapper {
 		this.rolePrefix = rolePrefix;
 	}
 
+	/**
+	 * Returns the first name attribute.
+	 *
+	 * @return the first name attribute
+	 */
 	public String getFirstNameAttribute() {
 		return firstNameAttribute;
 	}
 
+	/**
+	 * Sets the attribute name for the first name in the LDAP user details.
+	 *
+	 * @param firstNameAttribute the attribute name for the first name
+	 */
 	public void setFirstNameAttribute(String firstNameAttribute) {
 		this.firstNameAttribute = firstNameAttribute;
 	}
 
+	/**
+	 * Returns the last name attribute.
+	 *
+	 * @return the last name attribute
+	 */
 	public String getLastNameAttribute() {
 		return lastNameAttribute;
 	}
 
+	/**
+	 * Sets the attribute name for the last name in the LDAP user details.
+	 *
+	 * @param lastNameAttribute the attribute name for the last name
+	 */
 	public void setLastNameAttribute(String lastNameAttribute) {
 		this.lastNameAttribute = lastNameAttribute;
 	}
 
+	/**
+	 * Returns the list of supervisor roles.
+	 *
+	 * @return the list of supervisor roles
+	 */
 	public List<String> getSupervisorRoles() {
 		return supervisorRoles;
 	}
 
+	/**
+	 * Sets the supervisor roles for the user.
+	 * 
+	 * @param supervisorRoles an array of supervisor roles
+	 */
 	public void setSupervisorRoles(String[] supervisorRoles) {
 		if (supervisorRoles != null)
 			this.supervisorRoles = Arrays.asList(supervisorRoles);
 	}
 
+	/**
+	 * Formats the roles by adding a prefix and converting them to uppercase if required.
+	 *
+	 * @param roles the list of roles to be formatted
+	 */
 	private void formatRoles(List<String> roles) {
 		if (roles == null || roles.isEmpty())
 			return;
@@ -349,45 +423,95 @@ public class TRICKLdapUserDetailsMapper implements UserDetailsContextMapper {
 					String.format("%s%s", rolePrefix, convertToUpperCase ? roles.get(i).toUpperCase() : roles.get(i)));
 	}
 
+	/**
+	 * Returns the list of admin roles.
+	 *
+	 * @return the list of admin roles
+	 */
 	public List<String> getAdminRoles() {
 		return adminRoles;
 	}
 
+	/**
+	 * Sets the admin roles for the user.
+	 * 
+	 * @param adminRoles an array of admin roles to be set
+	 */
 	public void setAdminRoles(String[] adminRoles) {
 		if (adminRoles != null)
 			this.adminRoles = Arrays.asList(adminRoles);
 	}
 
+	/**
+	 * Returns the list of consultant roles.
+	 *
+	 * @return the list of consultant roles
+	 */
 	public List<String> getConsultantRoles() {
 		return consultantRoles;
 	}
 
+	/**
+	 * Sets the consultant roles for the user.
+	 * 
+	 * @param consultantRoles an array of consultant roles
+	 */
 	public void setConsultantRoles(String[] consultantRoles) {
 		if (consultantRoles != null)
 			this.consultantRoles = Arrays.asList(consultantRoles);
 	}
 
+	/**
+	 * Returns the roles assigned to the user.
+	 *
+	 * @return a list of strings representing the user roles
+	 */
 	public List<String> getUserRoles() {
 		return userRoles;
 	}
 
+	/**
+	 * Sets the roles for the user.
+	 *
+	 * @param userRoles an array of roles to be assigned to the user
+	 */
 	public void setUserRoles(String[] userRoles) {
 		if (userRoles != null)
 			this.userRoles = Arrays.asList(userRoles);
 	}
 
+	/**
+	 * Returns the password attribute name.
+	 *
+	 * @return the password attribute name as a String.
+	 */
 	public String getPasswordAttributeName() {
 		return passwordAttributeName;
 	}
 
+	/**
+	 * Returns the role attributes.
+	 *
+	 * @return an array of role attributes
+	 */
 	public String[] getRoleAttributes() {
 		return roleAttributes;
 	}
 
+	/**
+	 * Returns the role prefix.
+	 *
+	 * @return the role prefix as a {@code String}
+	 */
 	public String getRolePrefix() {
 		return rolePrefix;
 	}
 
+	/**
+	 * Returns whether the conversion to upper case is enabled or not.
+	 *
+	 * @return true if the conversion to upper case is enabled, false otherwise
+	 */
 	public boolean isConvertToUpperCase() {
 		return convertToUpperCase;
 	}

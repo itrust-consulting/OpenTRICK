@@ -17,15 +17,16 @@ import lu.itrust.business.ts.model.iteminformation.ItemInformation;
 import lu.itrust.business.ts.model.parameter.IParameter;
 
 /**
- * @author eomar
- *
+ * The AnalysisUtils class provides utility methods for mapping and splitting assessments and item informations.
  */
 public final class AnalysisUtils {
 
 	/**
-	 * Mapping selected assessment by asset and scenario
+	 * Maps the selected assessments based on asset and scenario IDs.
 	 * 
-	 * @return Length : 2, 0 : Asset, 1 : Scenario
+	 * @param assessments2 the list of assessments to be mapped
+	 * @return an array of two maps, where the first map contains assessments mapped by asset ID
+	 *         and the second map contains assessments mapped by scenario ID
 	 */
 	@Transient
 	@SuppressWarnings("unchecked")
@@ -41,18 +42,37 @@ public final class AnalysisUtils {
 		return mappings;
 	}
 
+	/**
+	 * Maps the selected assessments by asset.
+	 *
+	 * @param assessments2 the list of assessments
+	 * @return a map where the key is the asset ID and the value is a list of selected assessments
+	 */
 	@Transient
 	public static Map<Integer, List<Assessment>> MappedSelectedAssessmentByAsset(List<Assessment> assessments2) {
 		return assessments2.stream().filter(Assessment::isSelected)
 				.collect(Collectors.groupingBy(e -> e.getAsset().getId()));
 	}
 
+	/**
+	 * Maps the selected assessments by scenario.
+	 *
+	 * @param assessments2 the list of assessments
+	 * @return a map where the key is the scenario ID and the value is a list of selected assessments for that scenario
+	 */
 	@Transient
 	public static Map<Integer, List<Assessment>> MappedSelectedAssessmentByScenario(List<Assessment> assessments2) {
 		return assessments2.stream().filter(Assessment::isSelected)
 				.collect(Collectors.groupingBy(e -> e.getScenario().getId()));
 	}
 
+	/**
+	 * Splits a list of ItemInformation objects into two separate lists based on their type.
+	 *
+	 * @param itemInformations The list of ItemInformation objects to be split.
+	 * @return An array of two lists, where the first list contains ItemInformation objects with type "scope",
+	 *         and the second list contains ItemInformation objects with other types.
+	 */
 	@Transient
 	@SuppressWarnings("unchecked")
 	public static List<ItemInformation>[] SplitItemInformations(List<ItemInformation> itemInformations) {

@@ -10,9 +10,11 @@ import lu.itrust.business.ts.exception.TrickException;
 import lu.itrust.business.ts.form.AnalysisForm;
 import lu.itrust.business.ts.validator.field.ValidatorFieldImpl;
 
+
 /**
- * @author eomar
- *
+ * This class is a custom implementation of the ValidatorFieldImpl class. It provides validation logic for different fields in the AnalysisForm class.
+ * The validate method is overridden to perform specific validation based on the field name and candidate value.
+ * The supported method returns the class that this validator supports.
  */
 public class CustomAnalysisValidator extends ValidatorFieldImpl {
 
@@ -62,16 +64,41 @@ public class CustomAnalysisValidator extends ValidatorFieldImpl {
 		return null;
 	}
 
+	/**
+	 * Validates the given object and returns a string representation of the validation result.
+	 *
+	 * @param o the object to be validated
+	 * @param fieldName the name of the field being validated
+	 * @param candidate the candidate value to be validated
+	 * @param choose an array of objects to choose from during validation
+	 * @return a string representation of the validation result
+	 * @throws TrickException if an error occurs during validation
+	 */
 	@Override
 	public String validate(Object o, String fieldName, Object candidate, Object[] choose) throws TrickException {
 		return validate(o, fieldName, candidate);
 	}
 
+	/**
+	 * Validates the given object and returns a string representation of the validation result.
+	 *
+	 * @param o the object to be validated
+	 * @param fieldName the name of the field being validated
+	 * @param candidate the candidate value to be validated
+	 * @param choose a collection of objects to choose from during validation
+	 * @return a string representation of the validation result
+	 * @throws TrickException if an error occurs during validation
+	 */
 	@Override
 	public String validate(Object o, String fieldName, Object candidate, Collection<Object> choose) throws TrickException {
 		return validate(o, fieldName, candidate);
 	}
 
+	/**
+	 * Returns the class that this validator supports.
+	 *
+	 * @return the supported class
+	 */
 	@Override
 	public Class<?> supported() {
 		return AnalysisForm.class;

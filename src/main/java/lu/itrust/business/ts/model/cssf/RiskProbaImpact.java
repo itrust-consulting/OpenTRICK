@@ -25,8 +25,8 @@ import lu.itrust.business.ts.model.parameter.impl.ImpactParameter;
 import lu.itrust.business.ts.model.parameter.impl.LikelihoodParameter;
 
 /**
- * @author eomar
- *
+ * The RiskProbaImpact class represents the risk probability and impact parameters for a particular risk.
+ * It is used to calculate the vulnerability and importance of the risk.
  */
 @Embeddable
 public class RiskProbaImpact implements Cloneable {
@@ -132,6 +132,9 @@ public class RiskProbaImpact implements Cloneable {
 		return getImpactMapper().get(key);
 	}
 
+	/**
+	 * Represents an impact parameter for risk probability calculation.
+	 */
 	public IImpactParameter add(ImpactParameter impact) {
 		if (impact == null)
 			return null;
@@ -142,11 +145,24 @@ public class RiskProbaImpact implements Cloneable {
 		return getImpactMapper().put(impact.getTypeName(), impact);
 	}
 
+	/**
+	 * Removes the specified impact parameter from the list of impacts.
+	 * If the impact is successfully removed and the impactMapper is not null,
+	 * the impact's type name is also removed from the impactMapper.
+	 *
+	 * @param impact the impact parameter to be removed
+	 */
 	private void remove(IImpactParameter impact) {
 		if (impacts.remove(impact) && impactMapper != null)
 			impactMapper.remove(impact.getTypeName());
 	}
 
+	/**
+	 * Calculates the importance of the risk based on the impact level and probability level.
+	 * The importance is calculated by multiplying the impact level with the probability level.
+	 *
+	 * @return the importance of the risk
+	 */
 	public int getImportance() {
 		return getImpactLevel() * getProbabilityLevel();
 	}

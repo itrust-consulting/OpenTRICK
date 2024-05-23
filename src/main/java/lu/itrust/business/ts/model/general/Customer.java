@@ -26,10 +26,6 @@ import lu.itrust.business.ts.model.general.document.impl.TrickTemplate;
  * This class represents an Customer and all its data.
  * 
  * This class is used to store Customers. Each Analysis is done for a customer.
- * 
- * @author itrust consulting s.à r.l. - SME,BJA
- * @version 0.1
- * @since 2012-08-21
  */
 @Entity
 @Cacheable

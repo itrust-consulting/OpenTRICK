@@ -33,7 +33,7 @@ import lu.itrust.business.ts.model.standard.measure.Measure;
  * AnalysisStandard object, Measure object, the total ALE, delta ALE and the
  * ROSI/ROSMI.
  * 
- * @author itrust consulting s.a r.l. - BJA,SME
+ * @author itrust consulting s.a r.l.
  * @version 0.1
  * @since 2012-09-13
  */

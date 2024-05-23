@@ -24,14 +24,18 @@ import lu.itrust.business.ts.model.analysis.Analysis;
 import lu.itrust.business.ts.usermanagement.User;
 
 /**
- * UserAnalysisRight.java: <br>
- * Detailed description...
+ * Represents a user's analysis right.
  * 
- * @author smenghi, itrust consulting s.à.rl. :
- * @version 0.1
- * @since Jan 9, 2014
+ * This class encapsulates the information about a user's right to access an analysis.
+ * It contains the user, analysis, and the analysis right associated with the user.
+ * 
+ * The class provides methods to get and set the user, analysis, and analysis right,
+ * as well as methods to clone and duplicate the user analysis right.
+ * 
+ * @see User
+ * @see Analysis
+ * @see AnalysisRight
  */
-
 @Entity
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
@@ -59,7 +63,7 @@ public class UserAnalysisRight implements Cloneable {
 	@Access(AccessType.FIELD)
 	@Cascade(CascadeType.SAVE_UPDATE)
 	private Analysis analysis;
-	
+
 	/** rights */
 	@Enumerated(EnumType.STRING)
 	@Column(name = "dtRight", nullable = false)
@@ -67,23 +71,29 @@ public class UserAnalysisRight implements Cloneable {
 	private AnalysisRight right;
 
 	/**
-	 * Constructor: <br>
+	 * Default constructor.
 	 */
 	public UserAnalysisRight() {
 	}
 
 	/**
-	 * Constructor: <br>
+	 * Constructor with user and right parameters.
 	 * 
-	 * @param user
-	 * @param analysis
-	 * @param right
+	 * @param user The user associated with the analysis right
+	 * @param right The analysis right for the user
 	 */
 	public UserAnalysisRight(User user, AnalysisRight right) {
 		this.user = user;
 		this.right = right;
 	}
 
+	/**
+	 * Constructor with analysis, user, and right parameters.
+	 * 
+	 * @param analysis The analysis associated with the user's right
+	 * @param user The user associated with the analysis right
+	 * @param right The analysis right for the user
+	 */
 	public UserAnalysisRight(Analysis analysis, User user, AnalysisRight right) {
 		setAnalysis(analysis);
 		setRight(right);
@@ -91,110 +101,102 @@ public class UserAnalysisRight implements Cloneable {
 	}
 
 	/**
-	 * getUser: <br>
-	 * Returns the user field value.
+	 * Returns the user associated with the analysis right.
 	 * 
-	 * @return The value of the user field
+	 * @return The user associated with the analysis right
 	 */
 	public User getUser() {
 		return user;
 	}
 
 	/**
-	 * setUser: <br>
-	 * Sets the Field "user" with a value.
+	 * Sets the user associated with the analysis right.
 	 * 
-	 * @param user
-	 *            The Value to set the user field
+	 * @param user The user to set
 	 */
 	public void setUser(User user) {
 		this.user = user;
 	}
 
 	/**
-	 * getRight: <br>
-	 * Returns the right field value.
+	 * Returns the analysis right for the user.
 	 * 
-	 * @return The value of the right field
+	 * @return The analysis right for the user
 	 */
 	public AnalysisRight getRight() {
 		return right;
 	}
 
 	/**
-	 * setRight: <br>
-	 * Sets the Field "right" with a value.
+	 * Sets the analysis right for the user.
 	 * 
-	 * @param right
-	 *            The Value to set the right field
+	 * @param right The analysis right to set
 	 */
 	public void setRight(AnalysisRight right) {
 		this.right = right;
 	}
 
 	/**
-	 * getId: <br>
-	 * Returns the id field value.
+	 * Returns the ID of the user analysis right.
 	 * 
-	 * @return The value of the id field
+	 * @return The ID of the user analysis right
 	 */
 	public long getId() {
 		return id;
 	}
 
 	/**
-	 * setId: <br>
-	 * Sets the Field "id" with a value.
+	 * Sets the ID of the user analysis right.
 	 * 
-	 * @param id
-	 *            The Value to set the id field
+	 * @param id The ID to set
 	 */
 	public void setId(long id) {
 		this.id = id;
 	}
 
-	/** getAnalysis: <br>
-	 * Returns the analysis field value.
+	/**
+	 * Returns the analysis associated with the user's right.
 	 * 
-	 * @return The value of the analysis field
+	 * @return The analysis associated with the user's right
 	 */
 	public Analysis getAnalysis() {
 		return analysis;
 	}
 
-	/** setAnalysis: <br>
-	 * Sets the Field "analysis" with a value.
+	/**
+	 * Sets the analysis associated with the user's right.
 	 * 
-	 * @param analysis 
-	 * 			The Value to set the analysis field
+	 * @param analysis The analysis to set
 	 */
 	public void setAnalysis(Analysis analysis) {
 		this.analysis = analysis;
 	}
-	
-	public String rightToString(){
-		return right == null? null : right.name();
+
+	/**
+	 * Returns the string representation of the analysis right.
+	 * 
+	 * @return The string representation of the analysis right
+	 */
+	public String rightToString() {
+		return right == null ? null : right.name();
 	}
 
 	/**
-	 * userIsAuthorized: <br>
-	 * Checks if this user has the given right.
+	 * Checks if the user has the given analysis right.
 	 * 
-	 * @param right
-	 * @return true if th euser has the right or false if not.
+	 * @param uar The user analysis right to check
+	 * @param right The analysis right to check against
+	 * @return true if the user has the right, false otherwise
 	 */
 	public static final boolean userIsAuthorized(UserAnalysisRight uar, AnalysisRight right) {
 		return (uar.getRight().ordinal() <= right.ordinal() ? true : false);
-
 	}
 
 	/**
-	 * clone: <br>
-	 * Description
-	 *
-	 * @{tags
-	 *
-	 * @see java.lang.Object#clone()
+	 * Clones the user analysis right.
+	 * 
+	 * @return A clone of the user analysis right
+	 * @throws CloneNotSupportedException if cloning is not supported
 	 */
 	@Override
 	public UserAnalysisRight clone() throws CloneNotSupportedException {
@@ -202,11 +204,10 @@ public class UserAnalysisRight implements Cloneable {
 	}
 
 	/**
-	 * duplicate: <br>
-	 * Description
+	 * Creates a duplicate of the user analysis right.
 	 * 
-	 * @return
-	 * @throws CloneNotSupportedException
+	 * @return A duplicate of the user analysis right
+	 * @throws CloneNotSupportedException if cloning is not supported
 	 */
 	public UserAnalysisRight duplicate() throws CloneNotSupportedException {
 		UserAnalysisRight copy = (UserAnalysisRight) super.clone();
@@ -214,8 +215,13 @@ public class UserAnalysisRight implements Cloneable {
 		return copy;
 	}
 
+	/**
+	 * Returns the lowercase string representation of the analysis right.
+	 * 
+	 * @return The lowercase string representation of the analysis right
+	 */
 	public String rightToLower() {
-		return right == null? null : right.name().toLowerCase();
+		return right == null ? null : right.name().toLowerCase();
 	}
 
 }

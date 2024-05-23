@@ -20,14 +20,10 @@ import org.hibernate.annotations.CascadeType;
 
 import lu.itrust.business.ts.constants.Constant;
 import lu.itrust.business.ts.exception.TrickException;
-
 /**
- * Standard: <br>
- * Represents a Standard
- * 
- * @author itrust consulting s.à. r.l. : EOM, BJA, SME
- * @version 0.1
- * @since 24 janv. 2013
+ * Represents a standard in the system.
+ * This class is used to store information about a standard, such as its ID, name, label, version, description, type, and computability.
+ * It also provides methods to get and set the values of its fields.
  */
 @Entity
 @Cacheable
@@ -367,6 +363,14 @@ public class Standard implements Cloneable {
 		this.analysisOnly = analysisOnly;
 	}
 
+	// class implementation...
+	
+	/**
+	 * Updates the current standard with the values from the specified standard.
+	 * 
+	 * @param standard The standard containing the updated values.
+	 * @return The updated standard.
+	 */
 	public Standard update(Standard standard) {
 		this.analysisOnly = standard.analysisOnly;
 		this.computable = standard.computable;
@@ -378,24 +382,55 @@ public class Standard implements Cloneable {
 		return this;
 	}
 
+
+	/**
+	 * Checks if the given standard matches the current standard.
+	 * Two standards are considered a match if their names are equal (case-insensitive)
+	 * and their types are equal.
+	 *
+	 * @param standard The standard to compare with.
+	 * @return true if the standards match, false otherwise.
+	 */
 	public boolean isMatch(Standard standard) {
 		return name.equalsIgnoreCase(standard.name) && standard.type.equals(this.type);
 	}
 
+	/**
+	 * Checks if this Standard has the same name as the given Standard.
+	 *
+	 * @param standard The Standard to compare with.
+	 * @return true if the names are equal (case-insensitive), false otherwise.
+	 */
 	public boolean hasSameName(Standard standard) {
 		return name.equalsIgnoreCase(standard.name);
 	}
 
+	/**
+	 * Checks if the given name matches the standard.
+	 * 
+	 * @param name the name to check
+	 * @return true if the name matches the standard, false otherwise
+	 */
 	public boolean is(String name) {
 		return (analysisOnly || !(name.equals(Constant.STANDARD_27001) || name.equals(Constant.STANDARD_27002)))
 				? this.name.equalsIgnoreCase(name)
 				: this.label.startsWith(name);
 	}
 
+	/**
+	 * Returns the name of the Standard.
+	 *
+	 * @return the name of the Standard
+	 */
 	public String getName() {
 		return name;
 	}
 
+	/**
+	 * Sets the name of the Standard.
+	 *
+	 * @param name the name to set
+	 */
 	public void setName(String name) {
 		this.name = name;
 	}

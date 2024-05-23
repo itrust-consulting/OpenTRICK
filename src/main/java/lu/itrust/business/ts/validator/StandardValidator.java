@@ -11,8 +11,10 @@ import lu.itrust.business.ts.model.standard.StandardType;
 import lu.itrust.business.ts.validator.field.ValidatorFieldImpl;
 
 /**
- * @author eomar
- * 
+ * This class is responsible for validating fields of the Standard class.
+ * It extends the ValidatorFieldImpl class and provides implementation for the validate method.
+ * The class defines constants for field names and error messages.
+ * It also provides validation logic for each field based on its type.
  */
 public class StandardValidator extends ValidatorFieldImpl {
 

@@ -1,6 +1,3 @@
-/**
- * 
- */
 package lu.itrust.business.ts.model.parameter.value.impl;
 
 import jakarta.persistence.Access;
@@ -16,10 +13,9 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import lu.itrust.business.ts.model.parameter.ILevelParameter;
 import lu.itrust.business.ts.model.parameter.value.IValue;
 import lu.itrust.business.ts.model.parameter.value.NumericValue;
-
 /**
- * @author eomar
- *
+ * Represents a real value in the system.
+ * Extends the NumericValue class.
  */
 @Entity
 @Cacheable
@@ -28,11 +24,17 @@ import lu.itrust.business.ts.model.parameter.value.NumericValue;
 public class RealValue extends NumericValue {
 
 	/**
-	 * 
+	 * Default constructor.
 	 */
 	public RealValue() {
 	}
 
+	/**
+	 * Constructor that initializes the value and parameter.
+	 * 
+	 * @param value     The real value.
+	 * @param parameter The level parameter associated with the value.
+	 */
 	public RealValue(Double value, ILevelParameter parameter) {
 		super(value, parameter);
 	}
@@ -59,10 +61,21 @@ public class RealValue extends NumericValue {
 		return getNumber().doubleValue();
 	}
 
+	/**
+	 * Sets the real value.
+	 * 
+	 * @param real The real value to set.
+	 */
 	public void setReal(double real) {
 		setNumber(real);
 	}
 
+	/**
+	 * Merges the given value with this RealValue.
+	 * 
+	 * @param value the value to merge with
+	 * @return true if the merge was successful, false otherwise
+	 */
 	@Override
 	public boolean merge(IValue value) {
 		if (value == null || !(value instanceof RealValue))
@@ -72,6 +85,11 @@ public class RealValue extends NumericValue {
 		return true;
 	}
 
+	/**
+	 * Returns the raw value of the RealValue object.
+	 *
+	 * @return the raw value as a Double
+	 */
 	@Override
 	public Double getRaw() {
 		return getReal();

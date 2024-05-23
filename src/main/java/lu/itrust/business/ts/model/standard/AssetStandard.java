@@ -15,10 +15,6 @@ import lu.itrust.business.ts.model.standard.measuredescription.MeasureDescriptio
 /**
  * AssetMeasureNorm: <br>
  * Detailed description...
- *
- * @author smenghi itrust consulting s.a.rl.:
- * @version
- * @since Aug 25, 2014
  */
 @Entity
 @DiscriminatorValue("AssetStandard")
@@ -143,11 +139,21 @@ public class AssetStandard extends AnalysisStandard {
 		return (AssetStandard) super.duplicate();
 	}
 
+	/**
+	 * Adds a measure to the asset.
+	 *
+	 * @param measure the measure to be added
+	 */
 	@Override
 	public void add(Measure measure) {
 		addMeasure((AssetMeasure) measure);
 	}
 
+	/**
+	 * Adds a new measure description to the asset standard.
+	 *
+	 * @param measureDescription the measure description to be added
+	 */
 	@Override
 	public void add(MeasureDescription measureDescription) {
 		add(new AssetMeasure(measureDescription));

@@ -10,9 +10,10 @@ import java.util.List;
 import lu.itrust.business.ts.model.ticketing.TickectingComment;
 import lu.itrust.business.ts.model.ticketing.TicketingTask;
 
+
 /**
- * @author eomar
- *
+ * The AbstractTask class is an abstract implementation of the TicketingTask interface.
+ * It provides common properties and methods for all types of tasks in the ticketing system.
  */
 public abstract class AbstractTask implements TicketingTask {
 

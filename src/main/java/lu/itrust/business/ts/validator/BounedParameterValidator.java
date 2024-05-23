@@ -6,9 +6,33 @@ package lu.itrust.business.ts.validator;
 import lu.itrust.business.ts.model.parameter.IBoundedParameter;
 import lu.itrust.business.ts.model.parameter.helper.Bounds;
 
+
 /**
- * @author eomar
+ * This class is a validator for bounded parameters. It extends the {@link ParameterValidator} class.
+ * It provides validation logic for different fields such as bounds, level, acronym, and value.
  * 
+ * The class supports the following fields:
+ * - {@code bounds}: Represents the bounds of the parameter. It should be an instance of the {@link Bounds} class.
+ * - {@code level}: Represents the level of the parameter. It should be an integer between 0 and 10 (inclusive).
+ * - {@code acronym}: Represents the acronym of the parameter. It cannot be edited.
+ * - {@code value}: Represents the value of the parameter. It should be a numeric value greater than or equal to 0.
+ * 
+ * The class overrides the {@link ParameterValidator#validate(String, Object)} method to provide custom validation logic
+ * for each field. It also overrides the {@link ParameterValidator#supported()} method to specify the supported parameter type.
+ * 
+ * Example usage:
+ * 
+ * BounedParameterValidator validator = new BounedParameterValidator();
+ * String fieldName = "bounds";
+ * Bounds bounds = new Bounds(0, 100);
+ * String validationError = validator.validate(fieldName, bounds);
+ * if (validationError != null) {
+ *     // Handle validation error
+ * }
+ * 
+ * @see ParameterValidator
+ * @see Bounds
+ * @see IBoundedParameter
  */
 public class BounedParameterValidator extends ParameterValidator {
 

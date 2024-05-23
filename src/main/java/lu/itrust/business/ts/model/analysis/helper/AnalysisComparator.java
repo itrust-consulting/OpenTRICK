@@ -8,9 +8,18 @@ import java.util.Comparator;
 import lu.itrust.business.ts.helper.NaturalOrderComparator;
 import lu.itrust.business.ts.model.analysis.Analysis;
 
+
 /**
- * @author eomar
+ * This class implements the Comparator interface to compare Analysis objects.
+ * It compares the Analysis objects based on the following criteria:
+ * 1. Customer's organization name (case-insensitive)
+ * 2. Analysis identifier (case-insensitive)
+ * 3. Availability of data (true or false)
+ * 4. Analysis type
+ * 5. Analysis version (using NaturalOrderComparator)
  *
+ * The compare() method returns a negative integer, zero, or a positive integer
+ * as the first argument is less than, equal to, or greater than the second argument.
  */
 public class AnalysisComparator implements Comparator<Analysis> {
 

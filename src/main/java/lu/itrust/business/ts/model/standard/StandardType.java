@@ -7,9 +7,6 @@ import lu.itrust.business.ts.exception.TrickException;
  * <li>NORMAL(1)</li>
  * <li>MATURITY(2)</li>
  * <li>ASSET(3)</li>
- * @author smenghi itrust consulting s.a.rl.:
- * @version 
- * @since Oct 6, 2014
  */
 public enum StandardType {
 
@@ -56,15 +53,30 @@ public enum StandardType {
 		return values[value - 1];
 	}
 
+	/**
+	 * Returns the name of the standard type.
+	 *
+	 * @return the name of the standard type
+	 */
 	public String getName() {
 		return NAMES[this.value-1];
 	}
 
+	// enum values here
+	
+	/**
+	 * Returns the standard type with the specified name.
+	 * 
+	 * @param name the name of the standard type
+	 * @return the standard type with the specified name, or null if not found
+	 */
 	public static StandardType getByName(String name) {
 		StandardType[] values = values();
-		for (int i = 0; i < values.length;i++)
-			if (values[i].getName().equals(name.trim()))
+		for (int i = 0; i < values.length; i++) {
+			if (values[i].getName().equals(name.trim())) {
 				return values[i];
+			}
+		}
 		return null;
 	}
 }

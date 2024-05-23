@@ -20,9 +20,10 @@ import lu.itrust.business.ts.constants.Constant;
 import lu.itrust.business.ts.database.service.AccountLockerManager;
 import lu.itrust.business.ts.database.service.ServiceUser;
 
+
 /**
- * @author eomar
- *
+ * This class extends the Spring Security's `UsernamePasswordAuthenticationFilter` class
+ * to provide custom authentication behavior.
  */
 public class CustomUsernamePasswordAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 

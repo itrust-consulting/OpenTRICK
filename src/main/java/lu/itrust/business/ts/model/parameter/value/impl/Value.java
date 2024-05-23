@@ -1,6 +1,3 @@
-/**
- * 
- */
 package lu.itrust.business.ts.model.parameter.value.impl;
 
 import jakarta.persistence.AttributeOverride;
@@ -16,8 +13,7 @@ import lu.itrust.business.ts.model.parameter.value.AbstractValue;
 import lu.itrust.business.ts.model.parameter.value.IValue;
 
 /**
- * @author eomar
- *
+ * Represents a value in the system.
  */
 @Entity
 @Cacheable
@@ -26,19 +22,26 @@ import lu.itrust.business.ts.model.parameter.value.IValue;
 public class Value extends AbstractValue {
 
 	/**
-	 * 
+	 * Default constructor.
 	 */
 	public Value() {
 	}
 
 	/**
-	 * @param name
-	 * @param parameter
+	 * Constructor with parameter.
+	 *
+	 * @param parameter the level parameter associated with the value
 	 */
 	public Value(ILevelParameter parameter) {
 		super(parameter);
 	}
 
+	/**
+	 * Merges the given value with this value.
+	 *
+	 * @param value the value to merge
+	 * @return true if the merge was successful, false otherwise
+	 */
 	@Override
 	public boolean merge(IValue value) {
 		if (!(value instanceof Value))
@@ -47,6 +50,11 @@ public class Value extends AbstractValue {
 		return true;
 	}
 
+	/**
+	 * Gets the raw value.
+	 *
+	 * @return the raw value as a string
+	 */
 	@Override
 	public String getRaw() {
 		return getVariable();

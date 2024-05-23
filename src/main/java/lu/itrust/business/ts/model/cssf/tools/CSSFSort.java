@@ -16,10 +16,6 @@ import lu.itrust.business.ts.model.cssf.helper.ComputationHelper;
  * <li>Sorting each group [direct, indirect] by net importance</li>
  * <li>Sorting group[other] by impact and probability net</li>
  * </ul>
- * 
- * @author itrust consulting s.�.rl. : BJA, EOM, SME
- * @version 0.1
- * @since 27 d�c. 2012
  */
 public class CSSFSort {
 

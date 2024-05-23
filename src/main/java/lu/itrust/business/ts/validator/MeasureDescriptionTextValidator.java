@@ -10,9 +10,10 @@ import lu.itrust.business.ts.model.general.Language;
 import lu.itrust.business.ts.model.standard.measuredescription.MeasureDescriptionText;
 import lu.itrust.business.ts.validator.field.ValidatorFieldImpl;
 
+
 /**
- * @author eomar
- * 
+ * This class is responsible for validating the fields of a MeasureDescriptionText object.
+ * It extends the ValidatorFieldImpl class.
  */
 public class MeasureDescriptionTextValidator extends ValidatorFieldImpl {
 

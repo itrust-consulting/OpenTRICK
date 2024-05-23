@@ -22,10 +22,6 @@ import lu.itrust.business.ts.model.asset.Asset;
 /**
  * AssetTypeValue: <br>
  * This class represents an AssetValue for AssetMeasure (1 measure -> 0..* Assets with asset values)
- * 
- * @author itrust consulting s.à r.l. - SME
- * @version 0.1
- * @since 2014/08/22
  */
 @Entity
 @Cacheable

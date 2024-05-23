@@ -5,6 +5,11 @@ import java.util.Comparator;
 import lu.itrust.business.ts.helper.NaturalOrderComparator;
 import lu.itrust.business.ts.model.assessment.Assessment;
 
+/**
+ * A comparator for sorting Assessment objects based on their ALE (Annualized Loss Expectancy) values.
+ * The comparator compares two Assessment objects and returns a negative integer, zero, or a positive integer
+ * as the first Assessment is less than, equal to, or greater than the second Assessment, respectively.
+ */
 public class AssessmentComparator implements Comparator<Assessment> {
 
 	@Override

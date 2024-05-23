@@ -35,10 +35,6 @@ import lu.itrust.business.ts.model.scale.ScaleType;
  * <li>Impact values</li>
  * <li>Likelihood values</li>
  * </ul>
- * 
- * @author itrust consulting s.à r.l. - SME,BJA
- * @version 0.1
- * @since 2012-08-21
  */
 @Entity
 @Cacheable

@@ -12,50 +12,60 @@ import jakarta.persistence.MappedSuperclass;
 import lu.itrust.business.ts.model.parameter.type.IParameterType;
 
 /**
- * @author eomar
- *
+ * This abstract class represents a parameter type in the system.
+ * It provides common functionality and properties for all parameter types.
  */
 @MappedSuperclass
 public abstract class AbstractParameterType implements IParameterType {
 	
 	@Id
-	@GeneratedValue(strategy =GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
 	
-	@Column(name = "dtName", unique=true)
+	@Column(name = "dtName", unique = true)
 	protected String name;
 	
 	/**
-	 * 
+	 * Default constructor for the AbstractParameterType class.
+	 * This constructor is protected to prevent direct instantiation of the abstract class.
 	 */
 	protected AbstractParameterType() {
 	}
 
 	/**
-	 * @param name
+	 * Constructor for the AbstractParameterType class.
+	 * Initializes the name property of the parameter type.
+	 *
+	 * @param name The name of the parameter type.
 	 */
 	protected AbstractParameterType(String name) {
 		this.name = name;
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.ts.model.parameter.IParameterType#getId()
+	/**
+	 * Retrieves the ID of the parameter type.
+	 *
+	 * @return The ID of the parameter type.
 	 */
 	@Override
 	public int getId() {
 		return id;
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.ts.model.parameter.IParameterType#setId(int)
+	/**
+	 * Sets the ID of the parameter type.
+	 *
+	 * @param id The ID to set for the parameter type.
 	 */
 	@Override
 	public void setId(int id) {
 		this.id = id;
 	}
 
-	/* (non-Javadoc)
-	 * @see lu.itrust.business.ts.model.parameter.IParameterType#getName()
+	/**
+	 * Retrieves the name of the parameter type.
+	 *
+	 * @return The name of the parameter type.
 	 */
 	@Override
 	public String getName() {

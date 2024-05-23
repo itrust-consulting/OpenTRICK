@@ -16,9 +16,11 @@ import lu.itrust.business.ts.model.actionplan.summary.SummaryStage;
 import lu.itrust.business.ts.model.actionplan.summary.SummaryStandardConformance;
 import lu.itrust.business.ts.model.general.Phase;
 
+
 /**
- * @author eomar
- *
+ * The ActionPlanSummaryManager class is responsible for managing the action plan summary data.
+ * It provides methods to extract phase rows, build phase tables, split summaries by action plan type,
+ * and build tables and charts based on the summary stages and phases.
  */
 public class ActionPlanSummaryManager {
 
@@ -46,10 +48,23 @@ public class ActionPlanSummaryManager {
 	public static final String LABEL_PHASE_BEGIN_DATE = "label.phase.begin.date";
 	public static final String LABEL_CHARACTERISTIC = "label.characteristic";
 
+	/**
+	 * Extracts the phase row from a list of summary stages.
+	 *
+	 * @param summaryStages the list of summary stages
+	 * @return a list of unique phase names extracted from the summary stages
+	 */
 	public static List<String> extractPhaseRow(List<SummaryStage> summaryStages) {
 		return summaryStages.stream().map(SummaryStage::getStage).distinct().collect(Collectors.toList());
 	}
 
+	/**
+	 * Builds a map of phases based on the provided list of phases and extracted phases.
+	 *
+	 * @param phases          the list of all phases
+	 * @param extractedPhases the list of extracted phases
+	 * @return a map of phases with their corresponding stage names
+	 */
 	public static Map<String, Phase> buildPhase(List<Phase> phases, List<String> extractedPhases) {
 		Map<String, Phase> phaseStages = new LinkedHashMap<>();
 
@@ -65,10 +80,23 @@ public class ActionPlanSummaryManager {
 		return phaseStages;
 	}
 
+	/**
+	 * Splits the given list of summary stages by action plan type.
+	 *
+	 * @param summaryStages the list of summary stages to be split
+	 * @return a map where the keys are action plan types and the values are lists of summary stages
+	 */
 	private static Map<ActionPlanType, List<SummaryStage>> splitByActionPlanType(List<SummaryStage> summaryStages) {
 		return summaryStages.stream().collect(Collectors.groupingBy(SummaryStage::getActionPlanType));
 	}
 
+	/**
+	 * Builds tables for action plan summaries based on the provided summary stages and phases.
+	 *
+	 * @param summaryStages The list of summary stages.
+	 * @param phases The list of phases.
+	 * @return A map containing action plan types as keys and their corresponding tables as values.
+	 */
 	public static Map<ActionPlanType, Map<String, List<String>>> buildTables(List<SummaryStage> summaryStages,
 			List<Phase> phases) {
 		Map<ActionPlanType, List<SummaryStage>> summariesByActionPlanType = splitByActionPlanType(summaryStages);
@@ -80,6 +108,13 @@ public class ActionPlanSummaryManager {
 		return summaries;
 	}
 
+	/**
+	 * Builds a table summarizing the action plan based on the provided summary stages and phases.
+	 *
+	 * @param summaryStages The list of summary stages.
+	 * @param phases The list of phases.
+	 * @return A map representing the built table, where the keys are the table rows and the values are the corresponding row data.
+	 */
 	public static Map<String, List<String>> buildTable(List<SummaryStage> summaryStages, List<Phase> phases) {
 		if (summaryStages.isEmpty())
 			return Collections.emptyMap();
@@ -192,6 +227,13 @@ public class ActionPlanSummaryManager {
 		return summaries;
 	}
 
+	/**
+	 * Builds the chart data based on the provided summary stages and phases.
+	 *
+	 * @param summaryStages The list of summary stages.
+	 * @param phases The list of phases.
+	 * @return A map containing the chart data, where the keys are the row headers and the values are the corresponding data rows.
+	 */
 	public static Map<String, List<Object>> buildChartData(List<SummaryStage> summaryStages, List<Phase> phases) {
 		if (summaryStages.isEmpty())
 			return Collections.emptyMap();
@@ -304,6 +346,13 @@ public class ActionPlanSummaryManager {
 		return summaries;
 	}
 
+	/**
+	 * Builds a map of raw data based on the provided summary stages and phases.
+	 *
+	 * @param summaryStages The list of summary stages.
+	 * @param phases The list of phases.
+	 * @return A map containing the raw data.
+	 */
 	public static Map<String, List<Object>> buildRawData(List<SummaryStage> summaryStages, List<Phase> phases) {
 		if (summaryStages.isEmpty())
 			return Collections.emptyMap();
@@ -416,6 +465,13 @@ public class ActionPlanSummaryManager {
 		return summaries;
 	}
 
+	/**
+	 * Retrieves a map of rows for each action plan type, based on the provided summary stages and phases.
+	 *
+	 * @param summaryStages The list of summary stages.
+	 * @param phases The list of phases.
+	 * @return A map containing rows for each action plan type.
+	 */
 	public static Map<ActionPlanType, Map<String, Map<Integer, Object>>> getRows(List<SummaryStage> summaryStages,
 			List<Phase> phases) {
 		Map<ActionPlanType, Map<String, Map<Integer, Object>>> result = new LinkedHashMap<>();
@@ -425,6 +481,13 @@ public class ActionPlanSummaryManager {
 		return result;
 	}
 
+	/**
+	 * Generates rows for the action plan type based on the provided summary stages and phases.
+	 *
+	 * @param summaryStages The list of summary stages.
+	 * @param phases The list of phases.
+	 * @return A map containing the generated rows for the action plan type.
+	 */
 	private static Map<String, Map<Integer, Object>> generateRowsForActionPlanType(List<SummaryStage> summaryStages,
 			List<Phase> phases) {
 
@@ -458,6 +521,12 @@ public class ActionPlanSummaryManager {
 		return rowdata;
 	}
 
+	/**
+	 * Generates the header for the action plan summary.
+	 * 
+	 * @param conformances the list of summary standard conformances
+	 * @return the list of header rows
+	 */
 	public static List<String> generateHeader(List<SummaryStandardConformance> conformances) {
 		List<String> rows = new ArrayList<>();
 		rows.add(LABEL_CHARACTERISTIC);
@@ -489,6 +558,9 @@ public class ActionPlanSummaryManager {
 		return rows;
 	}
 
+	/**
+	 * Represents a stage in the summary of an action plan.
+	 */
 	private static SummaryStage getStageFromPhase(Integer phasenumber, List<SummaryStage> stages) {
 
 		for (SummaryStage stage : stages) {
@@ -504,6 +576,15 @@ public class ActionPlanSummaryManager {
 		return null;
 	}
 
+	/**
+	 * Sets the value for a specific data in the given map of values based on the provided parameters.
+	 *
+	 * @param data       The data for which the value needs to be set.
+	 * @param values     The map of values to update.
+	 * @param stage      The summary stage.
+	 * @param phase      The phase.
+	 * @param colnumber  The column number.
+	 */
 	private static void setValue(String data, Map<String, Map<Integer, Object>> values, SummaryStage stage, Phase phase,
 			Integer colnumber) {
 

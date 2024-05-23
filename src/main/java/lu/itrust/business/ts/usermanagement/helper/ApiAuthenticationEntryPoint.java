@@ -12,9 +12,10 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 
+
 /**
- * @author eomar
- *
+ * This class is responsible for handling authentication errors that occur during API requests.
+ * It implements the AuthenticationEntryPoint interface from Spring Security.
  */
 public class ApiAuthenticationEntryPoint implements AuthenticationEntryPoint {
 

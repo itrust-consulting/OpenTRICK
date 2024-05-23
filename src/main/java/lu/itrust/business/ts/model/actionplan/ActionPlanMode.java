@@ -3,8 +3,8 @@ package lu.itrust.business.ts.model.actionplan;
 import lu.itrust.business.ts.exception.TrickException;
 
 /**
- * ActionPlanMode <br>
- * <b>There are 7 modes:</b>
+ * Represents the different modes of an action plan.
+ *  <b>There are 7 modes:</b>
  * <ul>
  * <li>NORMAL (1)</li>
  * <li>OPTIMISTIC (2)</li>
@@ -14,26 +14,22 @@ import lu.itrust.business.ts.exception.TrickException;
  * <li>PHASE_PESSIMISTIC (6)</li>
  * <li>QUALITATIVE (7) </li>
  * </ul>
- * 
- * @author EOM, BJA, SME
- * @version 0.1
- * @since 2012
  */
 public enum ActionPlanMode {
 
 	/** ActionPlanMode Value Constants */
-	APN(1), APO(2), APP(3), APPN(4), APPO(5), APPP(6),APQ(7);
+	APN(1), APO(2), APP(3), APPN(4), APPO(5), APPP(6), APQ(7);
 
 	/** ActionPlanModeValue */
 	private int value = 1;
 
 	private String[] NAMES = {"APN", "APO" , "APP", "APPN", "APPO", "APPP","APQ"};
-	
+
 	/**
 	 * Constructor:<br>
-	 * 
-	 * @param value
-	 *            The value to set the ActionPlanMode
+	 * Creates a new ActionPlanMode with the specified value.
+	 *
+	 * @param value The value to set the ActionPlanMode.
 	 */
 	private ActionPlanMode(int value) {
 		this.value = value;
@@ -41,9 +37,9 @@ public enum ActionPlanMode {
 
 	/**
 	 * getValue: <br>
-	 * Returns the Value of the ActionPlanMode
-	 * 
-	 * @return The Value of the ActionPlanMode
+	 * Returns the value of the ActionPlanMode.
+	 *
+	 * @return The value of the ActionPlanMode.
 	 */
 	public int getValue() {
 		return value;
@@ -51,7 +47,7 @@ public enum ActionPlanMode {
 
 	/**
 	 * valueOf:<br>
-	 * Retrieves:
+	 * Retrieves: The ActionPlanMode based on the specified value.
 	 * <ul>
 	 * <li>NORMAL (1)</li>
 	 * <li>OPTIMISTIC (2)</li>
@@ -62,13 +58,11 @@ public enum ActionPlanMode {
 	 * <li>QUALITATIVE (7)</li>
 	 * </ul>
 	 * 
-	 * @param value
-	 *            ActionPlanmode value from 1 to 7
-	 * @return ActionplanMode
-	 * @throws TrickException 
-	 * @throws IllegalArgumentException
-	 *             when value is not between 1 and 7
-	 */
+	 *
+	 * @param value The ActionPlanMode value from 1 to 7.
+	 * @return The ActionPlanMode.
+	 * @throws TrickException If the value is not between 1 and 7.
+	 *  */
 	public static ActionPlanMode valueOf(int value) throws TrickException {
 		ActionPlanMode[] values = values();
 		if (value < 1 || value > values.length)
@@ -76,10 +70,23 @@ public enum ActionPlanMode {
 		return values[value - 1];
 	}
 
+	/**
+	 * getName: <br>
+	 * Returns the name of the ActionPlanMode.
+	 *
+	 * @return The name of the ActionPlanMode.
+	 */
 	public String getName() {
 		return NAMES[this.value-1];
 	}
 
+	/**
+	 * getByName: <br>
+	 * Retrieves the ActionPlanMode based on the specified name.
+	 *
+	 * @param name The name of the ActionPlanMode.
+	 * @return The ActionPlanMode with the specified name, or null if not found.
+	 */
 	public static ActionPlanMode getByName(String name) {
 		ActionPlanMode[] values = values();
 		for (int i = 0; i < values.length;i++)

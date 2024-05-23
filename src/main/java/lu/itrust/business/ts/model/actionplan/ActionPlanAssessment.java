@@ -6,7 +6,7 @@ import lu.itrust.business.ts.model.assessment.Assessment;
  * ActionPlanAsset: <br>
  * Represents a Asset with its ALE value inside a specific Action Plan Entry.
  * 
- * @author itrust consulting s.�.rl. : EOM, BJA, SME
+ * @author itrust consulting s.a.rl. 
  * @version 0.1
  * @since 29 janv. 2013
  */
@@ -33,20 +33,17 @@ public class ActionPlanAssessment {
 	 **********************************************************************************************/
 
 	/**
-	 * Constructor:<br>
+	 * Default constructor for the ActionPlanAssessment class.
 	 */
 	public ActionPlanAssessment() {
 	}
 
 	/**
-	 * Constructor:<br>
+	 * Constructor for the ActionPlanAssessment class.
 	 * 
-	 * @param actionPlanEntry
-	 *            The Action Plan Entry Object
-	 * @param assessment
-	 *            The assessment Object
-	 * @param currentALE
-	 *            The ALE value
+	 * @param actionPlanEntry The Action Plan Entry Object
+	 * @param assessment The Assessment Object
+	 * @param currentALE The ALE value
 	 */
 	public ActionPlanAssessment(ActionPlanEntry actionPlanEntry, Assessment assessment, double currentALE) {
 		this.actionPlanEntry = actionPlanEntry;
@@ -59,7 +56,6 @@ public class ActionPlanAssessment {
 	 **********************************************************************************************/
 
 	/**
-	 * getId: <br>
 	 * Returns the id field value.
 	 * 
 	 * @return The value of the id field
@@ -69,18 +65,15 @@ public class ActionPlanAssessment {
 	}
 
 	/**
-	 * setId: <br>
 	 * Sets the Field "id" with a value.
 	 * 
-	 * @param id
-	 *            The Value to set the id field
+	 * @param id The Value to set the id field
 	 */
 	public void setId(int id) {
 		this.id = id;
 	}
 
 	/**
-	 * getActionPlanEntry: <br>
 	 * Returns the actionPlanEntry field value.
 	 * 
 	 * @return The value of the actionPlanEntry field
@@ -90,18 +83,15 @@ public class ActionPlanAssessment {
 	}
 
 	/**
-	 * setActionPlanEntry: <br>
 	 * Sets the Field "actionPlanEntry" with a value.
 	 * 
-	 * @param actionPlanEntry
-	 *            The Value to set the actionPlanEntry field
+	 * @param actionPlanEntry The Value to set the actionPlanEntry field
 	 */
 	public void setActionPlanEntry(ActionPlanEntry actionPlanEntry) {
 		this.actionPlanEntry = actionPlanEntry;
 	}
 
 	/**
-	 * getCurrentALE: <br>
 	 * Returns the currentALE field value.
 	 * 
 	 * @return The value of the currentALE field
@@ -111,18 +101,15 @@ public class ActionPlanAssessment {
 	}
 
 	/**
-	 * setCurrentALE: <br>
 	 * Sets the Field "currentALE" with a value.
 	 * 
-	 * @param currentALE
-	 *            The Value to set the currentALE field
+	 * @param currentALE The Value to set the currentALE field
 	 */
 	public void setCurrentALE(double currentALE) {
 		this.currentALE = currentALE;
 	}
 
 	/**
-	 * getAssessment: <br>
 	 * Returns the assessment field value.
 	 * 
 	 * @return The value of the assessment field
@@ -132,11 +119,9 @@ public class ActionPlanAssessment {
 	}
 
 	/**
-	 * setAssessment: <br>
 	 * Sets the Field "assessment" with a value.
 	 * 
-	 * @param asset
-	 *            The Value to set the assessment field
+	 * @param asset The Value to set the assessment field
 	 */
 	public void setAssessment(Assessment assessment) {
 		this.assessment = assessment;

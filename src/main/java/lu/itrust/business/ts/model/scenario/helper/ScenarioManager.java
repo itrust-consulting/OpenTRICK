@@ -8,8 +8,17 @@ import java.util.Map;
 import lu.itrust.business.ts.model.scenario.Scenario;
 import lu.itrust.business.ts.model.scenario.ScenarioType;
 
+/**
+ * The ScenarioManager class is responsible for managing scenarios and splitting them by type.
+ */
 public class ScenarioManager {
 
+	/**
+	 * Splits the given list of scenarios by type and returns a map of scenario types to lists of scenarios.
+	 *
+	 * @param scenarios the list of scenarios to be split
+	 * @return a map of scenario types to lists of scenarios
+	 */
 	public static Map<ScenarioType, List<Scenario>> SplitByType(List<Scenario> scenarios) {
 		Map<ScenarioType, List<Scenario>> mappedScenarios = new LinkedHashMap<ScenarioType, List<Scenario>>();
 		for (Scenario scenario : scenarios) {

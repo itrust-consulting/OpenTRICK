@@ -29,13 +29,19 @@ import lu.itrust.business.ts.model.general.LogAction;
 import lu.itrust.business.ts.model.general.LogLevel;
 import lu.itrust.business.ts.model.general.LogType;
 
+
 /**
- * CustomAuthenticationFailureHandler.java: <br>
- * Detailed description...
+ * This class is a custom implementation of the Spring Security's
+ * SimpleUrlAuthenticationFailureHandler. It handles authentication failure
+ * scenarios and performs additional actions based on the type of exception
+ * thrown.
  *
- * @author smenghi itrust consulting s.a.rl.:
- * @version
- * @since Oct 6, 2014
+ * The class provides methods to lock user accounts, log authentication failure
+ * events, and handle different types of authentication exceptions such as
+ * BadCredentialsException, DisabledException, TrickException, TrickOtpException,
+ * LockedException, and InternalAuthenticationServiceException.
+ *
+ * @see SimpleUrlAuthenticationFailureHandler
  */
 public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationFailureHandler {
 

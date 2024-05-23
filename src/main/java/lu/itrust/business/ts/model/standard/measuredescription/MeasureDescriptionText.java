@@ -22,10 +22,6 @@ import lu.itrust.business.ts.model.general.Language;
 /**
  * MeasureDescriptionText: <br>
  * Represents the Domain and Description of a measure in a single language
- * 
- * @author itrust consulting s.à r.l. : SME, BJA, EOM
- * @version 0.1
- * @since Jan 28, 2013
  */
 @Entity
 @Cacheable
@@ -88,10 +84,6 @@ public class MeasureDescriptionText implements Cloneable {
 	/***********************************************************************************************
 	 * Getters and Setters
 	 **********************************************************************************************/
-
-	
-
-	
 
 	/**
 	 * getDomain: <br>

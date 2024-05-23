@@ -24,9 +24,13 @@ import lu.itrust.business.ts.model.standard.AnalysisStandard;
 import lu.itrust.business.ts.model.standard.measure.AbstractNormalMeasure;
 import lu.itrust.business.ts.model.standard.measure.Measure;
 
+
 /**
- * @author eomar
- *
+ * This class represents a quantitative summary computation for an analysis. It extends the base class SummaryComputation.
+ * 
+ * @param analysis The analysis object.
+ * @param factory The value factory object.
+ * @param analysisStandards The list of analysis standards.
  */
 public class SummaryComputationQuantitative extends SummaryComputation {
 
@@ -150,6 +154,11 @@ public class SummaryComputationQuantitative extends SummaryComputation {
 		getAnalysis().addSummaryEntries(getSummaryStages());
 	}
 
+	/**
+	 * Generates the pre-maintenance based on the provided list of analysis standards.
+	 * 
+	 * @param analysisStandards the list of analysis standards
+	 */
 	private void generatePreMaintenance(List<AnalysisStandard> analysisStandards) {
 		analysisStandards.stream().flatMap(standard -> standard.getMeasures().stream()).forEach(measure -> {
 			if (!(measure.getStatus().equals(Constant.MEASURE_STATUS_NOT_APPLICABLE)
@@ -164,6 +173,14 @@ public class SummaryComputationQuantitative extends SummaryComputation {
 		getPhases().sort((o1, o2) -> Integer.compare(o1.getNumber(), o2.getNumber()));
 	}
 
+	/**
+	 * Generates a stage for the summary computation.
+	 *
+	 * @param name     The name of the stage.
+	 * @param isFirst  Indicates if it is the first stage.
+	 * @param number   The number of the stage.
+	 * @param measures The list of measures.
+	 */
 	private void generateStage(String name, boolean isFirst, int number, List<Measure> measures) {
 		double phaseTime = 0;
 		boolean isFirstValidPhase = false;
@@ -216,6 +233,9 @@ public class SummaryComputationQuantitative extends SummaryComputation {
 				helper.conformance += (numerator / denominator);
 		}
 
+		/**
+		 * Represents a recurrent investment for maintenance.
+		 */
 		final MaintenanceRecurrentInvestment maintenanceRecurrentInvestment = getMaintenances()
 				.computeIfAbsent(number - 1, k -> new MaintenanceRecurrentInvestment());
 
@@ -313,6 +333,12 @@ public class SummaryComputationQuantitative extends SummaryComputation {
 
 	}
 
+	/**
+	 * Updates the current values based on the given action plan entry.
+	 *
+	 * @param actionPlanEntry The action plan entry to process.
+	 * @param isPhaseBased    Indicates whether the computation is phase-based.
+	 */
 	private void nextActionEntry(ActionPlanEntry actionPlanEntry, boolean isPhaseBased) {
 		final Measure measure = actionPlanEntry.getMeasure();
 		final SummaryStandardHelper helper = getCurrentValues().conformanceHelper
@@ -356,6 +382,11 @@ public class SummaryComputationQuantitative extends SummaryComputation {
 		}
 	}
 
+	/**
+	 * Resets the class data by clearing the summary stages and maintenances.
+	 * If the summary stages are not null, it creates a new SummaryValues object
+	 * with the standard values from the current values and sets it as the current values.
+	 */
 	private void resetClassData() {
 		if (getSummaryStages() != null)
 			setCurrentValues(new SummaryValues(getCurrentValues().conformanceHelper.values().stream()
@@ -364,6 +395,12 @@ public class SummaryComputationQuantitative extends SummaryComputation {
 		setMaintenances(new HashMap<>());
 	}
 
+	/**
+	 * Resets the current data values to their initial state.
+	 * This method sets all the current values to zero, including conformance values,
+	 * ROSI, deltaALE, totalCost, investment, measureCost, measureCount, relativeROSI,
+	 * externalWorkload, internalWorkload, and implementCostOfPhase.
+	 */
 	private void resetCurrentData() {
 		getCurrentValues().conformanceHelper.values().parallelStream().forEach(helper -> helper.conformance = 0);
 		getCurrentValues().ROSI = 0;

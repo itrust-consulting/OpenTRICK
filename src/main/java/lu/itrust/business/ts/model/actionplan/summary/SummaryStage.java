@@ -26,12 +26,14 @@ import lu.itrust.business.ts.model.actionplan.ActionPlanType;
 import lu.itrust.business.ts.model.standard.AnalysisStandard;
 
 /**
- * SummaryStage: <br>
+ * The `SummaryStage` class represents a stage in an action plan summary.
+ * It contains various fields and methods to manage the stage's information.
  * Has all data for a single stage (phase of summary)
- *
- * @author itrust consulting s.a r.l. - SME,BJA
- * @version 0.1
- * @since 2012-10-09
+ *  
+ * This class is annotated with `@Entity` to indicate that it is a JPA entity.
+ * It is also annotated with `@Cacheable` to enable caching of instances of this class.
+ * The `@Cache` annotation is used to specify the caching strategy.
+ * The `@Table` annotation is used to specify the name of the database table for this entity.
  */
 @Entity
 @Cacheable
@@ -217,6 +219,9 @@ public class SummaryStage {
 		this.stage = stage;
 	}
 
+	/**
+	 * Represents the conformance of a summary stage to a standard.
+	 */
 	public SummaryStandardConformance getConformance(String label) {
 		for (SummaryStandardConformance conformance : this.conformances)
 			if (conformance.getAnalysisStandard().getStandard().is(label))
@@ -224,6 +229,12 @@ public class SummaryStage {
 		return null;
 	}
 
+	/**
+	 * Returns the conformance value for the specified label.
+	 * 
+	 * @param label the label to search for
+	 * @return the conformance value for the specified label, or 0.0 if the label is not found
+	 */
 	public double getConformanceValue(String label) {
 		for (SummaryStandardConformance conformance : this.conformances)
 			if (conformance.getAnalysisStandard().getStandard().is(label))
@@ -232,6 +243,12 @@ public class SummaryStage {
 	}
 
 
+	/**
+	 * Returns the count of non-compliant measures for a given label.
+	 *
+	 * @param label the label to match against the analysis standard's label
+	 * @return the count of non-compliant measures
+	 */
 	public int getConformanceNotCompliantMeasureCount(String label) {
 		for (SummaryStandardConformance conformance : this.conformances)
 			if (conformance.getAnalysisStandard().getStandard().is(label))
@@ -240,31 +257,29 @@ public class SummaryStage {
 	}
 
 	/**
-	 * getConformances: <br>
-	 * Description
+	 * Returns the list of summary standard conformances.
 	 *
-	 * @return
+	 * @return the list of summary standard conformances
 	 */
 	public List<SummaryStandardConformance> getConformances() {
 		return this.conformances;
 	}
 
 	/**
-	 * setConformances: <br>
-	 * Description
+	 * Sets the list of summary standard conformances for this summary stage.
 	 *
-	 * @param conformances
+	 * @param conformances the list of summary standard conformances to set
 	 */
 	public void setConformances(List<SummaryStandardConformance> conformances) {
 		this.conformances = conformances;
 	}
 
 	/**
-	 * addConformance: <br>
-	 * Description
+	 * Adds a new conformance to the summary stage.
 	 *
-	 * @param analysisStandard
-	 * @param conformance
+	 * @param analysisStandard The analysis standard for which the conformance is being added.
+	 * @param conformance The conformance value.
+	 * @param notCompliantMeasureCount The count of not compliant measures.
 	 */
 	public void addConformance(AnalysisStandard analysisStandard, double conformance, int notCompliantMeasureCount) {
 		this.conformances.add(new SummaryStandardConformance(analysisStandard, conformance, notCompliantMeasureCount));
@@ -654,10 +669,20 @@ public class SummaryStage {
 		this.recurrentInvestment = recurrentInvestment;
 	}
 
+	/**
+	 * Returns the implementation cost of the phase.
+	 *
+	 * @return the implementation cost of the phase
+	 */
 	public double getImplementCostOfPhase() {
 		return implementCostOfPhase;
 	}
 
+	/**
+	 * Sets the implementation cost of the phase.
+	 *
+	 * @param implementCostOfPhase the implementation cost of the phase
+	 */
 	public void setImplementCostOfPhase(double implementCostOfPhase) {
 		this.implementCostOfPhase = implementCostOfPhase;
 	}

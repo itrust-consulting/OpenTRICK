@@ -8,8 +8,6 @@ import lu.itrust.business.expressions.StringExpressionHelper;
 
 /**
  * Provides helper functionality for external notification instances.
- * @author Steve Muller (SMU), itrust consulting s.à r.l.
- * @since Jun 8, 2015
  */
 public class ExternalNotificationHelper {
 	/**

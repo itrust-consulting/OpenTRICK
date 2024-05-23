@@ -15,7 +15,7 @@ import lu.itrust.business.ts.model.standard.measure.impl.NormalMeasure;
  * This class has all data to represent the action plan summary. It is used to store values between
  * stages.
  *
- * @author itrust consulting s.a r.l. - SME,BJA
+ * @author itrust consulting s.a r.l. 
  * @version 0.1
  * @since 2012-10-17
  */
@@ -95,6 +95,11 @@ public class SummaryValues {
 	/** Total implement cost of phase */
 	public double implementCostOfPhase = 0;
 
+	/**
+	 * Constructs a new SummaryValues object with the given list of AnalysisStandards.
+	 *
+	 * @param standards the list of AnalysisStandards to initialize the SummaryValues object with
+	 */
 	public SummaryValues(List<AnalysisStandard> standards) {
 		conformanceHelper.clear();
 		for(AnalysisStandard an : standards)

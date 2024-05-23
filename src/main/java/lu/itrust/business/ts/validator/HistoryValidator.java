@@ -16,11 +16,17 @@ import lu.itrust.business.ts.model.history.History;
 import lu.itrust.business.ts.validator.field.ValidatorFieldImpl;
 
 /**
- * @author eom
- * 
+ * The HistoryValidator class is responsible for validating the fields of a History object.
+ * It implements the Validator interface and extends the ValidatorFieldImpl class.
  */
 public class HistoryValidator extends ValidatorFieldImpl implements Validator {
 
+	/**
+	 * Validates the fields of a History object.
+	 * 
+	 * @param arg0 The object to be validated.
+	 * @param arg1 The Errors object to store any validation errors.
+	 */
 	@Override
 	public void validate(Object arg0, Errors arg1) {
 
@@ -43,6 +49,15 @@ public class HistoryValidator extends ValidatorFieldImpl implements Validator {
 			arg1.rejectValue("comment", "error.history.comment.null", "Comment is required");
 	}
 
+	/**
+	 * Validates a specific field of a History object.
+	 * 
+	 * @param o         The object to be validated.
+	 * @param fieldName The name of the field to be validated.
+	 * @param candidate The value of the field to be validated.
+	 * @return A validation error message if the field is invalid, or null if the field is valid.
+	 * @throws TrickException If the validation method is not allowed for the specified field.
+	 */
 	@Override
 	public String validate(Object o, String fieldName, Object candidate) throws TrickException {
 		if (o == null || !supports(o.getClass()) || fieldName == null || fieldName.trim().isEmpty())
@@ -61,21 +76,55 @@ public class HistoryValidator extends ValidatorFieldImpl implements Validator {
 		return null;
 	}
 
+	
+	/**
+	 * Validates a specific field of a History object with a set of allowed values.
+	 * 
+	 * @param o         The object to be validated.
+	 * @param fieldName The name of the field to be validated.
+	 * @param candidate The value of the field to be validated.
+	 * @param choose    The collection of allowed values for the field.
+	 * @return A validation error message if the field is invalid, or null if the field is valid.
+	 * @throws TrickException If the validation method is not allowed for the specified field.
+	 */
 	@Override
 	public String validate(Object o, String fieldName, Object candidate, Object[] choose) throws TrickException {
 		return validate(o, fieldName, candidate);
 	}
 
+	/**
+	 * Validates a specific field of a History object with a collection of allowed values.
+	 * 
+	 * @param o         The object to be validated.
+	 * @param fieldName The name of the field to be validated.
+	 * @param candidate The value of the field to be validated.
+	 * @param choose    The collection of allowed values for the field.
+	 * @return A validation error message if the field is invalid, or null if the field is valid.
+	 * @throws TrickException If the validation method is not allowed for the specified field.
+	 */
 	@Override
 	public String validate(Object o, String fieldName, Object candidate, Collection<Object> choose) throws TrickException {
 		return validate(o, fieldName, candidate);
 	}
 
+	/**
+	 * Returns the class supported by this validator.
+	 * 
+	 * @return The class supported by this validator.
+	 */
 	@Override
 	public Class<?> supported() {
 		return History.class;
 	}
 
+	/**
+	 * Validates a specific field of a History object.
+	 * 
+	 * @param fieldName The name of the field to be validated.
+	 * @param candidate The value of the field to be validated.
+	 * @return A validation error message if the field is invalid, or null if the field is valid.
+	 * @throws TrickException If the validation method is not allowed for the specified field.
+	 */
 	@Override
 	public String validate(String fieldName, Object candidate) throws TrickException {
 		if (fieldName == null || fieldName.trim().isEmpty())

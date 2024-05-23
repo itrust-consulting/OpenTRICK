@@ -3,21 +3,28 @@ package lu.itrust.business.ts.model.analysis.helper;
 import lu.itrust.business.ts.model.standard.AnalysisStandard;
 import lu.itrust.business.ts.model.standard.StandardType;
 
+/**
+ * Represents the base information of an analysis standard.
+ */
 public class AnalysisStandardBaseInfo {
 	
 	private int idAnalysis;
-	
 	private int idAnalysisStandard;
-	
 	private String name;
-	
 	private int version;
-	
 	private StandardType type;
 	
+	/**
+	 * Default constructor.
+	 */
 	public AnalysisStandardBaseInfo() {
 	}
 	
+	/**
+	 * Constructs an AnalysisStandardBaseInfo object with the given analysis ID and analysis standard.
+	 * @param idAnalysis The ID of the analysis.
+	 * @param analysisStandard The analysis standard.
+	 */
 	public AnalysisStandardBaseInfo(int idAnalysis, AnalysisStandard analysisStandard) {
 		setIdAnalysis(idAnalysis);
 		setIdAnalysisStandard(analysisStandard.getId());
@@ -26,75 +33,89 @@ public class AnalysisStandardBaseInfo {
 		setType(analysisStandard.getStandard().getType());
 	}
 
+	/**
+	 * Constructs an AnalysisStandardBaseInfo object with the given analysis ID.
+	 * @param idAnalysis The ID of the analysis.
+	 */
 	public AnalysisStandardBaseInfo(int idAnalysis) {
 		setIdAnalysis(idAnalysis);
 	}
 
 	/**
-	 * @return the idAnalysis
+	 * Returns the ID of the analysis.
+	 * @return The ID of the analysis.
 	 */
 	public int getIdAnalysis() {
 		return idAnalysis;
 	}
 
 	/**
-	 * @param idAnalysis the idAnalysis to set
+	 * Sets the ID of the analysis.
+	 * @param idAnalysis The ID of the analysis to set.
 	 */
 	public void setIdAnalysis(int idAnalysis) {
 		this.idAnalysis = idAnalysis;
 	}
 
 	/**
-	 * @return the idAnalysisStandard
+	 * Returns the ID of the analysis standard.
+	 * @return The ID of the analysis standard.
 	 */
 	public int getIdAnalysisStandard() {
 		return idAnalysisStandard;
 	}
 
 	/**
-	 * @param idAnalysisStandard the idAnalysisStandard to set
+	 * Sets the ID of the analysis standard.
+	 * @param idAnalysisStandard The ID of the analysis standard to set.
 	 */
 	public void setIdAnalysisStandard(int idAnalysisStandard) {
 		this.idAnalysisStandard = idAnalysisStandard;
 	}
 
 	/**
-	 * @return the name
+	 * Returns the name of the analysis standard.
+	 * @return The name of the analysis standard.
 	 */
 	public String getName() {
 		return name;
 	}
 
 	/**
-	 * @param name the name to set
+	 * Sets the name of the analysis standard.
+	 * @param name The name of the analysis standard to set.
 	 */
 	public void setName(String name) {
 		this.name = name;
 	}
 
 	/**
-	 * @return the version
+	 * Returns the version of the analysis standard.
+	 * @return The version of the analysis standard.
 	 */
 	public int getVersion() {
 		return version;
 	}
 
 	/**
-	 * @param version the version to set
+	 * Sets the version of the analysis standard.
+	 * @param version The version of the analysis standard to set.
 	 */
 	public void setVersion(int version) {
 		this.version = version;
 	}
 
 	/**
-	 * @return the type
+	 * Returns the type of the analysis standard.
+	 * @return The type of the analysis standard.
 	 */
 	public StandardType getType() {
 		return type;
 	}
 
 	/**
-	 * @param type the type to set
+	 * Sets the type of the analysis standard.
+	 * @param type The type of the analysis standard to set.
 	 */
 	public void setType(StandardType type) {
 		this.type = type;

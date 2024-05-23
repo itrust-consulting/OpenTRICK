@@ -16,15 +16,11 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import lu.itrust.business.ts.constants.Constant;
 import lu.itrust.business.ts.exception.TrickException;
 
-/**
- * RiskInformation: <br>
- * This class represents a RiskInformation and its data.
- * 
- * @author itrust consulting s.à r.l. - BJA,SME
- * @version 0.1
- * @since 2012-08-21
- */
 
+/**
+ * RiskInformation represents a risk information entity in the system.
+ * It contains various fields and methods to manage and manipulate risk information data.
+ */
 @Entity
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
@@ -348,19 +344,42 @@ public class RiskInformation implements Cloneable {
 		this.custom = custom;
 	}
 
+	/**
+	 * Returns the key for the risk information.
+	 *
+	 * @return the key as a String.
+	 */
 	public String getKey() {
 		return key(category, chapter);
 	}
 
+	/**
+	 * Returns the main category of the risk information.
+	 *
+	 * @return the main category of the risk information
+	 */
 	public String getMainCategory() {
 		return isMatch(Constant.RI_TYPE_RISK) ? Constant.RI_TYPE_RISK : this.category;
 	}
 
+	/**
+	 * Returns a key based on the given category and chapter.
+	 *
+	 * @param category the category of the risk information
+	 * @param chapter the chapter of the risk information
+	 * @return the generated key
+	 */
 	public static String key(String category, String chapter) {
 		return ((category == null ? "" : category.startsWith(Constant.RI_TYPE_RISK) ? Constant.RI_TYPE_RISK : category)
 				+ "__risk-information__" + chapter).toLowerCase();
 	}
 
+	/**
+	 * Checks if the given category matches the category of this RiskInformation object.
+	 * 
+	 * @param category the category to compare with
+	 * @return true if the category matches, false otherwise
+	 */
 	public boolean isMatch(String category) {
 		return category == null || this.category == null ? this.category  == category //ignored warning as check null
 				: category.equalsIgnoreCase(Constant.RI_TYPE_RISK) ? this.category.startsWith(Constant.RI_TYPE_RISK)

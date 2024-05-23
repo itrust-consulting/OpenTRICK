@@ -17,6 +17,10 @@ import org.hibernate.annotations.CascadeType;
 import lu.itrust.business.ts.exception.TrickException;
 import lu.itrust.business.ts.model.scale.ScaleType;
 
+/**
+ * Represents an ILR (Impact Level Rating) impact.
+ * An ILRImpact object contains information about the type and value of the impact.
+ */
 @Entity
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
@@ -35,38 +39,82 @@ public class ILRImpact implements Cloneable {
     @Column(name = "dtValue")
     private int value = -1;
 
+    /**
+     * Default constructor for ILRImpact.
+     */
     public ILRImpact() {
     }
 
+    /**
+     * Constructor for ILRImpact with a given type.
+     * 
+     * @param type The type of the impact.
+     */
     public ILRImpact(ScaleType type) {
         this(type, -1);
     }
 
+    /**
+     * Constructor for ILRImpact with a given type and value.
+     * 
+     * @param type The type of the impact.
+     * @param value The value of the impact.
+     */
     public ILRImpact(ScaleType type, int value) {
         setType(type);
         setValue(value);
     }
 
+    /**
+     * Get the ID of the ILRImpact.
+     * 
+     * @return The ID of the ILRImpact.
+     */
     public long getId() {
         return id;
     }
 
+    /**
+     * Set the ID of the ILRImpact.
+     * 
+     * @param id The ID to set.
+     */
     public void setId(long id) {
         this.id = id;
     }
 
+    /**
+     * Get the type of the impact.
+     * 
+     * @return The type of the impact.
+     */
     public ScaleType getType() {
         return type;
     }
 
+    /**
+     * Set the type of the impact.
+     * 
+     * @param type The type to set.
+     */
     public void setType(ScaleType type) {
         this.type = type;
     }
 
+    /**
+     * Get the value of the impact.
+     * 
+     * @return The value of the impact.
+     */
     public int getValue() {
         return value;
     }
 
+    /**
+     * Set the value of the impact.
+     * 
+     * @param value The value to set.
+     */
     public void setValue(int value) {
         this.value = value;
     }
@@ -86,7 +134,10 @@ public class ILRImpact implements Cloneable {
     }
 
     /**
-     * @return
+     * Create a duplicate of the ILRImpact object.
+     * The ID of the duplicate will be set to 0.
+     * 
+     * @return A duplicate of the ILRImpact object.
      */
     public ILRImpact duplicate() {
         try {

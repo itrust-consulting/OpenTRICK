@@ -800,7 +800,7 @@ public class Constant {
 
 	public static final String ANALYSIS_REPORT_LIGHT_COLOR = "REPORT_LIGHT_COLOR";
 
-	public static int APPLICATION_SECURITY_MAX_ATTEMPTION = 3;
+	public static int APPLICATION_SECURITY_MAX_ATTEMPTS = 3;
 
 	public static int CHAR_MULTI_CONTENT_MAX_SIZE = 12;
 

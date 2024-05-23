@@ -1,5 +1,10 @@
 package lu.itrust.business.ts.model.parameter;
 
+/**
+	* Gets the acronym of this parameter.
+	*
+	* @return the acronym of this parameter
+	*/
 public interface IAcronymParameter extends IParameter {
 
 	/**
