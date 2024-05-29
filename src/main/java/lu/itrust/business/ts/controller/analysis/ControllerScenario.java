@@ -44,6 +44,7 @@ import lu.itrust.business.ts.exception.TrickException;
 import lu.itrust.business.ts.helper.JsonMessage;
 import lu.itrust.business.ts.helper.NaturalOrderComparator;
 import lu.itrust.business.ts.model.analysis.Analysis;
+import lu.itrust.business.ts.model.analysis.AnalysisSetting;
 import lu.itrust.business.ts.model.analysis.AnalysisType;
 import lu.itrust.business.ts.model.assessment.Assessment;
 import lu.itrust.business.ts.model.asset.Asset;
@@ -222,16 +223,18 @@ public class ControllerScenario {
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).READ)")
 	public String section(Model model, HttpSession session, Principal principal) throws Exception {
 		// retrieve analysis id
-		Integer integer = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		final Analysis analysis = serviceAnalysis.get((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS));
 		// load all scenarios from analysis
-		List<Scenario> scenarios = serviceScenario.getAllFromAnalysis(integer);
-		List<Assessment> assessments = serviceAssessment.getAllFromAnalysisAndSelected(integer);
+		List<Scenario> scenarios = analysis.getScenarios();
+		List<Assessment> assessments = analysis.findSelectedAssessments();
 		model.addAttribute("scenarios", scenarios);
-		model.addAttribute("type", serviceAnalysis.getAnalysisTypeById(integer));
+		model.addAttribute("type", analysis.getType());
 		model.addAttribute("scenarioALE", AssessmentAndRiskProfileManager.ComputeScenarioALE(scenarios, assessments));
 		model.addAttribute("isEditable", !OpenMode.isReadOnly((OpenMode) session.getAttribute(Constant.OPEN_MODE)));
-		model.addAttribute("show_uncertainty", serviceAnalysis.isAnalysisUncertainty(integer));
-		model.addAttribute("isProfile", serviceAnalysis.isProfile(integer));
+		model.addAttribute("show_uncertainty", analysis.isUncertainty());
+		model.addAttribute("isILR", Analysis.findSetting(AnalysisSetting.ALLOW_ILR_ANALYSIS,
+				analysis.getSettings().get(AnalysisSetting.ALLOW_ILR_ANALYSIS.name())));
+		model.addAttribute("isProfile", analysis.isProfile());
 		return "jsp/analyses/single/components/scenario/scenario";
 	}
 

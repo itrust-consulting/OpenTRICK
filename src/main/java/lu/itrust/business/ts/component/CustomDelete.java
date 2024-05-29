@@ -74,9 +74,11 @@ import lu.itrust.business.ts.usermanagement.ResetPassword;
 import lu.itrust.business.ts.usermanagement.User;
 import lu.itrust.business.ts.usermanagement.helper.UserDeleteHelper;
 
+
 /**
- * @author eom
- *
+ * This class represents a component responsible for custom deletion operations.
+ * It provides methods to delete various entities such as assessments, assets, measures, etc.
+ * The deletion operations are performed in a transactional manner.
  */
 @Component
 public class CustomDelete {
@@ -156,6 +158,14 @@ public class CustomDelete {
 	@Autowired
 	private DAOIDS daoIDS;
 
+	/**
+	 * Deletes all empty analyses associated with the given identifier.
+	 * An analysis is considered empty if it does not have any data.
+	 *
+	 * @param identifier the identifier of the analyses to be deleted
+	 * @param username   the username of the user performing the deletion
+	 * @throws Exception if an error occurs during the deletion process
+	 */
 	@Transactional
 	public void customDeleteEmptyAnalysis(String identifier, String username) throws Exception {
 		final List<Analysis> analyses = daoAnalysis.getAllByIdentifier(identifier);
@@ -166,6 +176,14 @@ public class CustomDelete {
 			deleteAnalysisProcess(analysis, username);
 	}
 
+	/**
+	 * Deletes the action plan and measure associated with the given analyses, measure description, and principal.
+	 *
+	 * @param analyses          the list of analyses
+	 * @param measureDescription the measure description
+	 * @param principal         the principal
+	 * @throws Exception if an error occurs during the deletion process
+	 */
 	private void deleteActionPlanAndMeasure(List<Analysis> analyses, MeasureDescription measureDescription,
 			Principal principal) throws Exception {
 		for (Analysis analysis : analyses) {
@@ -211,23 +229,52 @@ public class CustomDelete {
 		daoMeasureDescription.delete(measureDescription);
 	}
 
+	/**
+	 * Deletes the action plan associated with the given analysis and also deletes any dependencies on scenarios or assets.
+	 *
+	 * @param analysis The analysis for which the action plan and dependencies need to be deleted.
+	 * @param assessments The list of assessments associated with the analysis.
+	 * @param riskProfiles The list of risk profiles associated with the analysis.
+	 * @throws Exception If an error occurs while deleting the action plan or dependencies.
+	 */
 	private void deleteActionPlanAndScenarioOrAssetDependencies(Analysis analysis, List<Assessment> assessments,
 			List<RiskProfile> riskProfiles) throws Exception {
 		deleteAnalysisActionPlan(analysis);
 		deleteAssetOrScenarioDependencies(analysis, assessments, riskProfiles);
 	}
 
+	/**
+	 * Deletes the specified analysis and performs additional cleanup if necessary.
+	 *
+	 * @param analysis the analysis to be deleted
+	 * @param username the username of the user performing the deletion
+	 * @throws Exception if an error occurs during the deletion process
+	 */
 	protected void deleteAnalysis(Analysis analysis, String username) throws Exception {
 		deleteAnalysisProcess(analysis, username);
 		if (!daoAnalysis.hasData(analysis.getIdentifier()))
 			customDeleteEmptyAnalysis(analysis.getIdentifier(), username);
 	}
 
+	/**
+	 * Deletes an analysis with the specified ID and username.
+	 *
+	 * @param idAnalysis the ID of the analysis to delete
+	 * @param username the username of the user performing the deletion
+	 * @throws Exception if an error occurs during the deletion process
+	 */
 	@Transactional
 	public void deleteAnalysis(int idAnalysis, String username) throws Exception {
 		deleteAnalysis(daoAnalysis.get(idAnalysis), username);
 	}
 
+	/**
+	 * Deletes the analyses with the specified IDs and updates the username of the user performing the deletion.
+	 *
+	 * @param ids      the list of analysis IDs to be deleted
+	 * @param username the username of the user performing the deletion
+	 * @return true if the deletion is successful, false otherwise
+	 */
 	@Transactional
 	public boolean deleteAnalysis(List<Integer> ids, String username) {
 		try {

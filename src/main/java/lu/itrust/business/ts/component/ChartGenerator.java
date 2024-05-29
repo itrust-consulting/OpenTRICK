@@ -90,7 +90,7 @@ import lu.itrust.business.ts.model.standard.measure.impl.NormalMeasure;
  * ChartGenerator.java: <br>
  * Detailed description...
  * 
- * @author eomar, itrust consulting s.à.rl. :
+ * @author itrust consulting s.à.rl. :
  * @version
  * @since Jan 30, 2014
  */
@@ -197,6 +197,14 @@ public class ChartGenerator {
 		}
 	}
 
+	/**
+	 * Generates a chart based on the given locale, title, and list of ALEs.
+	 *
+	 * @param locale the locale for the chart
+	 * @param title the title of the chart
+	 * @param ales the list of ALEs to be used for generating the chart
+	 * @return the generated chart
+	 */
 	public Chart generateALEJSChart(Locale locale, String title, List<ALE> ales) {
 		return generateALEJSChart(locale, title, new ALEChart(ales));
 	}
@@ -755,6 +763,13 @@ public class ChartGenerator {
 		return charts;
 	}
 
+	/**
+	 * Generates a chart for the given measure, analysis, scenarios, and locale.
+	 * @param locale
+	 * @param title
+	 * @param aleCharts
+	 * @return
+	 */
 	public Chart generateALEJSChart(Locale locale, String title, ALEChart... aleCharts) {
 		Chart chart = new Chart(title);
 		if (aleCharts.length == 1)
@@ -764,16 +779,37 @@ public class ChartGenerator {
 		return chart;
 	}
 
+	/**
+	 * Generates a risk heat map chart.
+	 *
+	 * @param idAnalysis the ID of the analysis
+	 * @param locale the locale for localization
+	 * @return the generated risk heat map chart
+	 */
 	public Chart generateRiskHeatMap(Integer idAnalysis, Locale locale) {
 		return generateRiskHeatMap(daoAnalysis.get(idAnalysis), null, messageSource, locale);
 	}
 
+	/**
+	 * Calculates the risk by asset for a given analysis ID and locale.
+	 * 
+	 * @param idAnalysis the ID of the analysis
+	 * @param locale the locale for the assessment
+	 * @return an Object representing the risk by asset, or a Chart object if the assessmentByAssets map is empty
+	 */
 	public Object riskByAsset(Integer idAnalysis, Locale locale) {
 		Map<String, List<Assessment>> assessmentByAssets = daoAssessment.getAllFromAnalysisAndSelected(idAnalysis).stream()
 				.collect(Collectors.groupingBy(assessment -> assessment.getAsset().getName()));
 		return assessmentByAssets.isEmpty() ? new Chart() : generateAssessmentRisk(idAnalysis, assessmentByAssets);
 	}
 
+	/**
+	 * Generates a risk chart by asset type.
+	 *
+	 * @param idAnalysis The ID of the analysis.
+	 * @param locale The locale for message localization.
+	 * @return An object representing the risk chart.
+	 */
 	public Object riskByAssetType(Integer idAnalysis, Locale locale) {
 		Map<String, List<Assessment>> assessmentByAssetTypes = daoAssessment.getAllFromAnalysisAndSelected(idAnalysis).stream()
 				.collect(Collectors.groupingBy(assessment -> messageSource.getMessage("label.asset_type." + assessment.getAsset().getAssetType().getName().toLowerCase(), null,
@@ -781,12 +817,26 @@ public class ChartGenerator {
 		return assessmentByAssetTypes.isEmpty() ? new Chart() : generateAssessmentRisk(idAnalysis, assessmentByAssetTypes);
 	}
 
+	/**
+	 * Generates a risk chart by scenario for a given analysis ID and locale.
+	 *
+	 * @param idAnalysis the ID of the analysis
+	 * @param locale the locale for the chart
+	 * @return an Object representing the risk chart by scenario
+	 */
 	public Object riskByScenario(Integer idAnalysis, Locale locale) {
 		Map<String, List<Assessment>> assessmentByScenarios = daoAssessment.getAllFromAnalysisAndSelected(idAnalysis).stream()
 				.collect(Collectors.groupingBy(assessment -> assessment.getScenario().getName()));
 		return assessmentByScenarios.isEmpty() ? new Chart() : generateAssessmentRisk(idAnalysis, assessmentByScenarios);
 	}
 
+	/**
+	 * Calculates the risk by scenario type for a given analysis ID and locale.
+	 * 
+	 * @param idAnalysis The ID of the analysis.
+	 * @param locale The locale for message localization.
+	 * @return An object representing the risk by scenario type. If the assessmentByScenarioTypes map is empty, it returns a Chart object. Otherwise, it returns the result of the generateAssessmentRisk method.
+	 */
 	public Object riskByScenarioType(Integer idAnalysis, Locale locale) {
 		Map<String, List<Assessment>> assessmentByScenarioTypes = daoAssessment.getAllFromAnalysisAndSelected(idAnalysis).stream().collect(
 				Collectors.groupingBy(assessment -> messageSource.getMessage("label.scenario.type." + assessment.getScenario().getType().getName().replace("-", "_").toLowerCase(),
@@ -794,6 +844,16 @@ public class ChartGenerator {
 		return assessmentByScenarioTypes.isEmpty() ? new Chart() : generateAssessmentRisk(idAnalysis, assessmentByScenarioTypes);
 	}
 
+	/**
+	 * Generates a chart for the given measure, analysis, scenarios, and locale.
+	 *
+	 * @param idMeasure   the ID of the measure
+	 * @param idAnalysis  the ID of the analysis
+	 * @param scenarios   the list of scenarios
+	 * @param locale      the locale for the chart
+	 * @return            the generated chart as an Object
+	 * @throws Exception if an error occurs during chart generation
+	 */
 	public Object rrfByMeasure(int idMeasure, Integer idAnalysis, List<Scenario> scenarios, Locale locale) throws Exception {
 		Locale customLocale = new Locale(daoAnalysis.getLanguageOfAnalysis(idAnalysis).getAlpha2());
 		AbstractNormalMeasure normalMeasure = (AbstractNormalMeasure) daoMeasure.getFromAnalysisById(idMeasure, idAnalysis);
@@ -802,6 +862,16 @@ public class ChartGenerator {
 		return rrfByMeasure(normalMeasure, idAnalysis, scenarios, customLocale != null ? customLocale : locale);
 	}
 
+	/**
+	 * Generates a chart representing the RRF (Risk Reduction Factor) by measure.
+	 * 
+	 * @param measure     The measure for which to generate the chart.
+	 * @param idAnalysis  The ID of the analysis.
+	 * @param scenarios   The list of scenarios.
+	 * @param locale      The locale for localization.
+	 * @return            The generated chart object.
+	 * @throws Exception  If an error occurs during the chart generation.
+	 */
 	public Object rrfByMeasure(Measure measure, Integer idAnalysis, List<Scenario> scenarios, Locale locale) throws Exception {
 		try {
 			Chart chart = new Chart("rrf-chart", messageSource.getMessage("label.title.chart.rff.measure", new String[] { measure.getMeasureDescription().getReference() },
@@ -823,6 +893,16 @@ public class ChartGenerator {
 
 	}
 
+	/**
+	 * Generates a chart for the given scenario, analysis, measures, and locale.
+	 *
+	 * @param idScenario the ID of the scenario
+	 * @param idAnalysis the ID of the analysis
+	 * @param measures   the list of measures
+	 * @param locale     the locale
+	 * @return the generated chart as an Object
+	 * @throws Exception if an error occurs during chart generation
+	 */
 	public Object rrfByScenario(int idScenario, int idAnalysis, List<Measure> measures, Locale locale) throws Exception {
 		Scenario scenario = daoScenario.getFromAnalysisById(idAnalysis, idScenario);
 		if (scenario == null)
@@ -830,6 +910,16 @@ public class ChartGenerator {
 		return rrfByScenario(scenario, idAnalysis, measures, locale);
 	}
 
+	/**
+	 * Generates a chart representing the RRF (Risk Reduction Factor) by scenario.
+	 * 
+	 * @param scenario    The scenario for which the RRF is computed.
+	 * @param idAnalysis  The ID of the analysis.
+	 * @param measures    The list of measures to include in the chart.
+	 * @param locale      The locale used for localization.
+	 * @return            The generated chart.
+	 * @throws Exception  If an error occurs during the chart generation.
+	 */
 	public Object rrfByScenario(Scenario scenario, int idAnalysis, List<Measure> measures, Locale locale) throws Exception {
 		try {
 			Chart chart = new Chart("rrf-chart",

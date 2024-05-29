@@ -54,6 +54,10 @@
 						</c:choose>
 					</c:if>
 					<th><spring:message code="label.scenario.description" /></th>
+					<c:if test="${isILR}">
+						<th style="width: 5%"><a href="#" onclick="return sortTable('threat',this)" data-order='1'> <spring:message code="label.scenario.threat" /></a></th>
+						<th style="width: 5%"><a href="#" onclick="return sortTable('vulnerability',this)" data-order='1'> <spring:message code="label.scenario.vulnerability" /></a></th>
+					</c:if>
 				</tr>
 			</thead>
 			<tfoot></tfoot>
@@ -82,6 +86,10 @@
 							</c:choose>
 						</c:if>
 						<td onclick="editField(this);" data-trick-field="description" data-trick-field-type="string" data-trick-content="text"><spring:message text="${scenario.description}" /></td>
+						<c:if test="${isILR}">
+							<td onclick="editField(this);" data-trick-field="threat" data-trick-field-type="string" data-trick-content="text"><spring:message text="${scenario.threat}" /></td>
+							<td onclick="editField(this);" data-trick-field="vulnerability" data-trick-field-type="string" data-trick-content="text"><spring:message text="${scenario.vulnerability}" /></td>
+						</c:if>
 					</tr>
 				</c:forEach>
 			</tbody>

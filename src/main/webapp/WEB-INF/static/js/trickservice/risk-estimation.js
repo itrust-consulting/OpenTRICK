@@ -47,7 +47,7 @@ function saveAssessmentData(e) {
 								updated = true;
 							else {
 								$element = $("[name='" + field.name + "'].form-control", $assessmentUI);
-								if (!$element.length && field.name.startsWith("ALE")) {
+								if (!$element.length && (field.name.startsWith("ALE") || field.name.startsWith("THREAT-PROBABILITY"))) {
 									$("[data-name='" + field.name + "']", $assessmentUI).text(field.value).attr("title", field.title);
 									continue;
 								}
@@ -536,9 +536,9 @@ AssessmentHelder.prototype = {
 				let $assessmentUI = $(instance.section, new DOMParser().parseFromString(response, "text/html"));
 				if ($assessmentUI.length) {
 
-					backupFieldHeight("assesment", ["assessment-comment", "assessment-riskTreatment", "assessment-hiddenComment", "assessment-actionPlan"], $currentUI);
+					backupFieldHeight("assesment", ["assessment-comment", "assessment-riskTreatment", "assessment-hiddenComment", "assessment-actionPlan","assessment-cockpit"], $currentUI);
 
-					restoreFieldHeight("assesment", ["assessment-comment", "assessment-riskTreatment", "assessment-hiddenComment", "assessment-actionPlan"], $assessmentUI);
+					restoreFieldHeight("assesment", ["assessment-comment", "assessment-riskTreatment", "assessment-hiddenComment", "assessment-actionPlan","assessment-cockpit"], $assessmentUI);
 
 					$currentUI.replaceWith($assessmentUI);
 

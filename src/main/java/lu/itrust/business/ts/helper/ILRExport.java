@@ -30,6 +30,7 @@ import lu.itrust.business.ts.model.ilr.AssetNode;
 import lu.itrust.business.ts.model.ilr.ILRImpact;
 import lu.itrust.business.ts.model.parameter.helper.ValueFactory;
 import lu.itrust.business.ts.model.parameter.impl.IlrSoaScaleParameter;
+import lu.itrust.business.ts.model.parameter.impl.LikelihoodParameter;
 import lu.itrust.business.ts.model.scale.ScaleType;
 import lu.itrust.business.ts.model.scenario.Scenario;
 import lu.itrust.business.ts.model.standard.AnalysisStandard;
@@ -54,6 +55,8 @@ public class ILRExport {
     private static final String MAPPING[][] = { { "reputation", "reputational" }, { "personal", "privacy" } };
 
     private static final int VULNERABILITY_SCALE_TYPE = 3;
+
+    private static final int ILR_MAX_IMPACT = 4;
 
     private class IlrSoaScale {
         private double from;
@@ -314,9 +317,9 @@ public class ILRExport {
             final ILRImpact i = node.getImpact().getIntegrityImpacts().get(scaleType);
             final ILRImpact a = node.getImpact().getAvailabilityImpacts().get(scaleType);
 
-            e.setC(Math.max((c == null ? -1 : Math.min(c.getValue(), 4)), e.getC()));
-            e.setI(Math.max((i == null ? -1 : Math.min(i.getValue(), 4)), e.getI()));
-            e.setD(Math.max((a == null ? -1 : Math.min(a.getValue(), 4)), e.getD()));
+            e.setC(Math.max((c == null ? -1 : Math.min(c.getValue(), ILR_MAX_IMPACT)), e.getC()));
+            e.setI(Math.max((i == null ? -1 : Math.min(i.getValue(), ILR_MAX_IMPACT)), e.getI()));
+            e.setD(Math.max((a == null ? -1 : Math.min(a.getValue(), ILR_MAX_IMPACT)), e.getD()));
             e.setIsHidden(0);
         });
     }

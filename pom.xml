@@ -456,9 +456,6 @@
 	<profiles>
 		<profile>
 			<id>tomcat-server</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
 			<dependencies>
 				<dependency>
 					<groupId>org.springframework.boot</groupId>
@@ -473,7 +470,9 @@
 		</profile>
 		<profile>
 			<id>jetty-server</id>
-			
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
 			<dependencies>
 				<dependency>
 					<groupId>org.springframework.boot</groupId>

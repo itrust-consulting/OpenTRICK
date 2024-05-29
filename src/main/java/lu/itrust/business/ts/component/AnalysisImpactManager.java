@@ -31,6 +31,10 @@ import lu.itrust.business.ts.model.scale.ScaleType;
  *
  */
 
+/**
+ * The AnalysisImpactManager class is responsible for managing the impact scale of an analysis.
+ * It provides methods for adding and removing impact scales, as well as updating the assessment and risk profile.
+ */
 @Component
 public class AnalysisImpactManager {
 
@@ -49,6 +53,13 @@ public class AnalysisImpactManager {
 	@Autowired
 	private AssessmentAndRiskProfileManager assessmentAndRiskProfileManager;
 
+	/**
+	 * Manages the impact scale for a given analysis by updating the impact parameters based on the provided map of impacts.
+	 * 
+	 * @param idAnalysis The ID of the analysis.
+	 * @param impacts    A map of impact IDs and their corresponding boolean values indicating whether the impact is present or not.
+	 * @return           A boolean value indicating whether any changes were made to the impact scale.
+	 */
 	@Transactional
 	public boolean manageImpactScaleSave(Integer idAnalysis, Map<Integer, Boolean> impacts) {
 		Analysis analysis = daoAnalysis.get(idAnalysis);
@@ -74,6 +85,16 @@ public class AnalysisImpactManager {
 		return change[0];
 	}
 
+	/**
+	 * Adds impact scales to the analysis based on the given parameters.
+	 *
+	 * @param id      The ID of the scale type.
+	 * @param maxLevel The maximum level of the impact scale.
+	 * @param maxValue The maximum value of the impact scale.
+	 * @param labels   The map of labels for each level of the impact scale.
+	 * @param analysis The analysis object to which the impact scales will be added.
+	 * @return True if the impact scales were successfully added, false otherwise.
+	 */
 	private boolean addImpactScale(Integer id, int maxLevel, double maxValue, Map<Integer, String> labels, Analysis analysis) {
 		ScaleType scaleType = daoScaleType.findOne(id);
 		List<ImpactParameter> impacts = new ArrayList<>(maxLevel);
@@ -115,6 +136,13 @@ public class AnalysisImpactManager {
 		return !impacts.isEmpty();
 	}
 
+	/**
+	 * Removes the specified impact parameters from the analysis.
+	 * 
+	 * @param parameters the list of impact parameters to be removed
+	 * @param analysis the analysis from which the impact parameters should be removed
+	 * @return true if the impact parameters were successfully removed, false otherwise
+	 */
 	private boolean removeImpactScale(List<ImpactParameter> parameters, Analysis analysis) {
 		if (parameters == null || parameters.isEmpty())
 			return true;

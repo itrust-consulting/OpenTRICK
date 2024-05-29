@@ -196,7 +196,8 @@ public class ControllerFieldEditor {
 
 	private Pattern riskProfileNoFieldPattern = Pattern.compile("^*\\.id$|^\\*.asset\\.*$|^*.scenario\\.*");
 
-	private Pattern assessmentEditableField = Pattern.compile("comment|hiddenComment|likelihood|uncertainty|owner");
+	private Pattern assessmentEditableField = Pattern
+			.compile("comment|hiddenComment|likelihood|uncertainty|owner|vulnerability|cockpit");
 
 	private Pattern hexColor = Pattern.compile("^#?[A-Fa-f0-9]{6}$");
 
@@ -1060,9 +1061,7 @@ public class ControllerFieldEditor {
 			Principal principal) {
 		final Map<String, String> result = new LinkedHashMap<>();
 		final ReportSetting setting = ReportSetting.valueOf(fieldEditor.getFieldName());
-		if (setting == null)
-			result.put("error", messageSource.getMessage("error.report.setting.not.found", null, locale));
-		else if (setting == ReportSetting.CEEL_COLOR)
+		if (setting == ReportSetting.CEEL_COLOR)
 			result.put("error", messageSource.getMessage("error.report.setting.not.allowed", null, locale));
 		else {
 			final Analysis analysis = serviceAnalysis.get((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS));
@@ -1089,21 +1088,19 @@ public class ControllerFieldEditor {
 			Principal principal) {
 		final Map<String, String> result = new LinkedHashMap<>();
 		final ExportFileName setting = ExportFileName.valueOf(fieldEditor.getFieldName());
-		if (setting == null)
-			result.put("error", messageSource.getMessage("error.export.filename.setting.not.found", null, locale));
-		else {
-			final Analysis analysis = serviceAnalysis.get((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS));
-			final String value = fieldEditor.getValue() == null ? null : fieldEditor.getValue().toString();
-			if (StringUtils.hasText(value))
-				analysis.setSetting(setting.name(), value.trim());
-			else
-				analysis.removeSetting(setting.name());
-			if (result.isEmpty()) {
-				serviceAnalysis.saveOrUpdate(analysis);
-				result.put("value", analysis.findSetting(setting));
-				result.put("success", messageSource.getMessage("success.update.export.filename", null, locale));
-			}
+
+		final Analysis analysis = serviceAnalysis.get((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS));
+		final String value = fieldEditor.getValue() == null ? null : fieldEditor.getValue().toString();
+		if (StringUtils.hasText(value))
+			analysis.setSetting(setting.name(), value.trim());
+		else
+			analysis.removeSetting(setting.name());
+		if (result.isEmpty()) {
+			serviceAnalysis.saveOrUpdate(analysis);
+			result.put("value", analysis.findSetting(setting));
+			result.put("success", messageSource.getMessage("success.update.export.filename", null, locale));
 		}
+
 		return result;
 	}
 
@@ -1152,7 +1149,6 @@ public class ControllerFieldEditor {
 					"An unknown error occurred while updating field", locale));
 		}
 	}
-	
 
 	/**
 	 * parameter: <br>
@@ -1166,7 +1162,7 @@ public class ControllerFieldEditor {
 	@PostMapping(value = "/IlrSoaScaleParameter/{elementID}", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'IlrSoaScaleParameter', #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).MODIFY)")
 	public String ilrSoaScaleParameter(@PathVariable int elementID, @RequestBody FieldEditor fieldEditor,
-			Locale locale, HttpSession session, Principal principal){
+			Locale locale, HttpSession session, Principal principal) {
 		try {
 			// retrieve analysis id
 			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
@@ -1742,16 +1738,22 @@ public class ControllerFieldEditor {
 				RiskProbaImpact probaImpact = (RiskProbaImpact) field.get(riskProfile);
 				if (probaImpact == null)
 					probaImpact = new RiskProbaImpact();
-				Object id = FieldValue(fieldEditor);
-				if (id instanceof Integer) {
-					if (fields[2].equals("probability")) {
-						LikelihoodParameter parameter = serviceLikelihoodParameter.findOne((Integer) id, idAnalysis);
+				Object value = FieldValue(fieldEditor);
+				if (value instanceof Integer) {
+					if(fields[1] .equals("expProbaImpact") && fields[2] .equals("vulnerability"))
+						probaImpact.setVulnerability((Integer) value);
+					else if (fields[2].equals("probability")) {
+						LikelihoodParameter parameter = serviceLikelihoodParameter.findOne((Integer) value, idAnalysis);
 						if (parameter == null)
 							return Result.Error(messageSource.getMessage("error.edit.type.field", null,
 									"Data cannot be updated", locale));
 						probaImpact.setProbability(parameter);
+						if (fields[1].equalsIgnoreCase("rawProbaImpact")) {
+							result.add(new FieldValue(
+									"THREAT-PROBABILITY", parameter.getIlrLevel(), parameter.getIlrLevel() + ""));
+						}
 					} else {
-						ImpactParameter parameter = serviceImpactParameter.findOne((Integer) id, idAnalysis);
+						ImpactParameter parameter = serviceImpactParameter.findOne((Integer) value, idAnalysis);
 						if (parameter == null)
 							return Result.Error(messageSource.getMessage("error.edit.type.field", null,
 									"Data cannot be updated", locale));

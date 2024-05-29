@@ -83,7 +83,7 @@ public class RRFExportImport {
 
 	private static final int MEASURE_RRF_DEFAULT_FIELD_COUNT = 12;
 
-	private static final String RAW_SCENARIOS = "Scenarios";
+	private static final String RAW_SCENARIOS = "Scenario-RRF";
 
 	private static final String RAW_PREVENTIVE = "Preventive";
 

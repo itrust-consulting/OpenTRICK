@@ -37,7 +37,7 @@ import lu.itrust.business.ts.model.scenario.Scenario;
  * AssessmentAndRiskProfileManager.java: <br>
  * Detailed description...
  * 
- * @author eomar, itrust consulting s.à.rl.
+ * @author itrust consulting s.à.rl.
  * @version
  * @since May 12, 2014
  */
@@ -54,6 +54,18 @@ public class AssessmentAndRiskProfileManager {
 
 	private DAOScenario daoScenario;
 
+
+	/**
+	 * Initializes the AssessmentAndRiskProfileManager with the specified DAO objects.
+	 * If a DAO object is already set, it will not be overridden.
+	 * 
+	 * @param daoAnalysis The DAOAnalysis object to be set.
+	 * @param daoAsset The DAOAsset object to be set.
+	 * @param daoAssessment The DAOAssessment object to be set.
+	 * @param daoRiskProfile The DAORiskProfile object to be set.
+	 * @param daoScenario The DAOScenario object to be set.
+	 * @return The initialized AssessmentAndRiskProfileManager instance.
+	 */
 	public AssessmentAndRiskProfileManager initialise(DAOAnalysis daoAnalysis, DAOAsset daoAsset,
 			DAOAssessment daoAssessment, DAORiskProfile daoRiskProfile,
 			DAOScenario daoScenario) {
@@ -70,6 +82,15 @@ public class AssessmentAndRiskProfileManager {
 		return this;
 	}
 
+	/**
+	 * Builds the assessment and risk profile for the given asset and analysis.
+	 * If the analysis is qualitative, it creates the assessment and risk profile.
+	 * Otherwise, it creates the assessment.
+	 * The updated analysis is then saved or updated in the database.
+	 *
+	 * @param asset The asset for which to build the assessment and risk profile.
+	 * @param idAnalysis The ID of the analysis.
+	 */
 	@Transactional
 	public void build(Asset asset, int idAnalysis) {
 		final Analysis analysis = daoAnalysis.get(idAnalysis);
@@ -84,6 +105,12 @@ public class AssessmentAndRiskProfileManager {
 		daoAnalysis.saveOrUpdate(analysis);
 	}
 
+	/**
+	 * Builds the assessment and risk profile for a given scenario and analysis.
+	 * 
+	 * @param idScenario The ID of the scenario.
+	 * @param idAnalysis The ID of the analysis.
+	 */
 	@Transactional
 	public void build(int idScenario, int idAnalysis) {
 		final Analysis analysis = daoAnalysis.get(idAnalysis);
@@ -92,6 +119,16 @@ public class AssessmentAndRiskProfileManager {
 		daoAnalysis.saveOrUpdate(analysis);
 	}
 
+	/**
+	 * Builds the assessment and risk profile for the given scenario and analysis.
+	 * If either the analysis or scenario is null, the method returns without performing any action.
+	 * If the scenario ID is less than 1, the scenario is added to the analysis.
+	 * If the analysis is qualitative, the assessment and risk profile are created.
+	 * Otherwise, only the assessment is created.
+	 *
+	 * @param scenario The scenario to build the assessment and risk profile for.
+	 * @param analysis The analysis to build the assessment and risk profile for.
+	 */
 	public void buildOnly(Scenario scenario, Analysis analysis) {
 		if (analysis == null || scenario == null)
 			return;
@@ -103,6 +140,11 @@ public class AssessmentAndRiskProfileManager {
 			createAssessment(scenario, analysis);
 	}
 
+	/**
+	 * Selects an asset and updates the selection status of related assessments.
+	 * 
+	 * @param asset The asset to be selected.
+	 */
 	@Transactional
 	public void selectAsset(Asset asset) {
 		asset.setSelected(true);
@@ -114,6 +156,11 @@ public class AssessmentAndRiskProfileManager {
 		daoAsset.saveOrUpdate(asset);
 	}
 
+	/**
+	 * Selects an asset based on its ID.
+	 * 
+	 * @param idAsset the ID of the asset to select
+	 */
 	@Transactional
 	public void selectAsset(int idAsset) {
 		final Asset asset = daoAsset.get(idAsset);
@@ -122,6 +169,11 @@ public class AssessmentAndRiskProfileManager {
 		selectAsset(asset);
 	}
 
+	/**
+	 * Selects a scenario based on the given scenario ID.
+	 * 
+	 * @param idScenario The ID of the scenario to be selected.
+	 */
 	@Transactional
 	public void selectScenario(int idScenario) {
 		final Scenario scenario = daoScenario.get(idScenario);
@@ -130,6 +182,11 @@ public class AssessmentAndRiskProfileManager {
 		selectScenario(scenario);
 	}
 
+	/**
+	 * Selects a scenario and updates the selected assessments associated with the scenario.
+	 * 
+	 * @param scenario The scenario to be selected.
+	 */
 	@Transactional
 	public void selectScenario(Scenario scenario) {
 		scenario.setSelected(true);
@@ -181,6 +238,11 @@ public class AssessmentAndRiskProfileManager {
 		this.daoScenario = daoScenario;
 	}
 
+	/**
+	 * Toggles the selection state of an asset.
+	 *
+	 * @param idAsset the ID of the asset to toggle
+	 */
 	@Transactional
 	public void toggledAsset(int idAsset) {
 		final Asset asset = daoAsset.get(idAsset);
@@ -190,11 +252,21 @@ public class AssessmentAndRiskProfileManager {
 			selectAsset(asset);
 	}
 
+	/**
+	 * Toggles the assets with the given IDs.
+	 *
+	 * @param ids The list of asset IDs to toggle.
+	 */
 	@Transactional
 	public void toggledAssets(List<Integer> ids) {
 		ids.forEach(idAsset -> toggledAsset(idAsset));
 	}
 
+	/**
+	 * Toggles the selection state of a scenario.
+	 *
+	 * @param idScenario The ID of the scenario to toggle.
+	 */
 	@Transactional
 	public void toggledScenario(int idScenario) {
 		final Scenario scenario = daoScenario.get(idScenario);
@@ -204,11 +276,21 @@ public class AssessmentAndRiskProfileManager {
 			selectScenario(scenario);
 	}
 
+	/**
+	 * Toggles the scenarios with the given IDs.
+	 *
+	 * @param ids The list of scenario IDs to toggle.
+	 */
 	@Transactional
 	public void toggledScenarios(List<Integer> ids) {
 		ids.forEach(idScenario -> toggledScenario(idScenario));
 	}
 
+	/**
+	 * Unselects the given asset and all associated assessments.
+	 *
+	 * @param asset The asset to be unselected.
+	 */
 	@Transactional
 	public void unSelectAsset(Asset asset) {
 		asset.setSelected(false);
@@ -219,6 +301,11 @@ public class AssessmentAndRiskProfileManager {
 		daoAsset.saveOrUpdate(asset);
 	}
 
+	/**
+	 * Unselects an asset by its ID.
+	 * 
+	 * @param idAsset the ID of the asset to unselect
+	 */
 	@Transactional
 	public void unSelectAsset(int idAsset) {
 		final Asset asset = daoAsset.get(idAsset);
@@ -227,6 +314,12 @@ public class AssessmentAndRiskProfileManager {
 		unSelectAsset(asset);
 	}
 
+	/**
+	 * Unselects a scenario with the given ID.
+	 * If the scenario does not exist, the method returns without performing any action.
+	 *
+	 * @param idScenario the ID of the scenario to unselect
+	 */
 	@Transactional
 	public void unSelectScenario(int idScenario) {
 		final Scenario scenario = daoScenario.get(idScenario);
@@ -235,6 +328,11 @@ public class AssessmentAndRiskProfileManager {
 		unSelectScenario(scenario);
 	}
 
+	/**
+	 * Unselects the given scenario and all associated assessments.
+	 *
+	 * @param scenario The scenario to unselect.
+	 */
 	@Transactional
 	public void unSelectScenario(Scenario scenario) {
 		scenario.setSelected(false);
@@ -247,6 +345,12 @@ public class AssessmentAndRiskProfileManager {
 		daoScenario.saveOrUpdate(scenario);
 	}
 
+	/**
+	 * Updates the assessment for all analyses.
+	 * This method retrieves analyses in batches and calls the updateAssessment method for each analysis.
+	 * 
+	 * @Transactional annotation ensures that the method is executed within a transaction.
+	 */
 	@Transactional
 	public void updateAssessment() {
 		final int size = daoAnalysis.countNotEmpty(), pageSize = 30;
@@ -255,6 +359,13 @@ public class AssessmentAndRiskProfileManager {
 				updateAssessment(analysis, null);
 	}
 
+	/**
+	 * Updates the assessment and risk profile based on the given analysis, value factory, and generateIds flag.
+	 *
+	 * @param analysis     The analysis object containing the assessments and risk profiles.
+	 * @param factory      The value factory used for generating values.
+	 * @param generateIds  A flag indicating whether to generate risk profile identifiers.
+	 */
 	@Transactional
 	public void updateAssessment(Analysis analysis, ValueFactory factory, boolean generateIds) {
 		final Map<String, Assessment> assessmentMapper = analysis.getAssessments().stream()
@@ -310,11 +421,25 @@ public class AssessmentAndRiskProfileManager {
 			UpdateAssetALE(analysis, factory);
 	}
 
+	/**
+	 * Updates the assessment for the given analysis using the provided value factory.
+	 * This method performs the update in a transactional context.
+	 *
+	 * @param analysis The analysis for which the assessment needs to be updated.
+	 * @param factory The value factory used to update the assessment.
+	 */
 	@Transactional
 	public void updateAssessment(Analysis analysis, ValueFactory factory) {
 		updateAssessment(analysis, factory, true);
 	}
 
+	/**
+	 * Updates the given analysis and saves it to the database.
+	 * 
+	 * @param analysis The analysis to be updated and saved.
+	 * @param factory The value factory used for updating the analysis.
+	 * @throws TransactionException if there is an error during the transaction.
+	 */
 	@Transactional
 	public void updateAndSave(Analysis analysis, ValueFactory factory) {
 		updateAssessment(analysis, factory, true);
@@ -360,6 +485,13 @@ public class AssessmentAndRiskProfileManager {
 		}
 	}
 
+	/**
+	 * Updates the risk dependencies in the analysis based on the provided analysis and value factory.
+	 * If the value factory is null, a new value factory is created using the analysis parameters.
+	 * 
+	 * @param analysis The analysis object containing the assessments, risk profiles, assets, and scenarios.
+	 * @param factory The value factory used for generating assessments and risk profiles.
+	 */
 	public static void UpdateRiskDendencies(Analysis analysis, ValueFactory factory) {
 		if (factory == null)
 			factory = new ValueFactory(analysis.getParameters());
@@ -408,6 +540,11 @@ public class AssessmentAndRiskProfileManager {
 			UpdateAssetALE(analysis, factory);
 	}
 
+	/**
+	 * Generates a risk profile identifier for a list of risk profiles.
+	 *
+	 * @param riskProfiles the list of risk profiles
+	 */
 	public static void GenerateRiskProfileIdentifer(List<RiskProfile> riskProfiles) {
 		final String maxId = riskProfiles.stream().filter(risk -> StringUtils.hasText(risk.getIdentifier()))
 				.map(RiskProfile::getIdentifier)
@@ -451,12 +588,23 @@ public class AssessmentAndRiskProfileManager {
 		}
 	}
 
+	/**
+	 * Deletes all assessments associated with the given analysis.
+	 *
+	 * @param analysis The analysis for which assessments need to be deleted.
+	 */
 	@Transactional
 	public void WipeAssessment(Analysis analysis) {
 		while (!analysis.getAssessments().isEmpty())
 			daoAssessment.delete(analysis.getAssessments().remove(0));
 	}
 
+	/**
+	 * Creates assessments for the given asset and analysis.
+	 *
+	 * @param asset the asset for which assessments are created
+	 * @param analysis the analysis containing the assessments
+	 */
 	private void createAssessment(Asset asset, Analysis analysis) {
 		final Map<Integer, Assessment> assetAssessments = analysis.findAssessmentByAssetId(asset.getId());
 		ValueFactory valueFactory = new ValueFactory(analysis.getImpactParameters());
@@ -464,6 +612,12 @@ public class AssessmentAndRiskProfileManager {
 				analysis.getAssessments(), assetAssessments, valueFactory));
 	}
 
+	/**
+	 * Creates an assessment for the given scenario and analysis.
+	 *
+	 * @param scenario The scenario for which the assessment is created.
+	 * @param analysis The analysis object containing the assessments.
+	 */
 	private void createAssessment(Scenario scenario, Analysis analysis) {
 		final Map<Integer, Assessment> sceanrioAssessments = analysis.findAssessmentByScenarioId(scenario.getId());
 		ValueFactory valueFactory = new ValueFactory(analysis.getImpactParameters());
@@ -472,6 +626,12 @@ public class AssessmentAndRiskProfileManager {
 		daoAnalysis.saveOrUpdate(analysis);
 	}
 
+	/**
+	 * Creates assessment and risk profiles for the given asset and analysis.
+	 *
+	 * @param asset The asset for which to create the assessment and risk profiles.
+	 * @param analysis The analysis containing the assessments and risk profiles.
+	 */
 	private void createAssessmentAndRiskProfile(Asset asset, Analysis analysis) {
 		final Map<Integer, Assessment> assetAssessments = analysis.findAssessmentByAssetId(asset.getId());
 		final Map<Integer, RiskProfile> riskProfiles = analysis.findRiskProfileByAssetId(asset.getId());
@@ -483,6 +643,12 @@ public class AssessmentAndRiskProfileManager {
 		GenerateRiskProfileIdentifer(analysis.getRiskProfiles());
 	}
 
+	/**
+	 * Creates assessment and risk profiles for a given scenario and analysis.
+	 *
+	 * @param scenario The scenario for which to create the assessment and risk profiles.
+	 * @param analysis The analysis containing the assessments and risk profiles.
+	 */
 	private void createAssessmentAndRiskProfile(Scenario scenario, Analysis analysis) {
 		final Map<Integer, Assessment> assetAssessments = analysis.findAssessmentByScenarioId(scenario.getId());
 		final Map<Integer, RiskProfile> riskProfiles = analysis.findRiskProfileByScenarioId(scenario.getId());
@@ -547,6 +713,9 @@ public class AssessmentAndRiskProfileManager {
 		}
 	}
 
+	/**
+	 * Represents an assessment for a specific asset and scenario.
+	 */
 	public static Assessment GenerateAssessment(List<Assessment> assessments, ValueFactory factory, Asset asset,
 			Scenario scenario) {
 		final Assessment assessment = new Assessment(asset, scenario);
@@ -555,14 +724,27 @@ public class AssessmentAndRiskProfileManager {
 		return assessment;
 	}
 
+	/**
+	 * Creates the impact for the given assessment.
+	 *
+	 * @param factory the ValueFactory used to create the impact value
+	 * @param assessment the assessment for which to set the impact
+	 * @param impact the impact value to set
+	 */
 	private static void createImpact(ValueFactory factory, Assessment assessment, String impact) {
 		assessment.setImpact(factory.findValue(impact.equals(Constant.DEFAULT_IMPACT_NAME) ? 0D : 0, impact));
 	}
 
+	/**
+	 * Represents an assessment.
+	 */
 	public static Assessment ComputeAlE(Assessment assessment) {
 		return ComputeAlE(assessment, (IValue) null);
 	}
 
+	/**
+	 * Represents an assessment of risk for a specific value.
+	 */
 	public static Assessment ComputeAlE(Assessment assessment, IValue value) {
 		if (value == null || !value.getName().equals(Constant.DEFAULT_IMPACT_NAME))
 			assessment.setImpactReal(assessment.getImpactValue(Constant.DEFAULT_IMPACT_NAME));
@@ -575,6 +757,12 @@ public class AssessmentAndRiskProfileManager {
 		return assessment;
 	}
 
+	/**
+	 * Computes the AlE (Annual Loss Expectancy) for a list of assessments.
+	 * This method iterates over each assessment in the list and calls the ComputeAlE method for each assessment.
+	 *
+	 * @param assessments the list of assessments for which to compute the AlE
+	 */
 	public static void ComputeAlE(List<Assessment> assessments) {
 		assessments.forEach(assessment -> ComputeAlE(assessment));
 	}
@@ -611,6 +799,9 @@ public class AssessmentAndRiskProfileManager {
 		return ales;
 	}
 
+	/**
+	 * Represents the Annual Loss Expectancy (ALE) for a set of assessments.
+	 */
 	public static ALE ComputeALE(List<Assessment> assessments) {
 		ALE ale = null;
 		for (Assessment assessment : assessments) {
@@ -621,6 +812,15 @@ public class AssessmentAndRiskProfileManager {
 		return ale;
 	}
 
+	/**
+	 * Computes the Aggregate Loss Expectancy (ALE) by summing up the ALE values from a list of assessments.
+	 * Updates the provided ALE, ALEP, and ALEO objects with the computed values.
+	 *
+	 * @param assessments The list of assessments to compute the ALE from.
+	 * @param ale         The ALE object to update with the computed ALE value.
+	 * @param alep        The ALEP object to update with the computed ALEP value.
+	 * @param aleo        The ALEO object to update with the computed ALEO value.
+	 */
 	public static void ComputeALE(List<Assessment> assessments, ALE ale, ALE alep, ALE aleo) {
 		if (assessments == null)
 			return;
@@ -631,6 +831,13 @@ public class AssessmentAndRiskProfileManager {
 		}
 	}
 
+	/**
+	 * Computes the Asset ALE (Annualized Loss Expectancy) for a given list of assets and assessments.
+	 *
+	 * @param assets       the list of assets
+	 * @param assessments2 the list of assessments
+	 * @return a map containing the computed ALE values for each asset
+	 */
 	public static Map<Integer, ALE[]> ComputeAssetALE(List<Asset> assets, List<Assessment> assessments2) {
 		final Map<Integer, ALE[]> ales = new LinkedHashMap<>();
 		final Map<Integer, List<Assessment>> assessments = AnalysisUtils.MappedSelectedAssessmentByAsset(assessments2);
@@ -645,6 +852,13 @@ public class AssessmentAndRiskProfileManager {
 
 	}
 
+	/**
+	 * Computes the ALE (Annual Loss Expectancy) for each scenario based on the given list of scenarios and assessments.
+	 *
+	 * @param scenarios    the list of scenarios to compute ALE for
+	 * @param assessments2 the list of assessments
+	 * @return a map containing the computed ALE values for each scenario
+	 */
 	public static Map<Integer, ALE[]> ComputeScenarioALE(List<Scenario> scenarios, List<Assessment> assessments2) {
 		final Map<Integer, ALE[]> ales = new LinkedHashMap<>();
 		final Map<Integer, List<Assessment>> assessments = AnalysisUtils
@@ -659,6 +873,12 @@ public class AssessmentAndRiskProfileManager {
 		return ales;
 	}
 
+	/**
+	 * Computes the total ALE (Annual Loss Expectancy) for each category based on the given map of ALE arrays.
+	 *
+	 * @param alesByAsset a map of ALE arrays, where the key represents the asset and the value represents the ALE array for that asset
+	 * @return an array of ALE objects representing the total ALE for each category
+	 */
 	public static ALE[] ComputeTotalALE(Map<Integer, ALE[]> alesByAsset) {
 		final ALE[] ales = new ALE[3];
 		for (int i = 0; i < ales.length; i++)
@@ -670,6 +890,12 @@ public class AssessmentAndRiskProfileManager {
 		return ales;
 	}
 
+	/**
+	 * Sorts a list of assessments based on asset values.
+	 * 
+	 * @param assessments the list of assessments to be sorted
+	 * @return the sorted list of assessments
+	 */
 	public static List<Assessment> Sort(List<Assessment> assessments) {
 		Map<String, List<Assessment>> assessmentByAssets = null;
 		Map<String, ALE> ales = null;
@@ -691,12 +917,28 @@ public class AssessmentAndRiskProfileManager {
 		}
 	}
 
+	/**
+	 * Sorts the given list of assessments based on the provided ALE values.
+	 *
+	 * @param assessments The list of assessments to be sorted.
+	 * @param ale The ALE value.
+	 * @param alep The ALEP value.
+	 * @param aleo The ALEO value.
+	 * @return The sorted list of assessments.
+	 */
 	public static List<Assessment> Sort(List<Assessment> assessments, ALE ale, ALE alep, ALE aleo) {
 		ComputeALE(assessments, ale, alep, aleo);
 		Collections.sort(assessments, new AssessmentComparator());
 		return assessments;
 	}
 
+	/**
+	 * Splits the given list of assessments based on the asset name and updates the ALE values.
+	 *
+	 * @param assessments The list of assessments to be split.
+	 * @param ales The map of ALE values.
+	 * @param assessmentByAssets The map of assessments grouped by asset name.
+	 */
 	public static void SplitAssessment(List<Assessment> assessments, Map<String, ALE> ales,
 			Map<String, List<Assessment>> assessmentByAssets) {
 		for (Assessment assessment : assessments) {
@@ -713,6 +955,13 @@ public class AssessmentAndRiskProfileManager {
 		}
 	}
 
+	/**
+	 * Concatenates and returns a list of assessments based on the given sorted ALEs and assessmentByAssets map.
+	 *
+	 * @param sortAles The sorted list of ALEs.
+	 * @param assessmentByAssets The map containing assessments grouped by asset names.
+	 * @return The concatenated list of assessments.
+	 */
 	private static List<Assessment> Concact(List<ALE> sortAles, Map<String, List<Assessment>> assessmentByAssets) {
 		final List<Assessment> assessments = new LinkedList<>();
 		for (ALE ale : sortAles) {
@@ -722,6 +971,14 @@ public class AssessmentAndRiskProfileManager {
 		return assessments;
 	}
 
+	/**
+	 * Generates a new RiskProfile object and adds it to the list of risk profiles.
+	 *
+	 * @param riskProfiles The list of existing risk profiles.
+	 * @param asset The asset for which the risk profile is generated.
+	 * @param scenario The scenario for which the risk profile is generated.
+	 * @return The newly generated RiskProfile object.
+	 */
 	public static RiskProfile GenerateRiskProfile(List<RiskProfile> riskProfiles, Asset asset, Scenario scenario) {
 		final RiskProfile riskProfile = new RiskProfile(asset, scenario);
 		riskProfiles.add(riskProfile);

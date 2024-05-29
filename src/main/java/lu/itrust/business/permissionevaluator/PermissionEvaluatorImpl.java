@@ -150,10 +150,23 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 		this.serviceUserAnalysisRight = serviceUserAnalysisRight;
 	}
 
+	/**
+	 * Sets the ServiceUserAnalysisRight object for this PermissionEvaluatorImpl.
+	 *
+	 * @param serviceUserAnalysisRight The ServiceUserAnalysisRight object to be set.
+	 */
 	public void setServiceUserAnalysisRight(ServiceUserAnalysisRight serviceUserAnalysisRight) {
 		this.serviceUserAnalysisRight = serviceUserAnalysisRight;
 	}
 
+	/**
+	 * Checks if the specified principal has the given analysis right for the specified analysis ID.
+	 *
+	 * @param analysisId The ID of the analysis.
+	 * @param principal The principal representing the user.
+	 * @param right The analysis right to check.
+	 * @return true if the principal has the specified analysis right, false otherwise.
+	 */
 	@Override
 	public boolean hasPermission(Integer analysisId, Principal principal, AnalysisRight right) {
 		try {
@@ -172,12 +185,30 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 		}
 	}
 
+	/**
+	 * Checks if the user is authorized to perform a specific action.
+	 *
+	 * @param session    the HttpSession object
+	 * @param elementId  the ID of the element
+	 * @param className  the name of the class
+	 * @param principal  the Principal object representing the user
+	 * @param right      the AnalysisRight object representing the action to be performed
+	 * @return true if the user is authorized, false otherwise
+	 */
 	@Override
 	public boolean userIsAuthorized(HttpSession session, Integer elementId, String className, Principal principal,
 			AnalysisRight right) {
 		return userIsAuthorized(isAuthorised(session, principal, right), elementId, className, principal, right);
 	}
 
+	/**
+	 * Checks if the user is authorized to perform the specified analysis right.
+	 * 
+	 * @param session   the HttpSession object representing the user's session
+	 * @param principal the Principal object representing the user's authentication details
+	 * @param right     the AnalysisRight object representing the analysis right to be checked
+	 * @return true if the user is authorized, false otherwise
+	 */
 	@Override
 	public boolean userIsAuthorized(HttpSession session, Principal principal, AnalysisRight right) {
 		return userIsAuthorized(isAuthorised(session, principal, right), principal, right);
@@ -297,6 +328,7 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 					if (!serviceRiskAcceptanceParameter.belongsToAnalysis(analysisId, elementId))
 						return false;
 					break;
+					
 				case "History": {
 					if (!serviceHistory.belongsToAnalysis(analysisId, elementId))
 						return false;
@@ -337,6 +369,14 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 		}
 	}
 
+	/**
+	 * Checks if a user is authorized to perform a specific analysis right on a given analysis.
+	 *
+	 * @param analysisId the ID of the analysis
+	 * @param principal the principal representing the user
+	 * @param right the analysis right to be checked
+	 * @return true if the user is authorized, false otherwise
+	 */
 	@Override
 	public boolean userIsAuthorized(Integer analysisId, Principal principal, AnalysisRight right) {
 		try {
@@ -350,6 +390,14 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 		}
 	}
 
+	/**
+	 * Checks if the user or owner is authorized for the given analysis.
+	 *
+	 * @param analysisId The ID of the analysis.
+	 * @param principal The principal representing the user.
+	 * @param right The analysis right to check.
+	 * @return {@code true} if the user or owner is authorized, {@code false} otherwise.
+	 */
 	@Override
 	public boolean userOrOwnerIsAuthorized(Integer analysisId, Principal principal, AnalysisRight right) {
 		try {
@@ -369,9 +417,17 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 		}
 	}
 
+	/**
+	 * Checks if the user is authorized to perform the specified analysis right.
+	 * 
+	 * @param session   the HttpSession object representing the user's session
+	 * @param principal the Principal object representing the user's authentication
+	 * @param right     the AnalysisRight enum representing the requested analysis right
+	 * @return the analysis ID if the user is authorized, or null otherwise
+	 */
 	private Integer isAuthorised(HttpSession session, Principal principal, AnalysisRight right) {
-		//if (session == null || principal == null || right == null)
-		//	return null;
+		if (session == null || principal == null || right == null)
+			return null;
 		Integer analysisId = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		OpenMode open = (OpenMode) session.getAttribute(Constant.OPEN_MODE);
 		if (analysisId == null)
@@ -381,6 +437,14 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 		return analysisId;
 	}
 
+	/**
+	 * Checks if the user has delete permission for a specific analysis.
+	 *
+	 * @param analysisId The ID of the analysis.
+	 * @param principal The principal representing the user.
+	 * @param isProfile A flag indicating whether the analysis is a profile.
+	 * @return {@code true} if the user has delete permission, {@code false} otherwise.
+	 */
 	@Override
 	public boolean hasDeletePermission(Integer analysisId, Principal principal, Boolean isProfile) {
 		try {
@@ -397,6 +461,13 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 		}
 	}
 
+	/**
+	 * Checks if the specified principal has management permission for the given analysis.
+	 *
+	 * @param analysisId the ID of the analysis
+	 * @param principal the principal object representing the user
+	 * @return true if the principal has management permission, false otherwise
+	 */
 	@Override
 	public boolean hasManagementPermission(Integer analysisId, Principal principal) {
 		try {
@@ -413,6 +484,13 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 		}
 	}
 
+	/**
+	 * Checks if the specified setting is allowed.
+	 *
+	 * @param setting the TSSettingName to check
+	 * @return true if the setting is allowed, false otherwise
+	 * @throws ResourceNotFoundException if the page does not exist
+	 */
 	@Override
 	public boolean isAllowed(TSSettingName setting) {
 		if (!serviceTSSetting.isAllowed(setting))
@@ -420,6 +498,14 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 		return true;
 	}
 
+	/**
+	 * Checks if the specified setting is allowed.
+	 * 
+	 * @param setting the TSSettingName to check
+	 * @param defaultValue the default value to use if the setting is not found
+	 * @return true if the setting is allowed, false otherwise
+	 * @throws ResourceNotFoundException if the page does not exist
+	 */
 	@Override
 	public boolean isAllowed(TSSettingName setting, boolean defaultValue) {
 		if (!serviceTSSetting.isAllowed(setting, defaultValue))

@@ -59,9 +59,13 @@ import lu.itrust.business.ts.model.standard.measure.AbstractNormalMeasure;
 import lu.itrust.business.ts.model.standard.measure.Measure;
 
 /**
- * The ControllerAssessment class is a controller that handles requests related to assessment and risk profiles in the analysis module.
- * It provides methods for loading asset assessments, scenario assessments, managing risk profile measures, computing risk profile measures, and refreshing assessments.
- * This controller is responsible for handling HTTP requests and returning the appropriate response.
+ * The ControllerAssessment class is a controller that handles requests related
+ * to assessment and risk profiles in the analysis module.
+ * It provides methods for loading asset assessments, scenario assessments,
+ * managing risk profile measures, computing risk profile measures, and
+ * refreshing assessments.
+ * This controller is responsible for handling HTTP requests and returning the
+ * appropriate response.
  */
 @PreAuthorize(Constant.ROLE_MIN_USER)
 @RequestMapping("/Analysis/Assessment")
@@ -99,8 +103,10 @@ public class ControllerAssessment {
 	 * @param idScenario The ID of the scenario.
 	 * @param model      The model object for the view.
 	 * @param session    The HttpSession object.
-	 * @param principal  The Principal object representing the currently authenticated user.
-	 * @param locale     The Locale object representing the user's preferred language.
+	 * @param principal  The Principal object representing the currently
+	 *                   authenticated user.
+	 * @param locale     The Locale object representing the user's preferred
+	 *                   language.
 	 * @return The name of the view to render.
 	 * @throws Exception if an error occurs during the loading process.
 	 */
@@ -143,14 +149,16 @@ public class ControllerAssessment {
 	}
 
 	/**
-	 * Loads the scenario assessment and returns a String representing the view name.
+	 * Loads the scenario assessment and returns a String representing the view
+	 * name.
 	 * 
 	 * @param idScenario the ID of the scenario
-	 * @param idAsset the ID of the asset (default value is 0)
-	 * @param model the model object for the view
-	 * @param session the HttpSession object
-	 * @param principal the Principal object representing the currently authenticated user
-	 * @param locale the Locale object representing the user's locale
+	 * @param idAsset    the ID of the asset (default value is 0)
+	 * @param model      the model object for the view
+	 * @param session    the HttpSession object
+	 * @param principal  the Principal object representing the currently
+	 *                   authenticated user
+	 * @param locale     the Locale object representing the user's locale
 	 * @return a String representing the view name
 	 * @throws Exception if an error occurs during the loading of the assessment
 	 */
@@ -195,12 +203,13 @@ public class ControllerAssessment {
 	/**
 	 * Retrieves the risk profile measure for a given asset and scenario.
 	 * 
-	 * @param idAsset   the ID of the asset
-	 * @param idScenario   the ID of the scenario
-	 * @param model   the model object for the view
-	 * @param session   the HTTP session
-	 * @param principal   the principal object representing the currently authenticated user
-	 * @param locale   the locale for the request
+	 * @param idAsset    the ID of the asset
+	 * @param idScenario the ID of the scenario
+	 * @param model      the model object for the view
+	 * @param session    the HTTP session
+	 * @param principal  the principal object representing the currently
+	 *                   authenticated user
+	 * @param locale     the locale for the request
 	 * @return the view name for the risk profile measure form
 	 */
 	@RequestMapping(value = "/RiskProfile/Manage-measure", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
@@ -292,9 +301,9 @@ public class ControllerAssessment {
 
 	}
 
-	
 	/**
-	 * Refreshes the assessment and returns a success or error message as a JSON string.
+	 * Refreshes the assessment and returns a success or error message as a JSON
+	 * string.
 	 *
 	 * @param session   the HttpSession object
 	 * @param locale    the Locale object
@@ -367,13 +376,14 @@ public class ControllerAssessment {
 	/**
 	 * Saves the risk profile measure.
 	 *
-	 * @param measureIds  the list of measure IDs
-	 * @param idAsset     the asset ID
-	 * @param idScenario  the scenario ID
-	 * @param session     the HttpSession object
-	 * @param principal   the Principal object
-	 * @param locale      the Locale object
-	 * @return the success message if the risk profile is saved successfully, otherwise an error message
+	 * @param measureIds the list of measure IDs
+	 * @param idAsset    the asset ID
+	 * @param idScenario the scenario ID
+	 * @param session    the HttpSession object
+	 * @param principal  the Principal object
+	 * @param locale     the Locale object
+	 * @return the success message if the risk profile is saved successfully,
+	 *         otherwise an error message
 	 */
 	@RequestMapping(value = "/RiskProfile/Update/Measure", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #idScenario, 'Scenario', #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).MODIFY) and "
@@ -398,7 +408,8 @@ public class ControllerAssessment {
 	}
 
 	/**
-	 * Updates the Asset Loss Expectancy (ALE) for the analysis and returns a success message.
+	 * Updates the Asset Loss Expectancy (ALE) for the analysis and returns a
+	 * success message.
 	 *
 	 * @param session   the HttpSession object
 	 * @param locale    the Locale object
@@ -433,13 +444,12 @@ public class ControllerAssessment {
 		}
 	}
 
-	
 	/**
 	 * Updates the assessment of an analysis and returns a success or error message.
 	 *
-	 * @param session  the HttpSession object
-	 * @param locale   the Locale object
-	 * @param principal  the Principal object
+	 * @param session   the HttpSession object
+	 * @param locale    the Locale object
+	 * @param principal the Principal object
 	 * @return a JSON string containing a success or error message
 	 * @throws Exception if an error occurs during the update process
 	 */
@@ -471,10 +481,14 @@ public class ControllerAssessment {
 
 	/**
 	 * Returns a comparator for sorting assessments based on asset properties.
-	 * The assessments are sorted in ascending order of ALE (Annual Loss Expectancy).
-	 * If two assessments have the same ALE, they are further sorted based on the value of the asset.
-	 * If the assets have the same value, they are further sorted based on the name of the asset type.
-	 * If the asset types have the same name, they are further sorted based on the name of the asset.
+	 * The assessments are sorted in ascending order of ALE (Annual Loss
+	 * Expectancy).
+	 * If two assessments have the same ALE, they are further sorted based on the
+	 * value of the asset.
+	 * If the assets have the same value, they are further sorted based on the name
+	 * of the asset type.
+	 * If the asset types have the same name, they are further sorted based on the
+	 * name of the asset.
 	 *
 	 * @return a comparator for sorting assessments based on asset properties
 	 */
@@ -494,7 +508,8 @@ public class ControllerAssessment {
 	}
 
 	/**
-	 * Returns a comparator for sorting assessments based on their ALE (Annual Loss Expectancy) values,
+	 * Returns a comparator for sorting assessments based on their ALE (Annual Loss
+	 * Expectancy) values,
 	 * scenario type names, and scenario names.
 	 *
 	 * @return a comparator for sorting assessments
@@ -544,11 +559,12 @@ public class ControllerAssessment {
 	/**
 	 * Loads the assessment form data for a given scenario and asset.
 	 * 
-	 * @param idScenario  the ID of the scenario
-	 * @param idAsset     the ID of the asset
-	 * @param model       the model object to add attributes to
-	 * @param analysis    the analysis object containing likelihood and dynamic parameters
-	 * @param assessment  the assessment object to be loaded
+	 * @param idScenario the ID of the scenario
+	 * @param idAsset    the ID of the asset
+	 * @param model      the model object to add attributes to
+	 * @param analysis   the analysis object containing likelihood and dynamic
+	 *                   parameters
+	 * @param assessment the assessment object to be loaded
 	 */
 	private void loadAssessmentFormData(int idScenario, int idAsset, Model model, Analysis analysis,
 			Assessment assessment) {
@@ -557,7 +573,13 @@ public class ControllerAssessment {
 		model.addAttribute("assessment", assessment);
 		model.addAttribute("probabilities", analysis.getLikelihoodParameters());
 		model.addAttribute("dynamics", analysis.getDynamicParameters());
+
 		if (analysis.isQualitative()) {
+
+			final boolean isILR = Analysis.findSetting(AnalysisSetting.ALLOW_ILR_ANALYSIS,
+			analysis.getSettings().get(AnalysisSetting.ALLOW_ILR_ANALYSIS.name()));
+
+			model.addAttribute("isILR", isILR);
 
 			RiskProfile riskProfile = analysis.findRiskProfileByAssetAndScenario(idAsset, idScenario);
 			model.addAttribute("strategies", RiskStrategy.values());

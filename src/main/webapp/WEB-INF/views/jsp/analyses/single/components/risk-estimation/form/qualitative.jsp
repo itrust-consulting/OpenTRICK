@@ -27,7 +27,7 @@
 <spring:message text="${assessment.owner}" var="owner" />
 <spring:message text="${riskProfile.identifier}" var="identifier" />
 <c:set var="scenarioType" value="${fn:toLowerCase(scenario.type.name)}" />
-<c:set var="cssHeader" value="${type.quantitative && show_uncertainty? 'col-sm-3' : 'col-sm-4'}" />
+<c:set var="cssHeader" value="${type.quantitative && show_uncertainty? 'col-sm-4' : 'col-sm-3'}" />
 <div class="page-header tab-content-header hidden-xs">
 	<div class="container">
 		<div class="row-fluid">
@@ -40,17 +40,17 @@
 <div class='form-horizontal form-group-fill' style="margin-bottom: 4px;">
 	<div class='${cssHeader}'>
 		<div class="form-group">
-			<label class='control-label col-xs-6'><spring:message code="label.risk_register.category" /></label>
+			<label class="control-label col-xs-6"><spring:message code="label.title.risk_identifier" /></label>
 			<div class='col-xs-6'>
-				<strong class='form-control form-control-static'><spring:message code="label.scenario.type.${fn:replace(scenarioType,'-','_')}" text="${scenarioType}" /></strong>
+				<input name="riskProfile.identifier" class="form-control" value="${identifier}" placeholder="${identifier}" data-trick-type='string'>
 			</div>
 		</div>
 	</div>
 	<div class='${cssHeader}'>
 		<div class="form-group">
-			<label class="control-label col-xs-6"><spring:message code="label.title.risk_identifier" /></label>
+			<label class='control-label col-xs-6'><spring:message code="label.risk_register.category" /></label>
 			<div class='col-xs-6'>
-				<input name="riskProfile.identifier" class="form-control" value="${identifier}" placeholder="${identifier}" data-trick-type='string'>
+				<strong class='form-control form-control-static'><spring:message code="label.scenario.type.${fn:replace(scenarioType,'-','_')}" text="${scenarioType}" /></strong>
 			</div>
 		</div>
 	</div>
@@ -63,6 +63,13 @@
 			</div>
 		</div>
 	</div>
+	<div class='${cssHeader}'>
+		<div class='form-group'>
+			<span class="control-label col-xs-6"><spring:message code="label.risk_register.strategy" /></span>
+			<div class='col-xs-6'>${strategyForm}</div>
+		</div>
+	</div>
+
 	<c:if test="${type.quantitative && show_uncertainty}">
 		<fmt:formatNumber value="${assessment.uncertainty}" maxFractionDigits="2" var="uncertainty" />
 		<div class='${cssHeader}'>
@@ -96,8 +103,13 @@
 					<th colspan="${qualitativeImpactCount}" style="text-align: center;"><spring:message code="label.title.impact" /></th>
 				</c:otherwise>
 			</c:choose>
+			<c:if test="${isILR}">
+				<th class="form-estimation form-estimation-left" colspan="2" rowspan="2" style="width: 40px; text-align: center; vertical-align: middle;"><spring:message code="label.title.ilr"
+					text="ILR" /></th>
+			</c:if>
 			<th class="form-estimation form-estimation-left" rowspan="2" style="width: 80px; text-align: center; vertical-align: middle;"><spring:message code="label.title.importance"
 					text="Importance" /></th>
+			
 			<c:if test="${type.quantitative}">
 				<th class="form-estimation form-estimation-left form-estimation-right" rowspan="2" style="text-align: center; vertical-align: middle; min-width: 90px;"><spring:message
 						code="label.analysis.quantitative.impact" /></th>
@@ -146,6 +158,7 @@
 										<c:choose>
 											<c:when test="${parameter.level == 0}">
 												<c:set var="rawProbaValue" value="${naValue}" />
+												<c:set var="threatProbability" value="${parameter.ilrLevel}" />
 												<spring:message code='label.parameter.label.na' text="${parameter.label}" var="rawProbaTitle" />
 											</c:when>
 											<c:otherwise>
@@ -172,7 +185,15 @@
 												<c:set var="rawProbaValue" value="${parameter.level}" />
 											</c:otherwise>
 										</c:choose>
-										<option value="${parameter.id}" ${riskProfile.rawProbaImpact.probability==parameter?"selected='selected'" :""} title='${rawProbaTitle}'>${rawProbaValue}</option>
+										<c:choose>
+											<c:when test="${riskProfile.rawProbaImpact.probability eq parameter}">
+												<c:set var="threatProbability" value="${parameter.ilrLevel}" />
+												<option value="${parameter.id}" selected title='${rawProbaTitle}'>${rawProbaValue}</option>
+											</c:when>
+											<c:otherwise>
+												<option value="${parameter.id}" title='${rawProbaTitle}'>${rawProbaValue}</option>
+											</c:otherwise>
+										</c:choose>
 									</c:forEach>
 								</select>
 							</c:otherwise>
@@ -217,6 +238,10 @@
 						</td>
 					</c:if>
 				</c:forEach>
+				<c:if test="${isILR}">
+					<td class="form-estimation form-estimation-left"> <span style="transform: rotate(-90deg);display: inline-block;width: 52px;margin-left: -22px;margin-right: -30px;" title="Threat probability"><spring:message text="Threat" /></span></td>
+					<td><label data-name="THREAT-PROBABILITY" class="form-control form-control-static text-right disabled" data-trick-type='string' title="${threatProbability}">${threatProbability}</label></td>
+				</c:if>
 				<td class='form-estimation  form-estimation-left'><spring:message var="rawImpColor" text="${computedRawImportance.color}" /> <input name="computedRawImportance"
 					disabled="disabled" class="form-control numeric" title='<spring:message text='${computedRawImportance.title}'/>' value="${computedRawImportance.value}"
 					style="border: solid 2px ${empty rawImpColor? '#eee' : rawImpColor}"></td>
@@ -361,6 +386,16 @@
 						</div></td>
 				</c:if>
 			</c:forEach>
+			<c:if test="${isILR}">
+				<td class="form-estimation form-estimation-left"> <span style="transform: rotate(-90deg);display: inline-block;width: 52px;margin-left: -22px;margin-right: -30px;" title="Vulnerability"><spring:message text="Vulner." /></span></td>
+				<td>
+					<div><select name='vulnerability' class='form-control' data-trick-type='integer'
+								title="<spring:message text='${assessment.vulnerability}'/>" ><c:forEach end="2" begin="0" step="1" var="vulnerability">
+						<option value="${vulnerability}" ${vulnerability eq assessment.vulnerability ? 'selected' : ''}>${vulnerability}</option>
+						</c:forEach></select>
+					</div>
+				</td>
+			</c:if>
 			<td class='form-estimation  form-estimation-left'><spring:message var="netImpColor" text="${computedNetImportance.color}" /> <input name="computedNetImportance"
 				disabled="disabled" class="form-control numeric" title='<spring:message text='${computedNetImportance.title}'/>' value="${computedNetImportance.value}"
 				style="border: solid 2px ${empty netImpColor? '#eee' : netImpColor}"></td>
@@ -502,6 +537,13 @@
 					</td>
 				</c:if>
 			</c:forEach>
+			<c:if test="${isILR}">
+				<td class="form-estimation form-estimation-left"> <span style="transform: rotate(-90deg);display: inline-block;width: 52px;margin-left: -22px;margin-right: -30px;" title="Vulnerability reduction"><spring:message text="V Redu." /></span></td>
+				<td><select name='riskProfile.expProbaImpact.vulnerability' class='form-control' data-trick-type='integer'
+								title="<spring:message text='${riskProfile.expProbaImpact.vulnerability}'/>" ><c:forEach end="2" begin="0" step="1" var="vulnerability">
+						<option value="${vulnerability}" ${vulnerability eq 1 && empty riskProfile.expProbaImpact or vulnerability eq riskProfile.expProbaImpact.vulnerability ? 'selected' : ''}>${vulnerability}</option>
+						</c:forEach></select></td>
+			</c:if>
 			<td class='form-estimation  form-estimation-left'><spring:message var="expImpColor" text="${computedExpImportance.color}" /><input name="computedExpImportance"
 				disabled="disabled" class="form-control numeric" title='<spring:message text='${computedExpImportance.title}'/>' value="${computedExpImportance.value}"
 				style="border: solid 2px ${empty expImpColor? '#eee' : expImpColor}"></td>
@@ -579,13 +621,16 @@
 	<textarea id="assessment-riskTreatment" class="form-control" name="riskProfile.riskTreatment" title="${riskTreatment}" style="resize: vertical;"
 		placeholder="${riskTreatmentContent}" data-trick-type='string'>${riskTreatmentContent}</textarea>
 </div>
+<div class='form-group form-group-fill'>
+	<spring:message code="label.cockpit" text="Cockpit" var='cockpit' />
+	<spring:message text='${assessment.cockpit}' var="cockpitContent" />
+	<label class='label-control'>${cockpit}</label>
+	<textarea id="assessment-cockpit" class="form-control" name="cockpit" title="${cockpit}" style="resize: vertical;"
+		placeholder="${cockpitContent}" data-trick-type='string'>${cockpitContent}</textarea>
+</div>
 <div class='form-group' id="section_estimation_action_plan">
 	<spring:message code="label.action_paln.including.deadlines" text="Action plan (including deadlines)" var='actionPlan' />
 	<ul class='nav nav-pills' id="menu_estimation_action_plan">
-		<li class='form-horizontal' style="margin-right: 25px; padding-left: 10px;"><div class='form-group'>
-				<span class="control-label col-xs-4"><spring:message code="label.risk_register.strategy" /></span>
-				<div class='col-xs-8'>${strategyForm}</div>
-			</div></li>
 		<li style="padding-left: 0; margin-right: 15px; padding-top: 6px;">${actionPlan}</li>
 		<c:if test="${isEditable}">
 			<li><a href="#" data-action='manage' onclick="return false" style="padding: 6px 10px;"><i class="fa fa-plus" aria-hidden="true"></i> <spring:message
@@ -599,6 +644,10 @@
 			onclick="return false"><i class="fa fa-minus-square-o" aria-hidden="true"></i> <spring:message code='label.action.hide.additional.field' /></a></li>
 	</ul>
 	<spring:message text='${riskProfile.actionPlan}' var="actionPlanContent" />
+	<spring:message code="info.analysis.estimation.action_plan.addition.field" var="actionPlanInfo" />
+	<textarea id="assessment-actionPlan" class="form-control" name="riskProfile.actionPlan" title="${actionPlanInfo}"
+		style="resize: vertical; margin-top: 5px; display: ${empty actionPlanContent? 'none' : 'inline-block'};"
+		placeholder="${empty actionPlanContent? actionPlanInfo : actionPlanContent}" data-trick-type='string'>${actionPlanContent}</textarea>
 	<table id="riskProfileMeasure" class="table table-hover form-no-fill">
 		<thead>
 			<tr class='form-group-fill'>
@@ -654,10 +703,6 @@
 			</c:forEach>
 		</tbody>
 	</table>
-	<spring:message code="info.analysis.estimation.action_plan.addition.field" var="actionPlanInfo" />
-	<textarea id="assessment-actionPlan" class="form-control" name="riskProfile.actionPlan" title="${actionPlanInfo}"
-		style="resize: vertical; margin-top: 5px; display: ${empty actionPlanContent? 'none' : 'inline-block'};"
-		placeholder="${empty actionPlanContent? actionPlanInfo : actionPlanContent}" data-trick-type='string'>${actionPlanContent}</textarea>
 </div>
 <c:if test="${showHiddenComment}">
 	<div class='form-group form-group-fill'>

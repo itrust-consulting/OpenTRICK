@@ -910,7 +910,7 @@ function ReportSettingEditor(element) {
 	FieldEditor.call(this, element);
 }
 
-FieldEditor.prototype.__save = function () {
+ReportSettingEditor.prototype.__save = function () {
 	var that = this;
 	$.ajax({
 		url: context + "/Analysis/EditField/" + that.controllor,
@@ -1035,7 +1035,7 @@ function editField(element, controller, id, field, type) {
 			fieldEditor = new ExtendedFieldEditor("section_parameter_impact_probability", element);
 		} else if (controller == "Assessment") {
 			field = element.getAttribute("data-trick-field");
-			var fieldImpact = ["comment", "hiddenComment", "uncertainty", "owner"];
+			var fieldImpact = ["comment", "hiddenComment", "uncertainty", "owner","cockpit"];
 			if (fieldImpact.indexOf(field) != -1)
 				fieldEditor = new AssessmentFieldEditor(element);
 			else if (field === "likelihood")

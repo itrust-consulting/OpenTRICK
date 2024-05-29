@@ -476,7 +476,7 @@ public class ValueFactory {
 	 * @see ValueFactory#findImportance(String, String, String, String, String)
 	 */
 	public int findImportance(Assessment assessment) {
-		return findImportance(assessment.getLikelihood(), assessment.getImpacts()) * assessment.getVulnerability();
+		return findImportance(assessment.getLikelihood(), assessment.getImpacts());
 	}
 
 	/**

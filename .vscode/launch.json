@@ -8,7 +8,8 @@
 			"request": "launch",
 			"mainClass": "${file}",
 			"args": [
-				"--spring.config.additional-location=classpath:/deployment-ldap.properties,classpath:/deployment.properties"
+				"--spring.config.additional-location=classpath:/deployment-ldap.properties,classpath:/deployment.properties",
+				"-parameters"
 			]
 		},
 		{
@@ -18,7 +19,8 @@
 			"mainClass": "lu.itrust.boot.Application",
 			"projectName": "trickservice",
 			"args": [
-				"--spring.config.additional-location=classpath:/deployment-ldap.properties,classpath:/deployment.properties"
+				"--spring.config.additional-location=classpath:/deployment-ldap.properties,classpath:/deployment.properties",
+				"-parameters"
 			]
 		}
 	]
