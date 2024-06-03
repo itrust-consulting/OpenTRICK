@@ -29,14 +29,15 @@ public class DependencyGraphManager {
      * @return true if the impact was computed successfully, false otherwise
      */
     public static boolean computeImpact(List<AssetNode> nodes) {
-        if (isCyclic(nodes)) {
-            nodes.forEach(node -> {
-                node.setInheritedConfidentiality(-1);
-                node.setInheritedIntegrity(-1);
-                node.setInheritedAvailability(-1);
-            });
+        nodes.forEach(node -> {
+            node.setInheritedConfidentiality(-1);
+            node.setInheritedIntegrity(-1);
+            node.setInheritedAvailability(-1);
+        });
+
+        if (isCyclic(nodes))
             return false;
-        }
+            
         final List<AssetNode> roots = getRoots(nodes);
         roots.forEach(DependencyGraphManager::computeImpact);
         return true;
