@@ -848,7 +848,7 @@ public class ControllerDataManager {
 				.flatMap(e -> e.getEdges().values().stream())
 				.collect(Collectors.groupingBy(e -> e.getParent().getAsset().getName(),
 						Collectors.toMap(e -> e.getChild().getAsset().getName(),
-								e -> (e.getWeight() == 0 ? 1 : e.getWeight()))));
+								e -> (Math.abs(e.getWeight() - 0) < 1E-9 ? 1 : e.getWeight()))));
 
 		final WorksheetPart worksheetPart = createWorkSheetPart(mlPackage, "Dependency");
 		final SheetData sheetData = worksheetPart.getContents().getSheetData();
