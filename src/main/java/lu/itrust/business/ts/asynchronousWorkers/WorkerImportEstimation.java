@@ -5,6 +5,7 @@ import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHel
 import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.getBoolean;
 import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.getDouble;
 import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.getInt;
+import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.getRow;
 import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.getString;
 import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.isEmpty;
 
@@ -596,7 +597,7 @@ public class WorkerImportEstimation extends WorkerImpl {
 
 		final AddressRef address = AddressRef.parse(table.getContents().getRef());
 
-		final int size = (int) Math.min(address.getEnd().getRow() + 1, sheetData.getRow().size());
+		final int size =  Math.max(address.getEnd().getRow() + 1, sheetData.getRow().size());
 
 		final Map<String, Asset> assets = analysis.getAssets().stream()
 				.collect(Collectors.toMap(e -> e.getName().toLowerCase(), Function.identity()));
@@ -614,14 +615,16 @@ public class WorkerImportEstimation extends WorkerImpl {
 					"Asset");
 		final List<String> columns = table.getContents().getTableColumns().getTableColumn().stream()
 				.map(c -> c.getName().trim().toLowerCase()).collect(Collectors.toList());
-		final int nameIndex = columns.indexOf("assetlist"), assetTypeIndex = columns.indexOf("assettype");
+
+		final int nameIndex = columns.indexOf("assetlist");
+		final int assetTypeIndex = columns.indexOf("assettype");
 		if (nameIndex == -1)
 			throw new TrickException("error.import.data.no.column", "AssetList column cannot be found!", "AssetList");
 
 		final int headerRowIndex = address.getBegin().getRow();
 
 		for (int i = headerRowIndex + 1; i < size; i++) {
-			final Row row = sheetData.getRow().get(i);
+			final Row row = getRow(sheetData,i);
 			final String name = getString(row, nameIndex, formatter);
 			if (isEmpty(name))
 				continue;

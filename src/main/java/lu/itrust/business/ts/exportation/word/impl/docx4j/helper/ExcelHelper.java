@@ -1,5 +1,7 @@
 package lu.itrust.business.ts.exportation.word.impl.docx4j.helper;
 
+import static org.mockito.ArgumentMatchers.nullable;
+
 import java.net.URI;
 import java.util.Collections;
 import java.util.List;
@@ -365,13 +367,30 @@ public final class ExcelHelper {
 		return getString(row, cell, formatter, null);
 	}
 
+	public static Row getRow(SheetData sheet, int index) {
+		if (sheet.getRow().size() > index) {
+			final Row row = sheet.getRow().get(index);
+			if ((row.getR() - 1) == index) {
+				return row;
+			}
+		}
+		for (int i = 0; i < sheet.getRow().size(); i++) {
+			final Row row = sheet.getRow().get(i);
+			if ((row.getR() - 1) == index) {
+				return row;
+			}
+		}
+		return null;
+	}
+
 	public static String getString(Row row, int cell, DataFormatter formatter, String defaultValue) {
 		String value = getString(getCellAt(row, cell), formatter);
 		return value == null ? defaultValue : value;
 	}
 
 	public static String getString(SheetData sheet, int row, int cell, DataFormatter formatter) {
-		return sheet.getRow().size() > row && row >= 0 ? getString(sheet.getRow().get(row), cell, formatter) : null;
+		final Row r = getRow(sheet, row);
+		return r == null ? null : getString(getRow(sheet, row), cell, formatter);
 	}
 
 	public static Cell getCellAt(Row row, int index) {
