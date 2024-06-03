@@ -60,7 +60,7 @@ public class AssetNode implements Cloneable {
     private int inheritedAvailability;
 
     /** This node The heirs */
-    @OneToMany(mappedBy = "parent")
+    @OneToMany(mappedBy = "parent", orphanRemoval = true)
     @MapKey(name = "child")
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @Cascade(CascadeType.ALL)

@@ -652,14 +652,13 @@ public class WorkerImportEstimation extends WorkerImpl {
 
 					final AssetNode childNode = nodes.computeIfAbsent(childName, k -> new AssetNode(childAsset));
 
-					AssetEdge assetEdge = oldEdges == null ? null : oldEdges.remove(childNode);
-
 					if (Math.abs(weight - 0d) > 1e-9) {
+						AssetEdge assetEdge = oldEdges == null ? null : oldEdges.remove(childNode);
 						if (assetEdge == null)
 							node.getEdges().put(childNode, new AssetEdge(node, childNode, weight));
 						else
 							assetEdge.setWeight(weight);
-					}
+					} 
 				}
 
 			}
