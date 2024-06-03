@@ -63,13 +63,13 @@ public class DependencyGraphManager {
             final AssetNode child = edge.getChild();
             computeImpact(child);
             if (child.getAsset().isSelected()) {
-                node.setInheritedConfidentiality(Math.max(child.getConfidentiality(), node.getConfidentiality()));
-                node.setInheritedIntegrity(Math.max(child.getIntegrity(), node.getIntegrity()));
-                node.setInheritedAvailability(Math.max(child.getAvailability(), node.getAvailability()));
+                node.setInheritedConfidentiality(Math.max(child.getConfidentiality(), node.getInheritedAvailability()));
+                node.setInheritedIntegrity(Math.max(child.getIntegrity(), node.getInheritedIntegrity()));
+                node.setInheritedAvailability(Math.max(child.getAvailability(), node.getInheritedAvailability()));
             }else {
-                node.setInheritedConfidentiality(Math.max(child.getInheritedConfidentiality(), node.getConfidentiality()));
-                node.setInheritedIntegrity(Math.max(child.getInheritedIntegrity(), node.getIntegrity()));
-                node.setInheritedAvailability(Math.max(child.getInheritedAvailability(), node.getAvailability()));
+                node.setInheritedConfidentiality(Math.max(child.getInheritedConfidentiality(), node.getInheritedConfidentiality()));
+                node.setInheritedIntegrity(Math.max(child.getInheritedIntegrity(), node.getInheritedIntegrity()));
+                node.setInheritedAvailability(Math.max(child.getInheritedAvailability(), node.getInheritedAvailability()));
             }
         });
     }

@@ -104,7 +104,7 @@
 				</c:otherwise>
 			</c:choose>
 			<c:if test="${isILR}">
-				<th class="form-estimation form-estimation-left" colspan="2" rowspan="2" style="min-width: 65px; text-align: center; vertical-align: middle;"><spring:message code="label.title.ilr"
+				<th class="form-estimation form-estimation-left" colspan="3" style="min-width: 75px; text-align: center; vertical-align: middle;"><spring:message code="label.title.ilr"
 					text="ILR" /></th>
 			</c:if>
 			<th class="form-estimation form-estimation-left" rowspan="2" style="width: 80px; text-align: center; vertical-align: middle;"><spring:message code="label.title.importance"
@@ -132,6 +132,12 @@
 							text="${empty impactType.translations[langue]? impactType.displayName : impactType.translations[langue].name}" /></th>
 				</c:if>
 			</c:forEach>
+			<c:if test="${isILR}">
+				<th class="form-estimation form-estimation-left" colspan="2" style="min-width: 65px; text-align: center; vertical-align: middle;"><spring:message code="label.title.ilr.input"
+					text="Input" /></th>
+				<th class="form-estimation form-estimation-left" style="text-align: center; vertical-align: middle;"><spring:message code="label.title.ilr.result"
+					text="Result" /></th>
+			</c:if>
 			<c:if test="${type.quantitative and show_uncertainty}">
 				<th class='text-center' title='<spring:message code="label.title.aleo" />'><spring:message code="label.optimistic" text='Optimistic' /></th>
 				<th class="text-center" title='<spring:message code="label.title.ale" />'><spring:message code="label.normal.ale" text='Normal ALE' /></th>
@@ -241,6 +247,7 @@
 				<c:if test="${isILR}">
 					<td class="form-estimation form-estimation-left"> <span style="transform: rotate(-90deg);display: inline-block;width: 52px;margin-left: -22px;margin-right: -30px;" title="Threat probability"><spring:message text="Threat" /></span></td>
 					<td><label data-name="THREAT-PROBABILITY" class="form-control form-control-static text-right disabled" data-trick-type='string' title="${threatProbability}">${threatProbability}</label></td>
+					<td>-</td>
 				</c:if>
 				<td class='form-estimation  form-estimation-left'><spring:message var="rawImpColor" text="${computedRawImportance.color}" /> <input name="computedRawImportance"
 					disabled="disabled" class="form-control numeric" title='<spring:message text='${computedRawImportance.title}'/>' value="${computedRawImportance.value}"
@@ -395,6 +402,7 @@
 						</c:forEach></select>
 					</div>
 				</td>
+				<td>-</td>
 			</c:if>
 			<td class='form-estimation  form-estimation-left'><spring:message var="netImpColor" text="${computedNetImportance.color}" /> <input name="computedNetImportance"
 				disabled="disabled" class="form-control numeric" title='<spring:message text='${computedNetImportance.title}'/>' value="${computedNetImportance.value}"
@@ -543,6 +551,7 @@
 								title="<spring:message text='${riskProfile.expProbaImpact.vulnerability}'/>" ><c:forEach end="2" begin="0" step="1" var="vulnerability">
 						<option value="${vulnerability}" ${vulnerability eq 1 && empty riskProfile.expProbaImpact or vulnerability eq riskProfile.expProbaImpact.vulnerability ? 'selected' : ''}>${vulnerability}</option>
 						</c:forEach></select></td>
+				<td>-</td>
 			</c:if>
 			<td class='form-estimation  form-estimation-left'><spring:message var="expImpColor" text="${computedExpImportance.color}" /><input name="computedExpImportance"
 				disabled="disabled" class="form-control numeric" title='<spring:message text='${computedExpImportance.title}'/>' value="${computedExpImportance.value}"

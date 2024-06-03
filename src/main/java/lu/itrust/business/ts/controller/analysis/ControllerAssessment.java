@@ -581,6 +581,8 @@ public class ControllerAssessment {
 
 			model.addAttribute("isILR", isILR);
 
+		
+
 			RiskProfile riskProfile = analysis.findRiskProfileByAssetAndScenario(idAsset, idScenario);
 			model.addAttribute("strategies", RiskStrategy.values());
 			model.addAttribute("riskProfile", riskProfile);
@@ -607,6 +609,12 @@ public class ControllerAssessment {
 
 			if (analysis.isQuantitative())
 				model.addAttribute("riskRegister", analysis.findRiskRegisterByAssetAndScenario(idAsset, idScenario));
+
+			if(isILR){
+				//final int [] ilrImportance = {-1,-1};
+
+				//final int nextIlrImportance = riskProfile.getRawProbaImpact() == null || riskProfile.getRawProbaImpact().getProbability() == null ? -1 : riskProfile.getRawProbaImpact().getProbability().getIlrLevel() * assessment.getVulnerability() * 
+			}
 		}
 	}
 
