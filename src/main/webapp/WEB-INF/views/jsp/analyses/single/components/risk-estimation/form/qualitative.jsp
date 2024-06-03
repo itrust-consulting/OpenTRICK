@@ -97,14 +97,14 @@
 			<th rowspan="2" style="text-align: center; vertical-align: middle; min-width: 90px;"><spring:message code="label.title.likelihood" /></th>
 			<c:choose>
 				<c:when test="${type.quantitative}">
-					<th width="${ ((qualitativeImpactCount+qualitativeImpactCount/2) / (( show_uncertainty? 6 : 4) + qualitativeImpactCount)) * 100 }%" colspan="${qualitativeImpactCount}" style="text-align: center;"><spring:message code="label.title.impact" /></th>
+					<th width="${ ((qualitativeImpactCount+qualitativeImpactCount/2) / (( show_uncertainty? 6 : 4) + qualitativeImpactCount + (isILR? 2: 0))) * 100 }%" colspan="${qualitativeImpactCount}" style="text-align: center;"><spring:message code="label.title.impact" /></th>
 				</c:when>
 				<c:otherwise>
 					<th colspan="${qualitativeImpactCount}" style="text-align: center;"><spring:message code="label.title.impact" /></th>
 				</c:otherwise>
 			</c:choose>
 			<c:if test="${isILR}">
-				<th class="form-estimation form-estimation-left" colspan="2" rowspan="2" style="width: 40px; text-align: center; vertical-align: middle;"><spring:message code="label.title.ilr"
+				<th class="form-estimation form-estimation-left" colspan="2" rowspan="2" style="min-width: 65px; text-align: center; vertical-align: middle;"><spring:message code="label.title.ilr"
 					text="ILR" /></th>
 			</c:if>
 			<th class="form-estimation form-estimation-left" rowspan="2" style="width: 80px; text-align: center; vertical-align: middle;"><spring:message code="label.title.importance"

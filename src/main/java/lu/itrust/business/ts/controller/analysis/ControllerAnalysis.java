@@ -23,6 +23,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,6 +65,7 @@ import lu.itrust.business.ts.database.service.ServiceUserAnalysisRight;
 import lu.itrust.business.ts.exception.ResourceNotFoundException;
 import lu.itrust.business.ts.exception.TrickException;
 import lu.itrust.business.ts.helper.Comparators;
+import lu.itrust.business.ts.helper.DependencyGraphManager;
 import lu.itrust.business.ts.helper.JsonMessage;
 import lu.itrust.business.ts.helper.NaturalOrderComparator;
 import lu.itrust.business.ts.model.actionplan.helper.ActionPlanComputation;
@@ -457,11 +459,13 @@ public class ControllerAnalysis extends AbstractController {
 	public String requestEditAnalysis(Principal principal, @PathVariable("analysisId") Integer analysisId,
 			Map<String, Object> model, Locale locale) throws Exception {
 		// retrieve analysis
-		/*Analysis analysis = ;
-		if (analysis == null)
-			throw new ResourceNotFoundException(
-					messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found!", locale));
-		
+		/*
+		 * Analysis analysis = ;
+		 * if (analysis == null)
+		 * throw new ResourceNotFoundException(
+		 * messageSource.getMessage("error.analysis.not_found", null,
+		 * "Analysis cannot be found!", locale));
+		 * 
 		 * // prepare permission evaluator
 		 * PermissionEvaluatorImpl permissionEvaluator = new
 		 * PermissionEvaluatorImpl(serviceUser, serviceAnalysis,
@@ -563,15 +567,23 @@ public class ControllerAnalysis extends AbstractController {
 		final Analysis analysis = serviceAnalysis.get(idAnalysis);
 		final AnalysisType analysisType = analysis.getType();
 		final boolean isFullCostRelatedOld = analysis.findSetting(AnalysisSetting.ALLOW_FULL_COST_RELATED_TO_MEASURE);
+		final boolean isILR = analysis.findSetting(AnalysisSetting.ALLOW_ILR_ANALYSIS);
+
 		currentSettings.forEach((key, value) -> {
 			final AnalysisSetting setting = AnalysisSetting.valueOf(key);
 			if (setting != null && setting.isSupported(analysisType))
 				analysis.setSetting(setting.name(), Analysis.findSetting(setting, value));
 		});
-		final boolean hasChange = (boolean) analysis
-				.findSetting(AnalysisSetting.ALLOW_FULL_COST_RELATED_TO_MEASURE) != isFullCostRelatedOld;
-		if (hasChange)
+
+		if (isFullCostRelatedOld != (boolean) analysis
+				.findSetting(AnalysisSetting.ALLOW_FULL_COST_RELATED_TO_MEASURE)) {
 			computeMeasureCost(analysis);
+		}
+
+		if (!isILR && (boolean) analysis.findSetting(AnalysisSetting.ALLOW_ILR_ANALYSIS)) {
+			DependencyGraphManager.computeImpact(analysis.getAssetNodes());
+		}
+
 		serviceAnalysis.saveOrUpdate(analysis);
 		return JsonMessage.Success(messageSource.getMessage("success.update.analysis.settings", null, locale));
 	}
@@ -661,6 +673,7 @@ public class ControllerAnalysis extends AbstractController {
 			Collections.reverse(analysis.getHistories());
 			Collections.sort(analysis.getItemInformations(), new ComparatorItemInformation());
 			final List<Standard> standards = analysis.findStandards();
+			final boolean isILR = analysis.findSetting(AnalysisSetting.ALLOW_ILR_ANALYSIS);
 			final Map<String, List<Measure>> measuresByStandard = mapMeasures(analysis.getAnalysisStandards().values());
 			hasMaturity = measuresByStandard.containsKey(Constant.STANDARD_MATURITY);
 			model.addAttribute("soaThreshold",
@@ -714,6 +727,13 @@ public class ControllerAnalysis extends AbstractController {
 				riskInformations.computeIfAbsent(Constant.RI_TYPE_THREAT, k -> Collections.emptyList());
 				model.addAttribute("riskInformationSplited", riskInformations);
 			}
+
+			if (isILR) {
+				DependencyGraphManager.computeImpact(analysis.getAssetNodes());
+				model.addAttribute("assetNodes", analysis.getAssetNodes().stream()
+						.collect(Collectors.toMap(e -> e.getAsset().getId(), Function.identity())));
+			}
+
 			analysis.getAssets().sort(Comparators.ASSET());
 			analysis.getHistories()
 					.sort((a1, a2) -> NaturalOrderComparator.compareTo(a1.getVersion(), a2.getVersion()) * -1);
@@ -724,7 +744,7 @@ public class ControllerAnalysis extends AbstractController {
 			model.addAttribute("login", user.getLogin());
 			model.addAttribute("reportSettings", loadReportSettings(analysis));
 			model.addAttribute("exportFilenames", loadExportFileNames(analysis));
-			model.addAttribute("isILR", analysis.findSetting(AnalysisSetting.ALLOW_ILR_ANALYSIS));
+			model.addAttribute("isILR", isILR);
 			loadUserSettings(principal, analysis.getCustomer().getTicketingSystem(), model, user);
 
 			/**

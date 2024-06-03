@@ -57,6 +57,11 @@
 							</c:otherwise>
 						</c:choose>
 					</c:if>
+					<c:if test="${isILR}">
+						<th style="width: 2%" title='<spring:message code="label.scenario.type.confidentiality" />' ><a href="#" onclick="return sortTable('ilrImpactC',this,true)" data-order='1'><spring:message code="label.asset.ilr.impact.c" /></a></th>
+						<th style="width: 2%" title='<spring:message code="label.scenario.type.integrity" />'><a href="#" onclick="return sortTable('ilrImpactI',this,true)" data-order='1'><spring:message code="label.asset.ilr.impact.i" /></a></th>
+						<th style="width: 2%" title='<spring:message code="label.scenario.type.availability" />'><a href="#" onclick="return sortTable('ilrImpactA',this,true)" data-order='1'><spring:message code="label.asset.ilr.impact.a" /></a></th>
+					</c:if>
 					<th><a href="#" onclick="return sortTable('comment',this)" data-order='1'> <spring:message code="label.asset.comment" /></a></th>
 					<c:if test="${showHiddenComment}">
 						<th><a href="#" onclick="return sortTable('hiddenComment',this)" data-order='1'><spring:message code="label.asset.hidden_comment" /></a></th>
@@ -70,6 +75,7 @@
 			<tbody>
 				<c:set var="totalAssetValue" value="0" />
 				<c:forEach items="${assets}" var="asset" varStatus="status">
+
 					<tr data-trick-id="${asset.id}" onclick="selectElement(this)" data-trick-selected="${asset.selected}" data-trick-class="Asset"
 						${asset.selected? asset.value < 1 ? 'class="warning"' : 'class="editable"' : ''} ondblclick="return editAsset('${asset.id}');">
 						<c:set var="ale" value="${assetALE[asset.id]}" />
@@ -91,6 +97,24 @@
 								</c:when>
 								<c:otherwise>
 									<td data-trick-field="ale" title="<fmt:formatNumber value="${fct:round(ale[1].value,0)}" /> &euro;"><fmt:formatNumber value="${fct:round(ale[1].value*0.001,1)}" /></td>
+								</c:otherwise>
+							</c:choose>
+						</c:if>
+						<c:if test="${isILR}">
+							<c:set var="assetNode" value="${assetNodes[asset.id]}" />
+							<c:choose>
+								<c:when test="${empty assetNode}">
+									<td data-trick-field="ilrImpactC" title="-"></td>
+									<td data-trick-field="ilrImpactI" title="-"></td>
+									<td data-trick-field="ilrImpactA" title="-"></td>
+								</c:when>
+								<c:otherwise>
+									<c:set var="ilrImpactC" value="${assetNode.confidentiality}" />
+									<c:set var="ilrImpactI" value="${assetNode.integrity}" />
+									<c:set var="ilrImpactA" value="${assetNode.availability}" />
+									<td data-trick-field="ilrImpactC" title="${ilrImpactC == -1? '-' :  ilrImpactC}">${ilrImpactC == -1? '' :  ilrImpactC}</td>
+									<td data-trick-field="ilrImpactI" title="${ilrImpactI == -1? '-' :  ilrImpactI}">${ilrImpactI == -1? '' :  ilrImpactI}</td>
+									<td data-trick-field="ilrImpactA" title="${ilrImpactA == -1? '-' :  ilrImpactA}">${ilrImpactA == -1? '' :  ilrImpactA}</td>
 								</c:otherwise>
 							</c:choose>
 						</c:if>
@@ -121,7 +145,7 @@
 							</c:otherwise>
 						</c:choose>
 					</c:if>
-					<td colspan="${(showHiddenComment? (isILR? 3: 2) : (isILR? 2: 1 ))}"></td>
+					<td colspan="${(showHiddenComment? (isILR? 6: 2) : (isILR? 5: 1 ))}"></td>
 				</tr>
 			</tfoot>
 		</table>

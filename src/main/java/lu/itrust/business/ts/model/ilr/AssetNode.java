@@ -237,7 +237,7 @@ public class AssetNode implements Cloneable {
                 || impact.getConfidentialityImpacts().isEmpty())
             return inheritedConfidentiality < 0 ? -1
                     : inheritedConfidentiality;
-        return impact.getConfidentialityImpacts().values().stream().mapToInt(ILRImpact::getValue).reduce(Integer::max)
+        return impact.getConfidentialityImpacts().values().stream().mapToInt(ILRImpact::getValue).max()
                 .orElse(-1);
     }
 
@@ -253,7 +253,7 @@ public class AssetNode implements Cloneable {
                 || impact.getAvailabilityImpacts().isEmpty())
             return inheritedAvailability < 0 ? -1
                     : inheritedAvailability;
-        return impact.getAvailabilityImpacts().values().stream().mapToInt(ILRImpact::getValue).reduce(Integer::max)
+        return impact.getAvailabilityImpacts().values().stream().mapToInt(ILRImpact::getValue).max()
                 .orElse(-1);
     }
 
@@ -269,7 +269,7 @@ public class AssetNode implements Cloneable {
                 || impact.getIntegrityImpacts().isEmpty())
             return inheritedIntegrity < 0 ? -1
                     : inheritedIntegrity;
-        return impact.getIntegrityImpacts().values().stream().mapToInt(ILRImpact::getValue).reduce(Integer::max)
+        return impact.getIntegrityImpacts().values().stream().mapToInt(ILRImpact::getValue).max()
                 .orElse(-1);
     }
 

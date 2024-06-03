@@ -62,6 +62,7 @@ import lu.itrust.business.ts.exception.TrickException;
 import lu.itrust.business.ts.exportation.word.impl.docx4j.helper.AddressRef;
 import lu.itrust.business.ts.exportation.word.impl.docx4j.helper.CellRef;
 import lu.itrust.business.ts.helper.Column;
+import lu.itrust.business.ts.helper.DependencyGraphManager;
 import lu.itrust.business.ts.messagehandler.MessageHandler;
 import lu.itrust.business.ts.messagehandler.TaskName;
 import lu.itrust.business.ts.model.analysis.Analysis;
@@ -1279,6 +1280,7 @@ public class WorkerImportEstimation extends WorkerImpl {
 			// importScenario(analysis, workbook, sheets, formatter, 20, 45);
 			importAssetDependancy(analysis, workbook, sheets, formatter, 6, 60);
 			importRiskEstimation(analysis, factory, riskProfileManager, workbook, sheets, formatter, 60, 90);
+			DependencyGraphManager.computeImpact(analysis.getAssetNodes());
 		} else {
 			// importAsset(analysis, workbook, sheets, formatter, 6, 35);
 			// importScenario(analysis, workbook, sheets, formatter, 35, 60);

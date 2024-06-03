@@ -30,7 +30,6 @@ import lu.itrust.business.ts.model.ilr.AssetNode;
 import lu.itrust.business.ts.model.ilr.ILRImpact;
 import lu.itrust.business.ts.model.parameter.helper.ValueFactory;
 import lu.itrust.business.ts.model.parameter.impl.IlrSoaScaleParameter;
-import lu.itrust.business.ts.model.parameter.impl.LikelihoodParameter;
 import lu.itrust.business.ts.model.scale.ScaleType;
 import lu.itrust.business.ts.model.scenario.Scenario;
 import lu.itrust.business.ts.model.standard.AnalysisStandard;

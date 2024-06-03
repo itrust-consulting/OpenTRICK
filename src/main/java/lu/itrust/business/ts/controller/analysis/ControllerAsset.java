@@ -15,6 +15,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -43,6 +45,7 @@ import lu.itrust.business.ts.database.service.ServiceAssetType;
 import lu.itrust.business.ts.database.service.ServiceDataValidation;
 import lu.itrust.business.ts.exception.TrickException;
 import lu.itrust.business.ts.helper.Comparators;
+import lu.itrust.business.ts.helper.DependencyGraphManager;
 import lu.itrust.business.ts.helper.JsonMessage;
 import lu.itrust.business.ts.model.analysis.Analysis;
 import lu.itrust.business.ts.model.analysis.AnalysisSetting;
@@ -54,9 +57,12 @@ import lu.itrust.business.ts.validator.AssetValidator;
 import lu.itrust.business.ts.validator.field.ValidatorField;
 
 /**
- * ControllerAsset is a controller class that handles requests related to asset analysis.
- * It provides methods for generating charts, deleting assets, editing assets, and saving assets.
- * This class is responsible for managing assets and their associated assessments in the analysis.
+ * ControllerAsset is a controller class that handles requests related to asset
+ * analysis.
+ * It provides methods for generating charts, deleting assets, editing assets,
+ * and saving assets.
+ * This class is responsible for managing assets and their associated
+ * assessments in the analysis.
  */
 @PreAuthorize(Constant.ROLE_MIN_USER)
 @Controller
@@ -87,17 +93,16 @@ public class ControllerAsset {
 	@Autowired
 	private ServiceDataValidation serviceDataValidation;
 
-	
 	/**
-		 * Retrieves the ALE (Annual Loss Expectancy) by asset.
-		 * 
-		 * @param session   the HttpSession object
-		 * @param model     the Model object
-		 * @param principal the Principal object
-		 * @param locale    the Locale object
-		 * @return an Object representing the chart of assets for the analysis
-		 * @throws Exception if an error occurs during the chart generation
-		 */
+	 * Retrieves the ALE (Annual Loss Expectancy) by asset.
+	 * 
+	 * @param session   the HttpSession object
+	 * @param model     the Model object
+	 * @param principal the Principal object
+	 * @param locale    the Locale object
+	 * @return an Object representing the chart of assets for the analysis
+	 * @throws Exception if an error occurs during the chart generation
+	 */
 	@RequestMapping(value = "/Chart/Ale", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).READ)")
 	public @ResponseBody Object aleByAsset(HttpSession session, Model model, Principal principal, Locale locale)
@@ -108,7 +113,6 @@ public class ControllerAsset {
 		return chartGenerator.aleByAsset(idAnalysis, locale);
 	}
 
-	
 	/**
 	 * Retrieves the assets by ALE (Annual Loss Expectancy) for a specific analysis.
 	 * 
@@ -129,15 +133,16 @@ public class ControllerAsset {
 		return chartGenerator.aleByAssetType(idAnalysis, locale);
 	}
 
-	
 	/**
 	 * Deletes an asset.
 	 *
-	 * @param idAsset    The ID of the asset to delete.
-	 * @param principal  The principal object representing the currently authenticated user.
-	 * @param locale     The locale for message localization.
-	 * @param session    The HttpSession object.
-	 * @return A JSON response indicating the success or failure of the delete operation.
+	 * @param idAsset   The ID of the asset to delete.
+	 * @param principal The principal object representing the currently
+	 *                  authenticated user.
+	 * @param locale    The locale for message localization.
+	 * @param session   The HttpSession object.
+	 * @return A JSON response indicating the success or failure of the delete
+	 *         operation.
 	 * @throws Exception If an error occurs during the delete operation.
 	 */
 	@RequestMapping(value = "/Delete/{idAsset}", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
@@ -161,17 +166,19 @@ public class ControllerAsset {
 		}
 	}
 
-	
 	/**
-	 * Retrieves the asset with the specified element ID and prepares the model for editing.
+	 * Retrieves the asset with the specified element ID and prepares the model for
+	 * editing.
 	 *
-	 * @param elementID  the ID of the asset to be edited
-	 * @param model      the model object to be populated with data
-	 * @param principal  the principal object representing the currently authenticated user
-	 * @param session    the HTTP session object
-	 * @param locale     the locale object representing the user's preferred language
+	 * @param elementID the ID of the asset to be edited
+	 * @param model     the model object to be populated with data
+	 * @param principal the principal object representing the currently
+	 *                  authenticated user
+	 * @param session   the HTTP session object
+	 * @param locale    the locale object representing the user's preferred language
 	 * @return the name of the view to be rendered for editing the asset
-	 * @throws Exception if an error occurs during the retrieval or preparation of the asset
+	 * @throws Exception if an error occurs during the retrieval or preparation of
+	 *                   the asset
 	 */
 	@RequestMapping(value = "/Edit/{elementID}", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'Asset', #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).MODIFY)")
@@ -188,8 +195,8 @@ public class ControllerAsset {
 	/**
 	 * Edits the asset.
 	 * 
-	 * @param model the model object
-	 * @param session the HttpSession object
+	 * @param model     the model object
+	 * @param session   the HttpSession object
 	 * @param principal the Principal object
 	 * @return the view name for the asset form
 	 * @throws Exception if an error occurs during the editing process
@@ -202,7 +209,6 @@ public class ControllerAsset {
 		return "jsp/analyses/single/components/asset/form";
 	}
 
-	
 	/**
 	 * Retrieves the risk by asset as a chart.
 	 *
@@ -221,7 +227,6 @@ public class ControllerAsset {
 		return chartGenerator.riskByAsset(idAnalysis, locale);
 	}
 
-	
 	/**
 	 * Retrieves the risk by asset type as a chart.
 	 *
@@ -240,7 +245,6 @@ public class ControllerAsset {
 		return chartGenerator.riskByAssetType(idAnalysis, locale);
 	}
 
-	
 	/**
 	 * Saves the value of the asset and returns the results.
 	 *
@@ -304,16 +308,17 @@ public class ControllerAsset {
 		return results;
 	}
 
-	
 	/**
-	 * Retrieves the section of the analysis for the given model, session, principal, and locale.
+	 * Retrieves the section of the analysis for the given model, session,
+	 * principal, and locale.
 	 * 
 	 * @param model     the model object to populate with data
 	 * @param session   the HTTP session object
 	 * @param principal the principal object representing the authenticated user
 	 * @param locale    the locale object representing the user's preferred language
 	 * @return the name of the view to render
-	 * @throws Exception if an error occurs during the retrieval of the analysis section
+	 * @throws Exception if an error occurs during the retrieval of the analysis
+	 *                   section
 	 */
 	@GetMapping(value = "/Section", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).READ)")
@@ -326,6 +331,13 @@ public class ControllerAsset {
 		assets.sort(Comparators.ASSET());
 
 		loadAnalysisSettings(model, integer);
+
+		if ((boolean) analysis.findSetting(AnalysisSetting.ALLOW_ILR_ANALYSIS)) {
+			DependencyGraphManager.computeImpact(analysis.getAssetNodes());
+			model.addAttribute("assetNodes", analysis.getAssetNodes().stream()
+					.collect(Collectors.toMap(e -> e.getAsset().getId(), Function.identity())));
+		}
+
 		// load all assets of analysis to model
 		if (AnalysisType.isQuantitative(type))
 			model.addAttribute("assetALE",
@@ -338,14 +350,13 @@ public class ControllerAsset {
 		return "jsp/analyses/single/components/asset/asset";
 	}
 
-	
 	/**
 	 * Selects an asset with the given element ID.
 	 *
-	 * @param elementID  the ID of the asset to be selected
-	 * @param principal  the principal object representing the authenticated user
-	 * @param locale     the locale for message localization
-	 * @param session    the HTTP session object
+	 * @param elementID the ID of the asset to be selected
+	 * @param principal the principal object representing the authenticated user
+	 * @param locale    the locale for message localization
+	 * @param session   the HTTP session object
 	 * @return a JSON string representing the success or error message
 	 * @throws Exception if an error occurs during the selection process
 	 */
@@ -367,7 +378,6 @@ public class ControllerAsset {
 		}
 	}
 
-	
 	/**
 	 * Selects multiple assets based on the provided IDs.
 	 * 
@@ -394,16 +404,19 @@ public class ControllerAsset {
 		return errors;
 	}
 
-	
 	/**
-	 * Builds an Asset object based on the provided JSON data and performs validation.
+	 * Builds an Asset object based on the provided JSON data and performs
+	 * validation.
 	 * 
-	 * @param jsonNode The JSON data containing the asset information.
+	 * @param jsonNode   The JSON data containing the asset information.
 	 * @param idAnalysis The ID of the analysis.
-	 * @param errors A map to store any validation errors encountered during the build process.
-	 * @param asset The Asset object to be populated with the data from the JSON.
-	 * @param locale The locale used for error message localization.
-	 * @return True if the asset was successfully built and validated, false otherwise.
+	 * @param errors     A map to store any validation errors encountered during the
+	 *                   build process.
+	 * @param asset      The Asset object to be populated with the data from the
+	 *                   JSON.
+	 * @param locale     The locale used for error message localization.
+	 * @return True if the asset was successfully built and validated, false
+	 *         otherwise.
 	 */
 	private boolean buildAsset(JsonNode jsonNode, Integer idAnalysis, Map<String, Object> errors, Asset asset,
 			Locale locale) {
@@ -489,8 +502,9 @@ public class ControllerAsset {
 	 * If the field does not exist or cannot be parsed as an integer, it returns 0.
 	 *
 	 * @param fieldName the name of the field to retrieve the integer value from
-	 * @param jsonNode the JSON node containing the field
-	 * @return the integer value of the field, or 0 if the field does not exist or cannot be parsed as an integer
+	 * @param jsonNode  the JSON node containing the field
+	 * @return the integer value of the field, or 0 if the field does not exist or
+	 *         cannot be parsed as an integer
 	 */
 	private int getInt(String fieldName, JsonNode jsonNode) {
 		try {
@@ -501,7 +515,8 @@ public class ControllerAsset {
 	}
 
 	/**
-	 * Loads the analysis settings for a given integer value and adds them to the model.
+	 * Loads the analysis settings for a given integer value and adds them to the
+	 * model.
 	 *
 	 * @param model   the model to which the analysis settings will be added
 	 * @param integer the integer value used to retrieve the analysis settings

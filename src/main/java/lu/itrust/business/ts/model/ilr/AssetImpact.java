@@ -16,6 +16,7 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapKey;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.Transient;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -66,6 +67,15 @@ public class AssetImpact implements Cloneable {
     @JoinTable(name = "AssetILRImpactAvailabilities", joinColumns = @JoinColumn(name = "fiAssetImpact"), inverseJoinColumns = @JoinColumn(name = "fiILRImpact"))
     @Cascade(CascadeType.ALL)
     private Map<ScaleType, ILRImpact> availabilityImpacts = new HashMap<>();
+
+    @Transient
+    private int maxConfidentialityImpact = -2;
+
+    @Transient
+    private int maxIntegratyImpact = -2;
+
+    @Transient
+    private int maxAvailabilityImpact = -2;
 
     public AssetImpact() {
     }
@@ -220,6 +230,60 @@ public class AssetImpact implements Cloneable {
     }
 
     /**
+     * Sets the maximum confidentiality impact for this asset impact.
+     *
+     * @param maxConfidentialityImpact the maximum confidentiality impact to set
+     */
+    public void setMaxConfidentialityImpact(int maxConfidentialityImpact) {
+        this.maxConfidentialityImpact = maxConfidentialityImpact;
+    }
+
+    /**
+     * Sets the maximum integrity impact for the asset.
+     *
+     * @param maxIntegratyImpact the maximum integrity impact to set
+     */
+    public void setMaxIntegratyImpact(int maxIntegratyImpact) {
+        this.maxIntegratyImpact = maxIntegratyImpact;
+    }
+
+    /**
+     * Sets the maximum availability impact for the asset.
+     *
+     * @param maxAvailabilityImpact the maximum availability impact to set
+     */
+    public void setMaxAvailabilityImpact(int maxAvailabilityImpact) {
+        this.maxAvailabilityImpact = maxAvailabilityImpact;
+    }
+
+    /**
+     * Returns the maximum confidentiality impact of the asset.
+     *
+     * @return the maximum confidentiality impact
+     */
+    public int getMaxConfidentialityImpact() {
+        return maxConfidentialityImpact;
+    }
+
+    /**
+     * Returns the maximum integrity impact.
+     *
+     * @return the maximum integrity impact
+     */
+    public int getMaxIntegratyImpact() {
+        return maxIntegratyImpact;
+    }
+
+    /**
+     * Returns the maximum availability impact.
+     *
+     * @return the maximum availability impact
+     */
+    public int getMaxAvailabilityImpact() {
+        return maxAvailabilityImpact;
+    }
+
+    /**
      * Creates a duplicate of the current AssetImpact object with the specified asset.
      * 
      * @param asset The asset to be set in the cloned object.
@@ -230,4 +294,6 @@ public class AssetImpact implements Cloneable {
         clone.asset = asset;
         return clone;
     }
+
+
 }

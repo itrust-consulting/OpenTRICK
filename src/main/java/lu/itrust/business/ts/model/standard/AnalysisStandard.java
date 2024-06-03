@@ -71,7 +71,6 @@ public abstract class AnalysisStandard implements Cloneable {
 
 	/** AnalysisStandard List of measures */
 	@OneToMany
-
 	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@Cascade(CascadeType.ALL)
 	@Access(AccessType.FIELD)
