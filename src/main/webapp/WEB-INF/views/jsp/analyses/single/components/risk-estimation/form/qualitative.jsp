@@ -397,12 +397,19 @@
 				<td class="form-estimation form-estimation-left"> <span style="transform: rotate(-90deg);display: inline-block;width: 52px;margin-left: -22px;margin-right: -30px;" title="Vulnerability"><spring:message text="Vulner." /></span></td>
 				<td>
 					<div><select name='vulnerability' class='form-control' data-trick-type='integer'
-								title="<spring:message text='${assessment.vulnerability}'/>" ><c:forEach end="2" begin="0" step="1" var="vulnerability">
+								title="<spring:message text='${assessment.vulnerability}'/>" ><c:forEach end="3" begin="0" step="1" var="vulnerability">
 						<option value="${vulnerability}" ${vulnerability eq assessment.vulnerability ? 'selected' : ''}>${vulnerability}</option>
 						</c:forEach></select>
 					</div>
 				</td>
-				<td>-</td>
+				<td><c:choose>
+					<c:when test="${empty ilrMaxRisk or  ilrMaxRisk < 0 }" >
+						<label data-name="ILR-MAX-RISK" class="form-control form-control-static text-right disabled" data-trick-type='integer' >-</label>
+					</c:when>
+					<c:otherwise>
+						<label data-name="ILR-MAX-RISK" class="form-control form-control-static text-right disabled" data-trick-type='integer' ><spring:message text="${ilrMaxRisk}" /></label>
+					</c:otherwise>
+				</c:choose></td>
 			</c:if>
 			<td class='form-estimation  form-estimation-left'><spring:message var="netImpColor" text="${computedNetImportance.color}" /> <input name="computedNetImportance"
 				disabled="disabled" class="form-control numeric" title='<spring:message text='${computedNetImportance.title}'/>' value="${computedNetImportance.value}"
@@ -548,10 +555,17 @@
 			<c:if test="${isILR}">
 				<td class="form-estimation form-estimation-left"> <span style="transform: rotate(-90deg);display: inline-block;width: 52px;margin-left: -22px;margin-right: -30px;" title="Vulnerability reduction"><spring:message text="V Redu." /></span></td>
 				<td><select name='riskProfile.expProbaImpact.vulnerability' class='form-control' data-trick-type='integer'
-								title="<spring:message text='${riskProfile.expProbaImpact.vulnerability}'/>" ><c:forEach end="2" begin="0" step="1" var="vulnerability">
+								title="<spring:message text='${riskProfile.expProbaImpact.vulnerability}'/>" ><c:forEach end="3" begin="0" step="1" var="vulnerability">
 						<option value="${vulnerability}" ${vulnerability eq 1 && empty riskProfile.expProbaImpact or vulnerability eq riskProfile.expProbaImpact.vulnerability ? 'selected' : ''}>${vulnerability}</option>
 						</c:forEach></select></td>
-				<td>-</td>
+				<td><c:choose>
+					<c:when test="${empty ilrTargetedRisk or  ilrTargetedRisk < 0 }" >
+						<label data-name="ILR-TARGET-RISK" class="form-control form-control-static text-right disabled" data-trick-type='integer' >-</label>
+					</c:when>
+					<c:otherwise>
+						<label data-name="ILR-TARGET-RISK" class="form-control form-control-static text-right disabled" data-trick-type='integer' ><spring:message text="${ilrTargetedRisk}" /></label>
+					</c:otherwise>
+				</c:choose></td>
 			</c:if>
 			<td class='form-estimation  form-estimation-left'><spring:message var="expImpColor" text="${computedExpImportance.color}" /><input name="computedExpImportance"
 				disabled="disabled" class="form-control numeric" title='<spring:message text='${computedExpImportance.title}'/>' value="${computedExpImportance.value}"

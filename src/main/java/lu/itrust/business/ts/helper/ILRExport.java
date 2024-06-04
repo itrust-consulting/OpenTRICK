@@ -274,7 +274,7 @@ public class ILRExport {
                 risk.setThreatRate(Math.max(risk.getThreatRate(), 0));
             else
                 risk.setThreatRate(Math.max(
-                        Math.min(riskProfile.getRawProbaImpact().getProbability().getIlrLevel(), 4),
+                        Math.min(riskProfile.getRawProbaImpact().getProbability().getIlrLevel(), ILR_MAX_IMPACT),
                         risk.getThreatRate()));
 
             riskProfile.getMeasures().stream()
