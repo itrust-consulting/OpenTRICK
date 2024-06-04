@@ -247,7 +247,7 @@
 				<c:if test="${isILR}">
 					<td class="form-estimation form-estimation-left"> <span style="transform: rotate(-90deg);display: inline-block;width: 52px;margin-left: -22px;margin-right: -30px;" title="Threat probability"><spring:message text="Threat" /></span></td>
 					<td><label data-name="THREAT-PROBABILITY" class="form-control form-control-static text-right disabled" data-trick-type='string' title="${threatProbability}">${threatProbability}</label></td>
-					<td>-</td>
+					<td class='text-center'>-</td>
 				</c:if>
 				<td class='form-estimation  form-estimation-left'><spring:message var="rawImpColor" text="${computedRawImportance.color}" /> <input name="computedRawImportance"
 					disabled="disabled" class="form-control numeric" title='<spring:message text='${computedRawImportance.title}'/>' value="${computedRawImportance.value}"

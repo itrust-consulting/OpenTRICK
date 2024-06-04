@@ -448,7 +448,7 @@ li>a.disabled:focus {
 
 .trick-ui table .form-control,
 .trick-ui table .input-group-addon {
-	padding: 0px 3px;
+	padding: 7px 3px 0px;
 }
 
 .trick-ui {
