@@ -70,11 +70,11 @@ public class ControllerIntstallation {
 	@Value("${app.settings.version}")
 	private String version;
 
-	@Value("${app.settings.default.profile.quantitative.sqlite.path}")
-	private String defaultProfileQuantitativeSqlitePath;
-
-	@Value("${app.settings.default.profile.qualitative.sqlite.path}")
-	private String defaultProfileQualitativeSqlitePath;
+    @Value("${app.settings.default.profile.mixedEN.sqlite.path}")
+	private String defaultProfileMixedENSqlitePath;
+   
+	@Value("${app.settings.default.profile.mixedFR.sqlite.path}")
+	private String defaultProfileMixedFRSqlitePath;
 
 	/**
 	 * installTS: <br>
@@ -94,8 +94,8 @@ public class ControllerIntstallation {
 		if (!errors.isEmpty())
 			return errors;
 		final List<String> fileNames = new LinkedList<>();
-		fileNames.add(defaultProfileQuantitativeSqlitePath);
-		fileNames.add(defaultProfileQualitativeSqlitePath);
+		fileNames.add(defaultProfileMixedENSqlitePath);
+		fileNames.add(defaultProfileMixedFRSqlitePath);
 		installDefaultProfile(fileNames, principal, errors, locale);
 		return errors;
 
