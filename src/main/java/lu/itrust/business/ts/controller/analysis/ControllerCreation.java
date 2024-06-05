@@ -101,7 +101,9 @@ import lu.itrust.business.ts.validator.CustomAnalysisValidator;
 
 /**
  * This class represents a controller for creating analysis in the application.
- * It handles the HTTP requests related to analysis creation and provides necessary dependencies.
+ * It handles the HTTP requests related to analysis creation and provides
+ * necessary dependencies.
+ * 
  * @author itrust consulting s.a.rl.:
  * @version
  * @since Oct 13, 2014
@@ -193,7 +195,8 @@ public class ControllerCreation {
 	 * Builds a custom analysis.
 	 *
 	 * @param session   the HttpSession object
-	 * @param principal the Principal object representing the currently authenticated user
+	 * @param principal the Principal object representing the currently
+	 *                  authenticated user
 	 * @param model     the Model object used to pass data to the view
 	 * @param locale    the Locale object representing the current locale
 	 * @return the view name for the custom analysis form
@@ -228,9 +231,13 @@ public class ControllerCreation {
 	 * This method builds a custom save operation for the analysis form.
 	 * 
 	 * @param analysisForm The analysis form object.
-	 * @param principal The principal object representing the currently authenticated user.
-	 * @param locale The locale object representing the user's preferred language.
-	 * @return An object representing the result of the save operation. If there are validation errors, a map of errors is returned. Otherwise, an empty object is returned.
+	 * @param principal    The principal object representing the currently
+	 *                     authenticated user.
+	 * @param locale       The locale object representing the user's preferred
+	 *                     language.
+	 * @return An object representing the result of the save operation. If there are
+	 *         validation errors, a map of errors is returned. Otherwise, an empty
+	 *         object is returned.
 	 * @throws Exception If an exception occurs during the save operation.
 	 */
 	@PostMapping(value = "/Save", consumes = "application/x-www-form-urlencoded;charset=UTF-8", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -447,6 +454,8 @@ public class ControllerCreation {
 			for (RiskInformation riskInformation : riskInformations)
 				analysis.add(riskInformation.duplicate());
 
+			analysis.setSettings(serviceAnalysis.getSettingsByIdAnalysis(analysisForm.getParameter()));
+
 			Map<String, IParameter> mappingParameters = serviceSimpleParameter
 					.findByAnalysisId(analysisForm.getParameter()).stream().map(duplicateParameter(analysis))
 					.collect(Collectors.toMap(IParameter::getKey, Function.identity()));
@@ -482,8 +491,8 @@ public class ControllerCreation {
 			}
 
 			if (analysisForm.getType().isQuantitative()
-					&& !analysis.getImpactParameters().stream()
-							.anyMatch(parameter -> parameter.isMatch(Constant.DEFAULT_IMPACT_NAME))) {
+					&& analysis.getImpactParameters().stream()
+							.noneMatch(parameter -> parameter.isMatch(Constant.DEFAULT_IMPACT_NAME))) {
 				ScaleType scaleType = serviceScaleType.findOne(Constant.DEFAULT_IMPACT_NAME);
 				analysis.getImpactParameters().stream().max((p1, p2) -> Integer.compare(p1.getLevel(), p2.getLevel()))
 						.ifPresent(impact -> generateImpactParameters(analysis, mappingParameters,
@@ -540,47 +549,45 @@ public class ControllerCreation {
 					mappingScenarios.put(scenario.getId(), duplication);
 			}
 
-			if (!(mappingScenarios == null || mappingAssets == null)) {
+			if (!(mappingScenarios == null || mappingAssets == null) && analysisForm.isAssessment()) {
 
-				if (analysisForm.isAssessment()) {
-					List<Assessment> assessments = serviceAssessment.getAllFromAnalysis(analysisForm.getScenario());
-					for (Assessment assessment : assessments) {
-						Assessment duplication = assessment.duplicate();
-						duplication.setScenario(mappingScenarios.get(assessment.getScenario().getId()));
-						duplication.setAsset(mappingAssets.get(assessment.getAsset().getId()));
-						duplication.setImpacts(new LinkedList<>());
-						assessment.getImpacts().forEach(impact -> {
-							IValue value = impact.duplicate();
-							if (value instanceof AbstractValue)
-								((AbstractValue) value).setParameter((ILevelParameter) mappingParameters
-										.get(((AbstractValue) value).getParameter().getKey()));
-							duplication.setImpact(value);
-						});
+				List<Assessment> assessments = serviceAssessment.getAllFromAnalysis(analysisForm.getScenario());
+				for (Assessment assessment : assessments) {
+					Assessment duplication = assessment.duplicate();
+					duplication.setScenario(mappingScenarios.get(assessment.getScenario().getId()));
+					duplication.setAsset(mappingAssets.get(assessment.getAsset().getId()));
+					duplication.setImpacts(new LinkedList<>());
+					assessment.getImpacts().forEach(impact -> {
+						IValue value = impact.duplicate();
+						if (value instanceof AbstractValue)
+							((AbstractValue) value).setParameter((ILevelParameter) mappingParameters
+									.get(((AbstractValue) value).getParameter().getKey()));
+						duplication.setImpact(value);
+					});
 
-						if (assessment.getLikelihood() != null) {
-							IValue value = assessment.getLikelihood().duplicate();
-							if (value instanceof AbstractValue)
-								((AbstractValue) value).setParameter((ILevelParameter) mappingParameters
-										.get(((AbstractValue) value).getParameter().getKey()));
-							duplication.setLikelihood(value);
-						}
-
-						analysis.add(duplication);
+					if (assessment.getLikelihood() != null) {
+						IValue value = assessment.getLikelihood().duplicate();
+						if (value instanceof AbstractValue)
+							((AbstractValue) value).setParameter((ILevelParameter) mappingParameters
+									.get(((AbstractValue) value).getParameter().getKey()));
+						duplication.setLikelihood(value);
 					}
 
-					if (analysis.isQuantitative() && !analysis.getAssessments().isEmpty()) {
-						analysis.getImpactParameters().stream()
-								.filter(p -> p.isMatch(Constant.DEFAULT_IMPACT_NAME) && p.getLevel() == 0).findAny()
-								.ifPresent(p -> {
-									analysis.getAssessments().parallelStream().forEach(assessment -> {
-										if (!assessment.getImpacts().stream().anyMatch(
-												value -> value.getName().equals(Constant.DEFAULT_IMPACT_NAME))) {
-											assessment.getImpacts().add(new RealValue(0d, p));
-											AssessmentAndRiskProfileManager.ComputeAlE(assessment);
-										}
-									});
+					analysis.add(duplication);
+				}
+
+				if (analysis.isQuantitative() && !analysis.getAssessments().isEmpty()) {
+					analysis.getImpactParameters().stream()
+							.filter(p -> p.isMatch(Constant.DEFAULT_IMPACT_NAME) && p.getLevel() == 0).findAny()
+							.ifPresent(p -> {
+								analysis.getAssessments().parallelStream().forEach(assessment -> {
+									if (!assessment.getImpacts().stream().anyMatch(
+											value -> value.getName().equals(Constant.DEFAULT_IMPACT_NAME))) {
+										assessment.getImpacts().add(new RealValue(0d, p));
+										AssessmentAndRiskProfileManager.ComputeAlE(assessment);
+									}
 								});
-					}
+							});
 				}
 
 			}
@@ -706,11 +713,12 @@ public class ControllerCreation {
 	}
 
 	/**
-	 * Generates impact parameters based on the given analysis, mapping parameters, and scale.
+	 * Generates impact parameters based on the given analysis, mapping parameters,
+	 * and scale.
 	 * 
-	 * @param analysis         The analysis object.
+	 * @param analysis          The analysis object.
 	 * @param mappingParameters The mapping parameters map.
-	 * @param scale            The scale object.
+	 * @param scale             The scale object.
 	 * @return A consumer that generates impact parameters.
 	 */
 	private Consumer<? super Integer> generateImpactParameters(Analysis analysis,
@@ -754,7 +762,8 @@ public class ControllerCreation {
 	}
 
 	/**
-	 * Returns a function that duplicates the given parameter and adds it to the analysis.
+	 * Returns a function that duplicates the given parameter and adds it to the
+	 * analysis.
 	 *
 	 * @param analysis the analysis to add the duplicated parameter to
 	 * @return a function that duplicates the parameter and adds it to the analysis
@@ -770,9 +779,9 @@ public class ControllerCreation {
 	/**
 	 * Generates a standard log based on the given parameters.
 	 *
-	 * @param baseAnalysis   the base analysis string
-	 * @param analysisForm   the analysis form object
-	 * @param defaultProfileId   the default profile ID
+	 * @param baseAnalysis     the base analysis string
+	 * @param analysisForm     the analysis form object
+	 * @param defaultProfileId the default profile ID
 	 * @param analysisLocale   the analysis locale
 	 * @return the generated standard log string
 	 * @throws Exception if an error occurs during the generation process
@@ -813,11 +822,11 @@ public class ControllerCreation {
 	/**
 	 * Validates the standards for analysis.
 	 * 
-	 * @param standrads The list of analysis standard base information.
-	 * @param errors The map to store any validation errors.
-	 * @param principal The principal object representing the current user.
+	 * @param standrads        The list of analysis standard base information.
+	 * @param errors           The map to store any validation errors.
+	 * @param principal        The principal object representing the current user.
 	 * @param defaultProfileId The default profile ID.
-	 * @param locale The locale for error messages.
+	 * @param locale           The locale for error messages.
 	 */
 	private void validateStandards(List<AnalysisStandardBaseInfo> standrads, Map<String, String> errors,
 			Principal principal, int defaultProfileId, Locale locale) {
@@ -841,9 +850,11 @@ public class ControllerCreation {
 	/**
 	 * Validates the standards for the given analysis standard base information.
 	 * 
-	 * @param analysisStandardBaseInfo The analysis standard base information to validate.
+	 * @param analysisStandardBaseInfo The analysis standard base information to
+	 *                                 validate.
 	 * @param errors                   A map to store any validation errors.
-	 * @param principal                The principal object representing the current user.
+	 * @param principal                The principal object representing the current
+	 *                                 user.
 	 * @param locale                   The locale to use for error messages.
 	 */
 	private void validateStandards(AnalysisStandardBaseInfo analysisStandardBaseInfo, Map<String, String> errors,
@@ -861,7 +872,8 @@ public class ControllerCreation {
 	}
 
 	/**
-	 * Retrieves a list of AnalysisBaseInfo objects based on the provided customer ID and user principal.
+	 * Retrieves a list of AnalysisBaseInfo objects based on the provided customer
+	 * ID and user principal.
 	 *
 	 * @param id        The ID of the customer.
 	 * @param principal The user principal.
@@ -874,7 +886,8 @@ public class ControllerCreation {
 	}
 
 	/**
-	 * Retrieves a list of AnalysisBaseInfo objects based on the provided customer ID, identifier, and user principal.
+	 * Retrieves a list of AnalysisBaseInfo objects based on the provided customer
+	 * ID, identifier, and user principal.
 	 * 
 	 * @param id         The customer ID.
 	 * @param identifier The identifier.
