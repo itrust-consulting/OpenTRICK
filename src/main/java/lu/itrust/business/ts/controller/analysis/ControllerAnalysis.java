@@ -179,7 +179,7 @@ public class ControllerAnalysis extends AbstractController {
 		session.removeAttribute(OPEN_MODE);
 		session.removeAttribute(SELECTED_ANALYSIS);
 		session.removeAttribute(SELECTED_ANALYSIS_LANGUAGE);
-		return LoadUserAnalyses(session, principal, model, null);
+		return loadUserAnalyses(session, principal, model, null);
 	}
 
 	/**
@@ -600,7 +600,7 @@ public class ControllerAnalysis extends AbstractController {
 	 */
 	@RequestMapping("/Section")
 	public String section(HttpServletRequest request, Principal principal, Model model) throws Exception {
-		return LoadUserAnalyses(request.getSession(), principal, model, null);
+		return loadUserAnalyses(request.getSession(), principal, model, null);
 	}
 
 	// *****************************************************************
@@ -631,7 +631,7 @@ public class ControllerAnalysis extends AbstractController {
 		user.setSetting(LAST_SELECTED_ANALYSIS_NAME, name);
 		user.setSetting(LAST_SELECTED_CUSTOMER_ID, idCustomer);
 		serviceUser.saveOrUpdate(user);
-		return LoadUserAnalyses(session, principal, model, user);
+		return loadUserAnalyses(session, principal, model, user);
 	}
 
 	/**
@@ -848,7 +848,7 @@ public class ControllerAnalysis extends AbstractController {
 	 * @return a String representing the view name
 	 * @throws Exception if an error occurs during the loading of user analyses
 	 */
-	private String LoadUserAnalyses(HttpSession session, Principal principal, Model model, User user) throws Exception {
+	private String loadUserAnalyses(HttpSession session, Principal principal, Model model, User user) throws Exception {
 		List<String> names = null;
 		Integer customer = (Integer) session.getAttribute(CURRENT_CUSTOMER);
 		List<Customer> customers = serviceCustomer.getAllNotProfileOfUser(principal.getName());

@@ -84,10 +84,10 @@
 									<td style="height: 32px;"><strong><spring:message text="${risk_information.chapter}" /></strong></td>
 									<c:choose>
 										<c:when test="${categoryRiskInformation == 'Threat'}">
-											<td colspan="2"><strong><spring:message code="${codeLabel}" text="${codeText}" /></strong></td>
+											<td colspan="2"><strong><spring:message code="${codeLabel}" text="${risk_information.label}" /></strong></td>
 										</c:when>
 										<c:otherwise>
-											<td><strong><spring:message code="${codeLabel}" text="${codeText}" /></strong></td>
+											<td><strong><spring:message code="${codeLabel}" text="${risk_information.label}" /></strong></td>
 										</c:otherwise>
 									</c:choose>
 									<td class="editable" data-trick-field="exposed" data-trick-choose=",++,+,N,-,--" data-trick-field-type="string" onclick="return editField(this);"><spring:message
@@ -102,9 +102,9 @@
 								</c:when>
 								<c:otherwise>
 									<td style="height: 32px;"><spring:message text="${risk_information.chapter}" /></td>
-									<td><spring:message code="${codeLabel}" text="${codeText}" /></td>
+									<td><spring:message code="${codeLabel}" text="${risk_information.label}" /></td>
 									<c:if test="${category == 'threat'}">
-										<td><spring:message text="${risk_information.acronym}" /></td>
+										<td class="editable" data-trick-field="acronym"  data-trick-field-type="string" onclick="return editField(this);"><spring:message text="${risk_information.acronym}" /></td>
 									</c:if>
 									<td class="editable" data-trick-field="exposed" data-trick-choose=",++,+,N,-,--" data-trick-field-type="string" onclick="return editField(this);"><spring:message
 											text="${risk_information.exposed}" /></td>
