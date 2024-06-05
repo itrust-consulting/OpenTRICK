@@ -37,6 +37,7 @@ import lu.itrust.business.ts.database.service.ServiceMeasure;
 import lu.itrust.business.ts.database.service.ServiceRiskProfile;
 import lu.itrust.business.ts.exception.TrickException;
 import lu.itrust.business.ts.helper.FieldValue;
+import lu.itrust.business.ts.helper.ILRExport;
 import lu.itrust.business.ts.helper.JsonMessage;
 import lu.itrust.business.ts.helper.chartJS.item.ColorBound;
 import lu.itrust.business.ts.helper.chartJS.model.Chart;
@@ -587,7 +588,7 @@ public class ControllerAssessment {
 			model.addAttribute("riskProfile", riskProfile);
 			List<ColorBound> colorBounds = ChartGenerator.GenerateColorBounds(analysis.getRiskAcceptanceParameters());
 
-			Integer netImportance = factory.findImportance(assessment);
+			Integer netImportance = ValueFactory.findImportance(assessment);
 			model.addAttribute("computedNetImportance", colorBounds.stream().filter(v -> v.isAccepted(netImportance))
 					.map(v -> new FieldValue("importance", netImportance, v.getLabel(), null, v.getColor())).findAny()
 					.orElse(new FieldValue("importance", netImportance)));
@@ -610,49 +611,14 @@ public class ControllerAssessment {
 				model.addAttribute("riskRegister", analysis.findRiskRegisterByAssetAndScenario(idAsset, idScenario));
 
 			if (isILR) {
-				// [0] ILR MaxRisk
-				// [1] ILR TargetedRisk
-				final int[] ilrImportance = { -1, -1 };
-				final AssetNode node = analysis.getAssetNodes().stream()
-						.filter(e -> assessment.getAsset().equals(e.getAsset())).findAny().orElse(null);
-				if (node != null && !(riskProfile.getRawProbaImpact() == null
-						|| riskProfile.getRawProbaImpact().getProbability() == null)) {
-
-					final int maxImpact = Math.max(Math.max(node.getConfidentiality(), node.getIntegrity()),
-							node.getAvailability());
-
-					final int threatRate = riskProfile.getRawProbaImpact().getProbability().getIlrLevel();
-
-					ilrImportance[0] = Math.max(threatRate
-							* assessment.getVulnerability()
-							* maxImpact,
-							-1);
-
-					if (riskProfile.getExpProbaImpact() == null || riskProfile.getRiskStrategy() == RiskStrategy.ACCEPT)
-						ilrImportance[1] = ilrImportance[0];
-					else {
-						final int reduction = Math.min(Math.min(
-								Math.max(
-										assessment.getVulnerability()
-												- riskProfile.getExpProbaImpact().getVulnerability(),
-										0), // the maximun with 0 can be removed as reduction amount should be by
-											// default to 0.
-								3), assessment.getVulnerability());
-
-						ilrImportance[1] = Math
-								.max(Math.min(
-										maxImpact * Math.max(assessment.getVulnerability() - reduction, 0)
-												* threatRate,
-										ilrImportance[0]), -1);
-					}
-
-				}
-
-				model.addAttribute("ilrMaxRisk", ilrImportance[0]);
-				model.addAttribute("ilrTargetedRisk", ilrImportance[1]);
+				final int[] ilrRisks = ILRExport.computeIlrRisk(analysis, assessment, riskProfile);
+				model.addAttribute("ilrMaxRisk", ilrRisks[0]);
+				model.addAttribute("ilrTargetedRisk", ilrRisks[1]);
 
 			}
 		}
 	}
+
+	
 
 }

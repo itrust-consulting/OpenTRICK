@@ -47,7 +47,7 @@ function saveAssessmentData(e) {
 								updated = true;
 							else {
 								$element = $("[name='" + field.name + "'].form-control", $assessmentUI);
-								if (!$element.length && (field.name.startsWith("ALE") || field.name.startsWith("THREAT-PROBABILITY"))) {
+								if (!$element.length && (field.name.startsWith("ALE") || field.name.startsWith("ILR-VALUE-"))) {
 									$("[data-name='" + field.name + "']", $assessmentUI).text(field.value).attr("title", field.title);
 									continue;
 								}
@@ -193,7 +193,7 @@ function updateEstimationSelect(type, elements, status) {
  * @param {string} status - The status of the item.
  * @returns {boolean} - Returns false.
  */
-function updateEstimationIteam(type, item,status) {
+function updateEstimationIteam(type, item, status) {
 	let $tabSection = $("#tab-risk-estimation"), $selector = $("select[name='" + type + "']", $tabSection), $option = $("option[data-trick-type][value='" + item.id + "']", $selector), $link = undefined;
 	if ($option.length)
 		$link = $("div[data-trick-content='" + type + "'] a[data-trick-type][data-trick-id='" + item.id + "'][data-trick-selected!='" + status + "']", $tabSection);
@@ -536,9 +536,9 @@ AssessmentHelder.prototype = {
 				let $assessmentUI = $(instance.section, new DOMParser().parseFromString(response, "text/html"));
 				if ($assessmentUI.length) {
 
-					backupFieldHeight("assesment", ["assessment-comment", "assessment-riskTreatment", "assessment-hiddenComment", "assessment-actionPlan","assessment-cockpit"], $currentUI);
+					backupFieldHeight("assesment", ["assessment-comment", "assessment-riskTreatment", "assessment-hiddenComment", "assessment-actionPlan", "assessment-cockpit"], $currentUI);
 
-					restoreFieldHeight("assesment", ["assessment-comment", "assessment-riskTreatment", "assessment-hiddenComment", "assessment-actionPlan","assessment-cockpit"], $assessmentUI);
+					restoreFieldHeight("assesment", ["assessment-comment", "assessment-riskTreatment", "assessment-hiddenComment", "assessment-actionPlan", "assessment-cockpit"], $assessmentUI);
 
 					$currentUI.replaceWith($assessmentUI);
 
@@ -596,6 +596,26 @@ AssessmentHelder.prototype = {
 					$("button[data-scale-modal]", $assessmentUI).on("click", function () {
 						forceCloseToolTips();
 						displayParameters(this.getAttribute("data-scale-modal"));
+					});
+
+					//ILR 
+
+					$("select[name='riskProfile.riskStrategy']", $assessmentUI).on("change", (e) => $("select[name='riskProfile.expProbaImpact.vulnerability']", $assessmentUI).prop("disabled", e.currentTarget.value === "ACCEPT"));
+
+					$("select[name='vulnerability']", $assessmentUI).on("change", (e) => {
+						let $expVulnerability = $("select[name='riskProfile.expProbaImpact.vulnerability']", $assessmentUI);
+						let value = parseInt(e.currentTarget.value);
+						let expValue = parseInt($expVulnerability.val());
+						if (expValue > value)
+							$expVulnerability.val(value);
+						$expVulnerability.find("option").each((i, ie) => {
+							let val = parseInt(ie.value);
+							if (val > value)
+								$(ie).attr("disabled", "disabled").attr("hidden", "hidden");
+							else $(ie).removeAttr("disabled").removeAttr("hidden");
+						});
+
+
 					});
 
 				} else

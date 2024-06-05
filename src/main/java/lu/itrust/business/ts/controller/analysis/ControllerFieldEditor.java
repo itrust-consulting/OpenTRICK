@@ -59,12 +59,14 @@ import lu.itrust.business.ts.database.service.ServiceSimpleParameter;
 import lu.itrust.business.ts.exception.TrickException;
 import lu.itrust.business.ts.helper.FieldEditor;
 import lu.itrust.business.ts.helper.FieldValue;
+import lu.itrust.business.ts.helper.ILRExport;
 import lu.itrust.business.ts.helper.JSTLFunctions;
 import lu.itrust.business.ts.helper.JsonMessage;
 import lu.itrust.business.ts.helper.Result;
 import lu.itrust.business.ts.helper.chartJS.item.ColorBound;
 import lu.itrust.business.ts.model.actionplan.ActionPlanEntry;
 import lu.itrust.business.ts.model.analysis.Analysis;
+import lu.itrust.business.ts.model.analysis.AnalysisSetting;
 import lu.itrust.business.ts.model.analysis.AnalysisType;
 import lu.itrust.business.ts.model.analysis.ExportFileName;
 import lu.itrust.business.ts.model.analysis.ReportSetting;
@@ -299,7 +301,7 @@ public class ControllerFieldEditor {
 			if (error != null)
 				return JsonMessage.Error(serviceDataValidation.ParseError(error, messageSource, locale));
 
-			Field field = FindField(Asset.class, fieldEditor.getFieldName());
+			Field field = findField(Asset.class, fieldEditor.getFieldName());
 			// check if field is a phase
 			if (!setFieldValue(asset, field, value))
 				JsonMessage
@@ -378,20 +380,20 @@ public class ControllerFieldEditor {
 			if (!serviceDataValidation.isRegistred(IBoundedParameter.class))
 				serviceDataValidation.register(new BounedParameterValidator());
 			// retireve value
-			Object value = FieldValue(fieldEditor, null);
+			Object value = fieldValue(fieldEditor, null);
 			// validate
 			String error = serviceDataValidation.validate(parameter, fieldEditor.getFieldName(), value);
 			// return error validation
 			if (error != null)
 				return JsonMessage.Error(serviceDataValidation.ParseError(error, messageSource, locale));
 			// set field
-			Field field = FindField(ImpactParameter.class, fieldEditor.getFieldName());
+			Field field = findField(ImpactParameter.class, fieldEditor.getFieldName());
 			if (field == null)
 				return JsonMessage.Error(
 						messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 			field.setAccessible(true);
 			// set field data
-			if (SetFieldData(field, parameter, fieldEditor, null)) {
+			if (setFieldData(field, parameter, fieldEditor, null)) {
 				switch (fieldEditor.getFieldName()) {
 					case "value":
 						final Analysis analysis = serviceAnalysis.get(idAnalysis);
@@ -399,7 +401,7 @@ public class ControllerFieldEditor {
 						if (parameter.getTypeName().equals(Constant.PARAMETER_TYPE_IMPACT_NAME)) {
 							ImpactParameter.ComputeScales(analysis.getImpactParameters().stream()
 									.filter(i -> i.getType().equals(parameter.getType())).collect(Collectors.toList()));
-							UpdateAssessmentImpact(analysis, parameter.getType());
+							updateAssessmentImpact(analysis, parameter.getType());
 						} else
 							serviceImpactParameter.saveOrUpdate(parameter);
 						break;
@@ -463,10 +465,10 @@ public class ControllerFieldEditor {
 				return JsonMessage.Error(serviceDataValidation.ParseError(error, messageSource, locale));
 
 			// set field
-			Field field = FindField(History.class, fieldEditor.getFieldName());
+			Field field = findField(History.class, fieldEditor.getFieldName());
 
 			// set field data
-			if (SetFieldData(field, history, fieldEditor)) {
+			if (setFieldData(field, history, fieldEditor)) {
 
 				// update history
 				serviceHistory.saveOrUpdate(history);
@@ -511,7 +513,7 @@ public class ControllerFieldEditor {
 			// initialise field
 			Field field = itemInformation.getClass().getDeclaredField(fieldEditor.getFieldName());
 			// set field with new data
-			if (SetFieldData(field, itemInformation, fieldEditor)) {
+			if (setFieldData(field, itemInformation, fieldEditor)) {
 				// update iteminformation
 				serviceItemInformation.saveOrUpdate(itemInformation);
 				// return success message
@@ -558,14 +560,14 @@ public class ControllerFieldEditor {
 			if (!serviceDataValidation.isRegistred(IBoundedParameter.class))
 				serviceDataValidation.register(new BounedParameterValidator());
 			// retireve value
-			Object value = FieldValue(fieldEditor, null);
+			Object value = fieldValue(fieldEditor, null);
 			// validate
 			String error = serviceDataValidation.validate(parameter, fieldEditor.getFieldName(), value);
 			// return error validation
 			if (error != null)
 				return JsonMessage.Error(serviceDataValidation.ParseError(error, messageSource, locale));
 			// set field
-			Field field = FindField(LikelihoodParameter.class, fieldEditor.getFieldName());
+			Field field = findField(LikelihoodParameter.class, fieldEditor.getFieldName());
 
 			if (field == null)
 				return JsonMessage.Error(
@@ -573,13 +575,13 @@ public class ControllerFieldEditor {
 			field.setAccessible(true);
 
 			// set field data
-			if (SetFieldData(field, parameter, fieldEditor, null)) {
+			if (setFieldData(field, parameter, fieldEditor, null)) {
 				if ("value".equals(fieldEditor.getFieldName())) {
 					final Analysis analysis = serviceAnalysis.get(idAnalysis);
 					analysis.getLikelihoodParameters().stream().filter(p -> p.getId().equals(elementID))
 							.forEach(p -> p.setValue(parameter.getValue()));
 					ParameterManager.ComputeLikehoodValue(analysis.getLikelihoodParameters());
-					UpdateAssessmentLikelihood(analysis);
+					updateAssessmentLikelihood(analysis);
 				} else
 					serviceLikelihoodParameter.saveOrUpdate(parameter);
 
@@ -699,7 +701,7 @@ public class ControllerFieldEditor {
 			if (error != null)
 				return JsonMessage.Error(serviceDataValidation.ParseError(error, messageSource, locale));
 			// create field
-			Field field = FindField(MaturityParameter.class, fieldEditor.getFieldName());
+			Field field = findField(MaturityParameter.class, fieldEditor.getFieldName());
 			// set value /100 to save as values between 0 and 1
 			// set field data
 			if (setFieldValue(parameter, field, (Double) value * 0.01)) {
@@ -744,7 +746,7 @@ public class ControllerFieldEditor {
 			// retrieve measure
 			Measure measure = serviceMeasure.getFromAnalysisById(idAnalysis, elementID);
 			// set field
-			Field field = FindField(Measure.class, fieldEditor.getFieldName());
+			Field field = findField(Measure.class, fieldEditor.getFieldName());
 			// means that field belongs to the Measure class
 			if (field != null) {
 				// check if field is a phase
@@ -815,7 +817,7 @@ public class ControllerFieldEditor {
 
 					NormalMeasure normalMeasure = (NormalMeasure) measure;
 
-					field = FindField(NormalMeasure.class, fieldEditor.getFieldName());
+					field = findField(NormalMeasure.class, fieldEditor.getFieldName());
 
 					// means that field belongs to either measure or
 					// normalmeasure
@@ -823,7 +825,7 @@ public class ControllerFieldEditor {
 					if (field != null) {
 
 						// check if field is a phase
-						if (!SetFieldData(field, measure, fieldEditor))
+						if (!setFieldData(field, measure, fieldEditor))
 							return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null,
 									"Data cannot be updated", locale));
 
@@ -832,7 +834,7 @@ public class ControllerFieldEditor {
 
 					} else {
 
-						field = FindField(MeasureProperties.class, fieldEditor.getFieldName());
+						field = findField(MeasureProperties.class, fieldEditor.getFieldName());
 
 						if (field != null) {
 							field.setAccessible(true);
@@ -868,7 +870,7 @@ public class ControllerFieldEditor {
 				} else if (measure instanceof AssetMeasure) {
 					AssetMeasure assetMeasure = (AssetMeasure) measure;
 
-					field = FindField(AssetMeasure.class, fieldEditor.getFieldName());
+					field = findField(AssetMeasure.class, fieldEditor.getFieldName());
 
 					// means that field belongs to either measure or
 					// normalmeasure
@@ -876,7 +878,7 @@ public class ControllerFieldEditor {
 					if (field != null) {
 
 						// check if field is a phase
-						if (!SetFieldData(field, measure, fieldEditor))
+						if (!setFieldData(field, measure, fieldEditor))
 							return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null,
 									"Data cannot be updated", locale));
 
@@ -885,7 +887,7 @@ public class ControllerFieldEditor {
 
 					} else {
 
-						field = FindField(MeasureProperties.class, fieldEditor.getFieldName());
+						field = findField(MeasureProperties.class, fieldEditor.getFieldName());
 
 						if (field != null) {
 							field.setAccessible(true);
@@ -989,9 +991,9 @@ public class ControllerFieldEditor {
 					break;
 			}
 			// create field
-			Field field = FindField(SimpleParameter.class, fieldEditor.getFieldName());
+			Field field = findField(SimpleParameter.class, fieldEditor.getFieldName());
 			// set field data
-			if (SetFieldData(field, simpleParameter, fieldEditor)) {
+			if (setFieldData(field, simpleParameter, fieldEditor)) {
 				// update field
 				serviceSimpleParameter.saveOrUpdate(simpleParameter);
 				// return success message
@@ -1033,7 +1035,7 @@ public class ControllerFieldEditor {
 			// retireve phase
 			Phase phase = servicePhase.getFromAnalysisById(idAnalysis, elementID);
 			// set field
-			Field field = FindField(Phase.class, fieldEditor.getFieldName());
+			Field field = findField(Phase.class, fieldEditor.getFieldName());
 			field.setAccessible(true);
 			// set field date
 			DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
@@ -1124,12 +1126,12 @@ public class ControllerFieldEditor {
 			// get parameter object
 			RiskAcceptanceParameter simpleParameter = serviceRiskAcceptanceParameter.findOne(elementID, idAnalysis);
 			// create field
-			Field field = FindField(RiskAcceptanceParameter.class, fieldEditor.getFieldName());
+			Field field = findField(RiskAcceptanceParameter.class, fieldEditor.getFieldName());
 			// set field data
 			if (fieldEditor.getFieldName().equals("color")
 					&& !hexColor.matcher(fieldEditor.getValue().toString()).matches())
 				return JsonMessage.Success(messageSource.getMessage("error.hex.color.excepted", null, locale));
-			if (SetFieldData(field, simpleParameter, fieldEditor)) {
+			if (setFieldData(field, simpleParameter, fieldEditor)) {
 				// update field
 				serviceRiskAcceptanceParameter.saveOrUpdate(simpleParameter);
 				// return success message
@@ -1169,12 +1171,12 @@ public class ControllerFieldEditor {
 			// get parameter object
 			IlrSoaScaleParameter simpleParameter = serviceIlrSoaScaleParameter.findOne(elementID, idAnalysis);
 			// create field
-			Field field = FindField(IlrSoaScaleParameter.class, fieldEditor.getFieldName());
+			Field field = findField(IlrSoaScaleParameter.class, fieldEditor.getFieldName());
 			// set field data
 			if (fieldEditor.getFieldName().equals("color")
 					&& !hexColor.matcher(fieldEditor.getValue().toString()).matches())
 				return JsonMessage.Success(messageSource.getMessage("error.hex.color.excepted", null, locale));
-			if (SetFieldData(field, simpleParameter, fieldEditor)) {
+			if (setFieldData(field, simpleParameter, fieldEditor)) {
 				// update field
 				serviceIlrSoaScaleParameter.saveOrUpdate(simpleParameter);
 				// return success message
@@ -1203,7 +1205,7 @@ public class ControllerFieldEditor {
 			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 			RiskInformation riskInformation = serviceRiskInformation.getFromAnalysisById(idAnalysis, elementID);
 			// set field
-			Field field = FindField(RiskInformation.class, fieldEditor.getFieldName());
+			Field field = findField(RiskInformation.class, fieldEditor.getFieldName());
 			ValidatorField validatorField = serviceDataValidation.findByClass(RiskInformation.class);
 			if (validatorField == null)
 				serviceDataValidation.register(validatorField = new RiskInformationValidator());
@@ -1211,7 +1213,7 @@ public class ControllerFieldEditor {
 			if (error != null)
 				return JsonMessage.Error(serviceDataValidation.ParseError(error, messageSource, locale));
 			field.setAccessible(true);
-			if (!SetFieldData(field, riskInformation, fieldEditor, null))
+			if (!setFieldData(field, riskInformation, fieldEditor, null))
 				return JsonMessage.Error(
 						messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 			// update phase
@@ -1279,7 +1281,7 @@ public class ControllerFieldEditor {
 				serviceDataValidation.register(validator = new ScenarioValidator());
 
 			// set field
-			Field field = FindField(Scenario.class, fieldEditor.getFieldName());
+			Field field = findField(Scenario.class, fieldEditor.getFieldName());
 			// means that field belongs to the Measure class
 
 			if (field != null) {
@@ -1350,10 +1352,10 @@ public class ControllerFieldEditor {
 
 			MeasureProperties mesprep = DAOHibernate.initialise(measure.getMeasurePropertyList());
 
-			Field field = FindField(MeasureProperties.class, fieldEditor.getFieldName());
+			Field field = findField(MeasureProperties.class, fieldEditor.getFieldName());
 
 			// check if field is a phase
-			if (!SetFieldData(field, mesprep, fieldEditor))
+			if (!setFieldData(field, mesprep, fieldEditor))
 				return JsonMessage.Error(
 						messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 
@@ -1399,7 +1401,7 @@ public class ControllerFieldEditor {
 			} else if (fieldEditor.getFieldName().equalsIgnoreCase("phase")) {
 				measure.setPhase(servicePhase.getFromAnalysisById(idAnalysis, (Integer) FieldValue(fieldEditor)));
 			} else {
-				Field field = FindField(measure.getClass(), fieldEditor.getFieldName());
+				Field field = findField(measure.getClass(), fieldEditor.getFieldName());
 				if (field == null)
 					return Result.Error(
 							messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
@@ -1462,7 +1464,17 @@ public class ControllerFieldEditor {
 	}
 
 	private List<ColorBound> createColorBounds(Integer idAnalysis) {
-		return ChartGenerator.GenerateColorBounds(serviceRiskAcceptanceParameter.findByAnalysisId(idAnalysis));
+		return createColorBounds(serviceRiskAcceptanceParameter.findByAnalysisId(idAnalysis));
+
+	}
+
+	private List<ColorBound> createColorBounds(Analysis analysis) {
+		return createColorBounds(analysis.getRiskAcceptanceParameters());
+
+	}
+
+	private List<ColorBound> createColorBounds(List<RiskAcceptanceParameter> parameters) {
+		return ChartGenerator.GenerateColorBounds(parameters);
 
 	}
 
@@ -1474,7 +1486,7 @@ public class ControllerFieldEditor {
 	}
 
 	private Object FieldValue(FieldEditor fieldEditor) {
-		return FieldValue(fieldEditor, null);
+		return fieldValue(fieldEditor, null);
 	}
 
 	private String format(double value, NumberFormat numberFormat, int decimal) {
@@ -1483,7 +1495,7 @@ public class ControllerFieldEditor {
 	}
 
 	private Result updateAssessment(FieldEditor fieldEditor, Assessment assessment, Integer idAnalysis, Locale locale,
-			boolean netImportance) {
+			boolean needResultValue) {
 
 		try {
 			if (assessment == null)
@@ -1508,10 +1520,10 @@ public class ControllerFieldEditor {
 						return Result.Error(messageSource.getMessage("error.negatif.impact.value", null,
 								"Impact cannot be negative", locale));
 					fieldEditor.setValue(value * 1000);
-				} else if (!factory.hasAcronym(fieldEditor.getValue().toString(), fieldEditor.getFieldName())) {
-					if (!fieldEditor.getFieldName().equals(Constant.PARAMETER_TYPE_IMPACT_NAME))
-						return Result.Error(messageSource.getMessage("error.edit.field.value.unsupported", null,
-								"Given value is not supported", locale));
+				} else if (!(factory.hasAcronym(fieldEditor.getValue().toString(), fieldEditor.getFieldName())
+						|| fieldEditor.getFieldName().equals(Constant.PARAMETER_TYPE_IMPACT_NAME))) {
+					return Result.Error(messageSource.getMessage("error.edit.field.value.unsupported", null,
+							"Given value is not supported", locale));
 				}
 
 				final IValue oldValue = assessment.getImpact(fieldEditor.getFieldName());
@@ -1560,75 +1572,29 @@ public class ControllerFieldEditor {
 				// init field
 				final Field field = assessment.getClass().getDeclaredField(fieldEditor.getFieldName());
 				// set data to field
-				if (!SetFieldData(field, assessment, fieldEditor))
+				if (!setFieldData(field, assessment, fieldEditor))
 					// return error message
 					return Result.Error(
 							messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 			}
+
 			Result result = Result.Success(messageSource.getMessage("success.assessment.updated", null,
 					"Assessment was successfully updated", locale));
+
 			// compute new ALE
 			if (factory != null || fieldEditor.getFieldName().equals("uncertainty")) {
-				if (factory == null)
-					factory = createFactoryForAssessment(idAnalysis);
 				AnalysisType type = serviceAnalysis.getAnalysisTypeById(idAnalysis);
-				if (netImportance && AnalysisType.isQualitative(type))
-					result.add(updateFieldValue(idAnalysis, factory.findImportance(assessment),
-							new FieldValue("computedNetImportance")));
-				if (AnalysisType.isQuantitative(type)) {
+				if (AnalysisType.isQuantitative(type))
 					AssessmentAndRiskProfileManager.ComputeAlE(assessment);
-					NumberFormat numberFormat = NumberFormat.getInstance(Locale.FRANCE);
-					result.add(new FieldValue("ALE", format(assessment.getALE() * .001, numberFormat, 2),
-							format(assessment.getALE(), numberFormat, 0) + " €"));
-					result.add(new FieldValue("ALEO", format(assessment.getALEO() * .001, numberFormat, 2),
-							format(assessment.getALEO(), numberFormat, 0) + " €"));
-					result.add(new FieldValue("ALEP", format(assessment.getALEP() * .001, numberFormat, 2),
-							format(assessment.getALEP(), numberFormat, 0) + " €"));
-					if (fieldEditor.getFieldName().equals("IMPACT"))
-						result.add(new FieldValue("IMPACT", null, assessment.getImpact("IMPACT").getVariable()));
-					else if (fieldEditor.getFieldName().equals("likelihood"))
-						result.add(new FieldValue("likelihood", null,
-								format(assessment.getLikelihoodReal(), numberFormat, 3)));
-					else {
-						RiskRegisterItem registerItem = serviceRiskRegister.getByAssetIdAndScenarioId(
-								assessment.getAsset().getId(), assessment.getScenario().getId());
-						if (registerItem != null) {
-							double uncertainty = assessment.getUncertainty(), qUncertainty = 1.0 / uncertainty;
-							result.add(new FieldValue("ALE-RAW",
-									format(registerItem.getRawEvaluation().getImportance() * .001, numberFormat, 2),
-									format(registerItem.getRawEvaluation().getImportance(), numberFormat, 0) + " €"));
-							result.add(new FieldValue("ALEO-RAW",
-									format(registerItem.getRawEvaluation().getImportance() * qUncertainty * .001,
-											numberFormat, 2),
-									format(registerItem.getRawEvaluation().getImportance(), numberFormat, 0) + " €"));
-							result.add(new FieldValue("ALEP-RAW",
-									format(registerItem.getRawEvaluation().getImportance() * uncertainty * .001,
-											numberFormat, 2),
-									format(registerItem.getRawEvaluation().getImportance()
-											* assessment.getUncertainty(), numberFormat, 0) + " €"));
-
-							result.add(new FieldValue("ALE-EXP",
-									format(registerItem.getExpectedEvaluation().getImportance() * .001, numberFormat,
-											2),
-									format(registerItem.getExpectedEvaluation().getImportance(), numberFormat, 0)
-											+ " €"));
-							result.add(new FieldValue("ALEO-EXP",
-									format(registerItem.getExpectedEvaluation().getImportance() * qUncertainty * .001,
-											numberFormat, 2),
-									format(registerItem.getExpectedEvaluation().getImportance(), numberFormat, 0)
-											+ " €"));
-							result.add(new FieldValue("ALEP-EXP",
-									format(registerItem.getExpectedEvaluation().getImportance() * uncertainty * .001,
-											numberFormat, 2),
-									format(registerItem.getExpectedEvaluation().getImportance()
-											* assessment.getUncertainty(), numberFormat, 0) + " €"));
-						}
-					}
-				}
 			}
+
 			if (toDelete != null)
 				serviceAssessment.delete(toDelete);
+
 			serviceAssessment.saveOrUpdate(assessment);
+
+			if (needResultValue)
+				updateRiskEstimationValue(null, assessment, result, idAnalysis, fieldEditor.getFieldName());
 			// return success message
 			return result;
 		} catch (TrickException e) {
@@ -1649,7 +1615,7 @@ public class ControllerFieldEditor {
 				true);
 	}
 
-	private void UpdateAssessmentLikelihood(Analysis analysis) {
+	private void updateAssessmentLikelihood(Analysis analysis) {
 		if (!analysis.getAssessments().isEmpty()) {
 			final ValueFactory factory = new ValueFactory(analysis.getParameters());
 			analysis.getAssessments().forEach(assessment -> {
@@ -1664,7 +1630,7 @@ public class ControllerFieldEditor {
 		serviceAnalysis.saveOrUpdate(analysis);
 	}
 
-	private void UpdateAssessmentImpact(Analysis analysis, ScaleType type) {
+	private void updateAssessmentImpact(Analysis analysis, ScaleType type) {
 		if (!analysis.getAssessments().isEmpty()) {
 			final ValueFactory factory = new ValueFactory(analysis.getParameters());
 			analysis.getAssessments().forEach(assessment -> {
@@ -1708,6 +1674,24 @@ public class ControllerFieldEditor {
 		return value;
 	}
 
+	/**
+	 * Value will be modify<br>
+	 * Update : value (importance), color, title
+	 * 
+	 * @param idAnalysis
+	 * @param importance
+	 * @param value
+	 * @return value
+	 */
+	private FieldValue updateFieldValue(Analysis analysis, int importance, FieldValue value) {
+		createColorBounds(analysis).stream().filter(v -> v.isAccepted(importance)).findAny().ifPresent(c -> {
+			value.setColor(c.getColor());
+			value.setTitle(c.getLabel());
+		});
+		value.setValue(importance);
+		return value;
+	}
+
 	private Result updateRiskProfile(FieldEditor fieldEditor, int idAsset, int idScenario, HttpSession session,
 			Locale locale) {
 		return updateRiskProfile(fieldEditor, serviceRiskProfile.getByAssetAndScanrio(idAsset, idScenario),
@@ -1726,7 +1710,7 @@ public class ControllerFieldEditor {
 			if (fields.length < 2)
 				return Result.Error(messageSource.getMessage("error.field.not.support.live.edition", null,
 						"Field does not support editing on the fly", locale));
-			Field field = FindField(RiskProfile.class, fields[1]);
+			Field field = findField(RiskProfile.class, fields[1]);
 			if (field == null)
 				return Result.Error(messageSource.getMessage("error.field.not.support.live.edition", null,
 						"Field does not support editing on the fly", locale));
@@ -1740,18 +1724,15 @@ public class ControllerFieldEditor {
 					probaImpact = new RiskProbaImpact();
 				Object value = FieldValue(fieldEditor);
 				if (value instanceof Integer) {
-					if(fields[1] .equals("expProbaImpact") && fields[2] .equals("vulnerability"))
+					if (fields[1].equals("expProbaImpact") && fields[2].equals("vulnerability")) {
 						probaImpact.setVulnerability((Integer) value);
-					else if (fields[2].equals("probability")) {
+						// compute ILR residual risk
+					} else if (fields[2].equals("probability")) {
 						LikelihoodParameter parameter = serviceLikelihoodParameter.findOne((Integer) value, idAnalysis);
 						if (parameter == null)
 							return Result.Error(messageSource.getMessage("error.edit.type.field", null,
 									"Data cannot be updated", locale));
 						probaImpact.setProbability(parameter);
-						if (fields[1].equalsIgnoreCase("rawProbaImpact")) {
-							result.add(new FieldValue(
-									"THREAT-PROBABILITY", parameter.getIlrLevel(), parameter.getIlrLevel() + ""));
-						}
 					} else {
 						ImpactParameter parameter = serviceImpactParameter.findOne((Integer) value, idAnalysis);
 						if (parameter == null)
@@ -1763,9 +1744,6 @@ public class ControllerFieldEditor {
 					return Result.Error(
 							messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 
-				result.add(
-						updateFieldValue(idAnalysis, probaImpact.getImportance(), new FieldValue(
-								fields[1].startsWith("raw") ? "computedRawImportance" : "computedExpImportance")));
 			} else if (field.getType().isAssignableFrom(RiskStrategy.class))
 				riskProfile.setRiskStrategy(RiskStrategy.valueOf(fieldEditor.getValue().toString()));
 			else if (field.getName().equals("identifier")) {
@@ -1775,10 +1753,14 @@ public class ControllerFieldEditor {
 							"Identifier are not available", locale));
 				else
 					riskProfile.setIdentifier(identifier);
-			} else if (!SetFieldData(field, riskProfile, fieldEditor))
+			} else if (!setFieldData(field, riskProfile, fieldEditor))
 				return Result.Error(
 						messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
+
 			serviceRiskProfile.saveOrUpdate(riskProfile);
+
+			updateRiskEstimationValue(riskProfile, null, result, idAnalysis, fieldEditor.getFieldName());
+
 			return result;
 		} catch (TrickException e) {
 			TrickLogManager.Persist(e);
@@ -1792,6 +1774,160 @@ public class ControllerFieldEditor {
 	}
 
 	/**
+	 * Updates the risk estimation value based on the given parameters.
+	 *
+	 * @param riskProfile The risk profile object.
+	 * @param assessment  The assessment object.
+	 * @param result      The result object.
+	 * @param idAnalysis  The ID of the analysis.
+	 * @param fieldName   The name of the field to update.
+	 */
+	public void updateRiskEstimationValue(RiskProfile riskProfile, Assessment assessment, Result result, int idAnalysis,
+			String fieldName) {
+		final Analysis analysis = serviceAnalysis.get(idAnalysis);
+		final boolean isILR = Analysis.findSetting(AnalysisSetting.ALLOW_ILR_ANALYSIS,
+				analysis.getSettings().get(AnalysisSetting.ALLOW_ILR_ANALYSIS.name()));
+		switch (fieldName) {
+			case "riskProfile.rawProbaImpact.probability":
+				result.add(
+						updateFieldValue(analysis, riskProfile.getRawProbaImpact().getImportance(),
+								new FieldValue("computedRawImportance")));
+			case "riskProfile.riskStrategy":
+				if (isILR) {
+					result.add(new FieldValue(
+							"ILR-VALUE-THREAT-PROBABILITY", riskProfile.getRawProbaImpact().getProbability().getIlrLevel(),
+							riskProfile.getRawProbaImpact().getProbability().getIlrLevel() + ""));
+					computeIlrRiskResult(assessment, riskProfile, analysis, result, false);
+				}
+				break;
+			case "riskProfile.expProbaImpact.vulnerability":
+				computeIlrRiskResult(assessment, riskProfile, analysis, result, true);
+				break;
+			case "vulnerability":
+				computeIlrRiskResult(assessment, riskProfile, analysis, result, false);
+				break;
+			case "likelihood":
+			case "uncertainty":
+			case "probability":
+				computeAssessmentALEResult(result, assessment, analysis, fieldName);
+				break;
+			default:
+				if (fieldName.contains("rawProbaImpact")) {
+					result.add(
+							updateFieldValue(analysis, riskProfile.getRawProbaImpact().getImportance(),
+									new FieldValue("computedRawImportance")));
+				} else if (fieldName.contains("expProbaImpact")) {
+					result.add(
+							updateFieldValue(analysis, riskProfile.getExpProbaImpact().getImportance(),
+									new FieldValue(
+											"computedExpImportance")));
+				}
+				if (assessment != null && assessment.hasImpact(fieldName))
+					computeAssessmentALEResult(result, assessment, analysis, fieldName);
+				break;
+		}
+	}
+
+	private void computeIlrRiskResult(Assessment assessment, RiskProfile riskProfile, Analysis analysis,
+			Result result, boolean isResidualRiskOnly) {
+		if (assessment == null && riskProfile == null || analysis == null || result == null)
+			return;
+
+		if (assessment == null) {
+			assessment = analysis.findAssessmentByAssetAndScenario(riskProfile.getAsset().getId(),
+					riskProfile.getScenario().getId());
+		} else if (riskProfile == null) {
+			riskProfile = analysis.findRiskProfileByAssetAndScenario(assessment.getAsset().getId(),
+					assessment.getScenario().getId());
+		}
+
+		final int[] ilrRisks = ILRExport.computeIlrRisk(analysis, assessment, riskProfile);
+
+		if (ilrRisks[1] == -1)
+			result.add(new FieldValue("ILR-VALUE-TARGET-RISK", "-", "-"));
+		else {
+			result.add(new FieldValue("ILR-VALUE-TARGET-RISK", ilrRisks[1], ilrRisks[1] + ""));
+		}
+
+		if (!isResidualRiskOnly) {
+			if (ilrRisks[0] == -1)
+				result.add(new FieldValue("ILR-VALUE-MAX-RISK", "-", "-"));
+			else {
+				result.add(new FieldValue("ILR-VALUE-MAX-RISK", ilrRisks[0], ilrRisks[0] + ""));
+			}
+		}
+
+	}
+
+	/**
+	 * Computes the assessment ALE (Annual Loss Expectancy) result and adds it to
+	 * the given Result object.
+	 * The ALE result is calculated based on the provided Assessment, Analysis, and
+	 * fieldName.
+	 * 
+	 * @param result     The Result object to which the ALE result will be added.
+	 * @param assessment The Assessment object used for calculating the ALE result.
+	 * @param analysis   The Analysis object used for calculating the ALE result.
+	 * @param fieldName  The name of the field used for determining the ALE
+	 *                   calculation logic.
+	 */
+	private void computeAssessmentALEResult(Result result, Assessment assessment, Analysis analysis, String fieldName) {
+		NumberFormat numberFormat = NumberFormat.getInstance(Locale.FRANCE);
+		result.add(new FieldValue("ALE", format(assessment.getALE() * .001, numberFormat, 2),
+				format(assessment.getALE(), numberFormat, 0) + " €"));
+		result.add(new FieldValue("ALEO", format(assessment.getALEO() * .001, numberFormat, 2),
+				format(assessment.getALEO(), numberFormat, 0) + " €"));
+		result.add(new FieldValue("ALEP", format(assessment.getALEP() * .001, numberFormat, 2),
+				format(assessment.getALEP(), numberFormat, 0) + " €"));
+		if (fieldName.equals("IMPACT"))
+			result.add(new FieldValue("IMPACT", null, assessment.getImpact("IMPACT").getVariable()));
+		else if (fieldName.equals("likelihood"))
+			result.add(new FieldValue("likelihood", null,
+					format(assessment.getLikelihoodReal(), numberFormat, 3)));
+		else {
+			RiskRegisterItem registerItem = analysis.findRiskRegisterByAssetAndScenario(
+					assessment.getAsset().getId(), assessment.getScenario().getId());
+			if (registerItem != null) {
+				double uncertainty = assessment.getUncertainty();
+				double qUncertainty = 1.0 / uncertainty;
+				result.add(new FieldValue("ALE-RAW",
+						format(registerItem.getRawEvaluation().getImportance() * .001, numberFormat, 2),
+						format(registerItem.getRawEvaluation().getImportance(), numberFormat, 0) + " €"));
+				result.add(new FieldValue("ALEO-RAW",
+						format(registerItem.getRawEvaluation().getImportance() * qUncertainty * .001,
+								numberFormat, 2),
+						format(registerItem.getRawEvaluation().getImportance(), numberFormat, 0) + " €"));
+				result.add(new FieldValue("ALEP-RAW",
+						format(registerItem.getRawEvaluation().getImportance() * uncertainty * .001,
+								numberFormat, 2),
+						format(registerItem.getRawEvaluation().getImportance()
+								* assessment.getUncertainty(), numberFormat, 0) + " €"));
+
+				result.add(new FieldValue("ALE-EXP",
+						format(registerItem.getExpectedEvaluation().getImportance() * .001, numberFormat,
+								2),
+						format(registerItem.getExpectedEvaluation().getImportance(), numberFormat, 0)
+								+ " €"));
+				result.add(new FieldValue("ALEO-EXP",
+						format(registerItem.getExpectedEvaluation().getImportance() * qUncertainty * .001,
+								numberFormat, 2),
+						format(registerItem.getExpectedEvaluation().getImportance(), numberFormat, 0)
+								+ " €"));
+				result.add(new FieldValue("ALEP-EXP",
+						format(registerItem.getExpectedEvaluation().getImportance() * uncertainty * .001,
+								numberFormat, 2),
+						format(registerItem.getExpectedEvaluation().getImportance()
+								* assessment.getUncertainty(), numberFormat, 0) + " €"));
+			}
+		}
+
+		if (AnalysisType.isQualitative(analysis.getType()))
+			result.add(updateFieldValue(analysis, ValueFactory.findImportance(assessment),
+					new FieldValue("computedNetImportance")));
+
+	}
+
+	/**
 	 * value: <br>
 	 * Description
 	 * 
@@ -1799,7 +1935,7 @@ public class ControllerFieldEditor {
 	 * @param pattern
 	 * @return
 	 */
-	public static Object FieldValue(FieldEditor fieldEditor, String pattern) {
+	public static Object fieldValue(FieldEditor fieldEditor, String pattern) {
 		try {
 			// get the field type and return value in casted form
 			if (fieldEditor.getType().equalsIgnoreCase("string"))
@@ -1847,12 +1983,12 @@ public class ControllerFieldEditor {
 	 * @param fieldName
 	 * @return
 	 */
-	public static Field FindField(Class<?> object, String fieldName) {
+	public static Field findField(Class<?> object, String fieldName) {
 		for (Field field : object.getDeclaredFields())
 			if (field.getName().equals(fieldName))
 				return field;
 		if (!object.equals(Object.class))
-			return FindField(object.getSuperclass(), fieldName);
+			return findField(object.getSuperclass(), fieldName);
 		return null;
 	}
 
@@ -1866,8 +2002,8 @@ public class ControllerFieldEditor {
 	 * @param pattern
 	 * @return true / false
 	 */
-	public static boolean SetFieldData(Field field, Object object, FieldEditor fieldEditor) {
-		return SetFieldData(field, object, fieldEditor, null);
+	public static boolean setFieldData(Field field, Object object, FieldEditor fieldEditor) {
+		return setFieldData(field, object, fieldEditor, null);
 	}
 
 	/**
@@ -1880,9 +2016,9 @@ public class ControllerFieldEditor {
 	 * @param pattern
 	 * @return true / false
 	 */
-	public static boolean SetFieldData(Field field, Object object, FieldEditor fieldEditor, String pattern) {
+	public static boolean setFieldData(Field field, Object object, FieldEditor fieldEditor, String pattern) {
 		try {
-			Object value = FieldValue(fieldEditor, pattern);
+			Object value = fieldValue(fieldEditor, pattern);
 			if (value == null)
 				return false;
 			return setFieldValue(object, field, value);
