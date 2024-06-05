@@ -114,7 +114,7 @@ public class TS_03_CreateAnAnlysis extends SpringTestConfiguration {
 		Customer customer = serviceCustomer.getFromContactPerson("me");
 		notNull(customer, "'me' customer cannot be found");
 		CUSTOMER_ID = customer.getId();
-		DEFAULT_PROFILE = serviceAnalysis.getDefaultProfileId(AnalysisType.QUANTITATIVE);
+		DEFAULT_PROFILE = serviceAnalysis.findDefaultProfileIdByAnalysisTypeAndLanguage(AnalysisType.HYBRID, language);
 	}
 
 	@Test(timeOut = 120000, dependsOnMethods = "test_00_loadData")

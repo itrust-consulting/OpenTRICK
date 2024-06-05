@@ -58,10 +58,4 @@ public abstract class SpringTestConfiguration extends AbstractTestNGSpringContex
 	@Autowired
 	protected MockMvc mockMvc;
 
-	/*@BeforeMethod(groups = "setup")
-	public void setUp() throws Exception {
-		/*this.mockMvc = MockMvcBuilders.webAppContextSetup(this.webApplicationContext)
-				.apply(springSecurity()).build();
-	}*/
-
 }

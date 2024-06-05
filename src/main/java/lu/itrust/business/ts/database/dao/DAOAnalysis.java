@@ -130,7 +130,7 @@ public interface DAOAnalysis {
 
 	public Analysis getDefaultProfile(AnalysisType analysisType);
 
-	public int getDefaultProfileId(AnalysisType analysisType);
+	public int findDefaultProfileIdByAnalysisTypeAndLanguage(AnalysisType analysisType, Language language);
 
 	public List<Analysis> getDefaultProfiles();
 
