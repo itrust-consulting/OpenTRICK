@@ -631,9 +631,7 @@ public class ControllerDataManager {
 			// Dependancy
 			if (isILR) {
 				exportDependancy(analysis, mlPackage, locale);
-
-				if (!extrasColumns.isEmpty())
-					exportProbability(analysis, mlPackage);
+				exportProbability(analysis, mlPackage);
 			}
 
 			final String extension = getExtension(mlPackage);
