@@ -554,8 +554,7 @@ public class ExportAnalysis {
 				if (riskquery.isEmpty()) {
 
 					// build first query part
-					riskquery = "INSERT INTO threat_source SELECT ? as level,? as name,? as ";
-					riskquery += "type,? as expo,? as owner,? as custom,? as comment,? as comment2 UNION";
+					riskquery = "INSERT INTO threat_source SELECT ? as level,? as name,? as type,? as expo,? as owner,? as custom,? as comment,? as comment2 UNION";
 
 					// set number of ? -> sqlite ? limit is 999 -> before 999 is
 					// reached, a execute

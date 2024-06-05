@@ -978,7 +978,7 @@ input[type=date]:disabled {
 }
 
 .phase-date-range .add-on {
-	.display: inline-block;
+	display: inline-block;
 	width: auto;
 	min-width: 16px;
 	height: 20px;

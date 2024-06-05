@@ -9,6 +9,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import jakarta.persistence.UniqueConstraint;
+import java.util.Objects;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -381,7 +382,7 @@ public class RiskInformation implements Cloneable {
 	 * @return true if the category matches, false otherwise
 	 */
 	public boolean isMatch(String category) {
-		return category == null || this.category == null ? this.category  == category //ignored warning as check null
+		return category == null || this.category == null ? Objects.equals(this.category, category) //ignored warning as check null
 				: category.equalsIgnoreCase(Constant.RI_TYPE_RISK) ? this.category.startsWith(Constant.RI_TYPE_RISK)
 						: this.category.equalsIgnoreCase(category);
 	}

@@ -8,7 +8,6 @@ import static lu.itrust.ts.helper.TestSharingData.getInteger;
 import static lu.itrust.ts.helper.TestSharingData.put;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -68,7 +67,7 @@ public class TS_04_Computation extends SpringTestConfiguration {
 	public synchronized void test_00_ActionPlan() throws Exception {
 		this.mockMvc.perform(post("/Analysis/ActionPlan/Compute").with(csrf()).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN"))
 				.sessionAttr(Constant.SELECTED_ANALYSIS, ANALYSIS_ID).contentType(APPLICATION_JSON_CHARSET_UTF_8)
-				.content("[]")).andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
+				.content("[]")).andExpect(status().isOk()).andExpect(jsonPath("$.success").exists());
 		Worker worker = null;
 		for (int i = 0; i < 3000; i++) {
 			List<String> tasks = serviceTaskFeedback.tasks(USERNAME);

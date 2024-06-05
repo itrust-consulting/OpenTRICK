@@ -7,15 +7,9 @@
 		<Console name="STDOUT" target="SYSTEM_OUT">
 			<PatternLayout pattern="[%t] %-5p %c - %m%n" />
 		</Console>
-		<!-- <Socket name="RemoteLogger" host="${bundle:deployment:app.settings.logger.server.host}" port="${bundle:deployment:app.settings.logger.server.port}" ReconnectionDelay="10000" protocol="SSL">
-			<LogstashLayout />
-		</Socket> -->
 	</Appenders>
 	<Loggers>
-		<!-- <Asynclogger name="TrickLogManager" level='DEBUG'>
-			<AppenderRef ref="RemoteLogger" />
-		</Asynclogger> -->
-		
+	
 		<logger name="org.docx4j" level='ERROR' />
 		
 		<logger name="org.docx4j.jaxb.JaxbValidationEventHandler" level='ERROR' />
@@ -38,7 +32,7 @@
 		
 		<logger name="stdout.org.springframework" level='WARN' />
 		
-		<Root level="DEBUG">
+		<Root level="INFO">
 			<AppenderRef ref="STDOUT" />
 		</Root>
 	</Loggers>

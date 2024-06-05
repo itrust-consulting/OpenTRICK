@@ -25,7 +25,6 @@ import lu.itrust.business.ts.model.general.LogAction;
 import lu.itrust.business.ts.model.general.LogType;
 import lu.itrust.business.ts.usermanagement.User;
 
-
 /**
  * This class represents a worker responsible for creating an analysis profile.
  * It extends the `WorkerImpl` class and implements the `Worker` interface.
@@ -68,15 +67,15 @@ public class WorkerCreateAnalysisProfile extends WorkerImpl {
 			boolean match = values.length == expressions.length && values.length == 2;
 			for (int i = 0; i < expressions.length && match; i++) {
 				switch (expressions[i]) {
-				case "analysis.id":
-					match &= values[i].equals(analysisId);
-					break;
-				case "class":
-					match &= values[i].equals(getClass());
-					break;
-				default:
-					match = false;
-					break;
+					case "analysis.id":
+						match &= values[i].equals(analysisId);
+						break;
+					case "class":
+						match &= values[i].equals(getClass());
+						break;
+					default:
+						match = false;
+						break;
 				}
 			}
 			return match;
@@ -91,9 +90,9 @@ public class WorkerCreateAnalysisProfile extends WorkerImpl {
 		Transaction transaction = null;
 		try {
 			synchronized (this) {
-				if (getWorkersPoolManager() != null && !getWorkersPoolManager().exist(getId()))
-					if (!getWorkersPoolManager().add(this))
-						return;
+				if (!(getWorkersPoolManager() == null || getWorkersPoolManager().exist(getId())
+						|| getWorkersPoolManager().add(this)))
+					return;
 				if (isCanceled() || isWorking())
 					return;
 				setWorking(true);
@@ -106,30 +105,38 @@ public class WorkerCreateAnalysisProfile extends WorkerImpl {
 			User owner = new DAOUserHBM(session).get(username);
 			Customer customer = daoCustomer.getProfile();
 			if (customer == null) {
-				getServiceTaskFeedback().send(getId(), new MessageHandler("error.not.customer.profile", "Please add a profile customer before creating an analysis profile", null));
+				getServiceTaskFeedback().send(getId(), new MessageHandler("error.not.customer.profile",
+						"Please add a profile customer before creating an analysis profile", null));
 				return;
 			}
-			getServiceTaskFeedback().send(getId(), new MessageHandler("info.analysis.profile.load", "Load analysis", 1));
+			getServiceTaskFeedback().send(getId(),
+					new MessageHandler("info.analysis.profile.load", "Load analysis", 1));
 			Analysis analysis = daoAnalysis.get(analysisId);
-			Analysis copy = new Duplicator(session).createProfile(analysis, name, standards, getServiceTaskFeedback(), getId());
+			Analysis copy = new Duplicator(session).createProfile(analysis, name, standards, getServiceTaskFeedback(),
+					getId());
 			copy.setCustomer(customer);
 			copy.setOwner(owner);
-			getServiceTaskFeedback().send(getId(), new MessageHandler("info.analysis.profile.save", "Save analysis profile", 96));
+			getServiceTaskFeedback().send(getId(),
+					new MessageHandler("info.analysis.profile.save", "Save analysis profile", 96));
 			transaction = session.beginTransaction();
 			daoAnalysis.saveOrUpdate(copy);
 			transaction.commit();
-			getServiceTaskFeedback().send(getId(), new MessageHandler("success.analysis.profile", "New analysis profile was successfully created", 100));
+			getServiceTaskFeedback().send(getId(), new MessageHandler("success.analysis.profile",
+					"New analysis profile was successfully created", 100));
 			/**
 			 * Log
 			 */
 			TrickLogManager.Persist(LogType.ANALYSIS, "log.analysis.profile.create",
-					String.format("Analyis: %s, version: %s, profile: %s, name: %s, version: %s", analysis.getIdentifier(), analysis.getVersion(), copy.getIdentifier(),
+					String.format("Analyis: %s, version: %s, profile: %s, name: %s, version: %s",
+							analysis.getIdentifier(), analysis.getVersion(), copy.getIdentifier(),
 							copy.getLabel(), copy.getVersion()),
-					username, LogAction.CREATE, analysis.getIdentifier(), analysis.getVersion(), copy.getIdentifier(), copy.getLabel(), copy.getVersion());
+					username, LogAction.CREATE, analysis.getIdentifier(), analysis.getVersion(), copy.getIdentifier(),
+					copy.getLabel(), copy.getVersion());
 		} catch (TrickException e) {
 			try {
 				setError(e);
-				getServiceTaskFeedback().send(getId(), new MessageHandler(e.getCode(), e.getParameters(), e.getMessage(), e));
+				getServiceTaskFeedback().send(getId(),
+						new MessageHandler(e.getCode(), e.getParameters(), e.getMessage(), e));
 				if (transaction != null && transaction.getStatus().canRollback())
 					transaction.rollback();
 			} catch (Exception e1) {
@@ -138,7 +145,8 @@ public class WorkerCreateAnalysisProfile extends WorkerImpl {
 		} catch (Exception e) {
 			try {
 				setError(e);
-				getServiceTaskFeedback().send(getId(), new MessageHandler("error.analysis.profile", "Creating a profile analysis failed", e));
+				getServiceTaskFeedback().send(getId(),
+						new MessageHandler("error.analysis.profile", "Creating a profile analysis failed", e));
 				if (transaction != null && transaction.getStatus().canRollback())
 					transaction.rollback();
 			} catch (Exception e1) {
