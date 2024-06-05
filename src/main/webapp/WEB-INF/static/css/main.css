@@ -693,7 +693,7 @@ table>tbody>tr>td.editable,
 tr.editable,
 td.editable,
 th.editable {
-	background-color: #eff5fb;
+	background-color: #eafaff;
 }
 
 td.statistic {
@@ -708,7 +708,7 @@ tr.editable>td.statistic {
 table>tbody>tr:hover>td.editable,
 table>tbody>tr.editable:HOVER,
 table>tbody>tr:HOVER>.editable {
-	background-color: #b5d4f3;
+	background-color: #c5efff;
 }
 
 tr.selected,
@@ -727,7 +727,7 @@ table>tbody>tr.selected.succes td:not(.selected),
 table>tbody>tr.selected.warning td:not(.selected),
 table>tbody>tr.selected.danger td:not(.selected),
 table>tbody>tr.selected.info td:not(.selected) {
-	background-color: #c6def6;
+	background-color: #8cdfff;
 }
 
 tr.selected:HOVER,
@@ -745,16 +745,16 @@ table>tbody>tr.selected.succes:HOVER td:not(.selected),
 table>tbody>tr.selected.warning:HOVER td:not(.selected),
 table>tbody>tr.selected.danger:HOVER td:not(.selected),
 table>tbody>tr.selected.info:HOVER td:not(.selected) {
-	background-color: #b5d4f3;
+	background-color: #c5efff;
 }
 
 td.selected,
 tr.selected>td.selected {
-	background-color: #eff5fb;
+	background-color: #eafaff;
 }
 
 .form-group-fill {
-	background-color: #eff5fb;
+	background-color: #eafaff;
 	border-top-left-radius: 4px;
 	border-top-right-radius: 4px;
 }
@@ -768,51 +768,51 @@ tr.form-group-fill th:LAST-CHILD {
 }
 
 .panel-analysis-main {
-	background-color: #2a6698;
-	color: #fff;
+	background-color: #8cdfff;
+	color: #555;
 }
 
 .panel-analysis-main .btn {
-	background-color: #2a6698;
-	border-color: #2a6698;
-	color: #fff;
+	background-color: #8cdfff;
+	border-color: #8cdfff;
+	color: #555;
 }
 
 .panel-analysis-main .btn:HOVER,
 .panel-analysis-main .btn:FOCUS {
-	background-color: #1676b6;
-	border-color: #1676b6;
-	color: #fff;
+	background-color: #c5efff;
+	border-color: #c5efff;
+	color: #555;
 }
 
 .panel-analysis-slave {
-	background-color: #5290C7;
-	color: #fff;
+	background-color: #c5efff;
+	color: #555;
 }
 
 .panel-analysis-slave .btn {
-	background-color: #5290C7;
-	border-color: #5290C7;
-	color: #fff;
+	background-color: #c5efff;
+	border-color: #c5efff;
+	color: #555;
 }
 
 .panel-analysis-slave .btn:HOVER,
 .panel-analysis-slave .btn:FOCUS {
-	background-color: #62a5d2;
-	border-color: #62a5d2;
-	color: #fff;
+	background-color: #eafaff;
+	border-color: #eafaff;
+	color: #555;
 }
 
 .form-group-raw {
-	background-color: #a8bfdd;
+	background-color: #8cdfff;
 }
 
 .form-group-net {
-	background-color: #b2cce5;
+	background-color: #c5efff;
 }
 
 .form-group-exp {
-	background-color: #bcd7f0;
+	background-color: #eafaff;
 }
 
 .form-group-fill .label-control {
