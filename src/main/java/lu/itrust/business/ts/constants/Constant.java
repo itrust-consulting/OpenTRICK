@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
  * <li>SQLite Database Table Constants</li>
  * </ul>
  * 
- * @author itrust consulting s.ï¿½.rl. : SME
+ * @author itrust consulting s.à r.l
  * @version
  * @since 9 January 2013
  */
@@ -173,7 +173,7 @@ public class Constant {
 	public static final String REGEXP_VALID_IMPACT_ACRONYM = "[cC]([0-9]|10)";
 
 	/** Regular *Expression to check on valid Names */
-	public static final String REGEXP_VALID_NAME = "^([a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð -]+[',.]?\\s?){1,4}";
+	public static final String REGEXP_VALID_NAME = "^([a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð -_()]+[',.]?\\s?){1,4}";
 
 	public static final String REGEXP_VALID_USERNAME = "^([a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð_0-9-]+[.]?){1,4}";
 
@@ -314,34 +314,35 @@ public class Constant {
 	public static final String PARAMETER_MATURITY_CATEGORY_INTEGRATION = "Integration";
 
 	/** Phase */
-	public final static int PHASE_NOT_USABLE = 0;
-	public final static int PHASE_DEFAULT = 1;
+	public static final  int PHASE_NOT_USABLE = 0;
+	public static final  int PHASE_DEFAULT = 1;
 
 	/** Parameter Type Identifiers */
-	public final static int PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML = 1;
-	public final static int PARAMETERTYPE_TYPE_PROPABILITY = 2;
-	public final static int PARAMETERTYPE_TYPE_IMPACT = 3;
-	public final static int PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE = 4;
-	public final static int PARAMETERTYPE_TYPE_MAX_EFF = 5;
-	public final static int PARAMETERTYPE_TYPE_SINGLE = 6;
-	public final static int PARAMETERTYPE_TYPE_CSSF = 7;
-	public final static int PARAMETERTYPE_TYPE_DYNAMIC = 8;
-	public final static int PARAMETERTYPE_TYPE_RISK_ACCEPTANCE = 9;
-	public final static Integer[] ALL_ACRONYM_TYPE_IDS = { PARAMETERTYPE_TYPE_PROPABILITY, PARAMETERTYPE_TYPE_DYNAMIC };
+	public static final  int PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML = 1;
+	public static final  int PARAMETERTYPE_TYPE_PROPABILITY = 2;
+	public static final  int PARAMETERTYPE_TYPE_IMPACT = 3;
+	public static final  int PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE = 4;
+	public static final  int PARAMETERTYPE_TYPE_MAX_EFF = 5;
+	public static final  int PARAMETERTYPE_TYPE_SINGLE = 6;
+	public static final  int PARAMETERTYPE_TYPE_CSSF = 7;
+	public static final  int PARAMETERTYPE_TYPE_DYNAMIC = 8;
+	public static final  int PARAMETERTYPE_TYPE_RISK_ACCEPTANCE = 9;
+	public static final  int PARAMETERTYPE_TYPE_ILR_VULNERABILITY_SCALE = 10;
+	public static final  Integer[] ALL_ACRONYM_TYPE_IDS = { PARAMETERTYPE_TYPE_PROPABILITY, PARAMETERTYPE_TYPE_DYNAMIC };
 
 	/** Parameter Type Names */
-	public final static String PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML_NAME = "ILPS";
-	public final static String PARAMETER_TYPE_IMPACT_NAME = "IMPACT";
-	public final static String PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME = "IMPSCALE";
-	public final static String PARAMETERTYPE_TYPE_MAX_EFF_NAME = "MAXEFF";
-	public final static String PARAMETER_TYPE_PROPABILITY_NAME = "PROBA";
-	public final static String PARAMETERTYPE_TYPE_SINGLE_NAME = "SINGLE";
-	public final static String PARAMETERTYPE_TYPE_CSSF_NAME = "CSSF";
-	public final static String PARAMETERTYPE_TYPE_DYNAMIC_NAME = "DYNAMIC";
-	public final static String PARAMETERTYPE_TYPE_RISK_ACCEPTANCE_NAME = "RISK_ACCEPTANCE";
-	public final static String PARAMETERTYPE_TYPE_ILR_SOA_SCALE = "ILR_SOA_SCALE";
-
-	public final static String[] ALL_ACRONYM_TYPE_NAMES = { PARAMETER_TYPE_PROPABILITY_NAME,
+	public static final  String PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML_NAME = "ILPS";
+	public static final  String PARAMETER_TYPE_IMPACT_NAME = "IMPACT";
+	public static final  String PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME = "IMPSCALE";
+	public static final  String PARAMETERTYPE_TYPE_MAX_EFF_NAME = "MAXEFF";
+	public static final  String PARAMETER_TYPE_PROPABILITY_NAME = "PROBA";
+	public static final  String PARAMETERTYPE_TYPE_SINGLE_NAME = "SINGLE";
+	public static final  String PARAMETERTYPE_TYPE_CSSF_NAME = "CSSF";
+	public static final  String PARAMETERTYPE_TYPE_DYNAMIC_NAME = "DYNAMIC";
+	public static final  String PARAMETERTYPE_TYPE_RISK_ACCEPTANCE_NAME = "RISK_ACCEPTANCE";
+	public static final  String PARAMETERTYPE_TYPE_ILR_SOA_SCALE_NAME = "ILR_SOA_SCALE";
+	public static final  String PARAMETERTYPE_TYPE_ILR_VULNERABILITY_SCALE_NAME = "ILR_VULNERABILITY_SCALE";
+	public static final  String[] ALL_ACRONYM_TYPE_NAMES = { PARAMETER_TYPE_PROPABILITY_NAME,
 			PARAMETERTYPE_TYPE_DYNAMIC_NAME };
 
 	/**
@@ -358,10 +359,10 @@ public class Constant {
 	 * @see #DEFAULT_IMPACT_TYPE_TRANSLATES
 	 * @see #ASSESSMENT_IMPACT_NAMES
 	 */
-	public final static String[] DEFAULT_IMPACT_TYPE_TRANSLATES = { "Financial", "Legal", "Operational",
+	public static final  String[] DEFAULT_IMPACT_TYPE_TRANSLATES = { "Financial", "Legal", "Operational",
 			"Reputational" };
 
-	public final static String[] DEFAULT_IMPACT_TYPE_SHORT_NAMES = { "Fin.", "Leg.", "Op.", "Rep." };
+	public static final  String[] DEFAULT_IMPACT_TYPE_SHORT_NAMES = { "Fin.", "Leg.", "Op.", "Rep." };
 
 	public static final String DEFAULT_IMPACT_NAME = PARAMETER_TYPE_IMPACT_NAME;
 
@@ -370,20 +371,19 @@ public class Constant {
 	public static final String DEFAULT_IMPACT_SHORT_NAME = "Imp.";
 
 	/** Action Plan Type Names */
-	public final static String ACTIONPLAN_NORMAL = "APN";
-	public final static String ACTIONPLAN_PESSIMISTIC = "APP";
-	public final static String ACTIONPLAN_OPTIMISTIC = "APO";
-	public final static String ACTIONPLAN_PHASE_NORMAL = "APPN";
-	public final static String ACTIONPLAN_PHASE_PESSIMISTIC = "APPP";
-	public final static String ACTIONPLAN_PHASE_OPTIMISTIC = "APPO";
-
+	public static final  String ACTIONPLAN_NORMAL = "APN";
+	public static final  String ACTIONPLAN_PESSIMISTIC = "APP";
+	public static final  String ACTIONPLAN_OPTIMISTIC = "APO";
+	public static final  String ACTIONPLAN_PHASE_NORMAL = "APPN";
+	public static final  String ACTIONPLAN_PHASE_PESSIMISTIC = "APPP";
+	public static final  String ACTIONPLAN_PHASE_OPTIMISTIC = " APPO";
 	/** Action Plan Type Identifiers */
-	public final static int ACTIONPLAN_NORMAL_MODE = 1;
-	public final static int ACTIONPLAN_OPTIMISTIC_MODE = 2;
-	public final static int ACTIONPLAN_PESSIMISTIC_MODE = 3;
-	public final static int ACTIONPLAN_PHASE_NORMAL_MODE = 4;
-	public final static int ACTIONPLAN_PHASE_OPTIMISTIC_MODE = 5;
-	public final static int ACTIONPLAN_PHASE_PESSIMISTIC_MODE = 6;
+	public static final  int ACTIONPLAN_NORMAL_MODE = 1;
+	public static final  int ACTIONPLAN_OPTIMISTIC_MODE = 2;
+	public static final  int ACTIONPLAN_PESSIMISTIC_MODE = 3;
+	public static final  int ACTIONPLAN_PHASE_NORMAL_MODE = 4;
+	public static final  int ACTIONPLAN_PHASE_OPTIMISTIC_MODE = 5;
+	public static final  int ACTIONPLAN_PHASE_PESSIMISTIC_MODE = 6;
 
 	/** Risk Information Types */
 	public static final String RI_TYPE_THREAT = "Threat";
@@ -401,37 +401,29 @@ public class Constant {
 			{ RI_TYPE_VUL, "Vulnerabilities", 6 }, { RI_TYPE_THREAT, "Threats", 7 } };
 
 	/** SimpleParameter Attributes */
-	public final static String PARAMATTRIBUTE_NAME = "Name";
-	public final static String PARAMATTRIBUTE_VALUE = "Value";
-	public final static String PARAMATTRIBUTE_MAT_CATEGORY = "Category";
-	public final static String PARAMATTRIBUTE_MAT_SML = "SML";
-	public final static String PARAMATTRIBUTE_EXT_ACRONYM = "Acronym";
-	public final static String PARAMATTRIBUTE_EXT_LEVEL = "Level";
-	public final static String PARAMATTRIBUTE_EXT_FROM = "From";
-	public final static String PARAMATTRIBUTE_EXT_TO = "To";
-
+	public static final  String PARAMATTRIBUTE_NAME = "Name";
+	public static final  String PARAMATTRIBUTE_VALUE = "Value";
+	public static final  String PARAMATTRIBUTE_MAT_CATEGORY = "Category";
+	public static final  String PARAMATTRIBUTE_MAT_SML = "SML";
+	public static final  String PARAMATTRIBUTE_EXT_ACRONYM = "Acronym";
+	public static final  String PARAMATTRIBUTE_EXT_LEVEL = "Level";
+	public static final  String PARAMATTRIBUTE_EXT_FROM = "From";
+	public static final  String PARAMATTRIBUTE_EXT_TO =  "To";
 	/** SimpleParameter Attribute Value Types */
-	public final static String PARAMATTRIBUTE_VALUE_TYPE_STRING = "S";
-	public final static String PARAMATTRIBUTE_VALUE_TYPE_INTEGER = "I";
-	public final static String PARAMATTRIBUTE_VALUE_TYPE_DOUBLE = "D";
+	public static final  String PARAMATTRIBUTE_VALUE_TYPE_STRING = "S";
+	public static final  String PARAMATTRIBUTE_VALUE_TYPE_INTEGER = "I";
+	public static final  String PARAMATTRIBUTE_VALUE_TYPE_DOUBLE = "D";
 
 	/** Parameter Category **/
 
-	public final static String PARAMETER_CATEGORY_IMPACT = "IMPACT";
-
-	public final static String PARAMETER_CATEGORY_PROBABILITY = "PROBABILITY";
-
-	public final static String PARAMETER_CATEGORY_DYNAMIC = "DYNAMIC";
-
-	public final static String PARAMETER_CATEGORY_ILR_SOA_SCALE = PARAMETERTYPE_TYPE_ILR_SOA_SCALE;
-
-	public final static String PARAMETER_CATEGORY_PROBABILITY_LIKELIHOOD = "LIKELIHOOD";
-
-	public final static String PARAMETER_CATEGORY_MATURITY = "MATURITY";
-
-	public final static String PARAMETER_CATEGORY_SIMPLE = "SIMPLE";
-
-	public final static String PARAMETER_CATEGORY_RISK_ACCEPTANCE = PARAMETERTYPE_TYPE_RISK_ACCEPTANCE_NAME;
+	public static final  String PARAMETER_CATEGORY_IMPACT = "IMPACT";
+	public static final  String PARAMETER_CATEGORY_PROBABILITY = "PROBABILITY";
+	public static final  String PARAMETER_CATEGORY_DYNAMIC = "DYNAMIC";
+	public static final  String PARAMETER_CATEGORY_ILR_SOA_SCALE = PARAMETERTYPE_TYPE_ILR_SOA_SCALE_NAME;
+	public static final  String PARAMETER_CATEGORY_PROBABILITY_LIKELIHOOD = "LIKELIHOOD";
+	public static final  String PARAMETER_CATEGORY_MATURITY = "MATURITY";
+	public static final  String PARAMETER_CATEGORY_SIMPLE = "SIMPLE";
+	public static final  String PARAMETER_CATEGORY_RISK_ACCEPTANCE = PARAMETERTYPE_TYPE_RISK_ACCEPTANCE_NAME;
 
 	/** CIA */
 	public static final String CONFIDENTIALITY_RISK = "Confidentiality";
@@ -445,9 +437,8 @@ public class Constant {
 	public static final String INTEGRITY = "INTEGRITY";
 	public static final String AVAILABILITY = "AVAILABILITY";
 
-	public final static String EMPTY_STRING = "";
-
-	public final static String CHECKBOX_CONTROL_ON = "on";
+	public static final  String EMPTY_STRING = "";
+	public static final  String CHECKBOX_CONTROL_ON = "on";
 
 	/***********************************************************************************************
 	 * List of Common Constants - END
@@ -462,16 +453,16 @@ public class Constant {
 	public static final String IDENTIFIER_LABEL = "label";
 
 	/** List of Constants for the Sqlite Table "maturity_required_LIPS" */
-	public final static String MATURITY_REQUIRED_LIPS_SML = "SML";
-	public final static String MATURITY_REQUIRED_LIPS_VALUE = "value";
+	public static final  String MATURITY_REQUIRED_LIPS_SML = "SML";
+	public static final  String MATURITY_REQUIRED_LIPS_VALUE = "value";
 
 	/** List of Constants for the Sqlite Table "maturity_IS" */
-	public final static String MATURITY_IS_LINE = "line";
-	public final static String MATURITY_IS_VALUE = "value";
+	public static final  String MATURITY_IS_LINE = "line";
+	public static final  String MATURITY_IS_VALUE = "value";
 
 	/** List of Constants for the Sqlite Table "maturity_MAX_EFF" */
-	public final static String MATURITY_MAX_EFF_COL = "col";
-	public final static String MATURITY_MAX_EFF_VALUE = "value";
+	public static final  String MATURITY_MAX_EFF_COL = "col";
+	public static final  String MATURITY_MAX_EFF_VALUE = "value";
 
 	/** List of Constants for the Sqlite Table "maturities" */
 	public static final String MATURITY_SML5 = "sml5";
@@ -497,7 +488,7 @@ public class Constant {
 	public static final String MATURITY_LEVEL_SML0 = "SML0";
 
 	/** List of Constants for the Sqlite Table "maturity_phase" */
-	public final static String MATURITYPHASE_ID = "phase";
+	public static final String MATURITYPHASE_ID = "phase";
 
 	/** List of Constants for the Sqlite Table "measures" */
 	public static final String MEASURE_QUESTION_MEASURE = "question_measure";
@@ -546,7 +537,7 @@ public class Constant {
 	public static final String MEASURE_DESCRIPTION_REF = "ref";
 
 	/** List of Constants for the Sqlite Table "phase" */
-	public final static String PHASE_NUMBER = "num_phase";
+	public static final String PHASE_NUMBER = "num_phase";
 	public static final String PHASE_END_DATE = "end_date";
 	public static final String PHASE_BEGIN_DATE = "begin_date";
 
@@ -800,13 +791,13 @@ public class Constant {
 
 	public static final String ANALYSIS_REPORT_LIGHT_COLOR = "REPORT_LIGHT_COLOR";
 
-	public static int APPLICATION_SECURITY_MAX_ATTEMPTS = 3;
+	public static volatile int APPLICATION_SECURITY_MAX_ATTEMPTS = 3;
 
-	public static int CHAR_MULTI_CONTENT_MAX_SIZE = 12;
+	public static volatile int CHAR_MULTI_CONTENT_MAX_SIZE = 12;
 
-	public static int CHAR_SINGLE_CONTENT_MAX_SIZE = 14;
+	public static volatile int CHAR_SINGLE_CONTENT_MAX_SIZE = 14;
 
-	public static int CHAR_MULTI_CONTENT_SIZE = 10;
+	public static volatile int CHAR_MULTI_CONTENT_SIZE = 10;
 
 	public static volatile List<String> STATIC_COLORS;
 
