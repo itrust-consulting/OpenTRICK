@@ -567,7 +567,7 @@ public class ControllerAnalysis extends AbstractController {
 		final Analysis analysis = serviceAnalysis.get(idAnalysis);
 		final AnalysisType analysisType = analysis.getType();
 		final boolean isFullCostRelatedOld = analysis.findSetting(AnalysisSetting.ALLOW_FULL_COST_RELATED_TO_MEASURE);
-		final boolean isILR = analysis.findSetting(AnalysisSetting.ALLOW_ILR_ANALYSIS);
+		final boolean isILR = Analysis.isILR(analysis);
 
 		currentSettings.forEach((key, value) -> {
 			final AnalysisSetting setting = AnalysisSetting.valueOf(key);
@@ -580,11 +580,12 @@ public class ControllerAnalysis extends AbstractController {
 			computeMeasureCost(analysis);
 		}
 
-		if (!isILR && (boolean) analysis.findSetting(AnalysisSetting.ALLOW_ILR_ANALYSIS)) {
+		if (!isILR && Analysis.isILR(analysis)) {
 			DependencyGraphManager.computeImpact(analysis.getAssetNodes());
 		}
 
 		serviceAnalysis.saveOrUpdate(analysis);
+		
 		return JsonMessage.Success(messageSource.getMessage("success.update.analysis.settings", null, locale));
 	}
 
@@ -673,7 +674,7 @@ public class ControllerAnalysis extends AbstractController {
 			Collections.reverse(analysis.getHistories());
 			Collections.sort(analysis.getItemInformations(), new ComparatorItemInformation());
 			final List<Standard> standards = analysis.findStandards();
-			final boolean isILR = analysis.findSetting(AnalysisSetting.ALLOW_ILR_ANALYSIS);
+			final boolean isILR = Analysis.isILR(analysis);
 			final Map<String, List<Measure>> measuresByStandard = mapMeasures(analysis.getAnalysisStandards().values());
 			hasMaturity = measuresByStandard.containsKey(Constant.STANDARD_MATURITY);
 			model.addAttribute("soaThreshold",

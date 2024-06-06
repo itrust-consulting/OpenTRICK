@@ -4,6 +4,7 @@ import static lu.itrust.business.ts.constants.Constant.ACCEPT_APPLICATION_JSON_C
 import static lu.itrust.business.ts.constants.Constant.OPEN_MODE;
 
 import java.security.Principal;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -18,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,6 +27,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import lu.itrust.business.ts.asynchronousWorkers.Worker;
@@ -36,6 +39,7 @@ import lu.itrust.business.ts.database.service.ServiceDynamicParameter;
 import lu.itrust.business.ts.database.service.ServiceIlrSoaScaleParameter;
 import lu.itrust.business.ts.database.service.ServiceImpactParameter;
 import lu.itrust.business.ts.database.service.ServiceLikelihoodParameter;
+import lu.itrust.business.ts.database.service.ServiceParameterType;
 import lu.itrust.business.ts.database.service.ServiceRiskAcceptanceParameter;
 import lu.itrust.business.ts.database.service.ServiceScaleType;
 import lu.itrust.business.ts.database.service.ServiceSimpleParameter;
@@ -51,12 +55,15 @@ import lu.itrust.business.ts.model.parameter.impl.DynamicParameter;
 import lu.itrust.business.ts.model.parameter.impl.IlrSoaScaleParameter;
 import lu.itrust.business.ts.model.parameter.impl.ImpactParameter;
 import lu.itrust.business.ts.model.parameter.impl.RiskAcceptanceParameter;
+import lu.itrust.business.ts.model.parameter.impl.SimpleParameter;
+import lu.itrust.business.ts.model.parameter.type.impl.ParameterType;
 import lu.itrust.business.ts.model.parameter.value.IValue;
 import lu.itrust.business.ts.model.parameter.value.impl.FormulaValue;
 import lu.itrust.business.ts.model.scale.ScaleType;
 import lu.itrust.business.ts.model.standard.AnalysisStandard;
 import lu.itrust.business.ts.model.standard.MaturityStandard;
 import lu.itrust.business.ts.model.standard.measure.Measure;
+import net.bytebuddy.agent.ByteBuddyAgent.AttachmentProvider.Accessor.Simple;
 import lu.itrust.business.expressions.TokenType;
 import lu.itrust.business.expressions.TokenizerToString;
 
@@ -89,6 +96,9 @@ public class ControllerParameter extends AbstractController {
 
 	@Autowired
 	private AnalysisImpactManager analysisImpactManager;
+
+	@Autowired
+	private ServiceParameterType serviceParameterType;
 
 	@Autowired
 	private ServiceScaleType serviceScaleType;
@@ -174,7 +184,7 @@ public class ControllerParameter extends AbstractController {
 		model.addAttribute("type", analysis.getType());
 		model.addAttribute("reportSettings", loadReportSettings(analysis));
 		model.addAttribute("exportFilenames", loadExportFileNames(analysis));
-		model.addAttribute("isILR", analysis.findSetting(AnalysisSetting.ALLOW_ILR_ANALYSIS));
+		model.addAttribute("isILR", Analysis.isILR(analysis));
 		model.addAttribute("isEditable", !OpenMode.isReadOnly((OpenMode) session.getAttribute(OPEN_MODE)));
 		model.addAttribute("mappedParameters", AnalysisUtils.SplitParameters(analysis.getParameters()));
 		return "jsp/analyses/single/components/parameters/other";
@@ -311,11 +321,6 @@ public class ControllerParameter extends AbstractController {
 		}
 	}
 
-	private boolean hasVariable(final String acronym, final String formular) {
-		return new TokenizerToString(formular).getTokens().parallelStream()
-				.anyMatch(v -> v.getType().equals(TokenType.Variable) && v.getParameter().equals(acronym));
-	}
-
 	/**
 	 * section: <br>
 	 * Description
@@ -326,7 +331,7 @@ public class ControllerParameter extends AbstractController {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Risk-acceptance/Save", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PostMapping(value = "/Risk-acceptance/Save", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String riskAcceptanceSave(@RequestBody List<RiskAcceptanceParameter> parameters,
 			HttpSession session, Principal principal, Locale locale)
@@ -433,4 +438,96 @@ public class ControllerParameter extends AbstractController {
 					.Error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 		}
 	}
+
+	@PostMapping(value = "/IlrVulnerability/Add", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).MODIFY)")
+	public @ResponseBody Object addIlrVulnerabilityParameter(@RequestBody SimpleParameter data, HttpSession session,
+			Principal principal,
+			Locale locale) {
+
+		if (!StringUtils.hasText(data.getDescription()))
+			return JsonMessage
+					.Error(messageSource.getMessage("error.parameter.invalid", null, "Invalid parameter", locale));
+
+		final Analysis analysis = serviceAnalysis.get((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS));
+		final List<SimpleParameter> parameters = analysis.getSimpleParameters().stream()
+				.filter(p -> p.getType().getName().equals(Constant.PARAMETERTYPE_TYPE_ILR_VULNERABILITY_SCALE_NAME))
+				.collect(Collectors.toList());
+		ParameterType type = parameters.stream().map(SimpleParameter::getType).findAny().orElseGet(() -> {
+			ParameterType t = serviceParameterType.getByName(Constant.PARAMETERTYPE_TYPE_ILR_VULNERABILITY_SCALE_NAME);
+			return t == null ? new ParameterType(Constant.PARAMETERTYPE_TYPE_ILR_VULNERABILITY_SCALE_NAME) : t;
+		});
+
+		SimpleParameter parameter = new SimpleParameter(type, data.getDescription().trim(),
+				parameters.stream().mapToDouble(p -> p.getValue()).max().orElse(0) + 1);
+
+		analysis.add(parameter);
+
+		serviceAnalysis.saveOrUpdate(analysis);
+
+		final Map<String, Object> result = new HashMap<>();
+		result.put("id", parameter.getId());
+		result.put("reload", Math.abs(parameter.getValue() - data.getValue()) > 1e-6);
+		result.put("success",
+				messageSource.getMessage("success.add.parameter", null, "Parameter has been added", locale));
+
+		return result;
+	}
+
+	/**
+	 * Deletes an ILR vulnerability parameter.
+	 *
+	 * @param id        The ID of the parameter to be deleted.
+	 * @param session   The HttpSession object.
+	 * @param principal The Principal object.
+	 * @param locale    The Locale object.
+	 * @return An Object representing the result of the deletion operation.
+	 */
+	@DeleteMapping(value = "/IlrVulnerability/Delete/{id}", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).MODIFY)")
+	public @ResponseBody Object deleteIlrVulnerabilityParameter(@PathVariable int id, HttpSession session,
+			Principal principal,
+			Locale locale) {
+		try {
+			final Analysis analysis = serviceAnalysis.get((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS));
+
+			final SimpleParameter parameter = analysis.getSimpleParameters().stream()
+					.filter(p -> p.getId() == id
+							&& p.getType().getName().equals(Constant.PARAMETERTYPE_TYPE_ILR_VULNERABILITY_SCALE_NAME))
+					.findAny().orElse(null);
+			if (parameter == null)
+				return JsonMessage.Error(
+						messageSource.getMessage("error.parameter.not_found", null, "Parameter not found", locale));
+
+			analysis.getSimpleParameters().remove(parameter);
+			final List<SimpleParameter> parameters = analysis.getSimpleParameters().stream()
+					.filter(p -> p.getType().getName().equals(Constant.PARAMETERTYPE_TYPE_ILR_VULNERABILITY_SCALE_NAME))
+					.sorted((e1, e2) -> Double.compare(e1.getValue(), e2.getValue())).collect(Collectors.toList());
+
+			final Map<String, Object> result = new HashMap<>();
+			final SimpleParameter last = parameters.isEmpty() ? null : parameters.get(parameters.size() - 1);
+			if (!(last == null || parameter.getValue() >= last.getValue())) {
+				for (int i = parameter.getValue().intValue() - 1; i < parameters.size(); i++)
+					parameters.get(i).setValue(i + 1d);
+				result.put("reload", true);
+			}
+
+			serviceAnalysis.saveOrUpdate(analysis);
+			serviceSimpleParameter.delete(parameter);
+			result.put("success",
+					messageSource.getMessage("success.delete.parameter", null, "Parameter has been deleted", locale));
+			return result;
+
+		} catch (Exception e) {
+			TrickLogManager.Persist(e);
+			return JsonMessage
+					.Error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
+		}
+	}
+
+	private boolean hasVariable(final String acronym, final String formular) {
+		return new TokenizerToString(formular).getTokens().parallelStream()
+				.anyMatch(v -> v.getType().equals(TokenType.Variable) && v.getParameter().equals(acronym));
+	}
+
 }

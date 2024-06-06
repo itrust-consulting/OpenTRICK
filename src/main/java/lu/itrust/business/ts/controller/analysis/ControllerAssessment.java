@@ -578,8 +578,7 @@ public class ControllerAssessment {
 
 		if (analysis.isQualitative()) {
 
-			final boolean isILR = Analysis.findSetting(AnalysisSetting.ALLOW_ILR_ANALYSIS,
-					analysis.getSettings().get(AnalysisSetting.ALLOW_ILR_ANALYSIS.name()));
+			final boolean isILR = Analysis.isILR(analysis);
 
 			model.addAttribute("isILR", isILR);
 

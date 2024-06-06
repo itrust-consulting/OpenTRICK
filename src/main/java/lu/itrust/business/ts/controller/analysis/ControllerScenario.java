@@ -232,8 +232,7 @@ public class ControllerScenario {
 		model.addAttribute("scenarioALE", AssessmentAndRiskProfileManager.ComputeScenarioALE(scenarios, assessments));
 		model.addAttribute("isEditable", !OpenMode.isReadOnly((OpenMode) session.getAttribute(Constant.OPEN_MODE)));
 		model.addAttribute("show_uncertainty", analysis.isUncertainty());
-		model.addAttribute("isILR", Analysis.findSetting(AnalysisSetting.ALLOW_ILR_ANALYSIS,
-				analysis.getSettings().get(AnalysisSetting.ALLOW_ILR_ANALYSIS.name())));
+		model.addAttribute("isILR", Analysis.isILR(analysis));
 		model.addAttribute("isProfile", analysis.isProfile());
 		return "jsp/analyses/single/components/scenario/scenario";
 	}

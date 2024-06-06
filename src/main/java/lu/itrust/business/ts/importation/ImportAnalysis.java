@@ -3354,10 +3354,10 @@ public class ImportAnalysis {
 				}
 
 				if (hasIlrScale) {
-					parameterType = daoParameterType.getByName(Constant.PARAMETERTYPE_TYPE_ILR_SOA_SCALE);
+					parameterType = daoParameterType.getByName(Constant.PARAMETERTYPE_TYPE_ILR_SOA_SCALE_NAME);
 					if (parameterType == null)
 						daoParameterType
-								.save(parameterType = new ParameterType(Constant.PARAMETERTYPE_TYPE_ILR_SOA_SCALE));
+								.save(parameterType = new ParameterType(Constant.PARAMETERTYPE_TYPE_ILR_SOA_SCALE_NAME));
 
 					rs = sqlite.query("SELECT level, color, description from ilr_soa_scale");
 					if (rs != null) {

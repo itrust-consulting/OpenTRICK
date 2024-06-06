@@ -108,7 +108,7 @@
 								<td title="<fmt:formatNumber value="${fct:round(ale[1].value,0)}"  /> &euro;"><fmt:formatNumber value="${fct:round(ale[1].value*0.001,1)}" /></td>
 							</c:otherwise>
 						</c:choose>
-						<td colspan="2"></td>
+						<td colspan="${isILR? 2 : 1}"></td>
 					</tr>
 				</tfoot>
 			</c:if>

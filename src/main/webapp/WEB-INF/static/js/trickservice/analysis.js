@@ -112,7 +112,7 @@ function computeRiskProfileMeasure() {
 			type: "POST",
 			contentType: "application/json;charset=UTF-8",
 			success: function (response, textStatus, jqXHR) {
-				if (response.success){
+				if (response.success) {
 					showDialog("success", response.success);
 					riskEstimationUpdate(true);
 				}
@@ -337,6 +337,95 @@ function manageScaleLevel() {
 	}
 	return false;
 }
+
+
+/**
+ * Adds an ILR vulnerability to the analysis.
+ * 
+ * @returns {void}
+ */
+function addIlrVulnerability() {
+	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
+		let $table = $("#table_parameter_ilr_vulnerability_scale");
+		if ($table.length) {
+			let $tbody = $table.find("tbody");
+			let count = $tbody.find("tr").length + 1;
+			let $element = $("<tr data-trick-class='SimpleParameter' data-trick-id='0'><td class='text-center'>" + count + "</td><td class='editable input-group' onclick='return editField(this);' data-trick-field='description' data-trick-content='text' data-trick-field-type='string'><input type='text' name='description' class='form-control' required/><div class='input-group-btn'><button type='button' class='btn btn-primary' name='save'><i class='fa fa-floppy-o'></i></button></div></td><td><button type='button' class='btn btn-xs btn-danger' name='delete' onclick='deleteIlrVulnerability(this)'><span class='fa fa-times-circle'></span></button></td></tr>");
+			let save = (e) => {
+				let $description = $element.find("input[name='description']");
+				let value = $description.val();
+				if (value.trim() === "") {
+					$description.closest(".input-group").addClass("has-error");
+				} else {
+					let $progress = $("#loading-indicator").show();
+					$.ajax({
+						url: context + "/Analysis/Parameter/IlrVulnerability/Add",
+						contentType: "application/json;charset=UTF-8",
+						type: "POST",
+						data: JSON.stringify({ "value": count, "description": value.trim() }),
+						success: function (response, textStatus, jqXHR) {
+							if (response.success) {
+								if (response.reload)
+									reloadSection(["section_parameter", "section_asset"]);
+								else {
+									$element.attr("data-trick-id", response.id);
+									//showDialog("success", response.success);
+									$description.closest(".input-group").removeClass("has-error").removeClass("input-group").text(value);
+									reloadSection("section_asset");
+								}
+								riskEstimationUpdate(true);
+							} else if (response.error) {
+								showDialog("error", response.error);
+								$description.closest(".input-group").addClass("has-error");
+							} else unknowError();
+						},
+						error: unknowError
+					}).complete(() => $progress.hide());
+				}
+			};
+			$element.appendTo($tbody).find("button[name='save']").on("click", save);
+			$element.find("input[name='description']").on("blur", save);
+		}
+	}
+}
+
+function deleteIlrVulnerability(el) {
+	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
+		let $el = $(el);
+		if ($el.length) {
+			let id = parseInt($el.closest("tr").attr("data-trick-id"));
+			if (id > 0) {
+				var $confirmModal = showDialog("#confirm-dialog", MessageResolver(
+					"confirm.delete.single.entry", "Are you sure, you want to delete selected entry"));
+				$confirmModal.find(".modal-footer>button[name='yes']").one("click", function (e) {
+					$confirmModal.modal("hide");
+					let $progress = $("#loading-indicator").show();
+					$.ajax({
+						url: context + "/Analysis/Parameter/IlrVulnerability/Delete/" + id,
+						type: "DELETE",
+						contentType: "application/json;charset=UTF-8",
+						success: function (response, textStatus, jqXHR) {
+							if (response.success) {
+								if (response.reload)
+									reloadSection(["section_parameter", "section_asset"]);
+								else {
+									$el.closest("tr").remove();
+									//showDialog("success", response.success);
+									reloadSection("section_asset");
+								}
+								riskEstimationUpdate(true);
+							} else if (response.error) {
+								showDialog("error", response.error);
+							} else unknowError();
+						},
+						error: unknowError
+					}).complete(() => $progress.hide());
+				});
+			} else $el.closest("tr").remove();
+		}
+	}
+}
+
 
 /**
  * Updates the scroll position of an element and ensures that the focus is maintained.

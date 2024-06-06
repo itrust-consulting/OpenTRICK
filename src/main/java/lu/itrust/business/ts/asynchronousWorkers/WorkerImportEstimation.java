@@ -382,7 +382,7 @@ public class WorkerImportEstimation extends WorkerImpl {
 		if (nameIndex == -1)
 			throw new TrickException("error.import.data.no.column", "Name column cannot be found!", "Name");
 
-		final boolean isILR = analysis.findSetting(AnalysisSetting.ALLOW_ILR_ANALYSIS);
+		final boolean isILR = Analysis.isILR(analysis);
 
 		final Map<String, AssetNode> nodeByAssetNames = isILR
 				? analysis.getAssetNodes().stream()
@@ -936,7 +936,7 @@ public class WorkerImportEstimation extends WorkerImpl {
 		if (nameIndex == -1)
 			throw new TrickException("error.import.data.no.column", "Name column cannot be found!", "Name");
 
-		final boolean isILR = analysis.findSetting(AnalysisSetting.ALLOW_ILR_ANALYSIS);
+		final boolean isILR = Analysis.isILR(analysis);
 
 		final Map<String, String> names = loadTypeNames(workbook, sheets, formatter, "ScenarioTypes");
 		final Map<String, ScenarioType> scenarioTypes = new LinkedHashMap<>();
@@ -1262,7 +1262,7 @@ public class WorkerImportEstimation extends WorkerImpl {
 		if (user == null)
 			throw new TrickException("error.user.not_found", "User cannot be found");
 		final DataFormatter formatter = new DataFormatter();
-		final boolean isILR = analysis.findSetting(AnalysisSetting.ALLOW_ILR_ANALYSIS);
+		final boolean isILR = Analysis.isILR(analysis);
 		final SpreadsheetMLPackage mlPackage = SpreadsheetMLPackage.load(getServiceStorage().loadAsFile(getFilename()));
 		final WorkbookPart workbook = mlPackage.getWorkbookPart();
 		final Map<String, Sheet> sheets = workbook.getContents().getSheets().getSheet().parallelStream()

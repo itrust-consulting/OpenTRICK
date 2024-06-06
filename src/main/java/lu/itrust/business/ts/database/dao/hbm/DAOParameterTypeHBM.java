@@ -51,10 +51,9 @@ public class DAOParameterTypeHBM extends DAOHibernate implements DAOParameterTyp
 	 * 
 	 * @see lu.itrust.business.ts.database.dao.DAOParameterType#getByName(java.lang.String)
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
 	public ParameterType getByName(String parameterTypeName)  {
-		return (ParameterType) getSession().createQuery("From ParameterType where name = :name").setParameter("name", parameterTypeName).uniqueResultOptional().orElse(null);
+		return  getSession().createQuery("From ParameterType where name = :name",ParameterType.class).setParameter("name", parameterTypeName).uniqueResultOptional().orElse(null);
 	}
 
 	/**

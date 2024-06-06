@@ -332,7 +332,7 @@ public class ControllerAsset {
 
 		loadAnalysisSettings(model, integer);
 
-		if ((boolean) analysis.findSetting(AnalysisSetting.ALLOW_ILR_ANALYSIS)) {
+		if (Analysis.isILR(analysis)) {
 			DependencyGraphManager.computeImpact(analysis.getAssetNodes());
 			model.addAttribute("assetNodes", analysis.getAssetNodes().stream()
 					.collect(Collectors.toMap(e -> e.getAsset().getId(), Function.identity())));
@@ -394,7 +394,7 @@ public class ControllerAsset {
 			HttpSession session) throws Exception {
 		Integer integer = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		// init list of errors
-		List<String> errors = new LinkedList<String>();
+		final List<String> errors = new LinkedList<>();
 		if (!serviceAsset.belongsToAnalysis(integer, ids)) {
 			errors.add(JsonMessage.Error(messageSource.getMessage("label.unauthorized_asset", null,
 					"One of the assets does not belong to this analysis!", locale)));
@@ -528,7 +528,7 @@ public class ControllerAsset {
 		model.addAttribute("showHiddenComment",
 				Analysis.findSetting(hiddenCommentSetting, settings.get(hiddenCommentSetting.name())));
 		model.addAttribute("showRawColumn", Analysis.findSetting(rawSetting, settings.get(rawSetting.name())));
-		model.addAttribute("isILR", Analysis.findSetting(AnalysisSetting.ALLOW_ILR_ANALYSIS,
-				settings.get(AnalysisSetting.ALLOW_ILR_ANALYSIS.name())));
+		/*model.addAttribute("isILR", Analysis.findSetting(AnalysisSetting.ALLOW_ILR_ANALYSIS,
+				settings.get(AnalysisSetting.ALLOW_ILR_ANALYSIS.name())));*/
 	}
 }
