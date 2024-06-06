@@ -112,7 +112,7 @@ public abstract class Parameter implements IParameter {
 	 * @return A duplicate of the parameter object.
 	 */
 	public Parameter duplicate() {
-		Parameter parameter = (Parameter) this.clone();
+		Parameter parameter = this.clone();
 		parameter.id = 0;
 		return parameter;
 	}

@@ -1785,8 +1785,7 @@ public class ControllerFieldEditor {
 	public void updateRiskEstimationValue(RiskProfile riskProfile, Assessment assessment, Result result, int idAnalysis,
 			String fieldName) {
 		final Analysis analysis = serviceAnalysis.get(idAnalysis);
-		final boolean isILR = Analysis.findSetting(AnalysisSetting.ALLOW_ILR_ANALYSIS,
-				analysis.getSettings().get(AnalysisSetting.ALLOW_ILR_ANALYSIS.name()));
+		final boolean isILR = Analysis.isILR(analysis);
 		switch (fieldName) {
 			case "riskProfile.rawProbaImpact.probability":
 				result.add(

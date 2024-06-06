@@ -6,7 +6,7 @@
 <%@ taglib uri="jakarta.tags.functions" prefix="fn"%>
 <fmt:setLocale value="fr" scope="session" />
 <div class="tab-pane" id="tab-parameter">
-	<div class='section row' id='section_parameter'>
+	<div class='section' id='section_parameter'>
 		<div class="page-header tab-content-header">
 			<div class="container">
 				<div class="row-fluid">
@@ -194,7 +194,7 @@
 				</fieldset>
 			</div>
 		</c:if>
-		<div class='col-sm-3'>
+		<div class='col-sm-${isILR?6:3}'>
 			<fieldset>
 				<legend>
 					<spring:message code="label.title.parameter.export.filename" />
@@ -217,7 +217,7 @@
 				</table>
 			</fieldset>
 		</div>
-		<div class='col-sm-3 pull-right'>
+		<div class='col-sm-3'>
 			<fieldset>
 				<legend>
 					<spring:message code="label.title.parameter.report.setting" />
@@ -241,9 +241,13 @@
 				</table>
 			</fieldset>
 		</div>
-		
+		<c:if test="${type.qualitative}">
+			<div class="col-sm-3">
+				<jsp:include page="risk-acceptance.jsp" />
+			</div>
+		</c:if>
 		<c:if test="${isILR}">
-			<div class="col-sm-3 pull-right">
+			<div class="col-sm-3">
 				<fieldset>
 					<legend>
 						<c:choose>
@@ -303,14 +307,48 @@
 					</table>
 				</fieldset>
 			</div>
-		</c:if>
-		
-		<c:if test="${type.qualitative}">
-			<div class="col-sm-6">
-				<jsp:include page="risk-acceptance.jsp" />
+			<div class='col-sm-3'>
+				<fieldset>
+					<legend>
+						<c:choose>
+							<c:when test="${isEditable}">
+								<spring:message code="label.title.parameter.ilr.vulnerability.scale" />
+								<span class="pull-right">
+									<button class='btn btn-xs btn-link' onclick="return addIlrVulnerability()" style="font-size: 15px">
+										<i class="fa fa-plus" aria-hidden="true"></i>
+										<spring:message code='label.action.add' />
+									</button>
+								</span>
+							</c:when>
+							<c:otherwise>
+								<spring:message code="label.title.parameter.ilr.vulnerability.scale" />
+							</c:otherwise>
+						</c:choose>
+					</legend>
+					<table class="table table-hover table-condensed" id="table_parameter_ilr_vulnerability_scale">
+						<thead>
+							<tr>
+								<th><spring:message code="label.vulnerability" /></th>
+								<th style="width: 90%"><spring:message code="label.name" /></th>
+								<c:if test="${isEditable}">
+									<th><spring:message code="label.action" /></th>
+								</c:if>
+							</tr>
+						</thead>
+						<tbody>
+							<c:forEach items="${mappedParameters['ILR_VULNERABILITY_SCALE']}" var="parameter" varStatus="status">
+								<tr data-trick-class="SimpleParameter" data-trick-id="${parameter.id}">
+									<td class='text-center'><spring:message text="${parameter.value}"/></td>
+									<td class="editable" onclick="return editField(this);" data-trick-field="description" data-trick-content="text" data-trick-field-type="string"><spring:message text="${parameter.description}" /></td>
+									<c:if test="${isEditable}">
+										<td><button class="btn btn-xs btn-danger" onclick="return deleteIlrVulnerability(this);"><i class='fa fa-times-circle'></i></button></td>
+									</c:if>
+								</tr>
+							</c:forEach>
+						</tbody>
+					</table>
+				</fieldset>
 			</div>
 		</c:if>
-		
 	</div>
-		
 </div>

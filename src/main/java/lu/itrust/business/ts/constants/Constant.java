@@ -216,7 +216,7 @@ public class Constant {
 	public static final String REGEXP_VALID_STANDARD_NAME = "Maturity|2700[1-2]|[cC]ustom";
 
 	/** Regular expression for SimpleParameter types */
-	public final static String REGEXP_VALID_PARAMETERTYPE = "ILPS|IMPSCALE|MAXEFF|PROBA|SINGLE|DYNAMIC|CSSF";
+	public static final String REGEXP_VALID_PARAMETERTYPE = "ILPS|IMPSCALE|MAXEFF|PROBA|SINGLE|DYNAMIC|CSSF";
 
 	/**
 	 * Regular expression for asset types, the order is important to not change it!
@@ -342,7 +342,7 @@ public class Constant {
 	public static final  String PARAMETERTYPE_TYPE_RISK_ACCEPTANCE_NAME = "RISK_ACCEPTANCE";
 	public static final  String PARAMETERTYPE_TYPE_ILR_SOA_SCALE_NAME = "ILR_SOA_SCALE";
 	public static final  String PARAMETERTYPE_TYPE_ILR_VULNERABILITY_SCALE_NAME = "ILR_VULNERABILITY_SCALE";
-	public static final  String[] ALL_ACRONYM_TYPE_NAMES = { PARAMETER_TYPE_PROPABILITY_NAME,
+	public static final  String [] ALL_ACRONYM_TYPE_NAMES = { PARAMETER_TYPE_PROPABILITY_NAME,
 			PARAMETERTYPE_TYPE_DYNAMIC_NAME };
 
 	/**
@@ -351,7 +351,7 @@ public class Constant {
 	 * @see #DEFAULT_IMPACT_TYPE_TRANSLATES
 	 * @see #ASSESSMENT_IMPACT_NAMES
 	 */
-	public final static String[] DEFAULT_IMPACT_TYPE_NAMES = { "FINANCIAL", "LEGAL", "OPERATIONAL", "REPUTATIONAL" };
+	public static final String[] DEFAULT_IMPACT_TYPE_NAMES = { "FINANCIAL", "LEGAL", "OPERATIONAL", "REPUTATIONAL" };
 
 	/**
 	 * Financial, Legal, Operational, Reputational

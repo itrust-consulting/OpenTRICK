@@ -2892,4 +2892,8 @@ public class Analysis implements Cloneable {
 	public List<AnalysisStandard> findAllAnalysisStandard() {
 		return getAnalysisStandards().values().stream().collect(Collectors.toList());
 	}
+
+	public static boolean isILR(Analysis analysis){
+		return analysis !=null && analysis.getType().isQualitative() && (boolean)analysis.findSetting(AnalysisSetting.ALLOW_ILR_ANALYSIS);
+	}
 }

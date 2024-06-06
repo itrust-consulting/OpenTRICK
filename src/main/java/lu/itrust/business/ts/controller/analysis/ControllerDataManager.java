@@ -404,7 +404,7 @@ public class ControllerDataManager {
 	public String exportation(@RequestParam(name = "analysisId") Integer idAnalysis, Model model, HttpSession session,
 			Principal principal, Locale locale) {
 		final Analysis analysis = serviceAnalysis.findByIdAndEager(idAnalysis);
-		final boolean isILR = analysis.findSetting(AnalysisSetting.ALLOW_ILR_ANALYSIS);
+		final boolean isILR = Analysis.isILR(analysis);
 		final List<DataManagerItem> items = new LinkedList<>();
 		if (!analysis.getActionPlans().isEmpty())
 			items.add(new DataManagerItem("action-plan-raw", "/Analysis/Data-manager/Action-plan-raw/Export-process"));
@@ -578,7 +578,7 @@ public class ControllerDataManager {
 			final SpreadsheetMLPackage mlPackage = SpreadsheetMLPackage.load(file);
 			final WorksheetPart worksheetPart = createWorkSheetPart(mlPackage, "Risk estimation");
 			final SheetData sheetData = worksheetPart.getContents().getSheetData();
-			final boolean isILR = analysis.findSetting(AnalysisSetting.ALLOW_ILR_ANALYSIS);
+			final boolean isILR = Analysis.isILR(analysis);
 			final boolean hiddenComment = analysis.findSetting(AnalysisSetting.ALLOW_RISK_HIDDEN_COMMENT);
 			final boolean qualitative = analysis.isHybrid() || analysis.isQualitative();
 			final boolean rowColumn = analysis.findSetting(AnalysisSetting.ALLOW_RISK_ESTIMATION_RAW_COLUMN);
@@ -1695,7 +1695,7 @@ public class ControllerDataManager {
 	private void exportAsset(Analysis analysis, SpreadsheetMLPackage spreadsheetMLPackage)
 			throws Exception, JAXBException {
 		final boolean hiddenComment = analysis.findSetting(AnalysisSetting.ALLOW_RISK_HIDDEN_COMMENT);
-		final boolean isILR = analysis.findSetting(AnalysisSetting.ALLOW_ILR_ANALYSIS);
+		final boolean isILR = Analysis.isILR(analysis);
 		exportAsset(analysis, spreadsheetMLPackage, hiddenComment, isILR);
 	}
 
@@ -1975,7 +1975,7 @@ public class ControllerDataManager {
 	private void exportScenario(Analysis analysis, SpreadsheetMLPackage spreadsheetMLPackage) throws Exception {
 		final String name = "Scenarios";
 		final ObjectFactory factory = Context.getsmlObjectFactory();
-		final boolean isILR = analysis.findSetting(AnalysisSetting.ALLOW_ILR_ANALYSIS);
+		final boolean isILR = Analysis.isILR(analysis);
 		final String[] columns = isILR
 				? new String[] { "Name", "Type", "Apply to", "Selected", "Description", "Threat", "Vulnerability" }
 				: new String[] { "Name", "Type", "Apply to", "Selected", "Description" };
