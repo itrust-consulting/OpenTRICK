@@ -118,8 +118,8 @@
 		</dependency>
 
 		<dependency>
-			<groupId>lu.itrust.monarc</groupId>
-			<artifactId>trick2monarc-api</artifactId>
+			<groupId>com.github.itrust-consulting</groupId>
+			<artifactId>Trick2MonarcApi</artifactId>
 			<version>0.7.5</version>
 		</dependency>
 
@@ -456,6 +456,9 @@
 	<profiles>
 		<profile>
 			<id>tomcat-server</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
 			<dependencies>
 				<dependency>
 					<groupId>org.springframework.boot</groupId>
@@ -470,9 +473,6 @@
 		</profile>
 		<profile>
 			<id>jetty-server</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
 			<dependencies>
 				<dependency>
 					<groupId>org.springframework.boot</groupId>
@@ -789,17 +789,24 @@
 		</plugins>
 	</build>
 	<repositories>
+		<!-- <repository>
+			<id>Trick2MonarcApi</id>
+			<url>https://raw.githubusercontent.com/itrust-consulting/trick2monarcapi/mvn-repo/master/</url>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>always</updatePolicy>
+			</snapshots>
+		</repository> 
+		-->
+		<repository>
+		    <id>jitpack.io</id>
+		    <url>https://jitpack.io</url>
+		</repository>
+
 		<repository>
 			<id>atlassian-repo</id>
 			<name>Atlassian repo for jira java client</name>
 			<url>https://packages.atlassian.com/mvn/maven-external/</url>
-		</repository>
-		<repository>
-			<id>github</id>
-			<url>https://maven.pkg.github.com/itrust-consulting/Trick2MonarcApi</url>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
 		</repository>
 	</repositories>
 </project>
