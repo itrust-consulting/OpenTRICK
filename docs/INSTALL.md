@@ -19,6 +19,26 @@ After that, clone the GitHb project repository:
 git clone [...]
 ```
 
+## Build the project
+    $ mvn clean compile
+
+
+## Installation Using docker
+    $ cd docs/installation/deployment/docker    
+    Copy files deployment-example.env to deployment.env
+
+
+    $ mvn clean spring-boot:build-image
+    $ docker image tag docker.io/library/trickservice:2.17 trickservice.com/opentrick:latest
+
+
+## Installation using conventional method
+
+
+
+
+
+
 ## Code compiling
 
 Once the clone process is completed, Maven can be invoked and used to resolve the project dependencies.

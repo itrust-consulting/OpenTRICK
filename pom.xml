@@ -541,7 +541,7 @@
 					<layers>
 						<enabled>true</enabled>
 					</layers>
-					<imageName>registry.itrust.lu/docker-images/trickservice</imageName>
+					<imageName>${module.image.name:trickservice.com/opentrick}</imageName>
 				</configuration>
 				<executions>
 					<execution>
