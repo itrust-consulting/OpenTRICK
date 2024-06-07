@@ -1,14 +1,10 @@
 package lu.itrust.business.permissionevaluator;
 
-import java.io.Serializable;
 import java.security.InvalidParameterException;
 import java.security.Principal;
 
-import org.checkerframework.checker.fenum.qual.SwingCompassDirection;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
 import org.springframework.security.acls.model.NotFoundException;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 import jakarta.servlet.http.HttpSession;
