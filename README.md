@@ -6,20 +6,26 @@ This platform uses Java 17 for running the server software, along with a MySQL c
 
 To begin using TRICK Service, please refer to the [installation guide](docs/INSTALL.md).
 
-# Build
+## Requirements
+
+- Java 17;
+- Mysql 8 / MariaDB;
+
+## Build
 
 TRICK Service is provided as-is. The recommended build platform for TRICK Service is composed of:
 
 - Visual Studio Code;
 - Java 17;
 - Maven;
-- Docker (for a dedicated server);
-- MariaDB;
-- Linux (or WSL).
+- Windows / Linux (or WSL) / Mac Os.
 
 ## Tools for development
 
-## Requirements
+- Visual Studio Code;
+- Java 17;
+- Maven;
+- Mysql 8 / MariaDB;
 
 # Install
 # Quick start
