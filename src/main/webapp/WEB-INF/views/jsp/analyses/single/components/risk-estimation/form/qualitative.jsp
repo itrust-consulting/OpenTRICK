@@ -397,7 +397,7 @@
 				<td class="form-estimation form-estimation-left"> <span style="transform: rotate(-90deg);display: inline-block;width: 52px;margin-left: -22px;margin-right: -30px;" title='<spring:message code="label.title.ilr.net.vulnerability" />'><spring:message code="label.short.ilr.net.vulnerability" /></span></td>
 				<c:choose>
 					<c:when test="${empty ilrVulnerabilityScales or assessment.vulnerability > ilrVulnerabilityScales.size() }">
-						<td class="input-group has-error"><label data-name="vulnerability" class="form-control form-control-static text-right disabled" data-trick-type='integer' title='<spring:message code="error.update.ilr.vulnerability.scale" />' >${assessment.vulnerability}</label></td>
+						<td class="has-error" title='<spring:message code="error.update.ilr.vulnerability.scale" />' ><label data-name="vulnerability" class="form-control form-control-static text-right disabled" data-trick-type='integer'>${assessment.vulnerability}</label></td>
 					</c:when>
 					<c:otherwise>
 						<td>
@@ -563,7 +563,7 @@
 				<c:choose>
 					<c:when test="${empty riskProfile or empty  riskProfile.expProbaImpact}"><td>-</td></c:when>
 					<c:when test="${empty ilrVulnerabilityScales or riskProfile.expProbaImpact.vulnerability > ilrVulnerabilityScales.size() }">
-						<td class="input-group has-error"><label data-name="riskProfile.expProbaImpact.vulnerability" class="form-control form-control-static text-right disabled" data-trick-type='integer' title='<spring:message code="error.update.ilr.vulnerability.scale" />' >${riskProfile.expProbaImpact.vulnerability}</label></td>
+						<td class="has-error" title='<spring:message code="error.update.ilr.vulnerability.scale" />' ><label data-name="riskProfile.expProbaImpact.vulnerability" class="form-control form-control-static text-right disabled" data-trick-type='integer'>${riskProfile.expProbaImpact.vulnerability}</label></td>
 					</c:when>
 					<c:otherwise>
 						<td><select name='riskProfile.expProbaImpact.vulnerability' ${riskProfile.riskStrategy eq 'ACCEPT'? 'disabled': ''} class='form-control' data-trick-type='integer'

@@ -126,7 +126,7 @@ public class DynamicParameterComputer {
 			DynamicParameter parameter = dynamicParameters.get(parameterName);
 			if (parameter == null) {
 				// The description/label of dynamic parameters is never used
-				// within TRICK service,
+				// within Open Trick,
 				// we will set a value nevertheless to ease the work for a
 				// database maintainer. :-)
 				analysis.add(parameter = new DynamicParameter(parameterName, String.format("dynamic:%s", parameterName)));

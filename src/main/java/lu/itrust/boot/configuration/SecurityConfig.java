@@ -88,7 +88,7 @@ public class SecurityConfig {
                 http.securityMatchers(matchers -> matchers.requestMatchers(mvc.pattern(API_IDS)))
                                 .authenticationManager(apiAuthenticationManager())
                                 .httpBasic(basic -> basic.authenticationEntryPoint(apiAuthenticationEntryPoint())
-                                                .realmName("TRICK Service application"))
+                                                .realmName("Open Trick application"))
                                 .authorizeHttpRequests(authz -> authz.anyRequest().hasAuthority(Constant.ROLE_IDS))
                                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                                 .requiresChannel(ch -> ch.requestMatchers(mvc.pattern(API_IDS)).requiresSecure())
@@ -120,7 +120,7 @@ public class SecurityConfig {
                                 .csrf(csrf -> csrf.disable())
                                 .cors(Customizer.withDefaults())
                                 .httpBasic(basic -> basic
-                                                .realmName("TRICK Service application"))
+                                                .realmName("Open Trick application"))
                                 .authenticationManager(authenticationManager);
                 return http.build();
         }
