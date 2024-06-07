@@ -116,6 +116,7 @@ import lu.itrust.business.ts.form.ExportWordReportForm;
 import lu.itrust.business.ts.form.ImportAnalysisForm;
 import lu.itrust.business.ts.form.ImportRRFForm;
 import lu.itrust.business.ts.helper.Column;
+import lu.itrust.business.ts.helper.DependencyGraphManager;
 import lu.itrust.business.ts.helper.ILRExport;
 import lu.itrust.business.ts.helper.InstanceManager;
 import lu.itrust.business.ts.helper.JsonMessage;
@@ -598,7 +599,8 @@ public class ControllerDataManager {
 					.collect(Collectors.toMap(Function.identity(), e -> messageSource
 							.getMessage("label.asset_type." + e.getName().toLowerCase(), null, e.getName(), locale)));
 
-			final String[] columns = createTableHeader(scales, extrasColumns.keySet(), qualitative, hiddenComment,
+			final String[] columns = createTableHeader(scales, extrasColumns.keySet(), qualitative, isILR,
+					hiddenComment,
 					rowColumn,
 					uncertainty);
 
@@ -618,7 +620,7 @@ public class ControllerDataManager {
 				return v;
 			});
 
-			generateRiskEstimation(analysis, sheetData, hiddenComment, qualitative, rowColumn, uncertainty,
+			generateRiskEstimation(analysis, sheetData, hiddenComment, qualitative, isILR, rowColumn, uncertainty,
 					extrasColumns, scales,
 					riskProfiles, assetTypes, columns);
 
@@ -696,11 +698,13 @@ public class ControllerDataManager {
 	}
 
 	private void generateRiskEstimation(final Analysis analysis, final SheetData sheetData, final boolean hiddenComment,
-			final boolean qualitative, final boolean rowColumn, final boolean uncertainty,
+			final boolean qualitative, boolean isILR, final boolean rowColumn, final boolean uncertainty,
 			final Map<String, String> extrasColumns, final List<ScaleType> scales,
 			final Map<String, RiskProfile> riskProfiles, final Map<AssetType, String> assetTypes,
 			final String[] columns) {
 		int rowIndex = 1;
+		if (isILR)
+			DependencyGraphManager.computeImpact(analysis.getAssetNodes());
 		for (Assessment assessment : analysis.getAssessments()) {
 			int cellIndex = 0;
 			Row row = getRow(sheetData, rowIndex++, columns.length);
@@ -717,16 +721,22 @@ public class ControllerDataManager {
 				if (rowColumn)
 					cellIndex += writeProbaImpact(row, cellIndex++, profile.getRawProbaImpact(), scales, false);
 				cellIndex += writeProbaImpact(row, cellIndex++, assessment, scales);
-				cellIndex += writeProbaImpact(row, cellIndex++, profile.getExpProbaImpact(), scales, true);
+				cellIndex += writeProbaImpact(row, cellIndex++, profile.getExpProbaImpact(), scales, isILR);
 			} else {
 				writeLikelihood(row, cellIndex++, assessment.getLikelihood());
-				setValue(row, cellIndex++, assessment.getVulnerability());
+				if (isILR)
+					setValue(row, cellIndex++, assessment.getVulnerability());
 				writeQuantitativeImpact(row, cellIndex++,
 						assessment.getImpact(Constant.PARAMETER_TYPE_IMPACT_NAME));
 			}
 
 			if (uncertainty)
 				setValue(row, cellIndex++, assessment.getUncertainty());
+			if (isILR) {
+				final int[] ilrRisks = ILRExport.computeIlrRisk(analysis, assessment, profile);
+				for (int i = 0; i < ilrRisks.length; i++)
+					setValue(row, cellIndex++, ilrRisks[i] == -1 ? null : ilrRisks[i]);
+			}
 			setValue(row, cellIndex++, assessment.getOwner());
 			setValue(row, cellIndex++, assessment.getComment());
 			if (hiddenComment)
@@ -1678,8 +1688,10 @@ public class ControllerDataManager {
 	}
 
 	private String[] createTableHeader(List<ScaleType> scales, Collection<String> extrasColumns, boolean qualitative,
+			boolean isILR,
 			boolean hiddenComment, boolean rowColumn, boolean uncertainty) {
-		List<Column> columns = WorkerImportEstimation.generateColumns(scales, qualitative, hiddenComment, rowColumn,
+		List<Column> columns = WorkerImportEstimation.generateColumns(scales, qualitative, isILR, hiddenComment,
+				rowColumn,
 				uncertainty);
 		columns.add(new Column("Asset type"));
 		columns.add(new Column("Asset selected"));

@@ -323,8 +323,7 @@ public class ControllerAdmin {
 
 		if (status != null) {
 
-			if (!status.isInstalled() && serviceAnalysis.hasDefault(AnalysisType.QUALITATIVE)
-					&& serviceAnalysis.hasDefault(AnalysisType.QUANTITATIVE))
+			if (!(status.isInstalled() || serviceAnalysis.getDefaultProfiles().isEmpty()))
 				status.setInstalled(true);
 
 			if (version.equals(status.getVersion()))
@@ -338,8 +337,7 @@ public class ControllerAdmin {
 
 		status = new TrickService(version, installed);
 
-		status.setInstalled(serviceAnalysis.hasDefault(AnalysisType.QUANTITATIVE)
-				&& serviceAnalysis.hasDefault(AnalysisType.QUALITATIVE));
+		status.setInstalled(!serviceAnalysis.getDefaultProfiles().isEmpty());
 
 		serviceTrickService.saveOrUpdate(status);
 

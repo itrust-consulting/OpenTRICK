@@ -557,28 +557,31 @@ public class ILRExport {
                 final int maxImpact = Math.max(Math.max(node.getConfidentiality(), node.getIntegrity()),
                         node.getAvailability());
 
-                final int threatRate = riskProfile.getRawProbaImpact().getProbability().getIlrLevel();
+                if (maxImpact > -1) {
 
-                ilrRisks[0] = Math.max(threatRate
-                        * assessment.getVulnerability()
-                        * maxImpact,
-                        -1);
+                    final int threatRate = riskProfile.getRawProbaImpact().getProbability().getIlrLevel();
 
-                if (!(riskProfile.getExpProbaImpact() == null
-                        || riskProfile.getRiskStrategy() == RiskStrategy.ACCEPT)) {
-                    final int reduction = Math.min(Math.min(
-                            Math.max(
-                                    assessment.getVulnerability()
-                                            - riskProfile.getExpProbaImpact().getVulnerability(),
-                                    0), // the maximun with 0 can be removed as reduction amount should be by
-                                        // default to 0.
-                            3), assessment.getVulnerability());
+                    ilrRisks[0] = Math.max(threatRate
+                            * assessment.getVulnerability()
+                            * maxImpact,
+                            -1);
 
-                    ilrRisks[1] = Math
-                            .max(Math.min(
-                                    maxImpact * Math.max(assessment.getVulnerability() - reduction, 0)
-                                            * threatRate,
-                                    ilrRisks[0]), -1);
+                    if (!(riskProfile.getExpProbaImpact() == null
+                            || riskProfile.getRiskStrategy() == RiskStrategy.ACCEPT)) {
+                        final int reduction = Math.min(Math.min(
+                                Math.max(
+                                        assessment.getVulnerability()
+                                                - riskProfile.getExpProbaImpact().getVulnerability(),
+                                        0), // the maximun with 0 can be removed as reduction amount should be by
+                                            // default to 0.
+                                3), assessment.getVulnerability());
+
+                        ilrRisks[1] = Math
+                                .max(Math.min(
+                                        maxImpact * Math.max(assessment.getVulnerability() - reduction, 0)
+                                                * threatRate,
+                                        ilrRisks[0]), -1);
+                    }
                 }
 
             }
