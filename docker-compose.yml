@@ -1,0 +1,117 @@
+version: "3.7"
+services:
+  db:
+    image: mysql:8
+    command: --max_allowed_packet=32505856 
+    environment:
+      MYSQL_DATABASE: redmine
+      MYSQL_ROOT_PASSWORD: root
+  #  volumes:
+  #   - /root/docker-data/mysql:/var/lib/mysql
+    ports:
+      - 3306:3306
+#    deploy:
+#      resources:
+#        limits:
+#          cpus: '0.50'
+#          memory: 1024M
+  # owncloud:
+  #   image: owncloud/server:10.11
+  #   container_name: owncloud_server
+  #   ports:
+  #     - 8080:8080
+  #   depends_on:
+  #     - mariadb
+  #     - redis
+  #   environment:
+  #     - OWNCLOUD_DOMAIN=${OWNCLOUD_DOMAIN}
+  #     - OWNCLOUD_TRUSTED_DOMAINS=${OWNCLOUD_TRUSTED_DOMAINS}
+  #     - OWNCLOUD_DB_TYPE=mysql
+  #     - OWNCLOUD_DB_NAME=owncloud
+  #     - OWNCLOUD_DB_USERNAME=root
+  #     - OWNCLOUD_DB_PASSWORD=root
+  #     - OWNCLOUD_DB_HOST=mariadb
+  #     - OWNCLOUD_ADMIN_USERNAME=root
+  #     - OWNCLOUD_ADMIN_PASSWORD=root
+  #     - OWNCLOUD_MYSQL_UTF8MB4=true
+  #     - OWNCLOUD_REDIS_ENABLED=true
+  #     - OWNCLOUD_REDIS_HOST=redis
+  #   volumes:
+  #     - /home/eomar/docker-data/owncloud/data:/mnt/data
+  #     - /home/eomar/docker-data/owncloud/apps:/mnt/data/apps
+  #     - /home/eomar/docker-data/owncloud/config:/mnt/data/config
+  #     - /home/eomar/docker-data/owncloud/sessions:/mnt/data/sessions
+  # redis:
+  #   image: redis:6
+  #   container_name: owncloud_redis
+  #   restart: always
+  #   command: ["--databases", "1"]
+  #   healthcheck:
+  #     test: ["CMD", "redis-cli", "ping"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    environment:
+      PMA_HOST: db
+      UPLOAD_LIMIT: 500M
+    links:
+      - db
+    ports:
+     - 8080:80
+
+#  trickservice:
+#   image: trickservice:2.15u
+#   volumes:
+#     - /mnt/d/eomar/Documents/certificat/tomcat.keystore:/tomcat.keystore:ro
+#   env_file:
+#     - /home/eomar/git/trickservice/src/main/resources/deployment.properties
+#     - /home/eomar/git/trickservice/src/main/resources/deployment-ldap.properties
+#   ports:
+#    - 2000:2000
+#   links:
+#    - mysql 
+    
+
+#  monarc:
+#    build: /home/eomar/docker/monarc/app
+#    ports:
+#      - 8080:80
+#    environment:
+#      DB_HOSTNAME: db
+#      DB_PASSWORD: root
+#      DB_USERNAME: root
+#      DB_COMMON_NAME: monarc_common
+#      DB_CLI_NAME: monarc_cli
+#      UPLOAD_MAX_FILESIZE: 64M
+#      POST_MAX_SIZE: 64M
+#      MAX_EXECUTION_TIME: 100
+#      MEMORY_LIMIT: 128M
+#    links:
+#      - mysql:db
+
+   
+# sonarqube:
+  # image: sonarqube
+  # # links:
+   # # - mysql
+  # # environment:
+   # # SONARQUBE_JDBC_USERNAME: root
+   # # SONARQUBE_JDBC_PASSWORD: root
+   # # SONARQUBE_JDBC_URL: jdbc:mysql://localhost:3306/sonar?useUnicode=true&characterEncoding=utf8&rewriteBatchedStatements=true
+  # volumes:
+   # - e:/.docker/sonar/data:/opt/sonarqube/data
+   # - e:/.docker/sonar/config:/opt/sonarqube/config
+   # - e:/.docker/sonar/extensions:/opt/sonarqube/extensions
+  # ports:
+   # - 9000:9000
+   
+
+#tomcat8:
+# image: tomcat:8.0.23-jre8
+# links:
+#    - mysql
+# ports: 
+#   - 8080:8080
