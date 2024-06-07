@@ -1122,6 +1122,16 @@
 		<figcaption class="figure-caption">Example of a quantitative probability scale.</figcaption>
 	</figure>
 
+	<h4 id="ilr-vul-scale-mapping">ILR Vulnerability Scale</h4>
+	<p> The ILR Vulnerability Scale Refer (<a href="#_FIG_ILR_VUL_SCALE_MAPPING">[FIGURE]</a>).
+		This scale is used to define the levels of vulnerabilities in a qualitative risk estimation.
+		For further details refer (<a href="#analysis-risk-estimation-with-ilr-info">[SECTION]</a>)
+	</p>
+	<figure id="_FIG_ILR_VUL_SCALE_MAPPING" class="figure">
+		<img src="img/ILRVulnerabilityScale.png" class="figure-img img-fluid" />
+		<figcaption class="figure-caption">Example of a ILR vulnerability scale.</figcaption>
+	</figure>
+
 	<h4 id="report-settings">Report settings</h4></mark></h4>
 	<p>These settings allow configuration of color schemes which is used for the generated Reports for the current analysis</p>
 	<figure id="_FIG_REPORT_SETTINGS" class="figure">
@@ -1721,8 +1731,34 @@
 
 	<h5 id="analysis-risk-estimation-with-ilr-info">Risk estimation with ILR information</h5>
 	<p>
-
+		The risk estimation sheet additionally displays the ILR information as below:
+		<ul>
+			<li><strong>Threat probability</strong> This is computed from RAW probability using the Probability scales defined in "Risk context" ->  "Parameters" -> "Labels of probability". Refer example <a href="#_fig_risk_estimation_with_ilr_info">[FIGURE]</a></li>
+			<li><strong>Vulnerability</strong> The vulnerability is defined by the user based on Vulnerability scaled defined in "Risk context" -> "Parameters" -> "ILR Vulnerability Scale". However in case the risk estimation is imported from excel
+			this value is populated and it is the responsibility of the user to ensure the value lies within the "ILR Vulnerability Scale" range.</li>
+			<li><strong>Residual Vulnerability</strong> The residual vulnerability can be specified only if the response is other than "Accept". It can only be less than or equal to "Vulnerability" specified before.</li>
+			<li><strong>Risk</strong> The risk is computed using following formula:<br>
+			      <code>Threat probability * MAX (CIA) * Vulnerability </code> <br>
+				  Where:<br>
+				  <code>MAX (CIA)</code>Is the Maximum value of C (confidentiality),I(Integrity), A(Availability”) values defined for the asset in question and the maximum value of CIA is used here in this computation. 
+				  The CIA of asset is computed using the CIA of asset if it is explicitly specified. If not explicitly specified the same is inherited from the CIA values of the parents.
+				  Refer asset dependency defined in section <a href="#asset-dependency">[SECTION]</a>
+			</li>
+			<li><strong>Residual Risk</strong> Residual risk is computed as below:<br>
+				<code>Threat probability * MAX (CIA) * Residual Vulnerability </code> <br>
+				Where:<br>
+				<code>MAX (CIA)</code>Is the Maximum value of C (confidentiality),I(Integrity), A(Availability”) values defined for the asset in question and the maximum value of CIA is used here in this computation. 
+				The CIA of asset is computed using the CIA of asset if it is explicitly specified. If not explicitly specified the same is inherited from the CIA values of the parents.
+				Refer asset dependency defined in section <a href="#asset-dependency">[SECTION]</a>
+			</li>
+			</ul>
 	</p>
+
+	<figure id="_fig_risk_estimation_with_ilr_info" class="figure">
+		<img src="img/ComputeILRRisk.png" class="figure-img img-fluid" />
+		<figcaption class="figure-caption">Risk estimation with ILR information.</figcaption>
+	</figure>
+
 
 	<h5 id="risk-sheet">Risk sheet</h5><!--not such title-->
 	<p>The risk sheet (see figure below), allows the user to provide detailed information about a specific risk.</span></p>
@@ -2664,17 +2700,27 @@
 		The matrix value 1 indicates that the asset in the row is dependent on the asset specified in the column.
 		A positive value in matrix between 0 to 1 indicates the probability of dependency between the assets.
 		The matrix is asymmetric. The matrix is exported in the Dependency sheet of the exported file. The matrix is exported only if ILR analysis is enabled.
-		This dependency matrix can also be imported in DRAW tool. For details refer <a href="https://draw.trickservice.com/documentation/index.html">Draw documentation</a> 
+		This dependency matrix can also be imported using DRAW tool and then synchronized with TRICK Service. For details refer <a href="https://draw.trickservice.com/documentation/index.html">Draw documentation</a>.
 
-		CIA values in Propogation in Trick Asset Graph: 
-		1. If asset has CIA value explicitly specified then the same is considered. 
-		Asset doesnt have explicit value but parent has explicit value specified:
-		2. If the asset doesn't have CIA value explicitly specified then the value of CIA is inherited from that of parent if the parent is selected.
-		3. If the asset doesn't have CIA value explicitly specified then the value of CIA is inherited from the grand parent if the parent is not selected. 
-		  Asset doesnt have explicit value and parent also has no explicit value specified:
-		4. The value of asset node is inherited from the grand parent if there is a single parent. 
-		5. If the asset has multiple parents the of asset node is the maximum of the selected parent. 
+		<ol>The C(confidentiality),I (Integrity),A(Availability) values of an asset are computed using Dependency Graph of the asset if the asset CIA values are not explicitly specified. 
+			The rules for computation of inherited CIA values of an asset is as below:
+			<li>If asset has CIA value explicitly specified then the same is considered as CIA value of the asset.</li>
+			<li>If the asset doesn't have CIA value explicitly specified then the value of CIA is inherited from that of parent provided the parent is selected.</li>
+			<li>If the asset doesn't have CIA value explicitly specified then the value of CIA is inherited from the grand parent if the parent is not selected.</li>
+			<li>If Asset and its parent do not have explicit CIA value specified the value of asset node is inherited from the grand parent if there is a single parent.</li>
+			<li>In case of multiple parents the asset node has CIA which is the maximum of the selected parent(s).<br>
+			    NOTE: This propogation of CIA value from multiple parents to child is not aligned with Monarc where Monarc creates multiple child nodes having different CIA values under the different parent nodes.
+				TRICK Service Service on the other hand has a single asset instance which accounts for the difference.
+			Refer example <a href="#_fig_asset_CIA_values">[Figure]</a> for a basic example.
+			</li>
+		</ol>
 	</p>
+	<figure id="_fig_asset_CIA_values" class="figure">
+		<img src="img/AssetDependency.png" class="figure-img img-fluid" />
+		<figcaption class="figure-caption">Example of computation of Asset CIA values based on asset dependency.</figcaption>
+	</figure>
+
+
 
 	<p>In contrast to the risk sheet, this spreadsheet can be imported back into TRICK Service.</p> 
 	
@@ -4020,6 +4066,7 @@
 		<li> Display of ILR Threat and Vulnerabilities in Scenario sheet. Refer <a href="#analysis-scenario-ilr">[Section]</a>.</li>
 		<li> Support of CIA computation based on asset dependencies. Refer <a href="#asset-dependency">[Section]</a></li>
 		<li> Risk estimation view with additional ILR information. Refer <a href="#analysis-risk-estimation-with-ilr-info">[Section]</a></li>
+		<li> Bug fixes and updation of Framework library.</li>
 	</ul>
 
 	<h2 id="whats-new-in-ts-2.16">What's new in TRICK Service 2.16</h2>

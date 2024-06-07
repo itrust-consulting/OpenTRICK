@@ -1,4 +1,3 @@
-version: "3.7"
 services:
   db:
     image: mysql:8
@@ -21,3 +20,14 @@ services:
     ports:
      - 8080:80
 
+  opentrick:
+    image: trickservice.com/opentrick:latest
+    volumes:
+      - ./.cache:/workspace/ts-upload
+    links: 
+      - db
+    ports:
+     - 8443:8443
+    env_file:
+     - ./deployment-example.env
+     - ./deployment-ldap-example.env
