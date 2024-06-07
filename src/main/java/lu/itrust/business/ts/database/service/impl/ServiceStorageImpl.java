@@ -7,12 +7,14 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import jakarta.annotation.PreDestroy;
@@ -85,7 +87,8 @@ public class ServiceStorageImpl implements ServiceStorage {
 			else
 				FileSystemUtils.copyRecursively(Paths.get(path), getRoot());
 		} catch (IOException e) {
-			throw new TrickException("error.resource.intialise.storage.directory", "Storage directory cannot be initilised", e);
+			throw new TrickException("error.resource.intialise.storage.directory",
+					"Storage directory cannot be initilised", e);
 		}
 	}
 
@@ -97,7 +100,8 @@ public class ServiceStorageImpl implements ServiceStorage {
 	@Override
 	public Stream<Path> loadAll() {
 		try {
-			return Files.walk(getRoot(), 1).filter(path -> !path.equals(getRoot())).map(path -> getRoot().relativize(path));
+			return Files.walk(getRoot(), 1).filter(path -> !path.equals(getRoot()))
+					.map(path -> getRoot().relativize(path));
 		} catch (IOException e) {
 			throw new TrickException("error.read.storage.file", "Storage directory cannot be load", e);
 		}
@@ -123,9 +127,17 @@ public class ServiceStorageImpl implements ServiceStorage {
 		}
 	}
 
-	@Value("${app.setting.storage.upload.folder:ts-upload}")
+	@Value("${app.setting.storage.upload.folder:ts-data}")
 	public void setStorage(String storage) {
 		this.root = Paths.get(storage);
+		File file = this.root.toFile();
+		if (!(file.exists() || file.canWrite())) {
+			try {
+				Files.createDirectories(getRoot());
+			} catch (SecurityException | IOException e) {
+				this.root = Paths.get(System.getProperty("java.io.tmpdir")).resolve("ts-data");
+			}
+		}
 	}
 
 	@Override
@@ -155,18 +167,22 @@ public class ServiceStorageImpl implements ServiceStorage {
 	private void copyResourceFromClassPath(String resourceFolder, String destinationFolder) {
 		try {
 			final ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
-			final Resource[] resources = resolver.getResources(ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + resourceFolder + "/**");
-			final String baseJarPath = new DefaultResourceLoader().getResource(resourceFolder).getURI().getRawSchemeSpecificPart();
+			final Resource[] resources = resolver.getResources(resourceFolder + "**");
+			final String baseJarPath = resolver.getResource(resourceFolder).getURI().getRawSchemeSpecificPart();
+			final Path destinationPath = Paths.get(destinationFolder);
+
 			for (Resource resource : resources) {
-				final String relativePath = URLDecoder.decode(resource.getURI().getRawSchemeSpecificPart().replace(baseJarPath, ""), StandardCharsets.UTF_8.name());
+				final String relativePath = URLDecoder.decode(
+						resource.getURI().getRawSchemeSpecificPart().replace(baseJarPath, ""),
+						StandardCharsets.UTF_8.name());
 				if (relativePath.isEmpty())
 					continue;
 				if (relativePath.endsWith("/") || relativePath.endsWith("\\")) {
-					final File dirFile = new File(destinationFolder + relativePath);
+					final File dirFile = destinationPath.resolve(relativePath).toFile();
 					if (!dirFile.exists())
 						dirFile.mkdir();
 				} else
-					copyResourceToFilePath(resource, destinationFolder + relativePath);
+					copyResourceToFilePath(resource, destinationPath.resolve(relativePath).toString());
 			}
 		} catch (IOException e) {
 			TrickLogManager.Persist(e);
