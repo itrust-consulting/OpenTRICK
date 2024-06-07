@@ -7,3 +7,4 @@
 /.vscode
 /.classpath
 /bin
+/docs/installation/deployment/docker/.cache
