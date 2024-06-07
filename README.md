@@ -6,7 +6,7 @@ TRICK Service is a network-based risk analysis platform that allows to create ri
 
 This platform uses Java 17 for running the server software, along with a MySQL compatible database manager. This project uses code from the [Trick2Monarc api project](https://github.com/itrust-consulting/Trick2MonarcApi), available at GitHub.
 
-To begin using TRICK Service, please refer to the [installation guide](docs/INSTALL.md).
+To install TRICK Service, please refer to the [installation guide](#install).
 
 ## Requirements
 
