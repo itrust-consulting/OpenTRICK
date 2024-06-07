@@ -14,7 +14,7 @@ import lu.itrust.business.ts.component.TrickLogManager;
  * DatabaseHandler: This class handles the creation, closing and queriyng from
  * the databases mysql and sqlite
  * 
- * @author itrust consulting s.� r.l. - SME,BJA
+ * @author itrust consulting s.� r.l. - 
  * @version 0.1
  * @since 2012-08-21
  */

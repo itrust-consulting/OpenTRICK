@@ -11,7 +11,7 @@ import lu.itrust.business.ts.model.standard.StandardType;
  * ServiceAnalysisStandard.java: <br>
  * Detailed description...
  * 
- * @author eomar, itrust consulting s.à.rl.
+ * @author itrust consulting s.à.rl.
  * @version
  * @since Jan 24, 2013
  */

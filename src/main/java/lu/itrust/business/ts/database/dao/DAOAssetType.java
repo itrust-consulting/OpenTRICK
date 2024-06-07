@@ -8,7 +8,7 @@ import lu.itrust.business.ts.model.asset.AssetType;
  * DAOAssetType.java: <br>
  * Detailed description...
  *
- * @author smenghi, itrust consulting s.à.rl.
+ * @author itrust consulting s.à.rl.
  * @version
  * @since 16 janv. 2013
  */

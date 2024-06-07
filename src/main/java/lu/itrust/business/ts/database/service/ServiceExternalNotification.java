@@ -7,7 +7,7 @@ import lu.itrust.business.ts.model.externalnotification.ExternalNotification;
 
 /**
  * Interface for a service of external notifications.
- * @author Steve Muller (SMU), itrust consulting s.à r.l.
+ * @author Steve Muller  itrust consulting s.à r.l.
  * @since Jun 8, 2015
  */
 public interface ServiceExternalNotification {

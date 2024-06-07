@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 /**
  * Represents a default implementation of the ServiceExternalNotification interface,
  * just passing method calls down to a DAOExternalNotification instance.
- * @author Steve Muller (SMU), itrust consulting s.à r.l.
+ * @author Steve Muller  itrust consulting s.à r.l.
  * @since Jun 8, 2015
  */
 @Service

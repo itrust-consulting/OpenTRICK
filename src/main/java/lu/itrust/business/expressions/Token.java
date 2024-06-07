@@ -4,7 +4,7 @@ package lu.itrust.business.expressions;
  * Represents a token in an expression. Tokens are the most basic semantic parts
  * of an expression, e.g. variables, operators.
  * 
- * @author (SMU), itrust consulting s.à r.l.
+ * @author  itrust consulting s.à r.l.
  * @since Jun 9, 2015
  */
 public class Token<T> {

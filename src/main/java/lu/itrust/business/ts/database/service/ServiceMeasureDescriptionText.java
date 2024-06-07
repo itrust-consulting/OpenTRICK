@@ -8,7 +8,7 @@ import lu.itrust.business.ts.model.standard.measuredescription.MeasureDescriptio
  * ServiceMeasureDescriptionText.java: <br>
  * Detailed description...
  *
- * @author smenghi, itrust consulting s.a.rl.
+ * @author itrust consulting s.a.rl.
  * @version 
  * @since Jan 16, 2013
  */

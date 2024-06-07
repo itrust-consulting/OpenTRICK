@@ -64,7 +64,7 @@ import lu.itrust.business.ts.usermanagement.User;
  * ControllerCustomer.java: <br>
  * Detailed description...
  * 
- * @author itrust consulting s.à.rl. :
+ * @author itrust consulting s.à r.l
  * @version
  * @since Oct 11, 2013
  */

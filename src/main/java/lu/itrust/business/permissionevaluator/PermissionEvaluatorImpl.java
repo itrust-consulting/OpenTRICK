@@ -61,7 +61,7 @@ import lu.itrust.business.ts.model.general.TSSettingName;
  * Note: This class is annotated with @Component to be recognized as a Spring
  * bean and can be injected into other components or services.
  * 
- * @author itrust consulting s.à.rl. :
+ * @author itrust consulting s.à r.l
  * @version
  * @since Jan 16, 2014
  */

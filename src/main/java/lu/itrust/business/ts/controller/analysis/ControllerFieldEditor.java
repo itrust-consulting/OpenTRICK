@@ -121,7 +121,7 @@ import lu.itrust.business.expressions.StringExpressionParser;
  * ControllerEditField.java: <br>
  * Detailed description...
  * 
- * @author eomar, itrust consulting s.à.rl. :
+ * @author itrust consulting s.à r.l
  * @version
  * @since Feb 4, 2014
  */

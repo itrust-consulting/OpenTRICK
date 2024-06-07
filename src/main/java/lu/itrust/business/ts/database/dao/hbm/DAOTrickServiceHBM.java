@@ -10,7 +10,7 @@ import lu.itrust.business.ts.model.TrickService;
  * DAOTrickServiceHBM.java: <br>
  * Detailed description...
  * 
- * @author smenghi, itrust consulting s.à.rl.
+ * @author itrust consulting s.à.rl.
  * @version
  * @since Apr 23, 2014
  */

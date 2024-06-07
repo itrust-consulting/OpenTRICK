@@ -29,8 +29,6 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
-import org.springframework.security.crypto.factory.PasswordEncoderFactories;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.ui.freemarker.FreeMarkerConfigurationFactoryBean;
 import org.springframework.web.multipart.MultipartResolver;
@@ -40,6 +38,7 @@ import org.springframework.web.servlet.resource.ResourceHttpRequestHandler;
 import org.springframework.web.servlet.resource.ResourceUrlEncodingFilter;
 import org.xml.sax.InputSource;
 
+import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletRegistration;
 import lu.itrust.business.ts.component.DataCleaner;
 import lu.itrust.business.ts.component.TrickLogManager;

@@ -3,7 +3,7 @@ package lu.itrust.business.ts.helper;
 /**
  * Class which measures code execution time.
  * 
- * @author Steve Muller (SMU), itrust consulting s.à r.l.
+ * @author Steve Muller  itrust consulting s.à r.l.
  * @since Aug 25, 2015
  */
 public class StopWatch {

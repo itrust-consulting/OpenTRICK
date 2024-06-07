@@ -15,7 +15,7 @@ import lu.itrust.business.ts.model.scenario.ScenarioType;
  * ServiceScenarioImpl.java: <br>
  * Detailed description...
  * 
- * @author smenghi, itrust consulting s.a.rl.
+ * @author itrust consulting s.a.rl.
  * @version
  * @since May 13, 2014
  */

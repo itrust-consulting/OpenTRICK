@@ -24,7 +24,7 @@ import lu.itrust.business.ts.database.service.ServiceStandard;
  * This includes the management of: <br>
  * - Languages - Customers - Measures
  * 
- * @author smenghi, itrust consulting s.à.rl. :
+ * @author itrust consulting s.à r.l
  * @version 0.1
  * @since Oct 10, 2013
  */

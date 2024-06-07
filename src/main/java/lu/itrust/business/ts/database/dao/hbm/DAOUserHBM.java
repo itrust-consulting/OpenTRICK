@@ -22,7 +22,7 @@ import lu.itrust.business.ts.usermanagement.User;
  * DAOUserHBM.java: <br>
  * Detailed description...
  * 
- * @author eomar, itrust consulting s.à.rl. :
+ * @author itrust consulting s.à r.l
  * @version
  * @since Feb , 2013
  */

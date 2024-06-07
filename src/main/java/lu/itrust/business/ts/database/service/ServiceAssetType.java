@@ -8,7 +8,7 @@ import lu.itrust.business.ts.model.asset.AssetType;
  * ServiceAssetType.java: <br>
  * Detailed description...
  * 
- * @author eomar, itrust consulting s.à.rl.
+ * @author itrust consulting s.à.rl.
  * @version
  * @since May 13, 2014
  */

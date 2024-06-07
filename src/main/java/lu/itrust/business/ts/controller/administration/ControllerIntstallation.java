@@ -36,7 +36,7 @@ import lu.itrust.business.ts.model.general.Customer;
  * ControllerIntstallation.java: <br>
  * Detailed description...
  * 
- * @author smenghi, itrust consulting s.à.rl.
+ * @author itrust consulting s.à.rl.
  * @version
  * @since Apr 23, 2014
  */

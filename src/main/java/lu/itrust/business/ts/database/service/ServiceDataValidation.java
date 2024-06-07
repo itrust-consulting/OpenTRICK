@@ -12,7 +12,7 @@ import lu.itrust.business.ts.validator.field.ValidatorField;
  * ServiceDataValidation.java: <br>
  * Detailed description...
  * 
- * @author eomar, itrust consulting s.a.rl.
+ * @author itrust consulting s.a.rl.
  * @version
  * @since May 13, 2013
  */

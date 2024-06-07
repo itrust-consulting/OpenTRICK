@@ -11,7 +11,7 @@ import lu.itrust.business.ts.usermanagement.User;
  * ServiceUserAnalysisRight.java: <br>
  * Detailed description...
  * 
- * @author smenghi, itrust consulting s.a.rl.
+ * @author itrust consulting s.a.rl.
  * @version
  * @since Jan 9, 2013
  */

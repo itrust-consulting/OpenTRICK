@@ -5,7 +5,7 @@ import java.util.regex.Pattern;
 /**
  * Provides additional functionality related to string expressions.
  * 
- * @author (SMU), itrust consulting s.à r.l.
+ * @author  itrust consulting s.à r.l.
  * @since Jun 19, 2015
  */
 public class StringExpressionHelper {

@@ -336,6 +336,7 @@ public class ControllerAsset {
 			DependencyGraphManager.computeImpact(analysis.getAssetNodes());
 			model.addAttribute("assetNodes", analysis.getAssetNodes().stream()
 					.collect(Collectors.toMap(e -> e.getAsset().getId(), Function.identity())));
+			model.addAttribute("isILR", true);
 		}
 
 		// load all assets of analysis to model
@@ -528,7 +529,6 @@ public class ControllerAsset {
 		model.addAttribute("showHiddenComment",
 				Analysis.findSetting(hiddenCommentSetting, settings.get(hiddenCommentSetting.name())));
 		model.addAttribute("showRawColumn", Analysis.findSetting(rawSetting, settings.get(rawSetting.name())));
-		/*model.addAttribute("isILR", Analysis.findSetting(AnalysisSetting.ALLOW_ILR_ANALYSIS,
-				settings.get(AnalysisSetting.ALLOW_ILR_ANALYSIS.name())));*/
+
 	}
 }

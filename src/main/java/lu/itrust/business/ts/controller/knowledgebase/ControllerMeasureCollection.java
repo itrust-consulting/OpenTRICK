@@ -85,7 +85,7 @@ import lu.itrust.business.ts.validator.field.ValidatorField;
  * ControllerStandard.java: <br>
  * Detailed description...
  * 
- * @author smenghi, itrust consulting s.à.rl. :
+ * @author itrust consulting s.à r.l
  * @version 0.1
  * @since Oct 14, 2013
  */

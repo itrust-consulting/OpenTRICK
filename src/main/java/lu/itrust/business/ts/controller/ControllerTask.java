@@ -30,7 +30,7 @@ import lu.itrust.business.ts.messagehandler.MessageHandler;
  * ControllerTask.java: <br>
  * Detailed description...
  * 
- * @author eomar, itrust consulting s.à.rl. :
+ * @author itrust consulting s.à r.l
  * @version
  * @since Feb 5, 2014
  */

@@ -105,7 +105,7 @@ import lu.itrust.business.ts.validator.HistoryValidator;
  * It also uses Spring Security's @PreAuthorize annotation to enforce
  * authorization rules for different methods.
  * 
- * @author itrust consulting s.à.rl. : https://www.itrust.lu
+ * @author itrust consulting s.à r.l https://www.itrust.lu
  * @since Oct 22, 2013
  */
 @PreAuthorize(ROLE_MIN_USER)

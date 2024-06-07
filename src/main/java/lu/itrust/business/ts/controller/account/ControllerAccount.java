@@ -84,7 +84,7 @@ import net.glxn.qrgen.QRCode;
 
 /**
  * 
- * @author eomar, itrust consulting s.à.rl.
+ * @author itrust consulting s.à.rl.
  * @version
  * @since Apr 15, 2014
  */
