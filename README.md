@@ -6,7 +6,7 @@ TRICK Service is a network-based risk analysis platform that allows to create ri
 
 This platform uses Java 17 for running the server software, along with a MySQL compatible database manager. This project uses code from the [Trick2Monarc api project](https://github.com/itrust-consulting/Trick2MonarcApi), available at GitHub.
 
-To begin using TRICK Service, please refer to the [installation guide](docs/INSTALL.md).
+To install TRICK Service, please refer to the [installation guide](#install).
 
 ## Requirements
 
@@ -36,41 +36,19 @@ Please refer to [the TRICK Service installation guide](docs/INSTALL.md) to verif
 
 # Quick start
 
-src/main/webapp/WEB-INF/static/views/user-guide.html
+To begin using an already installed TRICK Service instance, please refer to the [User Guide](src/main/webapp/WEB-INF/static/views/user-guide.html#creating-a-risk-analysis-using-trick-service).
 
 # Deployment
 
+TRICK Service can be deployed as a Java web application or a docker container. These methods have their own advantages and disadvantages that should be taken into consideration by the IT manager.
+
 ## Docker
 
-TRICK Service is a network service, and should be made available in an internal network. To deploy TRICK Service, it is recommended to use Docker and the ```docker-compose``` file contained in this project.
-
-To begin the deployment process, copy the deployment-example.properties
+To build the Docker image please refer to [the installation guide on how to create a docker image.](docs/INSTALL.md#create-a-docker-image)
 
 ## Java application
 
-TRICK Service can be run as a web application directly from the terminal. For that to be possible, initially compile the project using Maven:
-
-```bash
-mvn clean install -DskipTests
-```
-
-The default build configuration uses Tomcat as the web server application. However, it is possible to use Jetty as well, all that is necessary for this change to take place is to change the Maven profile used in the build process by using the following command:
-
-```bash
-mvn clean install -DskipTests -Pjetty-server
-```
-
-The certificate issuer is for dev.local
-
-NOTE: It is possible to force the use of Tomcat by using the command ```bash mvn clean install -DskipTests -Ptomcat-server```
-
-After the successful build, verify that the file ```target/trickservice.war``` has been created
-
-After Maven has finished the compilation process, the application is ready to run in the terminal. For that, however, it is necessary to verify the properties files used by Spring to run the application. 
-
-Find trickservice.war inside ./target/trickservice.war 
-
-2. java --spring.config.additional-location=</deployment-ldap.properties file path>,</deployment.properties file path>
+To build as a java application, please refer to [the installation guide on how to create a java application.](docs/installation/deployment/java/README.md#java-application)
 
 # License
 

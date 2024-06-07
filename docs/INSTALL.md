@@ -1,6 +1,6 @@
 # Trick Service Installation Manual
 
-Trick service is a web based application for creating risk analyses. This software uses Java 17 and Apache Tomcat or Jetty as page servers, as well as MariaDB for database management.
+Trick service is a web based application for creating risk analyses. This software uses Java 17 and either Apache Tomcat or Jetty as page servers, as well as MariaDB for database management.
 
 During the installation process, it will be assumed that Java 17 and that MariaDB are already installed in the destination computer, whereas Tomcat or Jetty will be installed along with Trick Service.
 
@@ -22,7 +22,7 @@ git clone [...]
 ## Build the project
     $ mvn clean compile
 
-### Create a docker image for installation using docker
+### Create a docker image
     $ mvn clean spring-boot:build-image
     $ docker image tag docker.io/library/trickservice:2.17 trickservice.com/opentrick:latest    
 
