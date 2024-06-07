@@ -17,7 +17,7 @@ import lu.itrust.business.ts.usermanagement.User;
  * ServiceUserImpl.java: <br>
  * Detailed description...
  * 
- * @author eomar, itrust consulting s.a.rl.
+ * @author itrust consulting s.a.rl.
  * @version
  * @since Jan 1, 2013
  */

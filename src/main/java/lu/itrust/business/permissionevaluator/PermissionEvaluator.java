@@ -9,7 +9,7 @@ import lu.itrust.business.ts.model.general.TSSettingName;
  * PermissionEvaluator.java: <br>
  * Detailed description...
  *
- * @author itrust consulting s.à.rl. :
+ * @author itrust consulting s.à r.l
  * @version
  * @since Jan 16, 2014
  */

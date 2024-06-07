@@ -26,7 +26,7 @@ import lu.itrust.business.ts.model.parameter.helper.ValueFactory;
  * ControllerRiskRegister.java: <br>
  * Detailed description...
  * 
- * @author smenghi, itrust consulting s.à.rl.
+ * @author itrust consulting s.à.rl.
  * @version
  * @since Feb 17, 2014
  */

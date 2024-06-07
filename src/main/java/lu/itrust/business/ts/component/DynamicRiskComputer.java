@@ -32,7 +32,7 @@ import lu.itrust.business.expressions.StringExpressionParser;
  * Component which allows to compute the current (real-time) risk of
  * assessments.
  * 
- * @author Steve Muller (SMU), itrust consulting s.à r.l.
+ * @author Steve Muller  itrust consulting s.à r.l.
  * @since Aug 17, 2015
  */
 @Component

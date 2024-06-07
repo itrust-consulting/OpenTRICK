@@ -3,7 +3,7 @@ package lu.itrust.business.expressions;
 /**
  * Exception thrown if an expression could not be parsed.
  * 
- * @author (SMU), itrust consulting s.à r.l.
+ * @author  itrust consulting s.à r.l.
  * @since Jun 9, 2015
  */
 public class InvalidExpressionException extends RuntimeException {

@@ -10,7 +10,7 @@ import lu.itrust.business.ts.model.analysis.Analysis;
  * ServiceActionPlanSummary.java: <br>
  * Detailed description...
  * 
- * @author eomar, itrust consulting s.à.rl.
+ * @author itrust consulting s.à.rl.
  * @version
  * @since 16 janv. 2013
  */

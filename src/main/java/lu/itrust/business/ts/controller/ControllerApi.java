@@ -103,7 +103,7 @@ import lu.itrust.business.ts.usermanagement.IDS;
  * that certain events happen, are deduced and stored in variables ready to be
  * used within the TRICK service user interface (asset/scenario estimation).
  * 
- * @author Steve Muller (SMU), itrust consulting s.à r.l.
+ * @author Steve Muller  itrust consulting s.à r.l.
  * @since Jun 4, 2015
  */
 @RestController

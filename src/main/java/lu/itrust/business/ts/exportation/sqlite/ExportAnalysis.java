@@ -74,7 +74,7 @@ import lu.itrust.business.ts.model.standard.measuredescription.MeasureDescriptio
  * This class is used to export a specific Analysis into a SQLite file to be
  * used inside TRICK Light.
  *
- * @author itrust consulting s.à r.l. - SME,BJA,EOM,SMU
+ * @author itrust consulting s.à r.l. - 
  * @version 0.1
  * @since 2012-12-17
  */
@@ -1110,7 +1110,7 @@ public class ExportAnalysis {
 	 * exportExtendedParameters: <br>
 	 * Export Extended Parameters to an Sqlite File using a Sqlite Database Handler.
 	 *
-	 * @author Steve Muller (SMU), itrust consulting s.à r.l.
+	 * @author Steve Muller  itrust consulting s.à r.l.
 	 */
 	private void exportProbabilityAndImpactParameter() throws Exception {
 		// Export all extended parameters of type IMPACT, PROBABILITY and
@@ -1145,7 +1145,7 @@ public class ExportAnalysis {
 	 * exportDynamicParameters: <br>
 	 * Export Dynamic Parameters to an Sqlite File using a Sqlite Database Handler.
 	 *
-	 * @author Steve Muller (SMU), itrust consulting s.à r.l.
+	 * @author Steve Muller  itrust consulting s.à r.l.
 	 */
 	private void exportDynamicParameters() throws Exception {
 		// Export all acronym parameters of type DYNAMIC

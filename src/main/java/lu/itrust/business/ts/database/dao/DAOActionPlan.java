@@ -12,7 +12,7 @@ import lu.itrust.business.ts.model.standard.measure.Measure;
  * DAOActionPlan.java: <br>
  * Detailed description...
  * 
- * @author eomar, itrust consulting s.a.rl. :
+ * @author itrust consulting s.a.rl. :
  * @version
  * @since 16 janv. 2013
  */

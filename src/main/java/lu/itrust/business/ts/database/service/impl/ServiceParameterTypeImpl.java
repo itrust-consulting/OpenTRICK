@@ -14,7 +14,7 @@ import lu.itrust.business.ts.model.parameter.type.impl.ParameterType;
  * ServiceParameterTypeImpl.java: <br>
  * Detailed description...
  * 
- * @author eomar, itrust consulting s.a.rl.
+ * @author itrust consulting s.a.rl.
  * @version
  * @since Jan 16, 2013
  */

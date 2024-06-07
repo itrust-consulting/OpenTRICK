@@ -26,7 +26,7 @@ import lu.itrust.business.ts.messagehandler.MessageHandler;
  * ServiceTaskFeedBackImpl.java: <br>
  * Detailed description...
  * 
- * @author smenghi, itrust consulting s.a.rl.
+ * @author itrust consulting s.a.rl.
  * @version
  * @since Feb 13, 2013
  */

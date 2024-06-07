@@ -15,7 +15,7 @@ import lu.itrust.business.ts.model.cssf.RiskRegisterItem;
  * DAORiskRegisterHBM.java: <br>
  * Detailed description...
  * 
- * @author eomar, itrust consulting s.à.rl.
+ * @author itrust consulting s.à.rl.
  * @version
  * @since Feb 18, 2014
  */

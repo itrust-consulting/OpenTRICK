@@ -15,7 +15,7 @@ import lu.itrust.business.ts.model.history.History;
  * ServiceHistoryImpl.java: <br>
  * Detailed description...
  * 
- * @author itrust consulting s.à.rl. :
+ * @author itrust consulting s.à r.l
  * @version
  * @since Oct 22, 2013
  */

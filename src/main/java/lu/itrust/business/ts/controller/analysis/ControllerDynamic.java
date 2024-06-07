@@ -21,7 +21,7 @@ import lu.itrust.business.ts.helper.chartJS.model.Chart;
 /**
  * Controller for functionality related to dynamic risk analysis.
  * 
- * @author Steve Muller (SMU), itrust consulting s.à r.l.
+ * @author Steve Muller  itrust consulting s.à r.l.
  * @since Jul 1, 2015
  */
 @Controller

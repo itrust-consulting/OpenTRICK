@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * HibernateDAO.java: <br>
  * Detailed description...
  * 
- * @author itrust consulting s.à.rl. :
+ * @author itrust consulting s.à r.l
  * @version
  * @since 11 janv. 2013
  */

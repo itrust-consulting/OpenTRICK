@@ -12,7 +12,7 @@ import lu.itrust.business.ts.model.asset.Asset;
  * DAOAssetHBM.java: <br>
  * Detailed description...
  * 
- * @author eomar, itrust consulting s.à.rl.
+ * @author itrust consulting s.à.rl.
  * @version
  * @since Feb 12, 2013
  */

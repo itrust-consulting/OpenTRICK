@@ -26,7 +26,7 @@ import lu.itrust.business.ts.model.parameter.value.impl.FormulaValue;
 /**
  * Component which allows to compute the values of dynamic parameters.
  * 
- * @author Steve Muller (SMU), itrust consulting s.à r.l.
+ * @author Steve Muller  itrust consulting s.à r.l.
  * @since Jun 2015
  */
 @Component

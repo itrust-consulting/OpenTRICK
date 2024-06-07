@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
  * The TokenizerToString class represents a utility class that converts a tokenizer into a string representation.
  * It provides methods to load tokens from the tokenizer, get and set the tokenizer, get and set the list of tokens,
  * and convert the tokens into a string representation.
- * @author (SMU), itrust consulting s.à r.l.
+ * @author  itrust consulting s.à r.l.
  * @since Jun 9, 2015
  */
 public class TokenizerToString {

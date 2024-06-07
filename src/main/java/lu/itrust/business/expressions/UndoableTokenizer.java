@@ -7,7 +7,7 @@ import java.util.Stack;
  * look ahead at the next token and to put it back in case it is not the one one
  * is looking for.
  * 
- * @author (SMU), itrust consulting s.à r.l.
+ * @author  itrust consulting s.à r.l.
  * @since Jun 9, 2015
  */
 public class UndoableTokenizer implements Tokenizer {

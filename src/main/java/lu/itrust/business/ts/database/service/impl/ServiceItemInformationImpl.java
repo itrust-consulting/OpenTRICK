@@ -14,7 +14,7 @@ import lu.itrust.business.ts.model.iteminformation.ItemInformation;
  * ServiceItemInformationImpl.java: <br>
  * Detailed description...
  * 
- * @author smenghi, itrust consulting s.a.rl.
+ * @author itrust consulting s.a.rl.
  * @version
  * @since Jan 16, 2013
  */

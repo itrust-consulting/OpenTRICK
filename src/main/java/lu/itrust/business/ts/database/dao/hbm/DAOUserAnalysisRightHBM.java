@@ -16,7 +16,7 @@ import lu.itrust.business.ts.usermanagement.User;
  * DAOUserAnalysisRightHBM.java: <br>
  * Detailed description...
  * 
- * @author smenghi, itrust consulting s.à.rl. :
+ * @author itrust consulting s.à r.l
  * @version
  * @since Jan 13, 2014
  */

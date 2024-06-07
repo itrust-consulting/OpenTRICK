@@ -15,7 +15,7 @@ import lu.itrust.business.ts.model.scenario.Scenario;
  * DAOAssessmentHBM.java: <br>
  * Detailed description...
  * 
- * @author eomar, itrust consulting s.à.rl.
+ * @author itrust consulting s.à.rl.
  * @version
  * @since Feb 12, 2013
  */

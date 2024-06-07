@@ -9,7 +9,7 @@ import lu.itrust.business.ts.model.general.Phase;
  * DAOPhase.java: <br>
  * Detailed description...
  * 
- * @author eomar, itrust consulting s.a.rl. :
+ * @author itrust consulting s.a.rl. :
  * @version
  * @since 16 janv. 2013
  */

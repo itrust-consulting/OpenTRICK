@@ -14,7 +14,7 @@ import lu.itrust.business.ts.model.externalnotification.helper.ExternalNotificat
 /**
  * Represents an implementation of the DAOExternalNotification interface
  * for Spring Hibernate.
- * @author Steve Muller (SMU), itrust consulting s.à r.l.
+ * @author Steve Muller  itrust consulting s.à r.l.
  * @since Jun 8, 2015
  */
 @Repository

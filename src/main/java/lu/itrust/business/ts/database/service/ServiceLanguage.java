@@ -8,7 +8,7 @@ import lu.itrust.business.ts.model.general.Language;
  * ServiceLanguage.java: <br>
  * Detailed description...
  * 
- * @author eomar, itrust consulting s.a.rl.
+ * @author itrust consulting s.a.rl.
  * @version
  * @since Jan 16, 2013
  */

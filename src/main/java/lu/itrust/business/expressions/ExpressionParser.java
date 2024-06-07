@@ -11,7 +11,7 @@ import lu.itrust.business.ts.model.parameter.helper.ValueFactory;
  * The ExpressionParser interface represents a parser for mathematical expressions.
  * It provides methods to parse expressions, extract variables, evaluate expressions,
  * and check for syntax errors.
- * @author (SMU), itrust consulting s.à r.l.
+ * @author  itrust consulting s.à r.l.
  * @since Jun 9, 2015
  */
 public interface ExpressionParser {

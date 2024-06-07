@@ -9,7 +9,7 @@ import lu.itrust.business.ts.model.general.Phase;
  * ServicePhase.java: <br>
  * Detailed description...
  * 
- * @author eomar, itrust consulting s.a.rl.
+ * @author itrust consulting s.a.rl.
  * @version
  * @since Jan 16, 2013
  */

@@ -16,7 +16,7 @@ import lu.itrust.business.ts.model.parameter.value.IValue;
  * Represents a simple expression parser with support for variables and basic
  * arithmetic operations.
  * 
- * @author (SMU), itrust consulting s.à r.l.
+ * @author  itrust consulting s.à r.l.
  * @since Jun 9, 2015
  */
 public class StringExpressionParser implements ExpressionParser {

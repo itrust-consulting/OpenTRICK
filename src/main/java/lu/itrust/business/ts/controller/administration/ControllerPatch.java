@@ -56,7 +56,7 @@ import lu.itrust.business.ts.model.standard.measure.impl.NormalMeasure;
  * ControllerPatch.java: <br>
  * Detailed description...
  * 
- * @author smenghi, itrust consulting s.à.rl.
+ * @author itrust consulting s.à.rl.
  * @version
  * @since May 9, 2014
  */

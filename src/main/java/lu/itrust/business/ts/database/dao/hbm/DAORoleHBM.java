@@ -14,7 +14,7 @@ import lu.itrust.business.ts.usermanagement.User;
  * DAORoleHBM.java: <br>
  * Detailed description...
  * 
- * @author eomar, itrust consulting s.à.rl.
+ * @author itrust consulting s.à.rl.
  * @version
  * @since Jan 12, 2013
  */

@@ -42,7 +42,7 @@ import lu.itrust.business.ts.model.general.OpenMode;
  * ControllerAdministration.java: <br>
  * Detailed description...
  * 
- * @author smenghi, itrust consulting s.à.rl. :
+ * @author itrust consulting s.à r.l
  * @version
  * @since Dec 13, 2013
  */

@@ -8,7 +8,7 @@ import lu.itrust.business.ts.model.actionplan.ActionPlanType;
  * ServiceActionPlanType.java: <br>
  * Detailed description...
  * 
- * @author eomar, itrust consulting s.à.rl.
+ * @author itrust consulting s.à.rl.
  * @version
  * @since Feb 7, 2013
  */

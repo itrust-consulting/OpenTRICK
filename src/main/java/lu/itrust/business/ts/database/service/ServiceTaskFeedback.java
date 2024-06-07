@@ -9,7 +9,7 @@ import lu.itrust.business.ts.messagehandler.MessageHandler;
  * ServiceTaskFeedback.java: <br>
  * Detailed description...
  * 
- * @author eomar, itrust consulting s.a.rl.
+ * @author itrust consulting s.a.rl.
  * @version
  * @since Feb 13, 2013
  */

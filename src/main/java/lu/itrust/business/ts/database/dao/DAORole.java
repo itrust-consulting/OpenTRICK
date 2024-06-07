@@ -10,7 +10,7 @@ import lu.itrust.business.ts.usermanagement.User;
  * DAORole.java: <br>
  * Detailed description...
  * 
- * @author eomar, itrust consulting s.à.rl.
+ * @author itrust consulting s.à.rl.
  * @version
  * @since Jan 1, 2013
  */
