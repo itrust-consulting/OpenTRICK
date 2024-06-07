@@ -20,6 +20,7 @@ import lu.itrust.business.ts.database.dao.DAOAssessment;
 import lu.itrust.business.ts.database.dao.DAOAsset;
 import lu.itrust.business.ts.database.dao.DAORiskProfile;
 import lu.itrust.business.ts.database.dao.DAOScenario;
+import lu.itrust.business.ts.helper.DependencyGraphManager;
 import lu.itrust.business.ts.helper.NaturalOrderComparator;
 import lu.itrust.business.ts.model.analysis.Analysis;
 import lu.itrust.business.ts.model.analysis.helper.AnalysisUtils;
@@ -54,16 +55,16 @@ public class AssessmentAndRiskProfileManager {
 
 	private DAOScenario daoScenario;
 
-
 	/**
-	 * Initializes the AssessmentAndRiskProfileManager with the specified DAO objects.
+	 * Initializes the AssessmentAndRiskProfileManager with the specified DAO
+	 * objects.
 	 * If a DAO object is already set, it will not be overridden.
 	 * 
-	 * @param daoAnalysis The DAOAnalysis object to be set.
-	 * @param daoAsset The DAOAsset object to be set.
-	 * @param daoAssessment The DAOAssessment object to be set.
+	 * @param daoAnalysis    The DAOAnalysis object to be set.
+	 * @param daoAsset       The DAOAsset object to be set.
+	 * @param daoAssessment  The DAOAssessment object to be set.
 	 * @param daoRiskProfile The DAORiskProfile object to be set.
-	 * @param daoScenario The DAOScenario object to be set.
+	 * @param daoScenario    The DAOScenario object to be set.
 	 * @return The initialized AssessmentAndRiskProfileManager instance.
 	 */
 	public AssessmentAndRiskProfileManager initialise(DAOAnalysis daoAnalysis, DAOAsset daoAsset,
@@ -88,7 +89,8 @@ public class AssessmentAndRiskProfileManager {
 	 * Otherwise, it creates the assessment.
 	 * The updated analysis is then saved or updated in the database.
 	 *
-	 * @param asset The asset for which to build the assessment and risk profile.
+	 * @param asset      The asset for which to build the assessment and risk
+	 *                   profile.
 	 * @param idAnalysis The ID of the analysis.
 	 */
 	@Transactional
@@ -121,7 +123,8 @@ public class AssessmentAndRiskProfileManager {
 
 	/**
 	 * Builds the assessment and risk profile for the given scenario and analysis.
-	 * If either the analysis or scenario is null, the method returns without performing any action.
+	 * If either the analysis or scenario is null, the method returns without
+	 * performing any action.
 	 * If the scenario ID is less than 1, the scenario is added to the analysis.
 	 * If the analysis is qualitative, the assessment and risk profile are created.
 	 * Otherwise, only the assessment is created.
@@ -183,7 +186,8 @@ public class AssessmentAndRiskProfileManager {
 	}
 
 	/**
-	 * Selects a scenario and updates the selected assessments associated with the scenario.
+	 * Selects a scenario and updates the selected assessments associated with the
+	 * scenario.
 	 * 
 	 * @param scenario The scenario to be selected.
 	 */
@@ -316,7 +320,8 @@ public class AssessmentAndRiskProfileManager {
 
 	/**
 	 * Unselects a scenario with the given ID.
-	 * If the scenario does not exist, the method returns without performing any action.
+	 * If the scenario does not exist, the method returns without performing any
+	 * action.
 	 *
 	 * @param idScenario the ID of the scenario to unselect
 	 */
@@ -347,9 +352,11 @@ public class AssessmentAndRiskProfileManager {
 
 	/**
 	 * Updates the assessment for all analyses.
-	 * This method retrieves analyses in batches and calls the updateAssessment method for each analysis.
+	 * This method retrieves analyses in batches and calls the updateAssessment
+	 * method for each analysis.
 	 * 
-	 * @Transactional annotation ensures that the method is executed within a transaction.
+	 * @Transactional annotation ensures that the method is executed within a
+	 *                transaction.
 	 */
 	@Transactional
 	public void updateAssessment() {
@@ -360,11 +367,14 @@ public class AssessmentAndRiskProfileManager {
 	}
 
 	/**
-	 * Updates the assessment and risk profile based on the given analysis, value factory, and generateIds flag.
+	 * Updates the assessment and risk profile based on the given analysis, value
+	 * factory, and generateIds flag.
 	 *
-	 * @param analysis     The analysis object containing the assessments and risk profiles.
-	 * @param factory      The value factory used for generating values.
-	 * @param generateIds  A flag indicating whether to generate risk profile identifiers.
+	 * @param analysis    The analysis object containing the assessments and risk
+	 *                    profiles.
+	 * @param factory     The value factory used for generating values.
+	 * @param generateIds A flag indicating whether to generate risk profile
+	 *                    identifiers.
 	 */
 	@Transactional
 	public void updateAssessment(Analysis analysis, ValueFactory factory, boolean generateIds) {
@@ -422,11 +432,12 @@ public class AssessmentAndRiskProfileManager {
 	}
 
 	/**
-	 * Updates the assessment for the given analysis using the provided value factory.
+	 * Updates the assessment for the given analysis using the provided value
+	 * factory.
 	 * This method performs the update in a transactional context.
 	 *
 	 * @param analysis The analysis for which the assessment needs to be updated.
-	 * @param factory The value factory used to update the assessment.
+	 * @param factory  The value factory used to update the assessment.
 	 */
 	@Transactional
 	public void updateAssessment(Analysis analysis, ValueFactory factory) {
@@ -437,7 +448,7 @@ public class AssessmentAndRiskProfileManager {
 	 * Updates the given analysis and saves it to the database.
 	 * 
 	 * @param analysis The analysis to be updated and saved.
-	 * @param factory The value factory used for updating the analysis.
+	 * @param factory  The value factory used for updating the analysis.
 	 * @throws TransactionException if there is an error during the transaction.
 	 */
 	@Transactional
@@ -486,13 +497,17 @@ public class AssessmentAndRiskProfileManager {
 	}
 
 	/**
-	 * Updates the risk dependencies in the analysis based on the provided analysis and value factory.
-	 * If the value factory is null, a new value factory is created using the analysis parameters.
+	 * Updates the risk dependencies in the analysis based on the provided analysis
+	 * and value factory.
+	 * If the value factory is null, a new value factory is created using the
+	 * analysis parameters.
 	 * 
-	 * @param analysis The analysis object containing the assessments, risk profiles, assets, and scenarios.
-	 * @param factory The value factory used for generating assessments and risk profiles.
+	 * @param analysis The analysis object containing the assessments, risk
+	 *                 profiles, assets, and scenarios.
+	 * @param factory  The value factory used for generating assessments and risk
+	 *                 profiles.
 	 */
-	public static void UpdateRiskDendencies(Analysis analysis, ValueFactory factory) {
+	public static void updateRiskDendencies(Analysis analysis, ValueFactory factory) {
 		if (factory == null)
 			factory = new ValueFactory(analysis.getParameters());
 		final Map<String, Assessment> assessmentMapper = analysis.getAssessments().stream()
@@ -538,6 +553,9 @@ public class AssessmentAndRiskProfileManager {
 
 		if (analysis.isQuantitative())
 			UpdateAssetALE(analysis, factory);
+
+		if (!analysis.getAssetNodes().isEmpty())
+			DependencyGraphManager.computeImpact(analysis.getAssetNodes());
 	}
 
 	/**
@@ -602,7 +620,7 @@ public class AssessmentAndRiskProfileManager {
 	/**
 	 * Creates assessments for the given asset and analysis.
 	 *
-	 * @param asset the asset for which assessments are created
+	 * @param asset    the asset for which assessments are created
 	 * @param analysis the analysis containing the assessments
 	 */
 	private void createAssessment(Asset asset, Analysis analysis) {
@@ -629,7 +647,8 @@ public class AssessmentAndRiskProfileManager {
 	/**
 	 * Creates assessment and risk profiles for the given asset and analysis.
 	 *
-	 * @param asset The asset for which to create the assessment and risk profiles.
+	 * @param asset    The asset for which to create the assessment and risk
+	 *                 profiles.
 	 * @param analysis The analysis containing the assessments and risk profiles.
 	 */
 	private void createAssessmentAndRiskProfile(Asset asset, Analysis analysis) {
@@ -646,7 +665,8 @@ public class AssessmentAndRiskProfileManager {
 	/**
 	 * Creates assessment and risk profiles for a given scenario and analysis.
 	 *
-	 * @param scenario The scenario for which to create the assessment and risk profiles.
+	 * @param scenario The scenario for which to create the assessment and risk
+	 *                 profiles.
 	 * @param analysis The analysis containing the assessments and risk profiles.
 	 */
 	private void createAssessmentAndRiskProfile(Scenario scenario, Analysis analysis) {
@@ -727,9 +747,9 @@ public class AssessmentAndRiskProfileManager {
 	/**
 	 * Creates the impact for the given assessment.
 	 *
-	 * @param factory the ValueFactory used to create the impact value
+	 * @param factory    the ValueFactory used to create the impact value
 	 * @param assessment the assessment for which to set the impact
-	 * @param impact the impact value to set
+	 * @param impact     the impact value to set
 	 */
 	private static void createImpact(ValueFactory factory, Assessment assessment, String impact) {
 		assessment.setImpact(factory.findValue(impact.equals(Constant.DEFAULT_IMPACT_NAME) ? 0D : 0, impact));
@@ -759,7 +779,8 @@ public class AssessmentAndRiskProfileManager {
 
 	/**
 	 * Computes the AlE (Annual Loss Expectancy) for a list of assessments.
-	 * This method iterates over each assessment in the list and calls the ComputeAlE method for each assessment.
+	 * This method iterates over each assessment in the list and calls the
+	 * ComputeAlE method for each assessment.
 	 *
 	 * @param assessments the list of assessments for which to compute the AlE
 	 */
@@ -813,7 +834,8 @@ public class AssessmentAndRiskProfileManager {
 	}
 
 	/**
-	 * Computes the Aggregate Loss Expectancy (ALE) by summing up the ALE values from a list of assessments.
+	 * Computes the Aggregate Loss Expectancy (ALE) by summing up the ALE values
+	 * from a list of assessments.
 	 * Updates the provided ALE, ALEP, and ALEO objects with the computed values.
 	 *
 	 * @param assessments The list of assessments to compute the ALE from.
@@ -832,7 +854,8 @@ public class AssessmentAndRiskProfileManager {
 	}
 
 	/**
-	 * Computes the Asset ALE (Annualized Loss Expectancy) for a given list of assets and assessments.
+	 * Computes the Asset ALE (Annualized Loss Expectancy) for a given list of
+	 * assets and assessments.
 	 *
 	 * @param assets       the list of assets
 	 * @param assessments2 the list of assessments
@@ -853,7 +876,8 @@ public class AssessmentAndRiskProfileManager {
 	}
 
 	/**
-	 * Computes the ALE (Annual Loss Expectancy) for each scenario based on the given list of scenarios and assessments.
+	 * Computes the ALE (Annual Loss Expectancy) for each scenario based on the
+	 * given list of scenarios and assessments.
 	 *
 	 * @param scenarios    the list of scenarios to compute ALE for
 	 * @param assessments2 the list of assessments
@@ -874,9 +898,11 @@ public class AssessmentAndRiskProfileManager {
 	}
 
 	/**
-	 * Computes the total ALE (Annual Loss Expectancy) for each category based on the given map of ALE arrays.
+	 * Computes the total ALE (Annual Loss Expectancy) for each category based on
+	 * the given map of ALE arrays.
 	 *
-	 * @param alesByAsset a map of ALE arrays, where the key represents the asset and the value represents the ALE array for that asset
+	 * @param alesByAsset a map of ALE arrays, where the key represents the asset
+	 *                    and the value represents the ALE array for that asset
 	 * @return an array of ALE objects representing the total ALE for each category
 	 */
 	public static ALE[] ComputeTotalALE(Map<Integer, ALE[]> alesByAsset) {
@@ -921,9 +947,9 @@ public class AssessmentAndRiskProfileManager {
 	 * Sorts the given list of assessments based on the provided ALE values.
 	 *
 	 * @param assessments The list of assessments to be sorted.
-	 * @param ale The ALE value.
-	 * @param alep The ALEP value.
-	 * @param aleo The ALEO value.
+	 * @param ale         The ALE value.
+	 * @param alep        The ALEP value.
+	 * @param aleo        The ALEO value.
 	 * @return The sorted list of assessments.
 	 */
 	public static List<Assessment> Sort(List<Assessment> assessments, ALE ale, ALE alep, ALE aleo) {
@@ -933,10 +959,11 @@ public class AssessmentAndRiskProfileManager {
 	}
 
 	/**
-	 * Splits the given list of assessments based on the asset name and updates the ALE values.
+	 * Splits the given list of assessments based on the asset name and updates the
+	 * ALE values.
 	 *
-	 * @param assessments The list of assessments to be split.
-	 * @param ales The map of ALE values.
+	 * @param assessments        The list of assessments to be split.
+	 * @param ales               The map of ALE values.
 	 * @param assessmentByAssets The map of assessments grouped by asset name.
 	 */
 	public static void SplitAssessment(List<Assessment> assessments, Map<String, ALE> ales,
@@ -956,10 +983,12 @@ public class AssessmentAndRiskProfileManager {
 	}
 
 	/**
-	 * Concatenates and returns a list of assessments based on the given sorted ALEs and assessmentByAssets map.
+	 * Concatenates and returns a list of assessments based on the given sorted ALEs
+	 * and assessmentByAssets map.
 	 *
-	 * @param sortAles The sorted list of ALEs.
-	 * @param assessmentByAssets The map containing assessments grouped by asset names.
+	 * @param sortAles           The sorted list of ALEs.
+	 * @param assessmentByAssets The map containing assessments grouped by asset
+	 *                           names.
 	 * @return The concatenated list of assessments.
 	 */
 	private static List<Assessment> Concact(List<ALE> sortAles, Map<String, List<Assessment>> assessmentByAssets) {
@@ -975,8 +1004,8 @@ public class AssessmentAndRiskProfileManager {
 	 * Generates a new RiskProfile object and adds it to the list of risk profiles.
 	 *
 	 * @param riskProfiles The list of existing risk profiles.
-	 * @param asset The asset for which the risk profile is generated.
-	 * @param scenario The scenario for which the risk profile is generated.
+	 * @param asset        The asset for which the risk profile is generated.
+	 * @param scenario     The scenario for which the risk profile is generated.
 	 * @return The newly generated RiskProfile object.
 	 */
 	public static RiskProfile GenerateRiskProfile(List<RiskProfile> riskProfiles, Asset asset, Scenario scenario) {

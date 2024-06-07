@@ -646,7 +646,7 @@ public class ControllerCreation {
 						analysis.getRiskProfiles().add(
 								riskProfile.duplicate(mappingAssets, mappingScenarios, mappingParameters, measures));
 				}
-				AssessmentAndRiskProfileManager.UpdateRiskDendencies(analysis, null);
+				AssessmentAndRiskProfileManager.updateRiskDendencies(analysis, null);
 			}
 
 			while (serviceAnalysis.countByIdentifier(analysis.getIdentifier()) > 1)

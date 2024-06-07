@@ -611,13 +611,15 @@ public class ControllerAssessment {
 
 			if (isILR) {
 				final int[] ilrRisks = ILRExport.computeIlrRisk(analysis, assessment, riskProfile);
+				model.addAttribute("ilrVulnerabilityScales", analysis.getSimpleParameters().stream()
+						.filter(e -> e.getTypeName().equals(Constant.PARAMETERTYPE_TYPE_ILR_VULNERABILITY_SCALE_NAME))
+						.sorted((v1, v2) -> Double.compare(v1.getValue(), v2.getValue()))
+						.collect(Collectors.toList()));
 				model.addAttribute("ilrMaxRisk", ilrRisks[0]);
 				model.addAttribute("ilrTargetedRisk", ilrRisks[1]);
 
 			}
 		}
 	}
-
-	
 
 }

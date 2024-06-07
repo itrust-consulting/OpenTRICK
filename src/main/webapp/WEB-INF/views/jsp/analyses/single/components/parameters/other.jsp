@@ -338,7 +338,7 @@
 						<tbody>
 							<c:forEach items="${mappedParameters['ILR_VULNERABILITY_SCALE']}" var="parameter" varStatus="status">
 								<tr data-trick-class="SimpleParameter" data-trick-id="${parameter.id}">
-									<td class='text-center'><spring:message text="${parameter.value}"/></td>
+									<td class='text-center'><fmt:formatNumber value="${parameter.value}" maxFractionDigits="0"/></td>
 									<td class="editable" onclick="return editField(this);" data-trick-field="description" data-trick-content="text" data-trick-field-type="string"><spring:message text="${parameter.description}" /></td>
 									<c:if test="${isEditable}">
 										<td><button class="btn btn-xs btn-danger" onclick="return deleteIlrVulnerability(this);"><i class='fa fa-times-circle'></i></button></td>

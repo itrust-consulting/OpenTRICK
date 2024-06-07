@@ -459,7 +459,7 @@ public class ControllerParameter extends AbstractController {
 		});
 
 		SimpleParameter parameter = new SimpleParameter(type, data.getDescription().trim(),
-				parameters.stream().mapToDouble(p -> p.getValue()).max().orElse(0) + 1);
+				parameters.stream().mapToDouble(p -> p.getValue()).max().orElse(-1) + 1);
 
 		analysis.add(parameter);
 
@@ -507,8 +507,8 @@ public class ControllerParameter extends AbstractController {
 			final Map<String, Object> result = new HashMap<>();
 			final SimpleParameter last = parameters.isEmpty() ? null : parameters.get(parameters.size() - 1);
 			if (!(last == null || parameter.getValue() >= last.getValue())) {
-				for (int i = parameter.getValue().intValue() - 1; i < parameters.size(); i++)
-					parameters.get(i).setValue(i + 1d);
+				for (int i = parameter.getValue().intValue(); i < parameters.size(); i++)
+					parameters.get(i).setValue(i);
 				result.put("reload", true);
 			}
 

@@ -444,7 +444,7 @@ public class ImportAnalysis {
 
 			System.out.println("Saving Analysis Data...");
 
-			// save or update analysis
+			// save analysis
 			daoAnalysis.save(this.analysis);
 
 			// Update values of dynamic parameters
@@ -453,7 +453,7 @@ public class ImportAnalysis {
 						.computeForAnalysis(this.analysis);
 
 			// update ALE of asset objects
-			AssessmentAndRiskProfileManager.UpdateRiskDendencies(analysis, factory);
+			AssessmentAndRiskProfileManager.updateRiskDendencies(analysis, factory);
 
 			daoAnalysis.saveOrUpdate(this.analysis);
 
@@ -481,8 +481,7 @@ public class ImportAnalysis {
 	}
 
 	private void computeMeasureCost() {
-		final ValueFactory factory = new ValueFactory(analysis.getExpressionParameters());
-		final boolean isFullCostRelated = analysis.findSetting(AnalysisSetting.ALLOW_FULL_COST_RELATED_TO_MEASURE);
+		final boolean isFullCostRelated = this.analysis.findSetting(AnalysisSetting.ALLOW_FULL_COST_RELATED_TO_MEASURE);
 		final double internalSetupRate = this.analysis.findParameter(Constant.PARAMETER_INTERNAL_SETUP_RATE);
 		final double externalSetupRate = this.analysis.findParameter(Constant.PARAMETER_EXTERNAL_SETUP_RATE);
 		final double defaultLifetime = this.analysis.findParameter(Constant.PARAMETER_LIFETIME_DEFAULT);
@@ -1051,7 +1050,7 @@ public class ImportAnalysis {
 				tmpAssessment.setUncertainty(rs.getDouble(Constant.ASSESSMENT_UNCERTAINTY));
 				tmpAssessment.setComment(rs.getString(Constant.ASSESSMENT_COMMENT));
 				tmpAssessment.setHiddenComment(rs.getString(Constant.ASSESSMENT_HIDE_COMMENT));
-				tmpAssessment.setCockpit(getString(rs,Constant.ASSESSMENT_COCKPIT));
+				tmpAssessment.setCockpit(getString(rs, Constant.ASSESSMENT_COCKPIT));
 				tmpAssessment.setOwner(getStringOrEmpty(rs, "owner"));
 
 				tmpAssessment.setSelected(
@@ -3344,7 +3343,7 @@ public class ImportAnalysis {
 				if (parameterType == null)
 					daoParameterType
 							.save(parameterType = new ParameterType(Constant.PARAMETERTYPE_TYPE_RISK_ACCEPTANCE_NAME));
-				rs = sqlite.query("SELECT label, level, color, description from risk_acceptance");
+				rs = sqlite.query("SELECT label, level, color, description from risk_acceptance order by level");
 				if (rs != null) {
 					while (rs.next())
 						this.analysis.add(new RiskAcceptanceParameter(getStringOrEmpty(rs, "label"),
@@ -3357,14 +3356,35 @@ public class ImportAnalysis {
 					parameterType = daoParameterType.getByName(Constant.PARAMETERTYPE_TYPE_ILR_SOA_SCALE_NAME);
 					if (parameterType == null)
 						daoParameterType
-								.save(parameterType = new ParameterType(Constant.PARAMETERTYPE_TYPE_ILR_SOA_SCALE_NAME));
+								.save(parameterType = new ParameterType(
+										Constant.PARAMETERTYPE_TYPE_ILR_SOA_SCALE_NAME));
 
-					rs = sqlite.query("SELECT level, color, description from ilr_soa_scale");
+					rs = sqlite.query("SELECT level, color, description from ilr_soa_scale order by level");
 					if (rs != null) {
 						while (rs.next())
 							this.analysis.add(new IlrSoaScaleParameter(
 									rs.getDouble("level"), getStringOrEmpty(rs, "color"),
 									getStringOrEmpty(rs, "description")));
+						rs.close();
+					}
+
+					// ILR Vulnerability Scale
+					if (NaturalOrderComparator.compareTo(version, "2.6") >= 0) {
+						parameterType = daoParameterType
+								.getByName(Constant.PARAMETERTYPE_TYPE_ILR_VULNERABILITY_SCALE_NAME);
+						if (parameterType == null)
+							daoParameterType
+									.save(parameterType = new ParameterType(
+											Constant.PARAMETERTYPE_TYPE_ILR_VULNERABILITY_SCALE_NAME));
+
+						rs = sqlite.query("SELECT level, description from ilr_vulnerability_scale order by level");
+						if (rs != null) {
+							while (rs.next())
+								this.analysis.add(new SimpleParameter(parameterType,
+										getStringOrEmpty(rs, "description"), rs.getDouble("level")));
+							rs.close();
+						}
+
 					}
 				}
 			}

@@ -298,7 +298,7 @@ public class Duplicator {
 			serviceTaskFeedback.send(idTask, new MessageHandler("info.analysis.update.risk_dependencies",
 					"Update risk dependencies", (int) (minProgress + bound * 95)));
 
-			AssessmentAndRiskProfileManager.UpdateRiskDendencies(copy, null);
+			AssessmentAndRiskProfileManager.updateRiskDendencies(copy, null);
 
 			return copy;
 		} finally {

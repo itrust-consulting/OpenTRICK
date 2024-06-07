@@ -1019,7 +1019,7 @@ public class ControllerAnalysis extends AbstractController {
 			analysis.setLanguage(language);
 			analysis.setUncertainty(analysis.getType() == AnalysisType.QUALITATIVE ? false : uncertainty);
 			if (analysis.getId() > 0 && !analysis.isProfile())
-				AssessmentAndRiskProfileManager.UpdateRiskDendencies(analysis, null);
+				AssessmentAndRiskProfileManager.updateRiskDendencies(analysis, null);
 
 			if (!analysis.getLabel().equalsIgnoreCase(label)) {
 				serviceAnalysis.getAllByIdentifier(analysis.getIdentifier()).forEach(tmpAnalysis -> {

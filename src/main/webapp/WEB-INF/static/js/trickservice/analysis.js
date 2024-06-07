@@ -349,7 +349,7 @@ function addIlrVulnerability() {
 		let $table = $("#table_parameter_ilr_vulnerability_scale");
 		if ($table.length) {
 			let $tbody = $table.find("tbody");
-			let count = $tbody.find("tr").length + 1;
+			let count = $tbody.find("tr").length;
 			let $element = $("<tr data-trick-class='SimpleParameter' data-trick-id='0'><td class='text-center'>" + count + "</td><td class='editable input-group' onclick='return editField(this);' data-trick-field='description' data-trick-content='text' data-trick-field-type='string'><input type='text' name='description' class='form-control' required/><div class='input-group-btn'><button type='button' class='btn btn-primary' name='save'><i class='fa fa-floppy-o'></i></button></div></td><td><button type='button' class='btn btn-xs btn-danger' name='delete' onclick='deleteIlrVulnerability(this)'><span class='fa fa-times-circle'></span></button></td></tr>");
 			let save = (e) => {
 				let $description = $element.find("input[name='description']");

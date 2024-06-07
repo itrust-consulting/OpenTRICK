@@ -245,8 +245,8 @@
 					</c:if>
 				</c:forEach>
 				<c:if test="${isILR}">
-					<td class="form-estimation form-estimation-left"> <span style="transform: rotate(-90deg);display: inline-block;width: 52px;margin-left: -22px;margin-right: -30px;" title="Threat probability"><spring:message text="Threat" /></span></td>
-					<td><label data-name="ILR-VALUE-THREAT-PROBABILITY" class="form-control form-control-static text-right disabled" data-trick-type='string' title="${threatProbability}">${threatProbability}</label></td>
+					<td class="form-estimation form-estimation-left"> <span style="transform: rotate(-90deg);display: inline-block;width: 52px;margin-left: -22px;margin-right: -30px;" title='<spring:message code="label.title.ilr.probability.threat" />'><spring:message code="label.short.ilr.probability.threat" /></span></td>
+					<td><label data-name="ILR-VALUE-THREAT-PROBABILITY" class="form-control form-control-static text-right disabled" data-trick-type='integer' title="${threatProbability}">${threatProbability}</label></td>
 					<td class='text-center'>-</td>
 				</c:if>
 				<td class='form-estimation  form-estimation-left'><spring:message var="rawImpColor" text="${computedRawImportance.color}" /> <input name="computedRawImportance"
@@ -394,14 +394,20 @@
 				</c:if>
 			</c:forEach>
 			<c:if test="${isILR}">
-				<td class="form-estimation form-estimation-left"> <span style="transform: rotate(-90deg);display: inline-block;width: 52px;margin-left: -22px;margin-right: -30px;" title="Vulnerability"><spring:message text="Vulner." /></span></td>
-				<td>
-					<div><select name='vulnerability' class='form-control' data-trick-type='integer'
-								title="<spring:message text='${assessment.vulnerability}'/>" ><c:forEach end="3" begin="0" step="1" var="vulnerability">
-						<option value="${vulnerability}" ${vulnerability eq assessment.vulnerability ? 'selected' : ''}>${vulnerability}</option>
-						</c:forEach></select>
-					</div>
-				</td>
+				<td class="form-estimation form-estimation-left"> <span style="transform: rotate(-90deg);display: inline-block;width: 52px;margin-left: -22px;margin-right: -30px;" title='<spring:message code="label.title.ilr.net.vulnerability" />'><spring:message code="label.short.ilr.net.vulnerability" /></span></td>
+				<c:choose>
+					<c:when test="${empty ilrVulnerabilityScales or assessment.vulnerability > ilrVulnerabilityScales.size() }">
+						<td class="input-group has-error"><label data-name="vulnerability" class="form-control form-control-static text-right disabled" data-trick-type='integer' title='<spring:message code="error.update.ilr.vulnerability.scale" />' >${assessment.vulnerability}</label></td>
+					</c:when>
+					<c:otherwise>
+						<td>
+							<div><select name='vulnerability' class='form-control' data-trick-type='integer'><c:forEach  items="${ilrVulnerabilityScales}" var="vulnerability">
+								<option value="${vulnerability.value}" ${vulnerability.value eq assessment.vulnerability ? 'selected' : ''}><fmt:formatNumber value="${vulnerability.value}" maxFractionDigits="0"/> - <spring:message text='${vulnerability.description}' /></option>
+								</c:forEach></select>
+							</div>
+						</td>
+					</c:otherwise>
+				</c:choose>
 				<td><c:choose>
 					<c:when test="${empty ilrMaxRisk or  ilrMaxRisk < 0 }" >
 						<label data-name="ILR-VALUE-MAX-RISK" class="form-control form-control-static text-right disabled" data-trick-type='integer' >-</label>
@@ -553,11 +559,20 @@
 				</c:if>
 			</c:forEach>
 			<c:if test="${isILR}">
-				<td class="form-estimation form-estimation-left"> <span style="transform: rotate(-90deg);display: inline-block;width: 52px;margin-left: -22px;margin-right: -30px;" title="Vulnerability reduction"><spring:message text="V Redu." /></span></td>
-				<td><select name='riskProfile.expProbaImpact.vulnerability' ${riskProfile.riskStrategy eq 'ACCEPT'? 'disabled': ''} class='form-control' data-trick-type='integer'
-								title="<spring:message text='${riskProfile.expProbaImpact.vulnerability}'/>" ><c:forEach end="3" begin="0" step="1" var="vulnerability">
-						<option value="${vulnerability}" ${ vulnerability > assessment.vulnerability ? "disabled hidden" : ''} ${vulnerability eq 1 && empty riskProfile.expProbaImpact or vulnerability eq riskProfile.expProbaImpact.vulnerability ? 'selected' : ''}>${vulnerability}</option>
-						</c:forEach></select></td>
+				<td class="form-estimation form-estimation-left"> <span style="transform: rotate(-90deg);display: inline-block;width: 52px;margin-left: -22px;margin-right: -30px;" title='<spring:message code="label.title.ilr.exp.vulnerability" />'><spring:message code="label.short.ilr.exp.vulnerability" /></span></td>
+				<c:choose>
+					<c:when test="${empty riskProfile or empty  riskProfile.expProbaImpact}"><td>-</td></c:when>
+					<c:when test="${empty ilrVulnerabilityScales or riskProfile.expProbaImpact.vulnerability > ilrVulnerabilityScales.size() }">
+						<td class="input-group has-error"><label data-name="riskProfile.expProbaImpact.vulnerability" class="form-control form-control-static text-right disabled" data-trick-type='integer' title='<spring:message code="error.update.ilr.vulnerability.scale" />' >${riskProfile.expProbaImpact.vulnerability}</label></td>
+					</c:when>
+					<c:otherwise>
+						<td><select name='riskProfile.expProbaImpact.vulnerability' ${riskProfile.riskStrategy eq 'ACCEPT'? 'disabled': ''} class='form-control' data-trick-type='integer'
+								title="<spring:message text='${riskProfile.expProbaImpact.vulnerability}'/>" ><c:forEach items="${ilrVulnerabilityScales}" var="vulnerability">
+						<option value="${vulnerability.value}" ${ vulnerability.value > assessment.vulnerability ? "disabled hidden" : ''} ${vulnerability.value eq riskProfile.expProbaImpact.vulnerability ? 'selected' : ''}><fmt:formatNumber value="${vulnerability.value}" maxFractionDigits="0"/> - <spring:message text='${vulnerability.description}' /></option>
+						</c:forEach></select>
+								</td>
+					</c:otherwise>
+				</c:choose>
 				<td><c:choose>
 					<c:when test="${empty ilrTargetedRisk or  ilrTargetedRisk < 0 }" >
 						<label data-name="ILR-VALUE-TARGET-RISK" class="form-control form-control-static text-right disabled" data-trick-type='integer' >-</label>

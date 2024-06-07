@@ -1002,7 +1002,7 @@ public class ExportAnalysis {
 		// ****************************************************************
 		// * initialise variables
 		// ****************************************************************
-		List<Object> params = new ArrayList<Object>();
+		List<Object> params = new ArrayList<>();
 		String query = "";
 
 		// ****************************************************************
@@ -1082,8 +1082,23 @@ public class ExportAnalysis {
 				// add parameters
 				params.clear();
 
-				Double value = parameter.getValue().doubleValue();
-				params.add(value.intValue());
+				params.add(parameter.getValue().intValue());
+
+				// execute the query
+				sqlite.query(query, params);
+			}else if(parameter.getTypeName().equals(Constant.PARAMETERTYPE_TYPE_ILR_VULNERABILITY_SCALE_NAME)){
+				// ****************************************************************
+				// * export parameter
+				// ****************************************************************
+
+				// build query
+				query = "INSERT INTO ilr_vulnerability_scale SELECT ? as level, ? as description";
+
+				// add parameters
+				params.clear();
+
+				params.add(parameter.getValue().intValue());
+				params.add(parameter.getDescription());
 
 				// execute the query
 				sqlite.query(query, params);
@@ -1282,6 +1297,8 @@ public class ExportAnalysis {
 
 		exportIlrSoaScaleParameters();
 
+		//See exportSimpleParameters for ILR vulnerability scale parameters
+
 		exportRiskAcceptanceParameters();
 
 		// ****************************************************************
@@ -1307,11 +1324,13 @@ public class ExportAnalysis {
 	private void exportRiskAcceptanceParameters() throws SQLException {
 		if (analysis.getType() == AnalysisType.QUANTITATIVE)
 			return;
-		List<Object> params = new ArrayList<>();
-		String query = "", unionQuery = " UNION SELECT ?,?,?,?",
-				baseQuery = "INSERT INTO risk_acceptance SELECT ? as label, ? as level, ? as color, ? as description";
-		List<RiskAcceptanceParameter> parameters = analysis.getRiskAcceptanceParameters();
-		for (RiskAcceptanceParameter parameter : parameters) {
+		final String baseQuery = "INSERT INTO risk_acceptance SELECT ? as label, ? as level, ? as color, ? as description";
+		final String unionQuery = " UNION SELECT ?,?,?,?";
+		final List<Object> params = new ArrayList<>();
+		
+		String query = "";
+
+		for (RiskAcceptanceParameter parameter : analysis.getRiskAcceptanceParameters()) {
 			if (query.isEmpty())
 				query = baseQuery;
 			else if (params.size() + 4 > 999) {
@@ -1332,14 +1351,16 @@ public class ExportAnalysis {
 	}
 
 	private void exportIlrSoaScaleParameters() throws SQLException {
+		final String baseQuery = "INSERT INTO ilr_soa_scale SELECT ? as level, ? as color, ? as description";
+		final String unionQuery = " UNION SELECT ?,?,?";
 		final List<Object> params = new ArrayList<>();
-		String query = "", unionQuery = " UNION SELECT ?,?,?",
-				baseQuery = "INSERT INTO ilr_soa_scale SELECT ? as level, ? as color, ? as description";
-		List<IlrSoaScaleParameter> parameters = analysis.getIlrSoaScaleParameters();
-		for (IlrSoaScaleParameter parameter : parameters) {
+		
+		String query = "";
+
+		for (IlrSoaScaleParameter parameter : analysis.getIlrSoaScaleParameters()) {
 			if (query.isEmpty())
 				query = baseQuery;
-			else if (params.size() + 4 > 999) {
+			else if (params.size() + 3 > 999) {
 				sqlite.query(query, params);
 				query = baseQuery;
 				params.clear();
