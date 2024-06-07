@@ -36,15 +36,15 @@ Please refer to [the TRICK Service installation guide](docs/INSTALL.md) to verif
 
 # Quick start
 
-src/main/webapp/WEB-INF/static/views/user-guide.html
+To begin using an already installed TRICK Service instance, please refer to the [User Guide](src/main/webapp/WEB-INF/static/views/user-guide.html#creating-a-risk-analysis-using-trick-service).
 
 # Deployment
 
+TRICK Service can be deployed as a Java web application or a docker container. These methods have their own advantages and disadvantages that should be taken into consideration by the IT manager.
+
 ## Docker
 
-TRICK Service is a network service, and should be made available in an internal network. To deploy TRICK Service, it is recommended to use Docker and the ```docker-compose``` file contained in this project.
-
-To begin the deployment process, copy the deployment-example.properties
+To build the Docker image please refer to [the installation guide on how to create a docker image.](#create-a-docker-image)
 
 ## Java application
 
@@ -60,7 +60,7 @@ The default build configuration uses Tomcat as the web server application. Howev
 mvn clean install -DskipTests -Pjetty-server
 ```
 
-The certificate issuer is for dev.local
+Please note that the https certificate is issued for dev.local. Hence, it is necessary to add the localhost to the hosts file of the machine's Operational System. For this procedure to be successful, it might be necessary to update both the IPv4 and IPv6 of the local host in the file.
 
 NOTE: It is possible to force the use of Tomcat by using the command ```bash mvn clean install -DskipTests -Ptomcat-server```
 
@@ -68,9 +68,17 @@ After the successful build, verify that the file ```target/trickservice.war``` h
 
 After Maven has finished the compilation process, the application is ready to run in the terminal. For that, however, it is necessary to verify the properties files used by Spring to run the application. 
 
-Find trickservice.war inside ./target/trickservice.war 
+To create the properties files used by TRICK Service, copy the files [deployment-example.properties](src/main/resources/deployment-example.properties) and [deployment-ldap-example.properties](src/main/resources/deployment-ldap-example.properties) to create the files src/main/resources/deployment.properties and src/main/resources/deployment-ldap.properties, respectively.
 
-2. java --spring.config.additional-location=</deployment-ldap.properties file path>,</deployment.properties file path>
+NOTE: The provided paths are suggestions. If there is good reason, it is possible to change the file path for any other, just make sure it is visible to the application at all times and copy the path to the files, which will be necessary shortly.
+
+To run the java application, enter the following command in the CLI terminal:
+
+```bash
+java --spring.config.additional-location=</deployment-ldap.properties file path>,</deployment.properties file path>
+```
+
+Now it is possible to go to the internet browser and access the URL https://localhost:8443. If there is good reason to change to another port, it is possible to configure it by changing the ```server.port``` property in the ```deployment.properties``` file.
 
 # License
 
