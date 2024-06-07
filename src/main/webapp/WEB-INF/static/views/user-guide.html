@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-	<title>TRICK Service 2.16 User Guide</title>
+	<title>TRICK Service 2.17 User Guide</title>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
 	<link rel="stylesheet" href="css/bootstrap-4.0.0.min.css" />
@@ -159,6 +159,15 @@
 			<li>For exporting <strong>any other excel file</strong>: Default Excel template is used</li>
 		</ul>	
 	</p>
+	<h5 id="macro-enabled-template">Adding macro enabled template</h5>
+	<p>In order that the macros work well with the exported excel files for a specific customer it is required to add a Macro enabled excel Template (with extension: xlsm).
+	   Once an excel file for example risk estimation is exported from Trick the macros must be unblocked after the exported file is saved so that the Macros work well.
+	   After exporting file once this template is used right click on the exported file and go to Properties and click on unblock checkbox to unblock the macros.
+	</p>
+	<figure id="_fig_unblock_macros" class="figure">
+		<img src="img/UnblockMacros.png" class="figure-img img-fluid" />
+		<figcaption class="figure-caption">Unblocking macros for exported file.</figcaption>
+	</figure>
 
 	<h3 id="languages"><a id="knowledgebase-language"></a>Languages</h3>
 	<p>This table shows the different languages that are supported for translating the security measures of a standard. If you
@@ -679,7 +688,7 @@
 	<p>This section lists all Probes that have access to TRICK Service. In contrast to a regular user, a probe can only
 		access the TRICK Service API (see Annex B) but not the web interface. Just as for regular users, it will also need additional
 		access rights for every analysis it wants to connect to (see <a href="#manage-ids">[Section]</a>).
-		Click on "Add" button, you can add a new probe. In the "Add new probe" window, you should eneter a probe prefix, a decription and enable/disable the "Allow access" and click on "Save" button. The token will be created automatically.</p>
+		Click on "Add" button, you can add a new probe. In the "Add new probe" window, you should enter a probe prefix, a decription and enable/disable the "Allow access" and click on "Save" button. The token will be created automatically.</p>
 	
 	<figure id="_FIG_39" class="figure">
 		<img src="img/probes.png" class="figure-img img-fluid" />
@@ -706,7 +715,7 @@
 	<p>The customers section includes a list of all customers. Further options of this section are adding, editing, manage customer
 		users or deleting a customer. </p>
 	<p>The options “Add”, “Edit” and “Delete” are explained in <a href="#customers">[Section]</a>. The option “Manage customer users” is explained in the following subsection.</p>
-	<figure id="_FIG_40" class="figure">
+	<figure id="FIG_TEMP" class="figure">
 		<img src="img/customers_v2.16.png" class="figure-img img-fluid" />
 		<figcaption class="figure-caption">Customer section on admin page.</figcaption>
 	</figure>
@@ -735,69 +744,105 @@
 	<ul>
 		<li><strong>JIRA:</strong> This option authorises the customer to the JIRA ticketing system</li>
 		<li><strong>Redmine:</strong> This option authorises the customer to the Redmine ticketing system</li>
-		<li><strong>Email:</strong> This option authorises the customer to the email ticketing system. If this option is selected as the ticketing system then an email template needs to be additionally set for the customer. 
-			In order to do this select the customer and Click "Manage email template for ticketing system" <a href="#_FIG_40">[Figure]</a>. 
-			Edit the template in the dialog box that appears <a href="#_FIG_EMAIL_TEXT_FORMAT">[Figure]</a>
-			The fields of the template are explained below:
-			<ul>
-				<li><strong>Email:</strong> The email id of the responsible user whom the ticketing system email(s) will be sent</li>
-				<li><strong>Subject:</strong> The subject of the email to be sent by the ticketing system. It is limited by 998 characters and must be chosen from one of the following options:
-					<ul>
-						<li><strong>Security measure:</strong>If this subject is chosen then the subject line of email is replaced by the corresponding Security measure for which the ticket was created.</li>
-						<li><strong>Collection Security measure:</strong> If this subject is chosen then the subject line of email is replaced by the collection number followed by corresponding Security measure for which the ticket was created.</li>
-						<li><strong>To do:</strong> If this subject is chosen then the subject line of email is replaced by the "To do" column of Security measure for which the ticket was created. </li>
-						<li><strong>To check:</strong> If this subject is chosen then the subject line of email is replaced by the "To check" column of Security measure for which the ticket was created.</li>
-					</ul>
-				</li>
-				<li><strong>Pause between emails:</strong> This is the interval between sending two consecutive emails. This ensures that the email delivery system does not consider these emails as spam.</li>
-				<li><strong>HTML Format:</strong> The body of the text message could be specified in an HTML format or in TEXT format. This option allows the user to choose between the two.</li>
-				<li><strong>Body:</strong> The body is a template email message in either a raw text format or html format which can contain the placeholders enumerated below.
-					However for a better compatibility with ticketing system prefer to use text format. Please note that special characters in the template should not be used for an effective ticketing system management.
-					These placeholders stand for respective columns of the Risk Treatment/Compliance Collection (see <a href="#analysis-standards">[Section]</a>). 
-					<ul>
-						<li><code>${Std}</code> for Collection name.</li>					
-						<li><code>${Ref}</code> for Reference.</li>
-						<li><code>${SecMeasure}</code> for Security measure.</li>
-						<li><code>${Desc}</code> for Measure desciption.</li>
-						<li><code>${ST}</code> for Status.</li>
-						<li><code>${IR}</code> for Implementation rate.</li>
-						<li><code>${IW}</code> for Internal workload.</li>
-						<li><code>${EW}</code> for External workload.</li>
-						<li><code>${INV}</code> for Investment.</li>
-						<li><code>${LT}</code> for Life time.</li>
-						<li><code>${IM}</code> Internal maintenance.</li>
-						<li><code>${EM}</code> for External maintenance.</li>
-						<li><code>${RM}</code> Recurrent maintenance.</li>
-						<li><code>${CS}</code> for Cost.</li>
-						<li><code>${PH}</code> for Phase.</li>
-						<li><code>${PHB}</code> for Phase start date.</li>
-						<li><code>${PHE}</code> for Phase end date.</li>
-						<li><code>${Comment}</code> for Comment.</li>
-						<li><code>${ToDo}</code> for To do.</li>
-						<li><code>${Owner}</code> for Owner.</li>
-						<li><code>${ToCheck}</code> for To check.</li>
-					</ul>			
-					For an example of using TEXT format  (see <a href="#_FIG_EMAIL_TEXT_FORMAT">[Figure]</a>). <br>
-					For an example of using HTML format (see <a href="#_FIG_EMAIL_HTML_FORMAT">[Figure]</a>) <br>
-					Once the email template is created tickets can be created by emails (see <a href="#analysis-standards_creating_email_tickets">[Section]</a>)
-				</li>
-			</ul>
-		</li>
+		<li><strong>Email:</strong> This option authorises the customer to the Email ticketing system</li>
 	</ul>
 	<figure id="_FIG_UPDATE_CUSTOMER_TICKETING_SYSTEM" class="figure">
 		<img src="img/edit_customer_ticketing_system.png" class="figure-img img-fluid" />
 		<figcaption class="figure-caption">Update the customer for a specific ticketing system</figcaption>
 	</figure>
-	<figure id="_FIG_EMAIL_TEXT_FORMAT" class="figure">
-		<img src="img/email_ticket_creation_text_format.png" class="figure-img img-fluid" />
-		<figcaption class="figure-caption">Email template ticket creation with text format</figcaption>
-	</figure>
-	<figure id="_FIG_EMAIL_HTML_FORMAT" class="figure">
-		<img src="img/email_ticket_creation_html_format.png" class="figure-img img-fluid" />
-		<figcaption class="figure-caption">Email ticket creation with html format</figcaption>
-	</figure>
 
-
+		<h5 id="redmine_ticketing_system_management"><a id="administration-ts-ticketing_system_management_redmine"></a>Managing customer ticketing system Redmine/Jira</h5>
+		<p>This section describes the process of configuring the redmine ticketing system. Both redmine and jira ticketing system need to be configured in similar manner. 		
+			<ul>The steps to configure the ticketing system as Redmine are explained below.</ul>
+			<li><strong>Administrator confiuration step:</strong> Select Redmine as ticketing system for the customer. (see <a href="#_FIG_UPDATE_CUSTOMER_TICKETING_SYSTEM">[Figure]</a>).</li>
+			<li><strong>User confiuration Step:</strong> Goto Redmine url with credentials of the email id of the customer provided in the previous step.  
+				In the redmine accounts page create an api access key and fetch the same for the next step (see <a href="#_FIG_REDMINE_API_ACCESS_KEY">[Figure]</a>). Choose the customer as well.</li>
+			<li><strong>User confiuration Step:</strong>Goto TrickService with credentials of the email id provided. In the user accounts page click on My Credentials and choose add for adding a token 
+				(see <a href="#_FIG_TRICKSERVICE_ADD_TOKEN">[Figure]</a>). Provide the token obtained from redmine in previous step to the value field.</li>	
+			<li><strong>User confiuration Step:</strong> This step involves linking the appropriate analysis to redmine project. Select the Analysis and click on Link to Redmine for the appropriate analysis.
+			In the dialog box that appears select the project in redmine to link to trick service analysis (see <a href="#_FIG_LINK_ANALYISIS_TO_REDMINE">[Figure]</a>).</li>	
+		</p>
+	
+		<figure id="_FIG_REDMINE_API_ACCESS_KEY" class="figure">
+			<img src="img/redmine_page_access_key.png" class="figure-img img-fluid" />
+			<figcaption class="figure-caption">Fetching redmine access key</figcaption>
+		</figure>
+	
+		<figure id="_FIG_TRICKSERVICE_ADD_TOKEN" class="figure">
+			<img src="img/add_token_for_redmine.png" class="figure-img img-fluid" />
+			<figcaption class="figure-caption">Add the token fetched from redmine to Trick Service</figcaption>
+		</figure>
+	
+		<figure id="_FIG_LINK_ANALYISIS_TO_REDMINE" class="figure">
+			<img src="img/link_analysis_to_redmine.png" class="figure-img img-fluid" />
+			<figcaption class="figure-caption">Link the Trick Service Analysis to Redmine project</figcaption>
+		</figure>
+	
+		<p>After the analysis is configured and linked to redmine project user can go ahead and create and update tickets (see <a href="#analysis-standards_creating_redmine_tickets">[Section]</a>)</p>
+	
+	
+		<h5 id="administration-ts-ticketing_system_management_email"><a id="administration-ts-ticketing_system_management_email"></a>Managing customer ticketing system Email</h5>
+		<p>	If email ticketing option is selected then an email template needs to be additionally set for the customer. 
+				In order to do this select the customer and Click "Manage email template for ticketing system" <a href="#FIG_TEMP">[Figure]</a>. 
+				Edit the template in the dialog box that appears <a href="#_FIG_EMAIL_TEXT_FORMAT">[Figure]</a>
+		</p>		
+		<ul>The fields of the template are explained below:
+			<li><strong>Email:</strong> The email id of the responsible user whom the ticketing system email(s) will be sent</li>
+			<li><strong>Subject:</strong> The subject of the email to be sent by the ticketing system. It is limited by 998 characters and must be chosen from one of the following options:
+				<ul>
+					<li><strong>Security measure:</strong>If this subject is chosen then the subject line of email is replaced by the corresponding Security measure for which the ticket was created.</li>
+					<li><strong>Collection Security measure:</strong> If this subject is chosen then the subject line of email is replaced by the collection number followed by corresponding Security measure for which the ticket was created.</li>
+					<li><strong>To do:</strong> If this subject is chosen then the subject line of email is replaced by the "To do" column of Security measure for which the ticket was created. </li>
+					<li><strong>To check:</strong> If this subject is chosen then the subject line of email is replaced by the "To check" column of Security measure for which the ticket was created.</li>
+				</ul>
+			</li>
+			<li><strong>Pause between emails:</strong> This is the interval between sending two consecutive emails. This ensures that the email delivery system does not consider these emails as spam.</li>
+			<li><strong>HTML Format:</strong> The body of the text message could be specified in an HTML format or in TEXT format. This option allows the user to choose between the two.</li>
+			<li><strong>Body:</strong> The body is a template email message in either a raw text format or html format which can contain the placeholders enumerated below.
+				However for a better compatibility with ticketing system prefer to use text format.
+				<p>In order to separate the different fields/placeholders and view them in outlook in new lines it is recommended to place " ;   " (space followed by a semi colon followed by 3 spaces) 
+					after each line in the body.
+				</p> 
+				Please note that special characters in the template should not be used for an effective ticketing system management.
+				These placeholders stand for respective columns of the Risk Treatment/Compliance Collection (see <a href="#analysis-standards">[Section]</a>). 
+				<ul>
+					<li><code>${Std}</code> for Collection name.</li>					
+					<li><code>${Ref}</code> for Reference.</li>
+					<li><code>${SecMeasure}</code> for Security measure.</li>
+					<li><code>${Desc}</code> for Measure desciption.</li>
+					<li><code>${ST}</code> for Status.</li>
+					<li><code>${IR}</code> for Implementation rate.</li>
+					<li><code>${IW}</code> for Internal workload.</li>
+					<li><code>${EW}</code> for External workload.</li>
+					<li><code>${INV}</code> for Investment.</li>
+					<li><code>${LT}</code> for Life time.</li>
+					<li><code>${IM}</code> Internal maintenance.</li>
+					<li><code>${EM}</code> for External maintenance.</li>
+					<li><code>${RM}</code> Recurrent maintenance.</li>
+					<li><code>${CS}</code> for Cost.</li>
+					<li><code>${PH}</code> for Phase.</li>
+					<li><code>${PHB}</code> for Phase start date.</li>
+					<li><code>${PHE}</code> for Phase end date.</li>
+					<li><code>${Comment}</code> for Comment.</li>
+					<li><code>${ToDo}</code> for To do.</li>
+					<li><code>${Owner}</code> for Owner.</li>
+					<li><code>${ToCheck}</code> for To check.</li>
+				</ul>			
+				For an example of using TEXT format  (see <a href="#_FIG_EMAIL_TEXT_FORMAT">[Figure]</a>). <br>
+				For an example of using HTML format (see <a href="#_FIG_EMAIL_HTML_FORMAT">[Figure]</a>) <br>
+				Once the email template is created tickets can be created by emails (see <a href="#analysis-standards_creating_email_tickets">[Section]</a>)
+			</li>
+		</ul>
+	
+		<figure id="_FIG_EMAIL_TEXT_FORMAT" class="figure">
+			<img src="img/email_ticket_creation_text_format.png" class="figure-img img-fluid"/>
+			<figcaption class="figure-caption">Email template ticket creation with text format</figcaption>
+		</figure>
+		<figure id="_FIG_EMAIL_HTML_FORMAT" class="figure">
+			<img src="img/email_ticket_creation_html_format.png" class="figure-img img-fluid" />
+			<figcaption class="figure-caption">Email ticket creation with html format</figcaption>
+		</figure>
+	
 		<h3 id="all-analyses"><a id="administration-analyses"></a>All analyses</h3>
 	<p>The “All analyses” section includes a list of all analyses of the different customers. The different risk analyses of the
 		different customers can be shown by selecting a customer in the analyses filter positioned on the top of the list.</p>
@@ -1034,10 +1079,15 @@
 	<p>This section allows the user to define the (short) labels for the different probability and impact scales used in the risk
 		analysis. The labels are used throughout the risk analysis and the report. They are meant to be synonymous with the actual
 		level value.</p>
+		<figure id="_FIG_47_1" class="figure">
+			<img src="img/probability_and_impact_scales.png" class="figure-img img-fluid" />
+			<figcaption class="figure-caption">Labels of Probability and Impact Scales</figcaption>
+		</figure>
+
 	<h4 id="risk-acceptance-threshold">Risk acceptance threshold (Qualitative risk analysis)</h4>
 	<p>The risk acceptance threshold is used to indicate the different levels of risks and what reaction is expected for risks
 		of this level.</p>
-	<figure id="_FIG_47" class="figure">
+	<figure id="_FIG_47_2" class="figure">
 		<img src="img/risk_acc_threshold.png" class="figure-img img-fluid" />
 		<figcaption class="figure-caption">Risk acceptance threshold.</figcaption>
 	</figure>
@@ -1058,22 +1108,62 @@
 		<li>Indirect size: the number of most important “indirect” (in the CSSF sense) risks.</li>
 		<li>CIA size: the number of most important “Confidentiality/Integrity/Availability” risks.</li>
 	</ul>
-	<h4 id="report-settings"><mark>Report settings</mark></h4></mark></h4>
+	<figure id="_FIG_CSSF_PARAMETERS" class="figure">
+		<img src="img/CSSF.png" class="figure-img img-fluid" />
+		<figcaption class="figure-caption">CSSF Parameters</figcaption>
+	</figure>
+	<h4 id="ilr-soa-scale-mapping">ILR SOA Scales Mapping</h4>
+	<p> The ILR SOA Scales mapping classify the level of compliance of a security measure based on the implementation rate of a security measure.
+		By default the scale classification is as depicted in figure below. The threshold rates, description as well as color can be configured by double clicking the entries.
+		In the ILR compatible JSON files these settings are used in "soaScaleComment" structure while exporting the JSON file for Serima. Refer (<a href="#export--json_interface"></a>).		
+	</p>
+	<figure id="_FIG_SOA_SCALE_MAPPING" class="figure">
+		<img src="img/soa_scale_mapping.png" class="figure-img img-fluid" />
+		<figcaption class="figure-caption">Example of a quantitative probability scale.</figcaption>
+	</figure>
+
+	<h4 id="report-settings">Report settings</h4></mark></h4>
+	<p>These settings allow configuration of color schemes which is used for the generated Reports for the current analysis</p>
+	<figure id="_FIG_REPORT_SETTINGS" class="figure">
+		<img src="img/report_settings.png" class="figure-img img-fluid" />
+		<figcaption class="figure-caption">Example of report settings</figcaption>
+	</figure>
+
+	<h4 id="sequence-no-exported-documents">Sequence numbers of exported documents</h4></mark></h4>
+	<p>These settings are used as prefixes of the file names/data exported from Trick Service</p>
+	<figure id="_FIG_REPORT_SETTINGS" class="figure">
+		<img src="img/sequence_of_exported_docs.png" class="figure-img img-fluid" />
+		<figcaption class="figure-caption">Example of Sequence numbers of generated reports</figcaption>
+	</figure>
 
 	<h4 id="various-parameters">Various parameters</h4>
 	<p>The options of the “Various parameters” table are the following:</p>
 	<ul>
-		<li>Internal setup rate: Average cost of one internal man-day. Used to compute implementation costs of security measures.</li>
-		<li>External setup rate: Average cost of one external man-day. Used to compute the implementation costs of security measures.</li>
-		<li>Default lifetime: Default lifetime of a security measure before it must be re-implemented. When ever you do not enter a
+		<li><strong>Internal setup rate:</strong> Average cost of one internal man-day. Used to compute implementation costs of security measures.</li>
+		<li><strong>External setup rate:</strong> Average cost of one external man-day. Used to compute the implementation costs of security measures.</li>
+		<li><strong>Default lifetime:</strong> Default lifetime of a security measure before it must be re-implemented. When ever you do not enter a
 			value for the lifetime of a security measure, TRICK Service will consider the default lifetime specified here, instead.</li>
-		<li>Max RRF (only for quantitative analyses): Used to fine-tune the Risk Reduction Factor (RRF). The Max RRF value is expressed
+		<li><strong>Max RRF (only for quantitative analyses):</strong> Used to fine-tune the Risk Reduction Factor (RRF). The Max RRF value is expressed
 			in percentage. The RRF will be multiplied with the MAX RRF value to fine-tune the RRF.</li>
-		<li>SOA: Used to only consider measure with implementation rate &lt; SOA for the SOA section. If an ISO 27002 security measure
+		<li><strong>SOA:</strong> Used to only consider measure with implementation rate &lt; SOA for the SOA section. If an ISO 27002 security measure
 			has an implementation rate that is higher than the SOA threshold parameter, the security measure is sufficiently implemented
 			to fulfil the ISO/IEC 27001 minimum requirements.</li>
-		<li>Mandatory phase: Option to define a phase in which all security measures become mandatory to be implemented.</li>
+		<li><strong>Mandatory phase:</strong> Option to define a phase in which all security measures become mandatory to be implemented.</li>
+		<li><strong>RRF threshold:</strong> The RRF threshold determines which security measures need to be implemented in the qualitative action plan for a given risk scenario.
+			The measures are determined based on three conditions. 
+			<ul>
+			   <li>The implementation rate of the measure is not 100 %</li>
+			   <li>The measure is applicable</li>
+			   <li>RRF will be computed using measure and risk estimation (Asset and Scenario combination).
+				   The computed RRF must be greater or equal to RRF threshold for the measure which is applicable</li>
+			</ul>				 			
+		</li>
 	</ul>
+	<figure id="_FIG_VARIOUS_PARAMETERS" class="figure">
+	   <img src="img/various_parameters.png" class="figure-img img-fluid" />
+	   <figcaption class="figure-caption">Configuring Various Parameters.</figcaption>
+   </figure>
+
 	<h3 id="probability-impacts"><a id="analysis-parameter-impact-probability"></a>Probability &amp; Impacts</h3>
 	<h4>Probability scale</h4>
 	<p>The probability scale for quantitative risk analysis:Each level represents the yearly probability that a risk may occur.
@@ -1301,7 +1391,7 @@
 		<li>[+] Adds a new, empty line below the current line.</li>
 	</ul>
 	<h3 id="risk-assessment">Risk assessment</h3>
-	<h4><a id="analysis-asset"></a>Assets</h4>
+	<h4 id="analysis-asset">Assets</h4>
 	<p>The assets section contains a table listing all assets that are within the scope of the risk assessment. In the ribbon above
 		the asset table, the user has the following options: Add, Edit, Select, Unselect, and Delete.</p>
 	<h5>Adding an asset</h5>
@@ -1356,6 +1446,7 @@
 	<p>To delete an asset, select the asset by ticking the box next to it on the left-hand side. Once the box is ticked, click
 		the “delete” button in the ribbon to delete the asset from the list. All the assets in the list can be deleted together
 		by ticking the box at the top of the far-left column to select all assets and then clicking “Delete”.</p>
+	
 	<h4><a id="analysis-scenario"></a>Scenarios</h4>
 	<p>The scenarios table contains information regarding the different scenarios which will be considered for the risk analysis.
 		By default, the table contains the following scenarios, shown in the figure below.</p>
@@ -1421,6 +1512,14 @@
 			</tr>
 		</tbody>
 	</table>
+
+	<h5 id="analysis-scenario-ilr">Scenarios with ILR analysis enabled</h5>
+	<p>For a risk analysis for which the ILR analysis is enabled the scenarios table looks as below where the scenarios are mapped to additional ILR Threat and Vulnerability IDs.</p>
+	<figure id="_FIG_ILR_SCENARIOS" class="figure">
+		<img src="img/scenariosWithILRThreat&Vul.png" class="figure-img img-fluid" />
+		<figcaption class="figure-caption">Table of scenarios with ILR anaalysis enabled.</figcaption>
+	</figure>
+
 	<p>The different functionalities of risk scenarios are explained in the following sub-sections.</p>
 	<h5>Adding a scenario</h5>
 	<p>To add a scenario, click on the “Add” button which will open the box shown in <a href="#_FIG_57">[Figure]</a>.</p>
@@ -1597,7 +1696,7 @@
 		list can be deleted together by ticking the box at the top of the far-left column to select all assets and then clicking
 		“Delete”.
 	</p>
-	<h4><a id="analysis-risk-estimation"></a>Risk estimation</h4>
+	<h4 id="analysis-risk-estimation">Risk estimation</h4>
 	<p>The risk estimation page is divided into two sections. The first section contains</p>
 	<ul>
 		<li>a filter for selecting assets from the assets list,</li>
@@ -1619,6 +1718,12 @@
 		<img src="img/62.png" class="figure-img img-fluid" />
 		<figcaption class="figure-caption">Risk sheet selection.</figcaption>
 	</figure>
+
+	<h5 id="analysis-risk-estimation-with-ilr-info">Risk estimation with ILR information</h5>
+	<p>
+
+	</p>
+
 	<h5 id="risk-sheet">Risk sheet</h5><!--not such title-->
 	<p>The risk sheet (see figure below), allows the user to provide detailed information about a specific risk.</span></p>
 	<figure id="_FIG_60" class="figure">
@@ -1671,7 +1776,7 @@
 		a table view.</p>
 	<p>The image below shows an excerpt of the ISO/IEC 27002 measure collection in TRICK Service.</p>
 	<figure id="_FIG_62" class="figure">
-		<img src="img/65_v2.16.png" class="figure-img img-fluid" />
+		<img src="img/65_v2.16.1.png" class="figure-img img-fluid" />
 		<figcaption class="figure-caption">Standards/measures – Table view.</figcaption>
 	</figure>
 	<p>The security measures tables contain the following information:</p>
@@ -1686,7 +1791,7 @@
 		</thead>
 		<tbody>
 			<tr>
-				<td>Ref</td>
+				<td>Reference (Ref.)</td>
 				<td>The reference number, as defined by the relative standard</td>
 				<td>No</td>
 			</tr>
@@ -1698,60 +1803,64 @@
 			<tr>
 				<td>Status (ST.)</td>
 				<td>
-					<p>Defines the status of applicability of the security measure. Here, the user can choose the following three options from
+					<p>Defines the status of applicability of the security measure. Here, the user can choose the following options from
 						a drop-down list:</p>
 					<ul>
-						<li>M (Mandatory): The security measure is required and will be implemented first;</li>
-						<li>AP (Applicable): The security measure is relevant and will be considered in the computation;</li>
+						<li>M (Mandatory): The security measure is required and will be implemented first. The measure will appear in SoA and in Action Plan;</li>
+						<li>AP (Applicable): The security measure is relevant and will be considered in the computation. The measure will appear in SoA and in Action Plan;</li>
 						<li>NA (Non-Applicable): The security measure is not relevant to the organization and will therefore not be considered
-							in the computation.</li>
+							in the computation. The measure does not appear in SoA and also in Action Plan;
+						<li>EX (Excluded): The security measure is not relevant to the organization and will therefore not be considered
+								in the computation. The measure does not appear in SoA and also in Action Plan;			
+						<li>OP (Optional): The security measure does not appear in SoA but appears in Action Plan;							
+						</li>
 					</ul>
 				</td>
 				<td>Yes</td>
 			</tr>
 			<tr>
-				<td>IR (%)</td>
+				<td>Implementation Rate (IR (%))</td>
 				<td>The current implementation rate of the security measure. The user can enter a value between 0 and 100%</td>
 				<td>Yes</td>
 			</tr>
 			<tr>
-				<td>IW (md)</td>
+				<td>Internal Workload (IW (md))</td>
 				<td>Internal workload in man-days needed to achieve 100% implementation rate</td>
 				<td>Yes</td>
 			</tr>
 			<tr>
-				<td>EW (md)</td>
+				<td>External workload (EW (md))</td>
 				<td>External workload in man-days needed to achieve 100% implementation rate</td>
 				<td>Yes</td>
 			</tr>
 			<tr>
-				<td>INV (k€)</td>
+				<td>Investment (INV (k€))</td>
 				<td>Investment: the cost in k€ to achieve 100% implementation rate</td>
 				<td>Yes</td>
 			</tr>
 			<tr>
-				<td>LT (y)</td>
+				<td>Lifetime (LT (y))</td>
 				<td>Lifetime of the security measure before it has to be re-implemented. If no value is indicated, the default value indicated
 					in the various parameter section (see <a href="#parameters">[Section]</a>) is considered.</td>
 				<td>Yes</td>
 			</tr>
 			<tr>
-				<td>IM (md)</td>
+				<td>Internal Maintenance (IM (md))</td>
 				<td>Yearly internal maintenance workload in man-days to keep the implementation rate to 100%.</td>
 				<td>Yes</td>
 			</tr>
 			<tr>
-				<td>EM (md)</td>
+				<td>External Maintenance (EM (md))</td>
 				<td>Yearly external maintenance workload in man-days to keep the implementation rate to 100%.</td>
 				<td>Yes</td>
 			</tr>
 			<tr>
-				<td>RM (k€)</td>
+				<td>Recurrent Maintenance (RM (k€))</td>
 				<td>Yearly recurrent maintenance costs (e.g. licences)</td>
 				<td>Yes</td>
 			</tr>
 			<tr>
-				<td>CS (k€)</td>
+				<td>Cost (CS (k€))</td>
 				<td>
 					<p>Cost: this is the annual cost in k€ of maintaining 100% implementation rate. The costs are computed with the following
 						formula:
@@ -1765,6 +1874,17 @@
 			<tr>
 				<td>Phase (PH.)</td>
 				<td>The phase of the Risk Treatment Plan in which the action (To do) should be carried out</td>
+				<td>Yes</td>
+			</tr>
+			<tr>
+				<td>Importance (I.)</td>
+				<td>The importance of recommendation suggested in To do column which suggests the recommendations to achieve 100 % implementation rate. The importance can be classified as:
+					<ul>
+						<li><strong>L:</strong>Implying Low priority recommendation. The recommendation as defined in To do column is useful for the organizations security.</li>
+						<li><strong>M:</strong>Implying Medium priority recommendation. The recommendation as defined in To do column currently suggestive of a best practise being missed or sugegsts a dedictated action to solve a vulnerability within the organization.</li>
+						<li><strong>H:</strong>Implying High priority recommendation. The recommendation as defined in To do column is a priority recommendation and needs immediate attention.</li>
+					</ul>
+				</td>
 				<td>Yes</td>
 			</tr>
 			<tr>
@@ -1805,6 +1925,26 @@
 	<figure id="_FIG_EMAIL_TICKET" class="figure">
 		<img src="img/email_ticket_creation.png" class="figure-img img-fluid" />
 		<figcaption class="figure-caption">Email ticket creation and update options.</figcaption>
+	</figure>
+
+	<h6 id="analysis-standards_creating_redmine_tickets"><a id="analysis-standards_creating_redmine_tickets"></a>Creating redmine tickets</h6>
+	<p> The measure by collection page (see <a href="#_FIG_MEASURE_COLLECTION_REDMINE">[Figure]</a>) provides the following intefaces for redmine ticket creation and updation:
+		<ul> Before selecting one of the following options select one or more secutiry measure(s) collection for which the ticket needs to be created/modified. 
+			<li><strong>Open Measure/task:</strong> This option allows for updating one or more selected measure(s)/task(s) in a single form dialog that opens. The user can modify the Implementation rate of the task from this interface.</li>
+			<li><strong>Create/update tasks:</strong> This option allows for creation or updation of a redmine ticket. The Todo column value is used as the subject of the created or updated ticket under the redmine project. Once a ticket has been created the icon of the specific collection measure changes to button and clicking the same opens up the the redmine ticket page.</li>
+			<li><strong>Link to Redmine:</strong> This option allows for linking of an existing redmine ticket with the selected collection measure. Choose the redmine ticket on one side and collection measure on other side of the window and click on the chain icon in middle for linking (see <a href="#_FIG_REDMINE_TICKET_LINK">[Figure]</a>)  </li>
+			<li><strong>Unlink from Redmine:</strong> This option allows for unlinking of an existing redmine ticket with the selected collection measure.</li>
+		</ul>
+	</p>	
+
+	<figure id="_FIG_MEASURE_COLLECTION_REDMINE" class="figure">
+		<img src="img/measure_by_collection_redmine.png" class="figure-img img-fluid" />
+		<figcaption class="figure-caption">Redmine interface for collection measure</figcaption>
+	</figure>
+
+	<figure id="_FIG_REDMINE_TICKET_LINK" class="figure">
+		<img src="img/link_measure_to_redmine_project.png" class="figure-img img-fluid" />
+		<figcaption class="figure-caption">Link a redmine ticket to collection measure</figcaption>
 	</figure>
 
 	<h5><a id="analysis-measure-edition"></a>View by Measure</h5>
@@ -2044,7 +2184,7 @@
 	<div class="alert alert-warning">The start date can only be changed for the first phase. For all other phases, the start date is implicitly computed as the end date of the previous phase + 1 day.</div>
 	<p>To delete an implementation phase, the user should select the implementation phase and click on the “Delete” button.</p>
 	<div class="alert alert-warning">If a phase is deleted, all other phases are updated such that the start date of each phase corresponds to the end date of the previous phase + 1 day.</div>
-	<h5><a id="analysis-action-plan"></a>Action plan</h5>
+	<h5 id="analysis-action-plan">Action plan</h5>
 	<p>The security measures to be implemented will be displayed in the “Action plan” section. For the computation of the action
 		plan and of the security measures to be implemented see <a href="#manual-update">[Section]</a>.</p>
 	<p>A description of each column can be found in the table below.</p>
@@ -2079,43 +2219,59 @@
 				<td>No</td>
 			</tr>
 			<tr>
-				<td>ALE (k€)</td>
-				<td>Annual Loss Expectancy (only for quantitative risk analyses)</td>
+				<td>Number of Risks (NR)</td>
+				<td>The number of risks that are applied to the current measure in the given analysis (only for qualitative risk analysis).</td>
 				<td>No</td>
 			</tr>
 			<tr>
-				<td>Delta ALE (k€)</td>
-				<td>Delta Annual Loss Expectancy (only for quantitative risk analyses)</td>
+				<td>Annual Loss Expectatny (ALE (k€))</td>
+				<td>Annual Loss Expectancy (only for quantitative risk analysis)</td>
 				<td>No</td>
 			</tr>
 			<tr>
-				<td>CS (k€)</td>
+				<td>&Delta; Annual loss expectatny (&Delta;ALE (k€))</td>
+				<td>Delta Annual Loss Expectancy (only for quantitative risk analysis)</td>
+				<td>No</td>
+			</tr>
+			<tr>
+				<td>Cost (CS (k€))</td>
 				<td>The implementation costs of the security measure.</td>
 				<td>No</td>
 			</tr>
 			<tr>
-				<td>ROI (k€)</td>
-				<td>The Return On Investment value (only for quantitative risk analyses).</td>
+				<td>Return on Investment (ROI (k€))</td>
+				<td>The Return On Investment value (only for quantitative risk analysis).</td>
 				<td>No</td>
 			</tr>
 			<tr>
-				<td>IW (md)</td>
+				<td>Internal workload (IW (md))</td>
 				<td>The number of internal man-days needed to complete the action.</td>
 				<td>No</td>
 			</tr>
 			<tr>
-				<td>EW(md)</td>
+				<td>External workload (EW(md))</td>
 				<td>The number of external man-days needed to complete the action.</td>
 				<td>No</td>
 			</tr>
 			<tr>
-				<td>INV (k€)</td>
+				<td>Investment (INV (k€))</td>
 				<td>The investment cost of completing the action.</td>
 				<td>No</td>
 			</tr>
 			<tr>
-				<td>Phase</td>
+				<td>Phase (PH.)</td>
 				<td>The phase of the risk treatment where the action will be carried out.</td>
+				<td>Yes</td>
+			</tr>
+			<tr>
+				<td>Importance (I.)</td>
+				<td>The importance of recommendation suggested in To do column which suggests the recommendations to achieve 100 % implementation rate. The importance can be classified as:
+					<ul>
+						<li><strong>L:</strong>Implying Low priority recommendation. The recommendation as defined in To do column is useful for the organizations security.</li>
+						<li><strong>M:</strong>Implying Medium priority recommendation. The recommendation as defined in To do column currently suggestive of a best practise being missed or sugegsts a dedictated action to solve a vulnerability within the organization.</li>
+						<li><strong>H:</strong>Implying High priority recommendation. The recommendation as defined in To do column is a priority recommendation and needs immediate attention.</li>
+					</ul>
+				</td>				
 				<td>Yes</td>
 			</tr>
 		</tbody>
@@ -2364,9 +2520,35 @@
 		<figcaption class="figure-caption">Action menu.</figcaption>
 	</figure>
 	<h3 id="manual-update">Manual update</h3>
+	<h4>Compute risk profile measures</h4>
+	<p> The Risk Profile measures are computed based on following three preconditions:
+		<ul>
+			<li>The measure should not have 100 % implementation rate.</li>
+			<li>The measure should be applicable</li>
+			<li>The RRF (see <a href="#various-parameters">[Section]</a>) is computed based on risk estimation and the applicable measures are those
+				for which RRF >= RRF threshold .
+			</li>
+		</ul>
+		The applicable measures for risk scenarios can be viewed in in the Risk Sheet in Collection, Ref., Security measure section. 
+		Refer (<a href="#risk-sheet">[Section]</a>). As an example the Risk Sheet will be populated with Security measures like in the figure given below:
+	</p>
+	
+	<figure id="_FIG_Security_measures" class="figure">
+		<img src="img/risk_sheet_with_security_measures.png" class="figure-img img-fluid" />
+		<figcaption class="figure-caption">Risk sheet with computed Security Measures</figcaption>
+	</figure>
+	<p>Once the action plan is computed further. The qualitative action plan gets generated 
+		which contains consolidated measures of all the risk scenarios. The column <strong>NR</strong> displays the number of 
+		risks for a particular measure and <strong>I.</strong> denotes the importance associated with the measure.	
+		Refer figure below for a generated sample Qualitative action plan
+	 </p>
+	 <figure id="_FIG_QUALITATIVE_ACTION_PLAN" class="figure">
+		 <img src="img/qualitative_action_plan.png" class="figure-img img-fluid" />
+		 <figcaption class="figure-caption">Qualitative action plan</figcaption>
+	 </figure>
 	<h4>Compute action plan</h4>
 	<p>Once the all information has been entered into the relative tables, this option allows the user to compute the action plan
-		(see section Action plan).</p>
+		(see <a href="#analysis-action-plan">[Section]</a>).</p>
 	<h4>Reload charts</h4>
 	<p>Refreshes all charts in the risk analysis. This option should only be used in case there is a failure in the automatic update
 		of the charts.</p>
@@ -2386,34 +2568,114 @@
 	<p>Export all data from all sheets from the “Brainstorming” section (see <a href="#brainstorming">[Section]</a>) into a single Excel file (with three sheets). The structure of the Excel file is the same as the one in TRICK Service.</p>
 
 	<h4 id="export--json_interface">ILR: JSON File for Serima</h4>
-	<p>This option allows users to export a risk assessment file in an ILR compatible JSON format which can be further imported to Serima platform</p>
+	<p>This option allows users to export a risk assessment file in an ILR compatible JSON format. This generated JSON file can be further imported to Serima platform thereby 
+		ensuring cross tool compatibility.</p>
 	<p>There are two mandatory inputs required to be provided during the import. Refer (<a href="#_FIG_exportjson">[Figure]</a>) below.
-	<ul>
-		<li>
-			<strong>JSON source file (Exported from Serima):</strong> The user requires to provide a path to the JSON file imported from Serima.
-		</li>
-		<li>
-			<strong>Asset mapping file: </strong>The user should provide here a path of (; separated) CSV file which maps Trick Service asset names to ILR asset names. It is important to note here that the mapping From
-			trickServiceAssetName to corresponding serima name (defined by ILR) is a many to many mapping. 
-			<br>
-			<strong>The syntax of each line of CSV file is as below:<br></strong>
-			<em>&lt;TrickServiceAssetName&gt; ; &lt;CorrespondingSerimaAssetName &gt;</em><br>	
-			
-			<strong>Example of mapping file:</strong><br>
-			<em>&lt;Airconditioner&gt; ; &lt;ILR_En_GAS_Airconditioner&gt;</em><br>	
-			<em>&lt;Airconditioner&gt; ; &lt;ILR_En_Elec_Airconditioner&gt;</em><br>	
-			<em>&lt;ILR_En_X_Supply of natural gas&gt; ; &lt;ILR_En_Gas_Supply of natural gas&gt;</em><br>	
-			<em>&lt;ILR_En_Y_Supply of natural gas &gt; ; &lt;ILR_En_Gas_Supply of natural gas&gt;</em><br>	
-		</li>
-	</ul>
+		<ul>
+			<li>
+				<strong>JSON source file (Exported from Serima):</strong> The user requires to provide a path to the JSON file exported from Serima.
+			</li>
+			<li>
+				<strong>Mapping file: </strong>The user should provide here a path of (; separated) CSV file which maps Trick Service names to ILR names. It is important to note here that the mapping From
+				TrickService AssetName to corresponding Serima Asset name (defined by ILR) is a many to many mapping. The user can provide the name of an asset to be mapped to serima and can also provide a name of
+				a standard to be mapped in serima. Standard names may imply name of collection of measures used in TRICK service with corresponding name of Referentials or Recommendation Sets used in serima platform.
+				<br><br>
+				<div class="text-primary">
+				<strong>The schema of the CSV mapping file is as below:<br></strong>			
+				Type: is ("ASSET" or "STD")<br>
+				Name in Trick: [text]: Specifying name of asset/standard in TRICK service<br>
+				Name in Monarc: [text: Specifying names of assets supported by ILR or name of standard in Serima<br>
+				</div>
+				<br>
+				
+				<div class="text-primary">
+				<strong>Example of mapping CSV file:</strong><br>			
+				<em>Type;Name in Trick;Name in Monarc<br></em>
+				<em>ASSET;Airconditioner;ILR_En_GAS_Airconditioner<br></em>	
+				<em>ASSET;Airconditioner;ILR_En_Elec_Airconditioner<br></em>	
+				<em>ASSET;ILR_En_X_Supply of natural gas;ILR_En_Gas_Supply of natural gas<br></em>	
+				<em>ASSET;ILR_En_Y_Supply of natural gas;ILR_En_Gas_Supply of natural gas<br></em>
+				<em>STD;27002;ISO/IEC 27002 [2013]</em>
+				</div>
+				<br>
+			</li>
+		</ul>	
+	
 	<figure class="figure" id="_FIG_exportjson">
 		<img src="img/export_as_json.png" alt="Export as JSON" class="figure-img img-fluid" />
 		<figcaption class="figure-caption">JSON Export interface</figcaption>
 	</figure>
     </p>
 
+	<h5 id="export--json_interface-with-action-plan">Steps for generating JSON File with Risk Treatment plan</h4>		
+		<p>In order to export the JSON file containing the risk management plan with appropriate information of the recommendations, security measures, statement of applicability
+			 the following process must be carried out before exporting the JSON file from Trick Service:
+			<ul>
+				<li> <strong>Enable ILR analysis:</strong> Enable ILR analysis from advanced settings</a>)
+					<p>Refer <a href="#fig-enable-ilr">[Figure]</a> for enabling ILR analysis.</p>
+					<figure id="fig-enable-ilr" class="figure">
+						<img src="img/ILRSettingsStep1.png" class="figure-img img-fluid" />
+						<figcaption class="import-menu">Settings: Advanced</figcaption>
+					</figure>
+					<figure id="fig-enable-ilr-analysis" class="figure">
+						<img src="img/ILRSettingsStep2.png" class="figure-img img-fluid" />
+						<figcaption class="import-menu">Settings: Enable ILR analysis</figcaption>
+					</figure>				
+				</li>
+				<li> <strong>Manage Statement of applicability:</strong> Apply the statement of applicability for various security standards Refer ( <a href="#manage-soa-settings">[Section]</a>)</li>
+				<li> <strong>Fine tune the RRF threshold: </strong>The RRF threshold determines which security measures need to be implemented in the action plan for a given risk scenario.
+					This threshold needs to be fine tuned before exporing risk analysis. Refer ( <a href="#various-parameters">[Section]</a>) </li>
+				<li> <strong>Manage SOA scale Mapping parameters:</strong> Fine tune the SOA scale mapping parameters from the Parameters settings. 
+					The SOA scale Mapping parameters classify the level of compliance of a security measure based on the implementation rate of a security measure.
+					 Refer ( <a href="#ilr-soa-scale-mapping">[Section]</a>) 
+					Alternately refer example of SOA scale shown below.
+					<figure id="fig-manage-soa-scale" class="figure">
+						<img src="img/ILRSOAPossibleScale.png" class="figure-img img-fluid" />
+						<figcaption class="import-menu">Parameters: Possible SoA scale mapping</figcaption>
+					</figure>
+					</li>
+				<li><strong>Edit Importance and Todo in Measures collection:</strong> Verify that the recommendations as defined by 'To do' column and their Importance as defined by 'I' column
+					 of the security measures for the applicable collections (for the applicable measures not having 100 % implementation rate) are uptodate. Refer (<a href="#analysis-standards">[Section]</a>)</li>
+				<li><strong>Compute risk profile measures:</strong> After completing the above steps generate the risk profile measures Refer (<a href="#manual-update">[Section]</a>). The associated measures
+				with risk scenario can be further viewed in Risk Estimation sheet.</li>			
+				<li><strong>Generate Template JSON file from serima platform:</strong> Export a Template JSON file from Serima platform from an analysis where the knowledge base contains
+					 Security measures and Recommendations along with other information of ILR defined risks and assets and this template file is further used for exporting ILR compatible JSON 
+					 from Trick Service. 
+				</li>
+				<li><strong>Generate JSON file from TRICK service:</strong> <a href="#export--json_interface">[SECTION]</a>
+			   </li>
+			</ul>
+		</p>
+
 	<h4 id="export--risk-estimations">Risk estimations</h4>
 	<p>By clicking on “Export”, you will get an Excel spreadsheet that contains all likelihood and impact estimations for all assets and scenarios.</p>
+	<ul>The Risk Estimation exported file contains the following Sheets in addition to all sheets present in the Template excel file:
+		<li><strong>Assets</strong> This sheet lists all the assets in "Assets" table with corresponding information available in Risk analysis.</li>
+		<li><strong>Risk estimation</strong> This sheet captures all the risk estimation information for all assets with corresponding scenarios in "Risk_estimation" table.</li>
+		<li><strong>AssetTypes</strong> This sheet captures all the supported asset types in "AssetTypes" table.</li>
+		<li><strong>Scenarios</strong> This sheet captures all the available scenario in "Scenarios" table.</li>
+		<li><strong>ScenarioTypes</strong> This sheet captures all the available scenario types in "ScenarioTypes" table.</li>
+		<li><strong>Dependency</strong> This sheet captures the asset dependency matrix. This sheet is exported only if ILR analysis is enabled. Refer <a href="#asset-dependency">[SECTION]</a></li>
+		<li><strong>Probability</strong> This sheet captures the Probability scale of the risk analysis. This sheet is exported only if ILR analysis is enabled.</li>
+	</ul>
+
+	<h5 id="asset-dependency">Asset dependency</h5>
+	<p>Asset dependency matrix is a square matrix of size n x m where n is the number of assets where m <= n.
+		The matrix value 1 indicates that the asset in the row is dependent on the asset specified in the column.
+		A positive value in matrix between 0 to 1 indicates the probability of dependency between the assets.
+		The matrix is asymmetric. The matrix is exported in the Dependency sheet of the exported file. The matrix is exported only if ILR analysis is enabled.
+		This dependency matrix can also be imported in DRAW tool. For details refer <a href="https://draw.trickservice.com/documentation/index.html">Draw documentation</a> 
+
+		CIA values in Propogation in Trick Asset Graph: 
+		1. If asset has CIA value explicitly specified then the same is considered. 
+		Asset doesnt have explicit value but parent has explicit value specified:
+		2. If the asset doesn't have CIA value explicitly specified then the value of CIA is inherited from that of parent if the parent is selected.
+		3. If the asset doesn't have CIA value explicitly specified then the value of CIA is inherited from the grand parent if the parent is not selected. 
+		  Asset doesnt have explicit value and parent also has no explicit value specified:
+		4. The value of asset node is inherited from the grand parent if there is a single parent. 
+		5. If the asset has multiple parents the of asset node is the maximum of the selected parent. 
+	</p>
+
 	<p>In contrast to the risk sheet, this spreadsheet can be imported back into TRICK Service.</p> 
 	
 	<h5 id="export-risk-estimation-with-additional-columns">Export risk estimation with-additional columns</h5>
@@ -2780,11 +3042,21 @@
 	<h3 id="edit-text-fields">Edit text fields</h3>
 	<p>You can choose between “open” or “close” edit modes to open or close all text fields of the selected risk analysis.</p>
 	<h3 id="settings--">Settings</h3>
-	<h4>Manage statement of applicability</h4>
+	<h4 id="manage-soa-settings">Manage statement of applicability</h4>
 	<p>Shows a pop-up which permits the user to enable/disable the statement of applicability for the several security standards.
-		If the statement of applicability is disabled for all standards, it will be hidden throughout the risk analysis.</p>
-	<h4>Manage impact scales</h4>
-	<p>Shows a pop-up that allows the user to select all the impact scales (quantitative and qualitative) that shall be available
+		If the statement of applicability is disabled for all standards, it will be hidden throughout the risk analysis. 
+		See (<a href="#import-menu">[Figure]</a>, <a href="#import-menu-manage-soa">[Figure]</a>) showing how to enable SoA for a specific standard.
+	</p>
+	<figure id="import-menu" class="figure">
+		<img src="img/Settings-ManageSoA.png" class="figure-img img-fluid" />
+		<figcaption class="import-menu">Settings: Manage statement of applicability.</figcaption>
+	</figure>
+	<figure id="import-menu-manage-soa" class="figure">
+		<img src="img/Manage-SoAForCollections.png" class="figure-img img-fluid" />
+		<figcaption class="import-menu">Settings: Manage statement of applicability for a specific standard.</figcaption>
+	</figure>
+	<h4 id="manage-impact-scales">Manage impact scales</h4>
+	<p>Shows a pop-up (see <a href="#fig-manage-impact-scale">[Figure]</a>) that allows the user to select all the impact scales (quantitative and qualitative) that shall be available
 		in the risk analysis.</p>
 	<p>If only the quantitative impact is included, then the analysis type will turn into “quantitative”, and all qualitative-related
 		options will be removed.</p>
@@ -2794,22 +3066,30 @@
 		options will be available in the risk analysis.</p>
 	<div class="alert alert-danger">Removing an impact scale will permanently delete all associated risk estimations! It is strongly recommended to create a
 		backup or a new version of the risk analysis before deleting impact scales!</div>
-	<h4>Manage scale levels</h4>
+	<figure id="fig-manage-impact-scale" class="figure">
+			<img src="img/ManageImpactScales.png" class="figure-img img-fluid" />
+			<figcaption class="figure-caption">Change impact scales.</figcaption>
+	</figure>
+
+	<h4 id="manage-scale-levels">Manage scale levels</h4>
 	<p>Shows a pop-up (see <a href="#_FIG_76">[Figure]</a>) where the user can change the impact and probability scales.The dialog features two columns: the left hand-side
 		displays the currently defined levels in the risk analysis (in the example: 3). The right hand-side contains the new levels.
 		Click the “+” button to add an additional level to the scale. Drag an old level from the left and drop it onto a level
-		on the right. All levels dropped onto a new level will be replaced by the latter.</p>
+		on the right. All levels dropped onto a new level will be replaced by the latter. It is also possible to drop multiple levels from left into a single level on right reducing the levels. However
+		when doing so consistency must be maintained else the outcome may not be predictable. 
+	    Additionally levels on the right can be deleted reducing the number of scales.</p>
 	<figure id="_FIG_76" class="figure">
 		<img src="img/80.png" class="figure-img img-fluid" />
-		<figcaption class="figure-caption">Change impact scales.</figcaption>
+		<figcaption class="figure-caption">Change impact levels.</figcaption>
 	</figure>
 	<h4 id="advanced-settings">Advanced settings</h4>
 	<p>Opens a dialog where advanced options can be shown or hidden for the risk analysis:</p>
 	<ul>
-		<li>Show raw estimation: shows the RAW risk estimations in the risk sheets ( <a href="#risk-assessment">[Section]</a>).</li>
-		<li>Show hidden comments: displays the “hidden comment” in the risk sheets ( <a href="#risk-assessment">[Section]</a>). This field was used in old TRICK Service versions, and is hidden by default in more recent releases.</li>
-		<li>Show dynamic analysis: enables the use of dynamic parameters in the risk analysis for the sake of real-time risk monitoring.</li>
-		<li>Include qualitative impacts into quantitative report: whether to include risk assessments for <em>qualitative</em> impacts in a <em>quantitative</em> report.</li>
+		<li><strong>Show raw estimation:</strong> shows the RAW risk estimations in the risk sheets ( <a href="#risk-assessment">[Section]</a>).</li>
+		<li><strong>Enable ILR analysis:</strong> Enables the Risk analysis with ILR compatibility. The analysis can be exported in ILR compatible JSON format and further imported in Serima platform ( <a href="#export--json_interface">[Section]</a>).</li>
+		<li><strong>Show hidden comments:</strong> displays the “hidden comment” in the risk sheets ( <a href="#risk-assessment">[Section]</a>). This field was used in old TRICK Service versions, and is hidden by default in more recent releases.</li>
+		<li><strong>Show dynamic analysis:</strong> enables the use of dynamic parameters in the risk analysis for the sake of real-time risk monitoring.</li>
+		<li><strong>Include qualitative impacts into quantitative report:</strong> whether to include risk assessments for <em>qualitative</em> impacts in a <em>quantitative</em> report.</li>
 	</ul>
 	<h2 id="close-analysis">Close analysis</h2>
 	<p>By clicking on the Exit symbol, the current risk analysis will be closed and the user will be redirected to <a href="#analysis">[Section]</a>. This option allows the user to close the current analysis without logging out of the application.</p>
@@ -3734,6 +4014,14 @@
 	</table>
 
 	<h1 id="annex-d-changelog">Annex D – Changelog</h1>
+
+	<h2 id="whats-new-in-ts-2.17">What's new in TRICK Service 2.17</h2>
+	<ul>
+		<li> Display of ILR Threat and Vulnerabilities in Scenario sheet. Refer <a href="#analysis-scenario-ilr">[Section]</a>.</li>
+		<li> Support of CIA computation based on asset dependencies. Refer <a href="#asset-dependency">[Section]</a></li>
+		<li> Risk estimation view with additional ILR information. Refer <a href="#analysis-risk-estimation-with-ilr-info">[Section]</a></li>
+	</ul>
+
 	<h2 id="whats-new-in-ts-2.16">What's new in TRICK Service 2.16</h2>
 	<ul>
 		<li> Support of customized excel templates for customers <a href="#customer-excel-templates">[Section]</a></li>
@@ -3845,8 +4133,65 @@
 			</ul>
 		</li>
 	</ul>
-	<h1 id="annex-e-howtoguide">Annex E – How to </h1>
-	<h2 id="whats-new-in-ts-2.16">How to upgrade the measure collection to new version of standard</h2>
+	<h1 id="annex-e-faqs">Annex E – Frequently Asked Questions</h1>
+	<h2 id="how-to-start-using-ts">How to start using TRICK service and create first risk analysis</h2>	
+	<h3>Create a new account</h3>
+	<p>The first screen after the user installs the application is as below where a new account needs to be created.
+	</p>
+	<figure id="create-new-account" class="figure">
+		<img src="img/CreateNewAccount.png" class="figure-img img-fluid" />
+		<figcaption class="figure-caption">Create a new account.</figcaption>
+	</figure>
+	<p> Setup the account details and the password information in screen below.</p>
+	<figure id="create-account-screen" class="figure">
+		<img src="img/CreateAccountScreen.png" class="figure-img img-fluid" />
+		<figcaption class="figure-caption">Create a new acccount screen.</figcaption>
+	</figure>
+
+	<h3>Install TRICK Service</h3>
+	<p>Before proceeding further the TRICK Service needs to be installed and initialized. Follow the Administration menu and install TRICK service.
+	</p>
+	<figure id="initialize-trick-version" class="figure">
+		<img src="img/InstallTrick.png" class="figure-img img-fluid" />
+		<figcaption class="figure-caption">Initialize or install TRICK service.</figcaption>
+	</figure>
+
+	<h3>Create a new Risk Analysis from default profile</h3>
+	<p>Prerequisite for creating a new risk analsis is existence of customer/company for which the Risk analysis is to be created.</p>
+	<h4>Create a new customer</h3>
+	<p>Select the menu "Knowledge base" and within it the Tab "Customers". Add a new customer as shown in screen below. 
+	   Once the customer is added the same must be displayed in customer list.
+	</p>
+	<figure id="create-new-customer" class="figure">
+		<img src="img/AddNewCustomer.png" class="figure-img img-fluid" />
+		<figcaption class="figure-caption">Create a new customer.</figcaption>
+	</figure>
+	<figure id="customer-list" class="figure">
+		<img src="img/CustomerList.png" class="figure-img img-fluid" />
+		<figcaption class="figure-caption">Customer list.</figcaption>
+	</figure>
+
+	<h4>Create analysis</h4>
+	<p>Refer  <a href="#creating-a-new-analysis">Create a new risk analysis</a> for creating a new risk analysis.
+	<ul>
+	Note that the default profiles available for creating a new risk analysis are:
+		<li>Quantitatve default profile</li>
+		<li>Qualitative default profile</li>
+	</ul>	
+    </p>
+
+	<h2 id="how-to-create-RA-from-existing-RA">How to create a Risk Analysis from an existing Risk analysis</h2>
+	<p> Once a risk analysis is created, a new risk analysis can be created from it by using the same Risk Analyis or parts of it.
+		Refer <a href="#section-1-5-1-2">Create a risk analysis by taking parts of it</a>.
+	</p>
+
+	<h2 id="how-to-share-analysis">How to share analysis with another user</h2>
+	<p>Often, an analysis needs to be shared with multiple people who have different access rights. If someone cannot view the analysis, 
+		it is likely because they do not have the necessary access permissions.
+		Refer <a href="#manage-access-rights">Manage access rights</a> and  <a href="#section-1-5-2-1">Inviting new users</a>
+	</p>
+
+	<h2 id="how-to-upgrade-measure-collection">How to upgrade the measure collection to a new version of standard</h2>
 
 	<h3>Preliminary Steps</h3>
 	<h4 id="import-security-standard">Import security standard</h4>
@@ -4013,8 +4358,113 @@
 		<img src="img/import-menu.png" class="figure-img img-fluid" />
 		<figcaption class="import-menu">Import menu.</figcaption>
 	</figure>
-</main>
 
+	<h2 id="how-to-update-analysis-profile">How to update an analysis profile</h2>
+	<p>	Refer <a href="#update-profile">[SECTION]</a> which details the process how to update an analysis profile to be reused for creating new analysis later.
+		Also refer <a href="#analysis-profiles">[SECTION]</a> to understand the analysis profile view.</p>	
+
+	<h2 id="how-to-show-ILR-data">How to show the ILR data</h2>
+	<p>TODO after the code changes in place.</p>
+
+	<h2 id="how-to-create-ILR-compatible-JSON-file">How to create ILR compatible JSON file</h2>
+	<ul>In order to generate ILR compatible JSON file, follow the steps below configuring the risk analysis parameters and then generating the JSON file.</ul>
+		<li><strong>Updating the risk analysis parameters and settings</strong> See <a href="#export--json_interface-with-action-plan"></a></li>
+		<li><strong>Exporting the JSON file</strong>> See <a href="#export--json_interface"></a></li>
+	</p>
+	
+	<h2>How to debug an internal error</h2>
+	<p>Encountering an internal error could be difficult to resolve and may require to debug the tool, however in certain cases it is useful to check the generated logs for any helpful tips.
+	   Select "Administration" and then the "Logs" Tab to access the application logs to see a possible diagnosis.
+	</p>
+	<figure id="import-menu" class="figure">
+		<img src="img/AnslysisLogsMenu.png" class="figure-img img-fluid" />
+		<figcaption class="import-menu">Settings: Accessing Logs</figcaption>
+	</figure>
+	<figure id="import-menu" class="figure">
+		<img src="img/AccessingLogs.png" class="figure-img img-fluid" />
+		<figcaption class="import-menu">Viewing logs for a possible diagnosis</figcaption>
+	</figure>
+
+	<h2 id="how-to-rename-assets-scenarios-from-ui">How to rename Asset from TRICK Interface</h2>
+	<p>Refer section <a href="#analysis-asset">[SECTION]</a> for performing editing or renaming operations on an asset using the TRICK interface</p>
+	
+	<h2 id="how-to-rename-assets-scenarios">How to rename Asset and Scenario from Excel</h2>
+	<p>The best way to handle this is making changes to asset name in the TRICK service interface so that the corresponding scenarios 
+		are applied to the renamed assets. However there may be situaions when the change is needed to be made in excel instead 
+		and further the analysis is imported to TRICK service. 
+		<ul>
+			<li><strong>Export the Risk estimation sheet from TRICK interface:</strong>Refer section <a href="#export--risk-estimations">Export risk estimation</a></li>
+			<li><strong>Rename Assets in "Assets" sheet in exported risk estimation file:</strong> In the exported excel file add a column in Asset sheet in excel called OldName. Copy over ALL the old names
+			to new name column. This will keep track of the changes done. Later rename the "Name" column refer <a href="#fig-rename-assets">[FIGURE]</a>
+			In this example all asset names having a substring "_PRO_" need to be changed to corresponding substring "_PROCESS_".
+			</li>
+			<li><strong>Rename Assets in "Scenarios" sheet in exported risk estimation file: Similarly rename the "Asset" column after backing up names of assets in "OldAsset" name column.</strong>
+			<li><strong>Import Assets in TRICK Service:</strong>It is essential to first import the Assets ONLY in Trick Service before importing the updated Risk estimation. Use the Risk estimation workbook modified in previsiou step to import only assets first in TRICK service. Refer <a href="#import--">[SECTION]</a></li>
+			<li><strong>Import Risk Estimation in TRICK Service:</strong>refer <a href="#import--risk-estimation">[SECTION]</a></li>
+		</ul>
+
+		<figure id="fig-rename-assets" class="figure">
+			<img src="img/ChangeAssetsSheet.png" class="figure-img img-fluid" />
+			<figcaption class="import-menu">Example rename assets in excel.</figcaption>
+		</figure>
+
+		<figure id="fig-rename-scenarios" class="figure">
+			<img src="img/ChangeScenarioSheet.png" class="figure-img img-fluid" />
+			<figcaption class="import-menu">Example rename scenarios in excel.</figcaption>
+		</figure>
+
+	</p>
+
+	<h2 id="how-to-enable-SOA">How to enable Statement of Applicability for Risk Analysis</h2>
+	<p>If the statement of applicability is disabled for all standards, it will be hidden throughout the risk analysis.
+	   In order to enable SoA for a specific standard Refer  <a href="#manage-soa-settings">[SECTION]</a>. 
+	</p>
+
+	<h2 id="how-to-manage-imact-scales">How to manage impact scales for Risk Analysis</h2>	
+	<p>The "Settings" menu allows the user to set impact scales by selecting "Manage impact scales". Refer <a href="#manage-impact-scales">[SECTION]</a>
+	</p>
+	
+	<h2 id="how-to-manage-scale-levels">How to manage scales levels for Risk Analysis</h2>
+	<p>The "Settings" menu allows the user to set impact levels by selecting "Manage scale levels". Refer <a href="#manage-scale-levels">[SECTION]</a>
+	</p>
+
+	<h2 id="how-to-link-customer-analysis-to-ts">How to link a customer analysis to a ticketing system</h2>
+	<p>A user analysis can be linked to a ticketing system, however it requires an initial token and access granted by the system administrator.
+	   Refer <a href="#ticketing_system_management">[SECTION]</a>
+	</p>
+
+	<h2 id="how-to-add-quantitative-eval-model">How to add a quantitative eval model to trick</h2>
+	<p>A quantitative evaluation model can be added to TRICK Service by adding dynamic parameters to risk analysis. 
+		<ul>The following steps can be used to achieve this:
+			<li><strong>Add Probe to access Trick Service API.</strong> Refer <a href="#ids">[SECTION]</a></li>
+			<li><strong>Enable probe subscription for the risk analysis. </strong>Refer <a href="#manage-ids">[SECTION]</a></li>
+			<li><strong>Setup dynamic parameters for risk analysis. </strong>Use the script <a href="./js/SRC_Rxxx_TS-NotifyToTS_v0.0.2.txt" target="_blank"> Push-To-TS </a> in a power shell client to set dynamic parameters.
+				Refer <a href="#_set_dynamic_params" target="_blank"> [FIGURE] </a> for setting dynamic parameters defined in a CSV file (data.csv). 
+				All the analysis where the probe subscription is enabled will have the dynamic parameters defined after running this script on command line.
+				Once set these parameters are visible in "Risk context" as "Dynamic probability parameters".
+			</li>
+			<li><strong>Setup impacts based on dynamic parameters. </strong>Once the dynamic parameters are set these parameters can be used as arithmetic expressions to define impacts for the given risk analysis
+				Refer <a href="#_set_impacts_based_on_dynamic_params" target="_blank"> [FIGURE] </a>.</li>			
+		</ul>	
+	</p>
+	
+	<figure id="_set_dynamic_params" class="figure">
+		<img src="img/SetDynamicParameters.png" class="figure-img img-fluid" />
+		<figcaption class="figure-caption">Setting dymamic parameters from power shell.</figcaption>
+	</figure>
+
+	<figure id="_set_impacts_based_on_dynamic_params" class="figure">
+		<img src="img/ImpactsBasedOnDynamicParams.png" class="figure-img img-fluid" />
+		<figcaption class="figure-caption">Setting impacts based on dynamic parameters in Risk Analysis.</figcaption>
+	</figure>
+
+	<h2 id="how-to-use-macro-enabled-template">How to use a macro enabled template</h2>
+	<p>In order to setup a risk estimation with additional columns involving formulas Refer <a href="#export-risk-estimation-with-additional-columns" target="_blank"> [SECTION] </a>. 
+	  Additionally prior to exporting risk estimation involving formulas a Macro enabled Template requires to be setup for exporting analysis.
+	  Refer <a href="#macro-enabled-template" target="_blank"> [SECTION] </a>. 
+    </p>
+
+</main>
 </div>
 </body>
 
