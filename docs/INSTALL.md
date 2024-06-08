@@ -49,7 +49,7 @@ git clone [...]
      - ./deployment-ldap.env
 ```
     
-    Adapt the environment, port settings and other settings in the above files.
+    Adapt the environment, port settings and other settings in the above files if needed.
     
     Create a folder .cache in this directory. Provide atleast Read, Write, Execute permissions
     to Owner and Read permissions to members of group and others.
@@ -58,37 +58,40 @@ git clone [...]
     
 ### Start the docker
 
-    Start docker
-    $ sudo service docker start
+   Start docker
+   ```$ sudo service docker start```
 
-    Start the docker for trick service, mysql and phpmyadmin:
-    $ docker compose -f docker-compose.yml up -d
+   Start the docker for trick service, mysql and phpmyadmin:
+   ```$ docker compose -f docker-compose.yml up -d```
 
-    Check the logs to see if applications are successfully started:
-    $ docker compose -f docker-compose.yml logs -f    
+   Check the logs to see if applications are successfully started:
+   ```$ docker compose -f docker-compose.yml logs -f    ```
 
-    Check that trick service is up and running:
-    
-    Open TrickService URL in one of supported browsers:
+   Check the docker has successfully started. The following images should be visble with docker ps command.
+   ```$ docker ps```
+   ```CONTAINER ID   IMAGE                               COMMAND                  CREATED          STATUS          PORTS                                                  NAMES```
+   ```b455c54386d7   phpmyadmin/phpmyadmin:latest        "/docker-entrypoint.…"   17 seconds ago   Up 15 seconds   0.0.0.0:8080->80/tcp, :::8080->80/tcp                  docker-phpmyadmin-1```
+   ```f80f0f45edc5   trickservice.com/opentrick:latest   "/cnb/process/web"       17 seconds ago   Up 15 seconds   0.0.0.0:8443->8443/tcp, :::8443->8443/tcp              docker-opentrick-1```
+   ```02467260bfd2   mysql:8                             "docker-entrypoint.s…"   17 seconds ago   Up 16 seconds   0.0.0.0:3306->3306/tcp, :::3306->3306/tcp, 33060/tcp   docker-db-1```
+
+    Check that trick service is up and running    
+    Open TrickService URL in one of supported browsers
     https://localhost:8443 
 
 ### Stop the docker
     $ docker compose -f docker-compose.yml down
     
-## Installation using conventional method
+## Alternately installation using conventional method
 
-Once the clone process is completed, Maven can be invoked and used to resolve the project dependencies.
+    After building the project follow the following steps for installation instructions.
 
-```bash
-mvn clean build
-```
-After Maven has completed the build process, the project can be compiled and run.
+    Refer to the [installation using conventional method](./installation/deployment/java/README.md).
 
 ## Verifying the install and getting started
 
 Open the URL in browser ```localhost:8443```  to get started.
 
-Supported browsers:
+### Supported browsers:
 
 Google Chrome    Version 125.0.6422.113, 
 Microsoft edge   Version 125.0.2535.67

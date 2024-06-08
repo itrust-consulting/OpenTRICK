@@ -32,11 +32,11 @@ TRICK Service was developed as open source software and
 
 # Install
 
-Please refer to [the TRICK Service installation guide](docs/INSTALL.md) to verify the installation process.
+Please refer to [installation guide](docs/INSTALL.md) for the installation process.
 
 # Quick start
 
-To begin using an already installed TRICK Service instance, please refer to the [User Guide](src/main/webapp/WEB-INF/static/views/user-guide.html#creating-a-risk-analysis-using-trick-service).
+To begin using an already installed TRICK Service instance, please refer to the [User Guide](./src/main/webapp/WEB-INF/static/views/user-guide.html#creating-a-risk-analysis-using-trick-service).
 
 # Deployment
 
