@@ -30,10 +30,10 @@
 		<div class="center-block" style="width: 200px;">
 			<a href="#" class="btn btn-primary" onclick="return installTrickService();"> <c:choose>
 					<c:when test="${status.installed == true}">
-						<spring:message code="label.installation.re_install" text="Reinstall TRICK Service" />
+						<spring:message code="label.installation.re_install" text="Reinstall OpenTRICK" />
 					</c:when>
 					<c:otherwise>
-						<spring:message code="label.installation.install" text="Install TRICK Service" />
+						<spring:message code="label.installation.install" text="Install OpenTRICK" />
 					</c:otherwise>
 				</c:choose>
 			</a>

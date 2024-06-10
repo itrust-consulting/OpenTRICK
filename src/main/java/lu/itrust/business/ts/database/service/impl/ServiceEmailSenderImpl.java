@@ -219,10 +219,10 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 							MimeMessageHelper message = new MimeMessageHelper(mimeMessage);
 							message.setFrom(emailSender);
 							message.setSubject(messageSource.getMessage("label.registration.admin.email.subject", null,
-									"New TRICK Service user", locale));
+									"New OpenTRICK user", locale));
 							Map<String, Object> model = new LinkedHashMap<>();
 							model.put("title", messageSource.getMessage("label.registration.admin.email.subject", null,
-									"New TRICK Service user", locale));
+									"New OpenTRICK user", locale));
 							model.put("login", StringEscapeUtils.escapeHtml4(admin.getLogin()));
 							model.put("userLogin", StringEscapeUtils.escapeHtml4(user.getLogin()));
 							model.put("userEmail", StringEscapeUtils.escapeHtml4(user.getEmail()));
@@ -290,10 +290,10 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 					MimeMessageHelper message = new MimeMessageHelper(mimeMessage);
 					message.setFrom(emailSender);
 					message.setSubject(messageSource.getMessage("label.otp.email.code.subject", null,
-							"TRICK Service authentication code", locale));
+							"OpenTRICK authentication code", locale));
 					Map<String, Object> model = new LinkedHashMap<>();
 					model.put("title", messageSource.getMessage("label.otp.email.code.subject", null,
-							"TRICK Service authentication code", locale));
+							"OpenTRICK authentication code", locale));
 					model.put("expireDate", StringEscapeUtils
 							.escapeHtml4(DateFormat.getDateInstance(DateFormat.FULL, locale).format(timestamp)));
 					model.put("expireDateTime", StringEscapeUtils
@@ -333,10 +333,10 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 					MimeMessageHelper message = new MimeMessageHelper(mimeMessage);
 					message.setFrom(emailSender);
 					message.setSubject(messageSource.getMessage("label.account.locked.subject", null,
-							"TRICK Service account locked", locale));
+							"OpenTRICK account locked", locale));
 					Map<String, Object> model = new LinkedHashMap<>();
 					model.put("title", messageSource.getMessage("label.title.account.locked", null,
-							"TRICK Service account locked", locale));
+							"OpenTRICK account locked", locale));
 					model.put("expireDate", StringEscapeUtils
 							.escapeHtml4(DateFormat.getDateInstance(DateFormat.FULL, locale).format(timestamp)));
 					model.put("expireDateTime", StringEscapeUtils
@@ -373,9 +373,9 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 					final User user = invitation.getHost();
 					message.setFrom(emailSender);
 					message.setSubject(messageSource.getMessage("label.share.analysis.subject", null,
-							"TRICK Service: Risk analysis access", locale));
+							"OpenTRICK: Risk analysis access", locale));
 					model.put("title", messageSource.getMessage("label.title.share.analysis", null,
-							"TRICK Service: Risk analysis access", locale));
+							"OpenTRICK: Risk analysis access", locale));
 					model.put("firstName", StringEscapeUtils.escapeHtml4(user.getFirstName()));
 					model.put("lastName", StringEscapeUtils.escapeHtml4(user.getLastName()));
 					model.put("accept",
@@ -410,9 +410,9 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 					final User user = validatingRequest.getUser();
 					message.setFrom(emailSender);
 					message.setSubject(messageSource.getMessage("label.email.validation.subject", null,
-							"TRICK Service: Email validation", locale));
+							"OpenTRICK: Email validation", locale));
 					model.put("title", messageSource.getMessage("label.title.email.validation", null,
-							"TRICK Service: Email validation", locale));
+							"OpenTRICK: Email validation", locale));
 					model.put("firstName", StringEscapeUtils.escapeHtml4(user.getFirstName()));
 					model.put("lastName", StringEscapeUtils.escapeHtml4(user.getLastName()));
 					model.put("link", String.format("%s/Validate/%s/Email", hostServer, validatingRequest.getToken()));

@@ -25,7 +25,8 @@
 				<div style="position: fixed; right: 40px; bottom: 35px;">
 					<strong style="float: right;"><spring:message code='label.entity.support' /></strong>
 					<div style="display: inline-block; clear: both; float: right;">
-						<img class="support-logo" alt=<spring:message code="label.logo" text="Logo" /> src='<c:url value="/images/support/atena.png" />'> <img class="support-logo"
+						<img class="support-logo" alt=<spring:message code="label.logo" text="Logo" /> src='<c:url value="/images/support/cyfort.png" />'> <img class="support-logo"
+						    alt=<spring:message code="label.logo" text="Logo" /> src='<c:url value="/images/support/atena.png" />'> <img class="support-logo"
 							alt=<spring:message code="label.logo" text="Logo" /> src='<c:url value="/images/support/diamonds.jpg" />'> <img class="support-logo"
 							alt=<spring:message code="label.logo" text="Logo" /> src='<c:url value="/images/support/cockpitci.jpg" />'> <img class="support-logo"
 							alt=<spring:message code="label.logo" text="Logo" /> src='<c:url value="/images/support/trespass.png" />'> <img class="support-logo"

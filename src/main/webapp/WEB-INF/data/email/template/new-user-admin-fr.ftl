@@ -104,7 +104,7 @@
                             <td valign='top' align='center'>
                               <div class="contentEditableContainer contentTextEditable">
                                 <div class="contentEditable">
-                                  <p style='text-align:center;margin:0;font-family:Georgia,Time,sans-serif;font-size:26px;color:#222222;'>TRICK Service</p>
+                                  <p style='text-align:center;margin:0;font-family:Georgia,Time,sans-serif;font-size:26px;color:#222222;'>OpenTRICK</p>
                                 </div>
                               </div>
                             </td>
@@ -119,7 +119,7 @@
                               <div class="contentEditableContainer contentTextEditable">
                                 <div class="contentEditable" align='center'>
 								 <h4 align="left">Bonjour ${login},</h4>
-								 <p style="margin-top:5px;">Un nouveau utilisateur vient de s'inscrire sur TRICK Service.<br>
+								 <p style="margin-top:5px;">Un nouveau utilisateur vient de s'inscrire sur OpenTRICK.<br>
 								 Nom d'utilisateur : ${userLogin}<br>
 								 Nom compl&egrave;t&eacute; : ${firstName} ${lastName}<br>
 								 Courriel : ${userEmail}<br>

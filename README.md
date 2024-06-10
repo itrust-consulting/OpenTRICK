@@ -1,12 +1,12 @@
 # About
 
-![TRICK Service Logo](src/main/webapp/WEB-INF/static/images/TrickService.png)
+![OpenTRICK Logo](src/main/webapp/WEB-INF/static/images/brand.png)
 
-TRICK Service is a network-based risk analysis platform that allows to create risk scenarios with user-defined assets and risks.
+OpenTRICK is a network-based risk analysis platform that allows to create risk scenarios with user-defined assets and risks.
 
 This platform uses Java 17 for running the server software, along with a MySQL compatible database manager. This project uses code from the [Trick2Monarc api project](https://github.com/itrust-consulting/Trick2MonarcApi), available at GitHub.
 
-To install TRICK Service, please refer to the [installation guide](#install).
+To install OpenTRICK, please refer to the [installation guide](#install).
 
 ## Requirements
 
@@ -15,7 +15,7 @@ To install TRICK Service, please refer to the [installation guide](#install).
 
 ## Build
 
-TRICK Service is provided as-is. The recommended build platform for TRICK Service is composed of:
+OpenTRICK is provided as-is. The recommended build platform for OpenTRICK is composed of:
 
 - Java 17;
 - Maven;
@@ -23,7 +23,7 @@ TRICK Service is provided as-is. The recommended build platform for TRICK Servic
 
 ## Tools for development
 
-TRICK Service was developed as open source software and 
+OpenTRICK was developed as open source software and 
 
 - Visual Studio Code;
 - Java 17;
@@ -36,11 +36,11 @@ Please refer to [installation guide](docs/INSTALL.md) for the installation proce
 
 # Quick start
 
-To begin using an already installed TRICK Service instance, please refer to the [User Guide](./src/main/webapp/WEB-INF/static/views/user-guide.html#creating-a-risk-analysis-using-trick-service).
+To begin using an already installed OpenTRICK instance, please refer to the [User Guide](./src/main/webapp/WEB-INF/static/views/user-guide.html#creating-a-risk-analysis-using-trick-service).
 
 # Deployment
 
-TRICK Service can be deployed as a Java web application or a docker container. These methods have their own advantages and disadvantages that should be taken into consideration by the IT manager.
+OpenTRICK can be deployed as a Java web application or a docker container. These methods have their own advantages and disadvantages that should be taken into consideration by the IT manager.
 
 ## Docker
 

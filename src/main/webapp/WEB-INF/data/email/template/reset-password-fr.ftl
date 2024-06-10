@@ -103,7 +103,7 @@
                             <td valign='top' align='center'>
                               <div class="contentEditableContainer contentTextEditable">
                                 <div class="contentEditable">
-                                  <p style='text-align:center;margin:0;font-family:Georgia,Time,sans-serif;font-size:26px;color:#222222;'>TRICK Service</p>
+                                  <p style='text-align:center;margin:0;font-family:Georgia,Time,sans-serif;font-size:26px;color:#222222;'>OpenTRICK</p>
                                 </div>
                               </div>
                             </td>
@@ -119,7 +119,7 @@
                                 <div class="contentEditable" align='center'>
 								 <h4 align="left">Bonjour ${username},</h4>
 								 <p style="margin-top:5px;">
-									Nous avons bien re&ccedil;u votre demande pour r&eacute;initialiser votre mot de passe TRICK Service.
+									Nous avons bien re&ccedil;u votre demande pour r&eacute;initialiser votre mot de passe OpenTRICK.
 									Pour confirmer votre demande et r&eacute;initialiser votre mot de passe, copiez l'URL suivant dans votre navigateur web et suivez les instructions indiqu&eacute;es sur la page web. L'URL va expirer dans 1 heure pour des raisons de s&eacute;curit&eacute;.<br>
 									<a href="${hostname}">${hostname}</a><br>
 									IMPORTANT: Pour &eacute;viter le danger de courriels frauduleux (&laquo;phishing&raquo;), nous vous recommandons de ne pas cliquer sur des liens dans les courriels, mais de les copier et coller dans votre navigateur web, comme indiquez au-dessus.

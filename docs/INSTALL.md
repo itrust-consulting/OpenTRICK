@@ -1,12 +1,12 @@
-# Trick Service Installation Manual
+# OpenTRICK Installation Manual
 
-Trick service is a web based application for creating risk analyses. This software uses Java 17 and either Apache Tomcat or Jetty as page servers, as well as MariaDB for database management.
+OpenTRICK is a web based application for creating risk analyses. This software uses Java 17 and either Apache Tomcat or Jetty as page servers, as well as MariaDB for database management.
 
-During the installation process, it will be assumed that Java 17 and that MariaDB are already installed in the destination computer, whereas Tomcat or Jetty will be installed along with Trick Service.
+During the installation process, it will be assumed that Java 17 and that MariaDB are already installed in the destination computer, whereas Tomcat or Jetty will be installed along with OpenTRICK.
 
 ## Preparation
 
-Using the CLI terminal of your system, create a directory to hold Trick Service source files and get into the directory.
+Using the CLI terminal of your system, create a directory to hold OpenTRICK source files and get into the directory.
 
 ```bash
 mkdir opentrick
@@ -68,11 +68,11 @@ git clone [...]
    ```$ docker ps```
    ```CONTAINER ID   IMAGE                               COMMAND                  CREATED          STATUS          PORTS                                                  NAMES```
    ```b455c54386d7   phpmyadmin/phpmyadmin:latest        "/docker-entrypoint.…"   17 seconds ago   Up 15 seconds   0.0.0.0:8080->80/tcp, :::8080->80/tcp                  docker-phpmyadmin-1```
-   ```f80f0f45edc5   trickservice.com/opentrick:latest   "/cnb/process/web"       17 seconds ago   Up 15 seconds   0.0.0.0:8443->8443/tcp, :::8443->8443/tcp              docker-opentrick-1```
+   ```f80f0f45edc5   opentrick.eu/docker:latest          "/cnb/process/web"       17 seconds ago   Up 15 seconds   0.0.0.0:8443->8443/tcp, :::8443->8443/tcp              docker-opentrick-1```
    ```02467260bfd2   mysql:8                             "docker-entrypoint.s…"   17 seconds ago   Up 16 seconds   0.0.0.0:3306->3306/tcp, :::3306->3306/tcp, 33060/tcp   docker-db-1```
 
-    Check that trick service is up and running    
-    Open TrickService URL in one of supported browsers
+    Check that OpenTRICK is up and running    
+    Open OpenTRICK URL in one of supported browsers
     https://localhost:8443 
 
 ### Stop the docker
