@@ -127,7 +127,7 @@ public class ServiceStorageImpl implements ServiceStorage {
 		}
 	}
 
-	@Value("${app.setting.storage.upload.folder:ts-data}")
+	@Value("${app.setting.storage.upload.folder:ot-data}")
 	public void setStorage(String storage) {
 		this.root = Paths.get(storage);
 		File file = this.root.toFile();
@@ -135,7 +135,7 @@ public class ServiceStorageImpl implements ServiceStorage {
 			try {
 				Files.createDirectories(getRoot());
 			} catch (SecurityException | IOException e) {
-				this.root = Paths.get(System.getProperty("java.io.tmpdir")).resolve("ts-data");
+				this.root = Paths.get(System.getProperty("java.io.tmpdir")).resolve("ot-data");
 			}
 		}
 	}
