@@ -2,9 +2,14 @@
 
 ![OpenTRICK Logo](src/main/webapp/WEB-INF/static/images/brand.png)
 
-OpenTRICK is a network-based risk analysis platform that allows to create risk scenarios with user-defined assets and risks.
+OpenTRICK is a web-application supporting risk assessment and treatement.
 
-This platform uses Java 17 for running the server software, along with a MySQL compatible database manager. This project uses code from the [Trick2Monarc api project](https://github.com/itrust-consulting/Trick2MonarcApi), available at GitHub.
+OpenTRICK (fomerly called TRICK service) is a full-featured risk management tool, assisting you in assessing risk, planning actions, as required by an ISO/IE 27001 compliant information security management system (ISMS). It accompanies you throughout the whole risk management process; starting with the definition of the risk context, covering risk estimation and treatment, and communicating the results. OpenTRICK prepares you to be certified for ISO 27001, to comply with the requirements of the GDPR, to export the RISK information in the json format requested by the LU regulator ILR,or to respond to CSSF circular 12/544. 
+
+It covers a wide variety of features such as quantitative/qualitative analysis of risk scenarios, estimation of Return on Security Investment (ROSI) based on risk reduction factors (RRF), embedding of custom or pre-defined catalogues for rated security controls (27002, GDPR, 22301, IoT, …), multi-user support and access control, import/export, and versioning. it allows several risk assessment for different customers or contexts to share information such security and risk parameters over a central knwoledge Base, thus explaining its name TRICK = Tool for Risk management of an ISMS based on a Central Knowledge base. Note that such information, e.g., ISO/IEC 27002 is copyrigh protection, i.e. cannot be part of this release, but it can be imported easily, based on formated documents available at ILNAS.public.lu (e.g.) upon acquisition of the standard's copyrights (in near future).
+OpenTRICK comes with user access management, activity logs, two-factor authentication, and smart input output feature interacting with Word and Excell.
+
+This Software uses Java 17 for running the server software, along with a MySQL compatible database manager. This project uses code from the [Trick2Monarc api project](https://github.com/itrust-consulting/Trick2MonarcApi), available at GitHub.
 
 To install OpenTRICK, please refer to the [installation guide](#install).
 
@@ -61,7 +66,7 @@ Copyright © itrust consulting. All rights reserved.
 Licensed under the GNU Affero General Public License (AGPL) v3.0.
 
 # Acknowledgment
- This tool was co-funded by the Ministry of Economy and Foreign Trade of Luxembourg, within the project Cloud Cybersecurity Fortress of Open Resources and Tools for Resilience (CyFORT).
+This tool was co-funded by the Ministry of Economy and Foreign Trade of Luxembourg, within the project Cloud Cybersecurity Fortress of Open Resources and Tools for Resilience (CyFORT).
 
 # Contact
 For more information about the project, contact us at dev@itrust.lu.
