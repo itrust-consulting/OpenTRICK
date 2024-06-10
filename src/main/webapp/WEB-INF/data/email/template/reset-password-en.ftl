@@ -103,7 +103,7 @@
                             <td valign='top' align='center'>
                               <div class="contentEditableContainer contentTextEditable">
                                 <div class="contentEditable">
-                                  <p style='text-align:center;margin:0;font-family:Georgia,Time,sans-serif;font-size:26px;color:#222222;'>TRICK Service</p>
+                                  <p style='text-align:center;margin:0;font-family:Georgia,Time,sans-serif;font-size:26px;color:#222222;'>OpenTRICK</p>
                                 </div>
                               </div>
                             </td>
@@ -119,7 +119,7 @@
                                 <div class="contentEditable" align='center'>
 								  <h4 align="left">Hello ${username},</h4>
                                   <p style="margin-top:5px;">
-									We received your request to reset your TRICK Service password.
+									We received your request to reset your OpenTRICK password.
 									To confirm your request and reset your password, copy the following URL in your web browser and follow the instructions on the web page. The URL will expire in 1 hour for security reasons.<br>
 									<a href="${hostname}">${hostname}</a><br>
 									IMPORTANT: Because fraudulent ("phishing") e-mail often uses misleading links, we recommend you to not click links in e-mail, but instead copy and paste them into your browsers, as described above.
