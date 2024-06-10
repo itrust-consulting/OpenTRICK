@@ -13,10 +13,10 @@
 		},
 		{
 			"type": "java",
-			"name": "Debug (Launch)-Application<trickservice>",
+			"name": "Debug (Launch)-Application<opentrick>",
 			"request": "launch",
 			"mainClass": "lu.itrust.boot.Application",
-			"projectName": "trickservice",
+			"projectName": "opentrick",
 			"args": [
 				"--spring.config.additional-location=classpath:/deployment-ldap.properties,classpath:/deployment.properties"
 			]

@@ -24,7 +24,7 @@ $(document).ready(function () {
 });
 
 /**
- * Installs the Trick Service.
+ * Installs the OpenTRICK.
  * 
  * @returns {boolean} Returns false.
  */

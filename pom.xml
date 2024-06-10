@@ -2,7 +2,7 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>lu.itrust</groupId>
-	<artifactId>trickservice</artifactId>
+	<artifactId>opentrick</artifactId>
 	<version>2.17</version>
 	<packaging>war</packaging>
 	<properties>
@@ -440,7 +440,7 @@
 
 	</dependencies>
 
-	<name>trickservice</name>
+	<name>opentrick</name>
 
 	<organization>
 		<name>itrust consulting S.A.R.L</name>
@@ -521,7 +521,7 @@
 
 
 	<build>
-		<finalName>trickservice</finalName>
+		<finalName>opentrick</finalName>
 		<!--<resources>
 			<resource>
 				<directory>src/main/webapp</directory>
