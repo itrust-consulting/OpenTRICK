@@ -24,7 +24,9 @@ git clone [...]
 
 ### Create a docker image
     $ mvn clean spring-boot:build-image
-    $ docker image tag docker.io/library/trickservice:2.17 trickservice.com/opentrick:latest    
+
+    After this step the following image must be build successfully
+    'opentrick.eu/docker:latest'
 
     Provide option -DskipTests to skip running tests while building the image
     
@@ -50,12 +52,7 @@ git clone [...]
 ```
     
     Adapt the environment, port settings and other settings in the above files if needed.
-    
-    Create a folder .cache in this directory. Provide atleast Read, Write, Execute permissions
-    to Owner and Read permissions to members of group and others.
-    $ mkdir .cache
-    $ chmod +744 .cache -R 
-    
+  
 ### Start the docker
 
    Start docker

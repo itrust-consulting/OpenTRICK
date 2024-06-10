@@ -21,7 +21,7 @@ services:
      - 8080:80
 
   opentrick:
-    image: trickservice.com/opentrick:latest
+    image: opentrick.eu/docker:latest
     volumes:
       - ./.cache:/workspace/ts-upload
     links: 

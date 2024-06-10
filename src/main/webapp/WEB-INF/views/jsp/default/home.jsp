@@ -17,7 +17,9 @@
 		<div class="container" data-ug-root="home">
 			<div class="content" id="content">
 				<div style="margin-top: 100px; display: block;">
-					<img class="center-block" alt=<spring:message code="label.logo" text="Logo" /> src='<c:url value="/images/TrickService.png" />' style="height: 250px; margin-bottom: -125px;">
+					<div class="home-logo">
+						<img class="center-block" alt=<spring:message code="label.logo" text="Logo" /> src='<c:url value="/images/brand.png" />' >
+					</div>
 					<hr style="border-top-color: #3e3e3e; z-index: -1">
 				</div>
 				<div style="position: fixed; right: 40px; bottom: 35px;">

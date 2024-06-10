@@ -1048,6 +1048,11 @@ input[type=date]:disabled {
 	margin-left: 5px;
 }
 
+.home-logo img{
+	height: 250px; 
+	margin-bottom: -125px;
+}
+
 @media (min-width: 768px) {
 
 	.pull-sm-left {

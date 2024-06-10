@@ -540,7 +540,7 @@
 					<layers>
 						<enabled>true</enabled>
 					</layers>
-					<imageName>trickservice.com/opentrick</imageName>
+					<imageName>opentrick.eu/docker</imageName>
 				</configuration>
 				<executions>
 					<execution>

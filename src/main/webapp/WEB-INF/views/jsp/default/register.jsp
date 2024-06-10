@@ -12,7 +12,7 @@
 <jsp:include page="../template/header.jsp" />
 <body>
 	<div class="container">
-		<img class="center-block"  alt=<spring:message code="label.logo" text="Logo" /> src='<c:url value="/images/TrickService.png" />' style="height: 200px; margin-top: 50px;">
+		<img class="center-block"  alt=<spring:message code="label.logo" text="Logo" /> src='<c:url value="/images/brand.png" />' style="height: 200px; margin-top: 50px;">
 		<div style="margin: 0 auto; max-width: 900px; padding: 0px 15px">
 			<h2 class="form-signin-heading col-sm-offset-4">
 				<spring:message code="label.title.user.register" text="Sign up" />
