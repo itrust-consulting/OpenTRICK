@@ -18,7 +18,7 @@ public enum AnalysisSetting {
 			AnalysisType.HYBRID),
 	ALLOW_FULL_COST_RELATED_TO_MEASURE("label.analysis.setting.allow_full_cost_related_to_measure", Boolean.class,
 			false),
-	ALLOW_ILR_ANALYSIS("label.analysis.setting.allow_ilr_analysis", Boolean.class, false),
+	ALLOW_ILR_ANALYSIS("label.analysis.setting.allow_ilr_analysis", Boolean.class, false,AnalysisType.HYBRID,AnalysisType.QUALITATIVE),
 	ALLOW_RISK_HIDDEN_COMMENT("label.analysis.setting.allow_hidden_comment", Boolean.class, true),
 	ALLOW_DYNAMIC_ANALYSIS(
 			"label.analysis.setting.allow_dynamic_analysis", Boolean.class, false, AnalysisType.QUANTITATIVE,

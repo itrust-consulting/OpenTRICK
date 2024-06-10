@@ -20,7 +20,7 @@
 					<div class="home-logo">
 						<img class="center-block" alt=<spring:message code="label.logo" text="Logo" /> src='<c:url value="/images/brand.png" />' >
 					</div>
-					<hr style="border-top-color: #3e3e3e; z-index: -1">
+					<hr>
 				</div>
 				<div style="position: fixed; right: 40px; bottom: 35px;">
 					<strong style="float: right;"><spring:message code='label.entity.support' /></strong>

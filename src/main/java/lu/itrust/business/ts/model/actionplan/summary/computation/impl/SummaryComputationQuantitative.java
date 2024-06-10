@@ -246,6 +246,7 @@ public class SummaryComputationQuantitative extends SummaryComputation {
 				measures.stream().forEach(m -> {
 					final double implR = (m.getPhase().getNumber() < number ? 100
 							: m.getImplementationRateValue(getValueFactory())) * 0.01;
+							
 					maintenanceRecurrentInvestment.add(m.getInternalMaintenance() * implR,
 							m.getExternalMaintenance() * implR, m.getRecurrentInvestment() * implR);
 

@@ -12,7 +12,7 @@
 <meta content="itrust consulting s.a.r.l - itrust.lu" name="author" />
 <meta content="<spring:message code="label.risk_analysis" text="Risk analysis"/>" name="description" />
 <meta content="width=device-width" name="viewport" />
-<link href=<spring:url value="/images/favicon.ico" /> rel="shortcut icon" type="image/x-icon" />
+<link href=<spring:url value="/images/favicon.png" /> rel="shortcut icon" type="image/png" />
 <title><spring:message code="${title}" text="TRICK Service" /></title>
 <link rel="stylesheet" type="text/css" href='<c:url value="/css/bootstrap.min.css" />' />
 <link rel="stylesheet" type="text/css" href='<c:url value="/css/jquery-ui.min.css" />' />

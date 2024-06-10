@@ -31,8 +31,8 @@ body {
 }
 
 #main_menu_brand>img {
-	width: 150px;
-	margin: -10px 0px 0 0px;
+	margin: -10px -5px 0px 0px;
+  	height: 40px;
 }
 
 #main_menu_brand>img.brand-white {
@@ -1051,6 +1051,12 @@ input[type=date]:disabled {
 .home-logo img{
 	height: 250px; 
 	margin-bottom: -125px;
+}
+
+.home-logo+hr{
+  border-top-color: #3e3e3e;
+  margin-top: -4px;
+  z-index: -1;
 }
 
 @media (min-width: 768px) {
