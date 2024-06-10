@@ -8,6 +8,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<org.apache.directory.server.version>2.0.0.AM26</org.apache.directory.server.version>
+		 <module.image.name>opentrick.eu/docker</module.image.name>
 		<spring-boot.version>3.2.5</spring-boot.version>
 		<java.version>17</java.version>		
 	</properties>
@@ -522,14 +523,6 @@
 
 	<build>
 		<finalName>opentrick</finalName>
-		<!--<resources>
-			<resource>
-				<directory>src/main/webapp</directory>
-			</resource>
-			<resource>
-				<directory>src/main/resources</directory>
-			</resource>
-		</resources>-->
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
@@ -540,7 +533,8 @@
 					<layers>
 						<enabled>true</enabled>
 					</layers>
-					<imageName>opentrick.eu/docker</imageName>
+					<!--<imageName>opentrick.eu/docker</imageName>-->
+					<imageName>${module.image.name}</imageName>
 				</configuration>
 				<executions>
 					<execution>
@@ -795,15 +789,6 @@
 		</plugins>
 	</build>
 	<repositories>
-		<!-- <repository>
-			<id>Trick2MonarcApi</id>
-			<url>https://raw.githubusercontent.com/itrust-consulting/trick2monarcapi/mvn-repo/master/</url>
-			<snapshots>
-				<enabled>true</enabled>
-				<updatePolicy>always</updatePolicy>
-			</snapshots>
-		</repository> 
-		-->
 		<repository>
 			<id>jitpack.io</id>
 			<url>https://jitpack.io</url>

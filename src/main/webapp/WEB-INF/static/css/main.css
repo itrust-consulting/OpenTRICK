@@ -1055,7 +1055,7 @@ input[type=date]:disabled {
 
 .home-logo+hr{
   border-top-color: #3e3e3e;
-  margin-top: -4px;
+  margin-top: 14px;
   z-index: -1;
 }
 
