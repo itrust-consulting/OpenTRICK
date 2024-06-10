@@ -15,7 +15,8 @@ To install OpenTRICK, please refer to the [installation guide](#install).
 
 ## Build
 
-OpenTRICK is provided as-is. The recommended build platform for OpenTRICK is composed of:
+OpenTRICK is provided as-is, and any customization is left at the discretion of the user. 
+The recommended build platform for OpenTRICK is composed of:
 
 - Java 17;
 - Maven;
@@ -23,7 +24,7 @@ OpenTRICK is provided as-is. The recommended build platform for OpenTRICK is com
 
 ## Tools for development
 
-OpenTRICK was developed as open source software and 
+OpenTRICK was developed as open-source software and utilizes the following tools:
 
 - Visual Studio Code;
 - Java 17;
@@ -50,13 +51,18 @@ To build the Docker image please refer to [the installation guide on how to crea
 
 To build as a java application, please refer to [the installation guide on how to create a java application.](docs/installation/deployment/java/README.md#java-application)
 
+# Roadmap
+The team at itrust consulting is only responsible for resolving bugs. 
+Improvements are made according to predefined schedule and priorities.
+
 # License
 
 Copyright © itrust consulting. All rights reserved.
-
-Acknowledgment: This tool was co-funded by the Ministry of Economy and Foreign Trade of Luxembourg, within the project Cloud Cybersecurity Fortress of Open Resources and Tools for Resilience (CyFORT).
-
 Licensed under the GNU Affero General Public License (AGPL) v3.0.
+
+# Acknowledgment
+ This tool was co-funded by the Ministry of Economy and Foreign Trade of Luxembourg, within the project Cloud Cybersecurity Fortress of Open Resources and Tools for Resilience (CyFORT).
 
 # Contact
 For more information about the project, contact us at dev@itrust.lu.
+
