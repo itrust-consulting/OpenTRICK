@@ -7,17 +7,20 @@
 		<Console name="STDOUT" target="SYSTEM_OUT">
 			<PatternLayout pattern="[%t] %-5p %c - %m%n" />
 		</Console>
+		<!--
 		<Socket name="RemoteLogger" host="${env:app.settings.logger.server.host}" port="${env:app.settings.logger.server.port}" ReconnectionDelay="10000">
 			<JsonTemplateLayout eventTemplateUri="classpath:ecsLayout.json"/>
 			<SSL protocol="TLSv1.2">
         		<TrustStore location="${env:app.settings.logger.server.ca_jks_file}" password="${env:app.settings.logger.server.ca_jks_password}"/>
       		</SSL>
-		</Socket>
+		</Socket>-->
 	</Appenders>
 	<Loggers>
+		<!--
 		<Asynclogger name="TrickLogManager" level='INFO'>
 			<AppenderRef ref="RemoteLogger" />
 		</Asynclogger>
+		-->
 
 		<logger name="org.docx4j" level='INFO' />
 
