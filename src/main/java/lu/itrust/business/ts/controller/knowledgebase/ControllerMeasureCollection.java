@@ -469,7 +469,7 @@ public class ControllerMeasureCollection {
 
 			for (MeasureDescription measuredescription : measuredescriptions) {
 
-				sheetRow = getOrCreateRow(sheet, row++, colSize - 1);
+				sheetRow = getOrCreateRow(sheet, row++, colSize);
 
 				setValue(sheetRow.getC().get(referenceCol), measuredescription.getReference());
 

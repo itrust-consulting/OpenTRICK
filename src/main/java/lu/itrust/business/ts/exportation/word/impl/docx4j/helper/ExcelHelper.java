@@ -13,6 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.docx4j.openpackaging.contenttype.ContentTypes;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.docx4j.openpackaging.exceptions.InvalidFormatException;
 import org.docx4j.openpackaging.packages.SpreadsheetMLPackage;
@@ -640,6 +641,25 @@ public final class ExcelHelper {
 			if (!ids.contains(i))
 				return i;
 
+		}
+	}
+
+	/**
+	 * Returns the extension of the spreadsheetMLPackage based on its content type.
+	 *
+	 * @param spreadsheetMLPackage the SpreadsheetMLPackage to get the extension for
+	 * @return the extension of the spreadsheetMLPackage as a String
+	 */
+	public static String getExtension(final SpreadsheetMLPackage spreadsheetMLPackage) {
+		switch (spreadsheetMLPackage.getWorkbookPart().getContentType()) {
+			case ContentTypes.SPREADSHEETML_WORKBOOK_MACROENABLED:
+				return "xlsm";
+			case ContentTypes.SPREADSHEETML_TEMPLATE_MACROENABLED:
+				return "xltm";
+			case ContentTypes.SPREADSHEETML_TEMPLATE:
+				return "xltx";
+			default:
+				return "xlsx";
 		}
 	}
 
