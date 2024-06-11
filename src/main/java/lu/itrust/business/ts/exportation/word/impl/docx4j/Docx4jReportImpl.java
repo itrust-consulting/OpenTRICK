@@ -1278,7 +1278,7 @@ public class Docx4jReportImpl implements Docx4jReport {
 		if (getWordMLPackage().getDocPropsCustomPart() == null)
 			getWordMLPackage().addDocPropsCustomPart();
 
-		final RangeFinder finder = new RangeFinder("CTBookmark", "CTMarkupRange");
+		final RangeFinder finder = new RangeFinder();
 
 		new TraversalUtil(getWordMLPackage().getMainDocumentPart().getContent(), finder);
 

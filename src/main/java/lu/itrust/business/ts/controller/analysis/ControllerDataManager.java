@@ -709,8 +709,8 @@ public class ControllerDataManager {
 		final Map<String, String> versions = templates.stream()
 				.collect(Collectors.toMap(TrickTemplate::getKey, TrickTemplate::getVersion));
 		analysis.getCustomer().getTemplates().stream()
-				.filter(p -> p.getLanguage().equals(analysis.getLanguage()) && analysis.getType().isHybrid() ? true
-						: analysis.getType() == p.getAnalysisType())
+				.filter(p -> p.getType() == TrickTemplateType.REPORT && analysis.getLanguage().equals(p.getLanguage())
+						&& (analysis.getType().isHybrid() || analysis.getType() == p.getAnalysisType()))
 				.sorted((p1, p2) -> NaturalOrderComparator.compareTo(p1.getVersion(), p2.getVersion())).forEach(p -> {
 					templates.add(p);
 					if (!p.getVersion().equalsIgnoreCase(versions.get(p.getKey())))
@@ -1978,7 +1978,7 @@ public class ControllerDataManager {
 						: new ActionPlanMode[] { ActionPlanMode.APPN };
 		for (int i = 0; i < types.length; i++) {
 			final ActionPlanMode type = types[i];
-			final int colCount = type == ActionPlanMode.APPN ? 21 : 19;
+			final int colCount = type == ActionPlanMode.APPN ? 23 : 21;
 			final List<ActionPlanEntry> actionPlanEntries = analysis.findActionPlan(type);
 			if (actionPlanEntries.isEmpty())
 				continue;
@@ -2062,10 +2062,12 @@ public class ControllerDataManager {
 		columns[colIndex++] = messageSource.getMessage("report.action_plan.norm", null, "Stds", locale);
 		columns[colIndex++] = messageSource.getMessage("report.measure.reference", null, "Ref.", locale);
 		columns[colIndex++] = messageSource.getMessage("report.measure.domain", null, "Domain", locale);
+		columns[colIndex++] = messageSource.getMessage("report.measure.description", null, "Description", locale);
 		columns[colIndex++] = messageSource.getMessage("report.measure.status", null, "ST", locale);
 		columns[colIndex++] = messageSource.getMessage("report.measure.comment", null, "Comment", locale);
 		columns[colIndex++] = messageSource.getMessage("report.measure.to_do", null, "To Do", locale);
 		columns[colIndex++] = messageSource.getMessage("report.measure.responsible", null, "Resp.", locale);
+		columns[colIndex++] = messageSource.getMessage("report.measure.ticket", null, "ticket", locale);
 		columns[colIndex++] = messageSource.getMessage("report.measure.implementation_rate", null, "IR(%)", locale);
 		columns[colIndex++] = messageSource.getMessage("report.measure.internal.workload", null, "IS(md)", locale);
 		columns[colIndex++] = messageSource.getMessage("report.measure.external.workload", null, "ES(md)", locale);
@@ -2152,7 +2154,7 @@ public class ControllerDataManager {
 			List<IAcronymParameter> expressionParameters, Locale locale) {
 		for (int i = 0; i < colCount; i++) {
 			if (row.getC().size() < i)
-				row.getC().add(Context.smlObjectFactory.createCell());
+				getOrCreateCell(row, i);
 		}
 		int colIndex = 0;
 		Measure measure = actionPlanEntry.getMeasure();
@@ -2161,10 +2163,12 @@ public class ControllerDataManager {
 		setValue(row.getC().get(colIndex), measure.getMeasureDescription().getStandard().getName());
 		setValue(row.getC().get(++colIndex), measure.getMeasureDescription().getReference());
 		setValue(row.getC().get(++colIndex), descriptionText.getDomain());
+		setValue(row.getC().get(++colIndex), descriptionText.getDescription());
 		setValue(row.getC().get(++colIndex), measure.getStatus());
 		setValue(row.getC().get(++colIndex), measure.getComment());
 		setValue(row.getC().get(++colIndex), measure.getToDo());
 		setValue(row.getC().get(++colIndex), measure.getResponsible());
+		setValue(row.getC().get(++colIndex), measure.getTicket());
 		setValue(row.getC().get(++colIndex), measure.getImplementationRateValue(expressionParameters));
 		setValue(row.getC().get(++colIndex), measure.getInternalWL());
 		setValue(row.getC().get(++colIndex), measure.getExternalWL());
@@ -2175,6 +2179,7 @@ public class ControllerDataManager {
 		setValue(row.getC().get(++colIndex), measure.getRecurrentInvestment() * 0.001);
 		setValue(row.getC().get(++colIndex), measure.getCost() * 0.001);
 		setValue(row.getC().get(++colIndex), measure.getPhase().getNumber());
+		
 		if (actionPlanEntry.getActionPlanType().getActionPlanMode() == ActionPlanMode.APQ)
 			setValue(row.getC().get(++colIndex), actionPlanEntry.getRiskCount());
 		else {
