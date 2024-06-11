@@ -4,7 +4,7 @@
 package lu.itrust.business.ts.exportation.word.impl.docx4j.builder.chain;
 
 import static lu.itrust.business.ts.exportation.word.ExportReport.NUMBER_FORMAT;
-import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.getRow;
+import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.getOrCreateRow;
 import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.setValue;
 
 import java.util.LinkedHashMap;
@@ -113,7 +113,7 @@ public class Docx4jRentabilityChartBuilder extends Docx4jBuilder {
 								ser.getVal().getNumRef().getNumCache().setFormatCode(NUMBER_FORMAT);
 								barChart.getSer().add(ser);
 								exporter.setColor(ser, ChartGenerator.getStaticColor(colorIndex[i]));
-								setValue(getRow(sheet, i + 1, usesPhases.size() + 1), 0, dataName[i]);
+								setValue(getOrCreateRow(sheet, i + 1, usesPhases.size() + 1), 0, dataName[i]);
 							}
 
 							final CTBarSer barSer = profiltabilityDatasets.get(dataName[0]);

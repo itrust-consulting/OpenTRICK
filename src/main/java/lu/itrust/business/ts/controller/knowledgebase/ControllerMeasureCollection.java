@@ -3,7 +3,7 @@ package lu.itrust.business.ts.controller.knowledgebase;
 import static lu.itrust.business.ts.constants.Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8;
 import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.findSheet;
 import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.findTable;
-import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.getRow;
+import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.getOrCreateRow;
 import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.getWorksheetPart;
 import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.setValue;
 
@@ -430,7 +430,7 @@ public class ControllerMeasureCollection {
 
 			int referenceCol = 0, computableCol = 1, colSize = (languages.size() + 1) * 2, index = 0;
 			sheet.getRow().clear();
-			Row sheetRow = getRow(sheet, 0, colSize);
+			Row sheetRow = getOrCreateRow(sheet, 0, colSize);
 			setValue(sheetRow.getC().get(index++), "Reference");
 			setValue(sheetRow.getC().get(index++), "Computable");
 			tablePart = findTable(sheet, "TableNormData");
@@ -469,7 +469,7 @@ public class ControllerMeasureCollection {
 
 			for (MeasureDescription measuredescription : measuredescriptions) {
 
-				sheetRow = getRow(sheet, row++, colSize - 1);
+				sheetRow = getOrCreateRow(sheet, row++, colSize - 1);
 
 				setValue(sheetRow.getC().get(referenceCol), measuredescription.getReference());
 

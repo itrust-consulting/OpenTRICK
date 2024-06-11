@@ -9,7 +9,8 @@ import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHel
 import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.createWorkSheetPart;
 import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.findSheet;
 import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.findTable;
-import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.getCell;
+import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.getOrCreateCell;
+import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.getOrCreateRow;
 import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.getRow;
 import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.getWorksheetPart;
 import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.setFormula;
@@ -360,25 +361,6 @@ public class ControllerDataManager {
 	}
 
 	/**
-	 * Returns the extension of the spreadsheetMLPackage based on its content type.
-	 *
-	 * @param spreadsheetMLPackage the SpreadsheetMLPackage to get the extension for
-	 * @return the extension of the spreadsheetMLPackage as a String
-	 */
-	private String getExtension(final SpreadsheetMLPackage spreadsheetMLPackage) {
-		switch (spreadsheetMLPackage.getWorkbookPart().getContentType()) {
-			case ContentTypes.SPREADSHEETML_WORKBOOK_MACROENABLED:
-				return "xlsm";
-			case ContentTypes.SPREADSHEETML_TEMPLATE_MACROENABLED:
-				return "xltm";
-			case ContentTypes.SPREADSHEETML_TEMPLATE:
-				return "xltx";
-			default:
-				return "xlsx";
-		}
-	}
-
-	/**
 	 * Exportation method that returns a String.
 	 * This method exports data related to the analysis identified by the given
 	 * analysisId.
@@ -588,6 +570,8 @@ public class ControllerDataManager {
 
 			assessmentAndRiskProfileManager.updateAssessment(analysis, factory);
 
+			serviceAnalysis.saveOrUpdate(analysis);
+
 			final Map<String, String> extrasColumns = loadExtrasColumns(extrasFormula, isILR);
 
 			final List<ScaleType> scales = analysis.findImpacts();
@@ -650,7 +634,7 @@ public class ControllerDataManager {
 					"attachment; filename=\"" + filename + "\"");
 			updateTokenCookie(request, response);
 			mlPackage.save(response.getOutputStream());
-			serviceAnalysis.saveOrUpdate(analysis);
+
 			// Log
 			TrickLogManager.Persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.export.risk.estimation",
 					String.format("Analysis: %s, version: %s, type: Risk estimation", analysis.getIdentifier(),
@@ -661,254 +645,6 @@ public class ControllerDataManager {
 			serviceStorage.delete(file.getAbsolutePath());
 		}
 
-	}
-
-	private void exportProbability(Analysis analysis, SpreadsheetMLPackage mlPackage) throws Exception {
-		final String name = "Probability";
-		final ObjectFactory factory = Context.getsmlObjectFactory();
-		final String[] columns = new String[] { "Level", "Label", "Value", "ILR" };
-		final WorksheetPart worksheetPart = createWorkSheetPart(mlPackage, name);
-		final SheetData sheet = worksheetPart.getContents().getSheetData();
-		final List<LikelihoodParameter> parameters = analysis.getLikelihoodParameters();
-		parameters.sort((e1, e2) -> Integer.compare(e1.getLevel(), e2.getLevel()));
-		if (!parameters.isEmpty()) {
-			final LikelihoodParameter firstEntry = parameters.get(0).clone();
-			firstEntry.setAcronym("0");
-			parameters.add(0, firstEntry.clone());
-			firstEntry.setAcronym("na");
-			parameters.add(0, firstEntry);
-		}
-
-		createHeader(worksheetPart, name, defaultExcelTableStyle, columns, parameters.size());
-
-		for (LikelihoodParameter parameter : parameters) {
-			Row row = factory.createRow();
-			for (int i = 0; i <= columns.length; i++) {
-				if (row.getC().size() < i)
-					row.getC().add(Context.smlObjectFactory.createCell());
-			}
-			setValue(row.getC().get(0), parameter.getAcronym());
-			setValue(row.getC().get(1),
-					parameter.getLabel());
-			setValue(row.getC().get(2), parameter.getValue() * 0.01);
-			setValue(row.getC().get(3), parameter.getIlrLevel());
-			sheet.getRow().add(row);
-		}
-		ExcelHelper.applyHeaderAndFooter(headerFooterSheetName, name, mlPackage);
-	}
-
-	private void generateRiskEstimation(final Analysis analysis, final SheetData sheetData, final boolean hiddenComment,
-			final boolean qualitative, boolean isILR, final boolean rowColumn, final boolean uncertainty,
-			final Map<String, String> extrasColumns, final List<ScaleType> scales,
-			final Map<String, RiskProfile> riskProfiles, final Map<AssetType, String> assetTypes,
-			final String[] columns) {
-		int rowIndex = 1;
-		if (isILR)
-			DependencyGraphManager.computeImpact(analysis.getAssetNodes());
-		for (Assessment assessment : analysis.getAssessments()) {
-			int cellIndex = 0;
-			Row row = getRow(sheetData, rowIndex++, columns.length);
-			RiskProfile profile = riskProfiles
-					.get(RiskProfile.key(assessment.getAsset(), assessment.getScenario()));
-			if (qualitative)
-				setValue(row, cellIndex++, profile.getIdentifier());
-			setValue(row, cellIndex++, assessment.getAsset().getName());
-			setValue(row, cellIndex++, assessment.getScenario().getName());
-			if (qualitative) {
-				setValue(row, cellIndex++,
-						(profile.getRiskStrategy() == null ? RiskStrategy.ACCEPT : profile.getRiskStrategy())
-								.getNameToLower());
-				if (rowColumn)
-					cellIndex += writeProbaImpact(row, cellIndex++, profile.getRawProbaImpact(), scales, false);
-				cellIndex += writeProbaImpact(row, cellIndex++, assessment, scales);
-				cellIndex += writeProbaImpact(row, cellIndex++, profile.getExpProbaImpact(), scales, isILR);
-			} else {
-				writeLikelihood(row, cellIndex++, assessment.getLikelihood());
-				if (isILR)
-					setValue(row, cellIndex++, assessment.getVulnerability());
-				writeQuantitativeImpact(row, cellIndex++,
-						assessment.getImpact(Constant.PARAMETER_TYPE_IMPACT_NAME));
-			}
-
-			if (uncertainty)
-				setValue(row, cellIndex++, assessment.getUncertainty());
-			if (isILR) {
-				final int[] ilrRisks = ILRExport.computeIlrRisk(analysis, assessment, profile);
-				for (int i = 0; i < ilrRisks.length; i++)
-					setValue(row, cellIndex++, ilrRisks[i] == -1 ? null : ilrRisks[i]);
-			}
-			setValue(row, cellIndex++, assessment.getOwner());
-			setValue(row, cellIndex++, assessment.getComment());
-			if (hiddenComment)
-				setValue(row, cellIndex++, assessment.getHiddenComment());
-
-			setValue(row, cellIndex++, assessment.getCockpit());
-
-			if (qualitative) {
-				setValue(row, cellIndex++, profile.getRiskTreatment());
-				Map<String, String> measures = profile.getMeasures().stream().map(Measure::getMeasureDescription)
-						.sorted((m1, m2) -> NaturalOrderComparator.compareTo(m1.getReference(), m2.getReference()))
-						.collect(Collectors.groupingBy(m -> m.getStandard().getName(),
-								Collectors.mapping(MeasureDescription::getReference, Collectors.joining(";"))));
-				String value = measures.entrySet().stream()
-						.sorted((e1, e2) -> NaturalOrderComparator.compareTo(e1.getKey(), e2.getKey()))
-						.map(e -> e.getKey() + ": " + e.getValue()).collect(Collectors.joining("\n"));
-				setValue(row, cellIndex++, value);
-				setValue(row, cellIndex++, profile.getActionPlan());
-			}
-			setFormula(setValue(row, cellIndex++, assetTypes.get(assessment.getAsset().getAssetType())),
-					"VLOOKUP(Risk_estimation[[#This Row],[Asset]],Assets[[#All],[Name]:[Value]],2,FALSE)");
-			setFormula(setValue(row, cellIndex++, assessment.getAsset().isSelected()),
-					"VLOOKUP(Risk_estimation[[#This Row],[Asset]],Assets[[#All],[Name]:[Value]],3,FALSE)");
-
-			setFormula(setValue(row, cellIndex++, assessment.getAsset().isSelected()),
-					"VLOOKUP(Risk_estimation[[#This Row],[Scenario]],Scenarios[[Name]:[Selected]],4,FALSE)");
-
-			for (String formula : extrasColumns.values()) {
-				if (formula.startsWith("VLOOKUP"))
-					setFormula(setValue(row, cellIndex++, ""), formula);
-				else
-					setFormula(getCell(row, cellIndex++), formula);
-			}
-		}
-	}
-
-	private Map<String, String> loadExtrasColumns(MultipartFile multipartFile, boolean isILR) {
-		if (!isILR || multipartFile == null || multipartFile.isEmpty())
-			return Collections.emptyMap();
-		final File file = InstanceManager.getServiceStorage().createTmpFile();
-		try {
-			final Pattern p1 = Pattern.compile("\\[@(\\w+)\\]");// replace [@column] by [[#This Row],[column]]
-			final Pattern p2 = Pattern.compile("\\[@(\\[\\w.*\\])");// replace [@[column]] by [[#This
-																	// Row],[column]]
-			InstanceManager.getServiceStorage().store(multipartFile, file.getAbsolutePath());
-			try (Stream<String> stream = Files.lines(file.toPath())) {
-				return stream.map(String::trim).map(e -> e.split(";", 2)).filter(e -> e.length == 2)
-						.collect(Collectors.toMap(e -> e[0].trim(),
-								e -> p2.matcher(p1.matcher(e[1].trim().replace(";", ","))
-										.replaceAll(m -> "[[#This Row],[%s]]".formatted(m.group(1))))
-										.replaceAll(m -> "[[#This Row],%s".formatted(m.group(1)))
-
-								,
-								(e1, e2) -> e1,
-								LinkedHashMap::new));
-			}
-		} catch (Exception e) {
-			TrickLogManager.Persist(e);
-			return Collections.emptyMap();
-		} finally {
-			serviceStorage.delete(file.getAbsolutePath());
-		}
-
-	}
-
-	private void exportDependancy(Analysis analysis, SpreadsheetMLPackage mlPackage, Locale locale) throws Exception {
-		final Set<AssetNode> rootSetNodes = new HashSet<>();
-		final Set<AssetNode> branchSetNodes = new HashSet<>();
-		final Set<AssetNode> leafSetNodes = new HashSet<>();
-
-		analysis.getAssetNodes().stream().flatMap(e -> e.getEdges().values().stream()).forEach(e -> {
-			leafSetNodes.add(e.getParent());
-			if (e.getChild().isLeaf())
-				rootSetNodes.add(e.getChild());
-			else
-				branchSetNodes.add(e.getChild());
-		});
-
-		analysis.getAssetNodes().stream()
-				.filter(e -> !(rootSetNodes.contains(e) || branchSetNodes.contains(e) || leafSetNodes.contains(e)))
-				.forEach(leafSetNodes::add);
-
-		leafSetNodes.removeAll(branchSetNodes);
-
-		final List<String> columns = rootSetNodes.stream().map(e -> e.getAsset().getName())
-				.sorted(NaturalOrderComparator::compareTo).distinct().collect(Collectors.toList());
-
-		final List<String> bStrings = branchSetNodes.stream().map(e -> e.getAsset().getName())
-				.sorted(NaturalOrderComparator::compareTo).distinct().collect(Collectors.toList());
-
-		columns.removeAll(bStrings);
-		columns.addAll(bStrings);
-
-		final List<String> rowNames = new ArrayList<>(columns);
-
-		final List<String> leafs = leafSetNodes.stream().map(e -> e.getAsset().getName())
-				.sorted(NaturalOrderComparator::compareTo).distinct().collect(Collectors.toList());
-
-		rowNames.removeAll(leafs);
-
-		rowNames.addAll(leafs);
-
-		final Map<String, String> assetTypes = serviceAssetType.getAll().stream()
-				.collect(Collectors.toMap(AssetType::getName,
-						e -> messageSource.getMessage("label.asset_type." + e.getName().toLowerCase(), null,
-								e.getName(), locale)));
-
-		final Map<String, String> assetToTypes = new HashMap<>(analysis.getAssets().size());
-
-		analysis.getAssets().forEach(asset -> {
-			assetToTypes.put(asset.getName(), asset.getAssetType().getName());
-			if (!rowNames.contains(asset.getName()))
-				rowNames.add(asset.getName());
-		});
-
-		final Map<String, Map<String, Double>> dependancies = analysis.getAssetNodes().stream()
-				.flatMap(e -> e.getEdges().values().stream())
-				.collect(Collectors.groupingBy(e -> e.getParent().getAsset().getName(),
-						Collectors.toMap(e -> e.getChild().getAsset().getName(),
-								e -> (Math.abs(e.getWeight() - 0) < 1E-9 ? 1 : e.getWeight()))));
-
-		final WorksheetPart worksheetPart = createWorkSheetPart(mlPackage, "Dependency");
-		final SheetData sheetData = worksheetPart.getContents().getSheetData();
-		final ObjectFactory factory = Context.getsmlObjectFactory();
-
-		columns.add(0, "AssetList");
-
-		columns.add(1, "AssetType");
-
-		createHeader(worksheetPart, "Table_dep", defaultExcelTableStyle, columns.toArray(new String[columns.size()]), 2,
-				analysis.getAssets().size());
-
-		for (String assetName : rowNames) {
-			final Row row = factory.createRow();
-			final Map<String, Double> myDependancies = dependancies.getOrDefault(assetName, Collections.emptyMap());
-			for (int i = 0; i < columns.size(); i++) {
-				switch (i) {
-					case 0:
-						setValue(row, i, assetName);
-						break;
-					case 1:
-						setValue(row, i, assetTypes.get(assetToTypes.get(assetName)));
-						break;
-					default:
-						setValue(row, i, myDependancies.getOrDefault(columns.get(i), 0D));
-
-				}
-			}
-			sheetData.getRow().add(row);
-		}
-		ExcelHelper.applyHeaderAndFooter(headerFooterSheetName, "Dependency", mlPackage);
-	}
-
-	@Deprecated
-	private void sortNodeByDependancyLevel(final AssetNode node, final Set<AssetNode> rootNodes,
-			final Set<AssetNode> branchNodes, final Set<AssetNode> leafNodes) {
-		if (leafNodes.contains(node) || rootNodes.contains(node))
-			return;
-		if (node.isLeaf())
-			leafNodes.add(node);
-		else {
-			if (!branchNodes.contains(node))
-				rootNodes.add(node);
-			node.getEdges().values().forEach(c -> {
-				if (c.getChild().isLeaf())
-					leafNodes.add(c.getChild());
-				else {
-					branchNodes.add(c.getChild());
-					sortNodeByDependancyLevel(c.getChild(), rootNodes, branchNodes, leafNodes);
-				}
-			});
-		}
 	}
 
 	@GetMapping("/Measure/Export-form")
@@ -1175,11 +911,11 @@ public class ControllerDataManager {
 					worksheetPart.getContents().getDimension().setRef(table.getRef());
 
 				int rowIndex = 1;
-				int colSize = address.getEnd().getCol();
+				int colSize = address.getEnd().getCol() + 1;
 
 				for (RiskInformation riskInformation : riskInformations) {
 					int colIndex = 0;
-					Row row = getRow(sheet, rowIndex++, colSize);
+					Row row = getOrCreateRow(sheet, rowIndex++, colSize);
 					setValue(row.getC().get(colIndex++), riskInformation.getChapter());
 					setValue(row.getC().get(colIndex++), riskInformation.getLabel());
 					if (riskInformation.getCategory().equals(Constant.RI_TYPE_THREAT))
@@ -1675,16 +1411,293 @@ public class ControllerDataManager {
 						principal.getName(), locale);
 	}
 
-	///
-	/// Import part.
-	///
-
 	@PostMapping(value = "/Scenario/Import-process", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String importScenarioProcess(@RequestParam(value = "file") MultipartFile file,
 			HttpServletRequest request, Model model, HttpSession session,
 			Principal principal, Locale locale) throws Exception {
 		return importRisEstimation(false, true, file, request, model, session, principal, locale);
+	}
+
+	@Value("${app.settings.report.refurbish.max.size}")
+	public void setMaxRefurbishReportSize(String value) {
+		this.maxRefurbishReportSize = DataSize.parse(value).toBytes();
+	}
+
+	@Value("${spring.servlet.multipart.max-file-size}")
+	public void setMaxUploadFileSize(String value) {
+		this.maxUploadFileSize = DataSize.parse(value).toBytes();
+	}
+
+	/**
+	 * Returns the extension of the spreadsheetMLPackage based on its content type.
+	 *
+	 * @param spreadsheetMLPackage the SpreadsheetMLPackage to get the extension for
+	 * @return the extension of the spreadsheetMLPackage as a String
+	 */
+	private String getExtension(final SpreadsheetMLPackage spreadsheetMLPackage) {
+		switch (spreadsheetMLPackage.getWorkbookPart().getContentType()) {
+			case ContentTypes.SPREADSHEETML_WORKBOOK_MACROENABLED:
+				return "xlsm";
+			case ContentTypes.SPREADSHEETML_TEMPLATE_MACROENABLED:
+				return "xltm";
+			case ContentTypes.SPREADSHEETML_TEMPLATE:
+				return "xltx";
+			default:
+				return "xlsx";
+		}
+	}
+
+	private void exportProbability(Analysis analysis, SpreadsheetMLPackage mlPackage) throws Exception {
+		final String name = "Probability";
+		final ObjectFactory factory = Context.getsmlObjectFactory();
+		final String[] columns = new String[] { "Level", "Label", "Value", "ILR" };
+		final WorksheetPart worksheetPart = createWorkSheetPart(mlPackage, name);
+		final SheetData sheet = worksheetPart.getContents().getSheetData();
+		final List<LikelihoodParameter> parameters = analysis.getLikelihoodParameters();
+		parameters.sort((e1, e2) -> Integer.compare(e1.getLevel(), e2.getLevel()));
+		if (!parameters.isEmpty()) {
+			final LikelihoodParameter firstEntry = parameters.get(0).clone();
+			firstEntry.setAcronym("0");
+			parameters.add(0, firstEntry.clone());
+			firstEntry.setAcronym("na");
+			parameters.add(0, firstEntry);
+		}
+
+		createHeader(worksheetPart, name, defaultExcelTableStyle, columns, parameters.size());
+
+		for (LikelihoodParameter parameter : parameters) {
+			Row row = factory.createRow();
+			for (int i = 0; i <= columns.length; i++) {
+				if (row.getC().size() < i)
+					row.getC().add(Context.smlObjectFactory.createCell());
+			}
+			setValue(row.getC().get(0), parameter.getAcronym());
+			setValue(row.getC().get(1),
+					parameter.getLabel());
+			setValue(row.getC().get(2), parameter.getValue() * 0.01);
+			setValue(row.getC().get(3), parameter.getIlrLevel());
+			sheet.getRow().add(row);
+		}
+		ExcelHelper.applyHeaderAndFooter(headerFooterSheetName, name, mlPackage);
+	}
+
+	private void generateRiskEstimation(final Analysis analysis, final SheetData sheetData, final boolean hiddenComment,
+			final boolean qualitative, boolean isILR, final boolean rowColumn, final boolean uncertainty,
+			final Map<String, String> extrasColumns, final List<ScaleType> scales,
+			final Map<String, RiskProfile> riskProfiles, final Map<AssetType, String> assetTypes,
+			final String[] columns) {
+		int rowIndex = 1;
+		if (isILR)
+			DependencyGraphManager.computeImpact(analysis.getAssetNodes());
+		for (Assessment assessment : analysis.getAssessments()) {
+			int cellIndex = 0;
+			Row row = getOrCreateRow(sheetData, rowIndex++, columns.length);
+			RiskProfile profile = riskProfiles
+					.get(RiskProfile.key(assessment.getAsset(), assessment.getScenario()));
+			if (qualitative)
+				setValue(row, cellIndex++, profile.getIdentifier());
+			setValue(row, cellIndex++, assessment.getAsset().getName());
+			setValue(row, cellIndex++, assessment.getScenario().getName());
+			if (qualitative) {
+				setValue(row, cellIndex++,
+						(profile.getRiskStrategy() == null ? RiskStrategy.ACCEPT : profile.getRiskStrategy())
+								.getNameToLower());
+				if (rowColumn)
+					cellIndex += writeProbaImpact(row, cellIndex++, profile.getRawProbaImpact(), scales, false);
+				cellIndex += writeProbaImpact(row, cellIndex++, assessment, scales);
+				cellIndex += writeProbaImpact(row, cellIndex++, profile.getExpProbaImpact(), scales, isILR);
+			} else {
+				writeLikelihood(row, cellIndex++, assessment.getLikelihood());
+				if (isILR)
+					setValue(row, cellIndex++, assessment.getVulnerability());
+				writeQuantitativeImpact(row, cellIndex++,
+						assessment.getImpact(Constant.PARAMETER_TYPE_IMPACT_NAME));
+			}
+
+			if (uncertainty)
+				setValue(row, cellIndex++, assessment.getUncertainty());
+			if (isILR) {
+				final int[] ilrRisks = ILRExport.computeIlrRisk(analysis, assessment, profile);
+				for (int i = 0; i < ilrRisks.length; i++)
+					setValue(row, cellIndex++, ilrRisks[i] == -1 ? null : ilrRisks[i]);
+			}
+			setValue(row, cellIndex++, assessment.getOwner());
+			setValue(row, cellIndex++, assessment.getComment());
+			if (hiddenComment)
+				setValue(row, cellIndex++, assessment.getHiddenComment());
+
+			setValue(row, cellIndex++, assessment.getCockpit());
+
+			if (qualitative) {
+				setValue(row, cellIndex++, profile.getRiskTreatment());
+				Map<String, String> measures = profile.getMeasures().stream().map(Measure::getMeasureDescription)
+						.sorted((m1, m2) -> NaturalOrderComparator.compareTo(m1.getReference(), m2.getReference()))
+						.collect(Collectors.groupingBy(m -> m.getStandard().getName(),
+								Collectors.mapping(MeasureDescription::getReference, Collectors.joining(";"))));
+				String value = measures.entrySet().stream()
+						.sorted((e1, e2) -> NaturalOrderComparator.compareTo(e1.getKey(), e2.getKey()))
+						.map(e -> e.getKey() + ": " + e.getValue()).collect(Collectors.joining("\n"));
+				setValue(row, cellIndex++, value);
+				setValue(row, cellIndex++, profile.getActionPlan());
+			}
+			setFormula(setValue(row, cellIndex++, assetTypes.get(assessment.getAsset().getAssetType())),
+					"VLOOKUP(Risk_estimation[[#This Row],[Asset]],Assets[[#All],[Name]:[Value]],2,FALSE)");
+			setFormula(setValue(row, cellIndex++, assessment.getAsset().isSelected()),
+					"VLOOKUP(Risk_estimation[[#This Row],[Asset]],Assets[[#All],[Name]:[Value]],3,FALSE)");
+
+			setFormula(setValue(row, cellIndex++, assessment.getAsset().isSelected()),
+					"VLOOKUP(Risk_estimation[[#This Row],[Scenario]],Scenarios[[Name]:[Selected]],4,FALSE)");
+
+			for (String formula : extrasColumns.values()) {
+				if (formula.startsWith("VLOOKUP"))
+					setFormula(setValue(row, cellIndex++, ""), formula);
+				else
+					setFormula(getOrCreateCell(row, cellIndex++), formula);
+			}
+		}
+	}
+
+	///
+	/// Import part.
+	///
+
+	private Map<String, String> loadExtrasColumns(MultipartFile multipartFile, boolean isILR) {
+		if (!isILR || multipartFile == null || multipartFile.isEmpty())
+			return Collections.emptyMap();
+		final File file = InstanceManager.getServiceStorage().createTmpFile();
+		try {
+			final Pattern p1 = Pattern.compile("\\[@(\\w+)\\]");// replace [@column] by [[#This Row],[column]]
+			final Pattern p2 = Pattern.compile("\\[@(\\[\\w.*\\])");// replace [@[column]] by [[#This
+																	// Row],[column]]
+			InstanceManager.getServiceStorage().store(multipartFile, file.getAbsolutePath());
+			try (Stream<String> stream = Files.lines(file.toPath())) {
+				return stream.map(String::trim).map(e -> e.split(";", 2)).filter(e -> e.length == 2)
+						.collect(Collectors.toMap(e -> e[0].trim(),
+								e -> p2.matcher(p1.matcher(e[1].trim().replace(";", ","))
+										.replaceAll(m -> "[[#This Row],[%s]]".formatted(m.group(1))))
+										.replaceAll(m -> "[[#This Row],%s".formatted(m.group(1)))
+
+								,
+								(e1, e2) -> e1,
+								LinkedHashMap::new));
+			}
+		} catch (Exception e) {
+			TrickLogManager.Persist(e);
+			return Collections.emptyMap();
+		} finally {
+			serviceStorage.delete(file.getAbsolutePath());
+		}
+
+	}
+
+	private void exportDependancy(Analysis analysis, SpreadsheetMLPackage mlPackage, Locale locale) throws Exception {
+		final Set<AssetNode> rootSetNodes = new HashSet<>();
+		final Set<AssetNode> branchSetNodes = new HashSet<>();
+		final Set<AssetNode> leafSetNodes = new HashSet<>();
+
+		analysis.getAssetNodes().stream().flatMap(e -> e.getEdges().values().stream()).forEach(e -> {
+			leafSetNodes.add(e.getParent());
+			if (e.getChild().isLeaf())
+				rootSetNodes.add(e.getChild());
+			else
+				branchSetNodes.add(e.getChild());
+		});
+
+		analysis.getAssetNodes().stream()
+				.filter(e -> !(rootSetNodes.contains(e) || branchSetNodes.contains(e) || leafSetNodes.contains(e)))
+				.forEach(leafSetNodes::add);
+
+		leafSetNodes.removeAll(branchSetNodes);
+
+		final List<String> columns = rootSetNodes.stream().map(e -> e.getAsset().getName())
+				.sorted(NaturalOrderComparator::compareTo).distinct().collect(Collectors.toList());
+
+		final List<String> bStrings = branchSetNodes.stream().map(e -> e.getAsset().getName())
+				.sorted(NaturalOrderComparator::compareTo).distinct().collect(Collectors.toList());
+
+		columns.removeAll(bStrings);
+		columns.addAll(bStrings);
+
+		final List<String> rowNames = new ArrayList<>(columns);
+
+		final List<String> leafs = leafSetNodes.stream().map(e -> e.getAsset().getName())
+				.sorted(NaturalOrderComparator::compareTo).distinct().collect(Collectors.toList());
+
+		rowNames.removeAll(leafs);
+
+		rowNames.addAll(leafs);
+
+		final Map<String, String> assetTypes = serviceAssetType.getAll().stream()
+				.collect(Collectors.toMap(AssetType::getName,
+						e -> messageSource.getMessage("label.asset_type." + e.getName().toLowerCase(), null,
+								e.getName(), locale)));
+
+		final Map<String, String> assetToTypes = new HashMap<>(analysis.getAssets().size());
+
+		analysis.getAssets().forEach(asset -> {
+			assetToTypes.put(asset.getName(), asset.getAssetType().getName());
+			if (!rowNames.contains(asset.getName()))
+				rowNames.add(asset.getName());
+		});
+
+		final Map<String, Map<String, Double>> dependancies = analysis.getAssetNodes().stream()
+				.flatMap(e -> e.getEdges().values().stream())
+				.collect(Collectors.groupingBy(e -> e.getParent().getAsset().getName(),
+						Collectors.toMap(e -> e.getChild().getAsset().getName(),
+								e -> (Math.abs(e.getWeight() - 0) < 1E-9 ? 1 : e.getWeight()))));
+
+		final WorksheetPart worksheetPart = createWorkSheetPart(mlPackage, "Dependency");
+		final SheetData sheetData = worksheetPart.getContents().getSheetData();
+		final int startRwoIndex = 2;
+
+		columns.add(0, "AssetList");
+
+		columns.add(1, "AssetType");
+
+		createHeader(worksheetPart, "Table_dep", defaultExcelTableStyle, columns.toArray(new String[columns.size()]),
+				startRwoIndex,
+				analysis.getAssets().size());
+
+		for (String assetName : rowNames) {
+			final Row row = getOrCreateRow(sheetData, startRwoIndex + sheetData.getRow().size(), columns.size());
+			final Map<String, Double> myDependancies = dependancies.getOrDefault(assetName, Collections.emptyMap());
+			for (int i = 0; i < columns.size(); i++) {
+				switch (i) {
+					case 0:
+						setValue(row, i, assetName);
+						break;
+					case 1:
+						setValue(row, i, assetTypes.get(assetToTypes.get(assetName)));
+						break;
+					default:
+						setValue(row, i, myDependancies.getOrDefault(columns.get(i), 0D));
+
+				}
+			}
+		}
+		ExcelHelper.applyHeaderAndFooter(headerFooterSheetName, "Dependency", mlPackage);
+	}
+
+	@Deprecated
+	private void sortNodeByDependancyLevel(final AssetNode node, final Set<AssetNode> rootNodes,
+			final Set<AssetNode> branchNodes, final Set<AssetNode> leafNodes) {
+		if (leafNodes.contains(node) || rootNodes.contains(node))
+			return;
+		if (node.isLeaf())
+			leafNodes.add(node);
+		else {
+			if (!branchNodes.contains(node))
+				rootNodes.add(node);
+			node.getEdges().values().forEach(c -> {
+				if (c.getChild().isLeaf())
+					leafNodes.add(c.getChild());
+				else {
+					branchNodes.add(c.getChild());
+					sortNodeByDependancyLevel(c.getChild(), rootNodes, branchNodes, leafNodes);
+				}
+			});
+		}
 	}
 
 	private String[] createTableHeader(List<ScaleType> scales, Collection<String> extrasColumns, boolean qualitative,
@@ -1765,7 +1778,7 @@ public class ControllerDataManager {
 				writeAssetILRCells(hiddenComment, ilrImpactHeaders, ilrAssetImpacts, asset, row);
 			if (!maxFormulas.isEmpty()) {
 				for (int i = columns.length - 3; i < columns.length; i++)
-					setFormula(getCell(row, i), String.format("MAX(%s)", maxFormulas.get(columns[i])));
+					setFormula(getOrCreateCell(row, i), String.format("MAX(%s)", maxFormulas.get(columns[i])));
 			}
 
 			sheet.getRow().add(row);
@@ -1840,6 +1853,10 @@ public class ControllerDataManager {
 			assetImpacts.put(prefix + acronym, impact.getValue());
 		});
 	}
+
+	// *****************************************************************
+	// * select or deselect analysis
+	// *****************************************************************
 
 	private Map<String, String> exportAssetType(SpreadsheetMLPackage spreadsheetMLPackage, Locale locale,
 			ObjectFactory factory) throws Exception {
@@ -1950,10 +1967,6 @@ public class ControllerDataManager {
 			}
 		}
 	}
-
-	// *****************************************************************
-	// * select or deselect analysis
-	// *****************************************************************
 
 	private void exportRawActionPlan(Analysis analysis, SpreadsheetMLPackage spreadsheetMLPackage, Locale locale)
 			throws Exception {
@@ -2117,16 +2130,6 @@ public class ControllerDataManager {
 								"Importing of risk scenarios data", locale))
 						: JsonMessage.Success(messageSource.getMessage("success.start.risk.estimation", null,
 								"Importing of risk estimations data", locale));
-	}
-
-	@Value("${app.settings.report.refurbish.max.size}")
-	public void setMaxRefurbishReportSize(String value) {
-		this.maxRefurbishReportSize = DataSize.parse(value).toBytes();
-	}
-
-	@Value("${spring.servlet.multipart.max-file-size}")
-	public void setMaxUploadFileSize(String value) {
-		this.maxUploadFileSize = DataSize.parse(value).toBytes();
 	}
 
 	private void prepareTableHeader(AnalysisStandard analysisStandard, WorksheetPart worksheetPart, String[] columns)

@@ -4,7 +4,7 @@
 package lu.itrust.business.ts.exportation.word.impl.docx4j.builder.chain;
 
 import static lu.itrust.business.ts.exportation.word.ExportReport.NUMBER_FORMAT;
-import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.getRow;
+import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.getOrCreateRow;
 import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.setValue;
 
 import java.util.LinkedHashMap;
@@ -214,7 +214,7 @@ public class Docx4jALEChartBuilder extends Docx4jBuilder {
 
 		int rowCount = 0, colSzie = 2;
 
-		setValue(getRow(sheet, rowCount++, colSzie), 0, name);
+		setValue(getOrCreateRow(sheet, rowCount++, colSzie), 0, name);
 
 		for (ALE ale : ales) {
 			final CTStrVal catName = new CTStrVal();
@@ -225,10 +225,10 @@ public class Docx4jALEChartBuilder extends Docx4jBuilder {
 			numVal.setIdx(rowCount - 1);
 			if (ale.getValue() > 0) {
 				numVal.setV(ale.getValue() + "");
-				setValue(getRow(sheet, rowCount, colSzie), 1, ale.getValue());
+				setValue(getOrCreateRow(sheet, rowCount, colSzie), 1, ale.getValue());
 			}
 			ser.getVal().getNumRef().getNumCache().getPt().add(numVal);
-			setValue(getRow(sheet, rowCount++, colSzie), 0, ale.getAssetName());
+			setValue(getOrCreateRow(sheet, rowCount++, colSzie), 0, ale.getAssetName());
 		}
 		ser.getCat().getStrRef().setF(String.format("%s!$A$2:$A$%d", reportExcelSheet.getName(), ser.getCat().getStrRef().getStrCache().getPt().size() + 1));
 		ser.getVal().getNumRef().setF(String.format("%s!$B$2:$B$%d", reportExcelSheet.getName(), ser.getCat().getStrRef().getStrCache().getPt().size() + 1));

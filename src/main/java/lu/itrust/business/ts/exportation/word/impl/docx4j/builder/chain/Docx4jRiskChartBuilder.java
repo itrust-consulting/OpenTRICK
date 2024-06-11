@@ -3,7 +3,7 @@
  */
 package lu.itrust.business.ts.exportation.word.impl.docx4j.builder.chain;
 
-import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.getRow;
+import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.getOrCreateRow;
 import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.setValue;
 
 import java.util.ArrayList;
@@ -200,7 +200,7 @@ public class Docx4jRiskChartBuilder extends Docx4jBuilder {
 		while (p.getEGTextRun().size() > 1)
 			p.getEGTextRun().remove(1);
 
-		Row row = getRow(sheet, 0, colorBounds.size() + 1);
+		Row row = getOrCreateRow(sheet, 0, colorBounds.size() + 1);
 
 		((CTRegularTextRun) p.getEGTextRun().get(0)).setT(title);
 
@@ -220,7 +220,7 @@ public class Docx4jRiskChartBuilder extends Docx4jBuilder {
 			catName.setV(entry.getKey());
 			catName.setIdx(barSer.getCat().getStrRef().getStrCache().getPt().size());
 			barSer.getCat().getStrRef().getStrCache().getPt().add(catName);
-			setValue(getRow(sheet, barSer.getCat().getStrRef().getStrCache().getPt().size(), colorBounds.size() + 1), 0, catName.getV());
+			setValue(getOrCreateRow(sheet, barSer.getCat().getStrRef().getStrCache().getPt().size(), colorBounds.size() + 1), 0, catName.getV());
 		}
 
 		barSer.getCat().getStrRef().setF(String.format("%s!$A$2:$A$%d", reportExcelSheet.getName(), assessmentEntries.size() + 1));

@@ -271,7 +271,7 @@ public class Docx4jStandardBuilder extends Docx4jBuilder {
 
 		int rowCount = 0;
 
-		Row row = ExcelHelper.getRow(sheet, rowCount++, compliances.size() + 1);
+		Row row = ExcelHelper.getOrCreateRow(sheet, rowCount++, compliances.size() + 1);
 		setValue(row, 0, exporter.getMessage("report.compliance.chapter", null, "Chapter"));
 		setValue(row, 1, phaseLabel);
 
@@ -294,7 +294,7 @@ public class Docx4jStandardBuilder extends Docx4jBuilder {
 				value = 0;
 			numVal.setV(value + "");
 
-			row = ExcelHelper.getRow(sheet, rowCount++, compliances.size() + 1);
+			row = ExcelHelper.getOrCreateRow(sheet, rowCount++, compliances.size() + 1);
 			setValue(row, 0, key);
 			setValue(row, 1, value);
 		}

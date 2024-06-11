@@ -762,12 +762,13 @@ public class WorkerImportEstimation extends WorkerImpl {
 					scenarioName = getString(row, scenarioIndex, formatter);
 			if (isEmpty(assetName) || isEmpty(scenarioName))
 				continue;
-			Assessment assessment = findOrCreateAssessment(analysis, assets.get(assetName), scenarios.get(scenarioName),
+			final Assessment assessment = findOrCreateAssessment(analysis, assets.get(assetName), scenarios.get(scenarioName),
 					factory, assessments, riskProfiles);
 			if (assessment == null)
 				continue;
-			RiskProfile riskProfile = riskProfiles.isEmpty() ? null
+			final RiskProfile riskProfile = riskProfiles.isEmpty() ? null
 					: riskProfiles.get(RiskProfile.keyName(assetName, scenarioName));
+	
 			for (int j = 0; j < columns.size(); j++) {
 				String name = columnsMapper.get(columns.get(j));
 				if (name == null || j == assetIndex || j == scenarioIndex)

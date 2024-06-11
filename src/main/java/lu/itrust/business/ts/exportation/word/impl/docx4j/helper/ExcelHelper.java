@@ -41,6 +41,8 @@ import org.xlsx4j.sml.Sheet;
 import org.xlsx4j.sml.SheetData;
 import org.xlsx4j.sml.Worksheet;
 
+import lu.itrust.business.ts.helper.NaturalOrderComparator;
+
 public final class ExcelHelper {
 
 	private static final char ABSOLUTE_REFERENCE_MARKER = '$';
@@ -52,7 +54,7 @@ public final class ExcelHelper {
 			Pattern.CASE_INSENSITIVE);
 
 	public static Cell setValue(Row row, int cellIndex, Object value) {
-		Cell cell2 = getCell(row, cellIndex);
+		Cell cell2 = getOrCreateCell(row, cellIndex);
 		if (value instanceof Double)
 			setValue(cell2, (Double) value);
 		else if (value instanceof Integer)
@@ -65,7 +67,7 @@ public final class ExcelHelper {
 	}
 
 	public static void setValuePercent(Row row, int cellIndex, double value) {
-		Cell cell = getCell(row, cellIndex);
+		Cell cell = getOrCreateCell(row, cellIndex);
 		cell.setS(1L);
 		cell.setV((value >= 1 ? value * 0.01 : value) + "");
 	}
@@ -91,26 +93,31 @@ public final class ExcelHelper {
 		return cell;
 	}
 
-	public static Row getRow(SheetData sheet, int index, int colSize) {
-		Row sheetRow;
-		while (sheet.getRow().size() <= index) {
-			sheetRow = Context.getsmlObjectFactory().createRow();
+	public static Row getOrCreateRow(SheetData sheet, int index, int colSize) {
+		Row sheetRow = getRow(sheet, index);
+		if (sheetRow == null)
+			sheetRow = createRow(sheet, index, colSize);
+		else
 			createCell(sheetRow, colSize);
-			sheet.getRow().add(sheetRow);
-		}
-		sheetRow = sheet.getRow().get(index);
-		createCell(sheetRow, colSize);
 		return sheetRow;
 	}
 
 	public static Cell getCell(Row row, int index) {
-		return createCell(row, index);
+		if (index < 0)
+			return null;
+		if (row.getC().size() > index) {
+			final Cell cell = row.getC().get(index);
+			if (colToIndex(cell.getR(), index) == index)
+				return cell;
+		}
+		return getCellAt(row, index);
 	}
 
-	public static Cell createCell(Row row, int index) {
-		while (row.getC().size() <= index)
-			row.getC().add(Context.getsmlObjectFactory().createCell());
-		return row.getC().get(index);
+	public static Cell getOrCreateCell(Row row, int index) {
+		Cell cell = getCell(row, index);
+		if (cell == null)
+			cell = createCell(row, index);
+		return cell;
 	}
 
 	public static void setValue(Cell cell, String value) {
@@ -248,28 +255,6 @@ public final class ExcelHelper {
 
 	}
 
-	private static TablePart createTablePart(WorksheetPart worksheetPart, PartName partName, String name, long id)
-			throws Exception {
-		CTTablePart tablePart = new CTTablePart();
-		TablePart part = new TablePart(partName);
-		Relationship r = worksheetPart.addTargetPart(part);
-		CTTable table = Context.getsmlObjectFactory().createCTTable();
-		table.setId(id);
-		table.setName(name);
-		table.setDisplayName(name);
-		part.setContents(table);
-		tablePart.setId(r.getId());
-		table.setTotalsRowShown(true);
-		table.setAutoFilter(Context.getsmlObjectFactory().createCTAutoFilter());
-		table.setTableColumns(Context.getsmlObjectFactory().createCTTableColumns());
-		table.setTableStyleInfo(Context.getsmlObjectFactory().createCTTableStyleInfo());
-		table.getTableStyleInfo().setName("TableStyleMedium2");
-		table.getTableStyleInfo().setShowRowStripes(true);
-		worksheetPart.getContents().setTableParts(Context.getsmlObjectFactory().createCTTableParts());
-		worksheetPart.getContents().getTableParts().getTablePart().add(tablePart);
-		return part;
-	}
-
 	public static CTTable createHeader(WorksheetPart worksheetPart, String name, String style, String[] columns,
 			int length) throws Exception {
 		return createHeader(worksheetPart, name, style, columns, 0, length);
@@ -285,7 +270,7 @@ public final class ExcelHelper {
 			table.getTableStyleInfo().setName(style);
 		}
 
-		Row row = getRow(worksheetPart.getContents().getSheetData(), rowIndex, columns.length);
+		Row row = getOrCreateRow(worksheetPart.getContents().getSheetData(), rowIndex, columns.length);
 		for (int i = 0; i < columns.length; i++) {
 			CTTableColumn column = new CTTableColumn();
 			column.setId((long) i + 1);
@@ -310,17 +295,12 @@ public final class ExcelHelper {
 	}
 
 	public static Row createRow(SheetData sheetData) {
-		Row row = Context.getsmlObjectFactory().createRow();
-		sheetData.getRow().add(row);
-		row.setR((long) sheetData.getRow().size());
-		return row;
+		final long cellSize = sheetData.getRow().isEmpty() ? 1 : sheetData.getRow().get(0).getC().size();
+		return createRow(sheetData, sheetData.getRow().size(), (int) cellSize);
 	}
 
-	public static Row createRow(SheetData sheetData, int cells) {
-		Row row = createRow(sheetData);
-		for (int i = 0; i < cells; i++)
-			row.getC().add(Context.getsmlObjectFactory().createCell());
-		return row;
+	public static Row createRow(SheetData sheetData, int cellSize) {
+		return createRow(sheetData, sheetData.getRow().size(), (int) cellSize);
 	}
 
 	public static WorksheetPart getWorksheetPart(Worksheet worksheet) {
@@ -368,6 +348,8 @@ public final class ExcelHelper {
 	}
 
 	public static Row getRow(SheetData sheet, int index) {
+		if (index < 0)
+			return null;
 		if (sheet.getRow().size() > index) {
 			final Row row = sheet.getRow().get(index);
 			if ((row.getR() - 1) == index) {
@@ -384,22 +366,13 @@ public final class ExcelHelper {
 	}
 
 	public static String getString(Row row, int cell, DataFormatter formatter, String defaultValue) {
-		String value = getString(getCellAt(row, cell), formatter);
+		String value = getString(getCell(row, cell), formatter);
 		return value == null ? defaultValue : value;
 	}
 
 	public static String getString(SheetData sheet, int row, int cell, DataFormatter formatter) {
 		final Row r = getRow(sheet, row);
 		return r == null ? null : getString(getRow(sheet, row), cell, formatter);
-	}
-
-	public static Cell getCellAt(Row row, int index) {
-		for (int i = Math.min(index, row.getC().size() - 1); i >= 0; i--) {
-			Cell cell = row.getC().get(i);
-			if (colToIndex(cell.getR(), index) == index)
-				return cell;
-		}
-		return null;
 	}
 
 	public static int colToIndex(String r, int index) {
@@ -663,7 +636,87 @@ public final class ExcelHelper {
 			if (!ids.contains(i))
 				return i;
 		}
-		return ids.size() + 1;
+		for (long i = ids.size(); true; i++) {
+			if (!ids.contains(i))
+				return i;
+
+		}
+	}
+
+	private static Row createRow(SheetData sheet, int index, int colSize) {
+		Row sheetRow = Context.getsmlObjectFactory().createRow();
+		sheetRow.setR(Long.valueOf(index + 1L));
+		sheet.getRow().add(sheetRow);
+		sheet.getRow().sort((e1, e2) -> Long.compare(e1.getR(), e2.getR()));
+		initialiseCells(sheetRow, colSize);
+		return sheetRow;
+	}
+
+	private static void initialiseCells(Row sheetRow, int colSize) {
+		if (sheetRow == null || sheetRow.getC().size() == colSize)
+			return;
+		if (sheetRow.getC().isEmpty()) {
+			for (int i = 0; i < colSize; i++) {
+				Cell cell = Context.getsmlObjectFactory().createCell();
+				cell.setR(numToColString(i));
+				sheetRow.getC().add(cell);
+			}
+		} else {
+			for (int i = 0; i < colSize; i++) {
+				Cell cell = getCell(sheetRow, i);
+				if (cell == null) {
+					cell = Context.getsmlObjectFactory().createCell();
+					cell.setR(numToColString(i));
+					sheetRow.getC().add(cell);
+				}
+			}
+		}
+	}
+
+	private static Cell getCellAt(Row row, int index) {
+		for (int i = 0; i < row.getC().size(); i++) {
+			Cell cell = row.getC().get(i);
+			if (colToIndex(cell.getR(), index) == index)
+				return cell;
+		}
+		return null;
+	}
+
+	private static Cell createCell(Row row, int index) {
+		Cell cell = getCell(row, index);
+		if (cell == null) {
+			cell = Context.getsmlObjectFactory().createCell();
+			cell.setR(numToColString(index));
+			row.getC().add(cell);
+			row.getC().sort((c1, c2) -> {
+				if (!(StringUtils.hasText(c1.getR()) || StringUtils.hasText(c2.getR())))
+					return 0;
+				return NaturalOrderComparator.compareTo(c1.getR(), c2.getR());
+			});
+		}
+		return cell;
+	}
+
+	private static TablePart createTablePart(WorksheetPart worksheetPart, PartName partName, String name, long id)
+			throws Exception {
+		CTTablePart tablePart = new CTTablePart();
+		TablePart part = new TablePart(partName);
+		Relationship r = worksheetPart.addTargetPart(part);
+		CTTable table = Context.getsmlObjectFactory().createCTTable();
+		table.setId(id);
+		table.setName(name);
+		table.setDisplayName(name);
+		part.setContents(table);
+		tablePart.setId(r.getId());
+		table.setTotalsRowShown(true);
+		table.setAutoFilter(Context.getsmlObjectFactory().createCTAutoFilter());
+		table.setTableColumns(Context.getsmlObjectFactory().createCTTableColumns());
+		table.setTableStyleInfo(Context.getsmlObjectFactory().createCTTableStyleInfo());
+		table.getTableStyleInfo().setName("TableStyleMedium2");
+		table.getTableStyleInfo().setShowRowStripes(true);
+		worksheetPart.getContents().setTableParts(Context.getsmlObjectFactory().createCTTableParts());
+		worksheetPart.getContents().getTableParts().getTablePart().add(tablePart);
+		return part;
 	}
 
 }
