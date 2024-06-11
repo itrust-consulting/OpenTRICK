@@ -28,7 +28,11 @@ git clone [...]
     After this step the following image must be build successfully
     'opentrick.eu/docker:latest'
 
-    Provide option -DskipTests to skip running tests while building the image
+ Use the option ```-Dmodule.image.name``` to configure image name as per the need.<br>
+ Example:<br>
+ ```$ mvn clean spring-boot:build-image -Dmodule.image.name="registry.domain.lu:443/docker-images/opentrickdev"```
+
+ Provide option -DskipTests to skip running tests while building the image.
     
 ### Installation Using docker
     $ cd docs/installation/deployment/docker    
