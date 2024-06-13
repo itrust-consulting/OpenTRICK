@@ -6,18 +6,14 @@ During the installation process, it will be assumed that Java 17 and that MariaD
 
 ## Preparation
 
-Using the CLI terminal of your system, create a directory to hold OpenTRICK source files and get into the directory.
-
-```bash
-mkdir opentrick
-cd opentrick
-```
-
-After that, clone the GitHb project repository:
+Clone the GitHb project repository:
 
 ```bash
 git clone [...]
 ```
+
+``` $ cd OpenTRICK ```
+
 
 ## Build the project
     $ mvn clean compile
@@ -96,6 +92,7 @@ Open the URL in browser ```localhost:8443```  to get started.
 
 Google Chrome    Version 125.0.6422.113, 
 Microsoft edge   Version 125.0.2535.67
+Mozilla Firefox  Version 127.0
 
 ### Executing for the first time
 
