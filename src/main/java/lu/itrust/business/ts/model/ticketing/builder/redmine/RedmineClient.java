@@ -299,6 +299,8 @@ public class RedmineClient implements Client {
 		if (StringUtils.isEmpty(issue.getAssigneeName())
 				&& !StringUtils.isEmpty(assignee)) {
 			final String cleanedAssignee = StringUtils.stripAccents(assignee);
+			//Todo: Fork the lib to fixed this.
+			manager.setObjectsPerPage(1000);//Make sure to retrieve 1000 entries 
 			manager.getProjectManager().getProjectMembers(project.getIdentifier()).stream()
 					.filter(e -> cleanedAssignee.equalsIgnoreCase(StringUtils.stripAccents(e.getGroupName()))
 							|| cleanedAssignee.equalsIgnoreCase(StringUtils.stripAccents(e.getUserName())))
@@ -416,7 +418,7 @@ public class RedmineClient implements Client {
 		}
 	}
 
-	private final static TicketingProject buildProject(Project project) {
+	private static final TicketingProject buildProject(Project project) {
 		return new RedmineProject(project.getIdentifier(), project.getName(), project.getDescription());
 	}
 
@@ -593,7 +595,7 @@ public class RedmineClient implements Client {
 			parameters.add("sort", "id:desc");
 			ResultsWrapper<Issue> wrapper = manager.getIssueManager().getIssues(parameters);
 			return new TicketingPageableImpl<>(startIndex + size + 1, size,
-					wrapper.getResults().stream().map(e -> loadIssue(e)).collect(Collectors.toList()));
+					wrapper.getResults().stream().map(this::loadIssue).collect(Collectors.toList()));
 		} catch (RedmineAuthenticationException e) {
 			throw new TrickException(ERROR_TASK_AUTHENTICATION, PLEASE_CHECK_YOUR_TICKETING_SYSTEM_CREDENTIALS, e);
 		} catch (NotAuthorizedException e) {
