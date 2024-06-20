@@ -460,6 +460,14 @@
 		</dependencies>
 	</dependencyManagement>
 
+	<distributionManagement>
+		<repository>
+			<id>github</id>
+			<name>itrust consulting s.à r.l</name>
+			<url>https://github.com/itrust-consulting/OpenTRICK</url>
+		</repository>
+	</distributionManagement>
+
 	<profiles>
 		<profile>
 			<id>tomcat-server</id>
