@@ -43,7 +43,7 @@ Please refer to [installation guide](docs/INSTALL.md) for the installation proce
 
 # Quick start
 
-To begin using an already installed OpenTRICK instance, please refer to the [User Guide](./src/main/webapp/WEB-INF/static/views/user-guide.html#creating-a-risk-analysis-using-trick-service).
+To begin using an already installed OpenTRICK instance, please refer to the [User Guide](https://itrust-consulting.github.io/OpenTRICK/src/main/webapp/WEB-INF/static/views/user-guide.html#creating-a-risk-analysis-using-trick-service).
 For features available on OpenTRICK refer to [OpenTRICK features guide](./docs/P63_PPT_TRICK-TRICKServiceIntro-EN_v2.0.pdf).
 
 # Deployment
