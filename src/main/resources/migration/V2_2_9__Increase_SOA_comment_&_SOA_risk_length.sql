@@ -1,0 +1,7 @@
+START TRANSACTION;
+
+ALTER TABLE `MeasureProperties` 
+	CHANGE `dtSOAComment` `dtSOAComment` LONGTEXT NOT NULL, 
+	CHANGE `dtSOARisk` `dtSOARisk` LONGTEXT NOT NULL;
+
+COMMIT;

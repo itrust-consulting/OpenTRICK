@@ -1,0 +1,329 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE ehcache>
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" updateCheck="true" monitoring="autodetect" dynamicConfig="true">
+
+	<diskStore path="java.io.tmpdir/ts-ehcache" />
+
+	<defaultCache maxEntriesLocalHeap="100000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000" diskSpoolBufferSizeMB="400" maxEntriesLocalDisk="10000000"
+		diskExpiryThreadIntervalSeconds="5184000" memoryStoreEvictionPolicy="LRU" statistics="true">
+		<persistence strategy="localTempSwap" />
+	</defaultCache>
+
+	<!-- Hibernate -->
+
+	<cache name="org.hibernate.cache.spi.UpdateTimestampsCache" maxEntriesLocalHeap="10000" eternal="true">
+		<persistence strategy="localTempSwap" />
+	</cache>
+
+	<cache name="org.hibernate.cache.internal.StandardQueryCache" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+
+	<cache name="lu.itrust.business.ts.model.history.History" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+
+	<cache name="lu.itrust.business.ts.model.standard.measuredescription.MeasureDescriptionText" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000"
+		timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+
+	<cache name="lu.itrust.business.ts.model.actionplan.summary.SummaryStandardConformance" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000"
+		timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+
+	<cache name="lu.itrust.business.ts.model.standard.measure.Measure" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+
+	<cache name="lu.itrust.business.ts.model.standard.AnalysisStandard" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+
+	<cache name="lu.itrust.business.ts.model.general.Language" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+
+	<cache name="lu.itrust.business.ts.model.standard.measure.MeasureAssetValue" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+
+	<cache name="lu.itrust.business.ts.model.TrickService" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+
+	<cache name="lu.itrust.business.ts.model.general.SecurityCriteria" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+
+	<cache name="lu.itrust.business.ts.model.general.Customer" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+
+	<cache name="lu.itrust.business.ts.model.actionplan.ActionPlanEntry" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+
+	<cache name="lu.itrust.business.ts.model.actionplan.ActionPlanAsset" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+
+	<cache name="lu.itrust.business.ts.model.actionplan.summary.SummaryStage" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+
+	<cache name="lu.itrust.business.ts.model.standard.measuredescription.MeasureDescription" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000"
+		timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+
+	<cache name="lu.itrust.business.ts.model.asset.Asset" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+
+	<cache name="lu.itrust.business.ts.usermanagement.ResetPassword" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+
+	<cache name="lu.itrust.business.ts.model.assessment.Assessment" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+
+	<cache name="lu.itrust.business.ts.model.cssf.RiskRegisterItem" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+
+	<cache name="lu.itrust.business.ts.model.actionplan.ActionPlanType" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+
+	<cache name="lu.itrust.business.ts.usermanagement.User" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+
+	<cache name="lu.itrust.business.ts.model.cssf.RiskProfile" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+
+	<cache name="lu.itrust.business.ts.model.riskinformation.RiskInformation" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+
+	<cache name="lu.itrust.business.ts.model.iteminformation.ItemInformation" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+
+	<cache name="lu.itrust.business.ts.model.standard.Standard" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+
+	<cache name="lu.itrust.business.ts.model.analysis.Analysis" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+
+	<cache name="lu.itrust.business.ts.model.general.Phase" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+
+	<cache name="lu.itrust.business.ts.model.parameter.value.impl.Value" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+
+	<cache name="lu.itrust.business.ts.model.parameter.impl.RiskAcceptanceParameter" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+
+	<cache name="lu.itrust.business.ts.model.parameter.impl.ImpactParameter" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+
+	<cache name="lu.itrust.business.ts.model.parameter.impl.LikelihoodParameter" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+
+	<cache name="lu.itrust.business.ts.model.parameter.impl.DynamicParameter" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+
+	<cache name="lu.itrust.business.ts.model.parameter.impl.MaturityParameter" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+
+	<cache name="lu.itrust.business.ts.model.parameter.value.impl.RealValue" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+
+	<cache name="lu.itrust.business.ts.model.parameter.impl.SimpleParameter" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+
+	<cache name="lu.itrust.business.ts.model.parameter.value.impl.LevelValue" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+
+	<cache name="lu.itrust.business.ts.model.parameter.type.impl.ParameterType" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+	
+	<cache name="lu.itrust.business.ts.model.analysis.AnalysisShareInvitation" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+
+	<cache name="lu.itrust.business.ts.model.general.TSSetting" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+
+	<cache name="lu.itrust.business.ts.model.general.document.impl.WordReport" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+
+	<cache name="lu.itrust.business.ts.model.general.document.impl.UserSQLite" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+
+	<cache name="lu.itrust.business.ts.model.externalnotification.ExternalNotification" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000"
+		timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+
+	<cache name="lu.itrust.business.ts.usermanagement.EmailValidatingRequest" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+
+	<cache name="lu.itrust.business.ts.usermanagement.IDS" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+
+	<cache name="lu.itrust.business.ts.usermanagement.Role" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+
+	<cache name="lu.itrust.business.ts.model.general.TrickLog" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+	
+	<cache name="lu.itrust.business.ts.model.standard.measure.impl.MeasureAssetValue" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+	
+	<cache name="lu.itrust.business.ts.model.general.document.impl.ReportTemplate" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+	
+	<!-- Collections -->
+
+	<cache name="lu.itrust.business.ts.model.analysis.Analysis.analysisStandards" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+
+	<cache name="lu.itrust.business.ts.model.analysis.Analysis.settings" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+
+	<cache name="lu.itrust.business.ts.model.actionplan.summary.SummaryStage.conformances" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000"
+		timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+
+	<cache name="lu.itrust.business.ts.model.analysis.Analysis.scenarios" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+
+	<cache name="lu.itrust.business.ts.model.cssf.RiskProfile.measures" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+
+	<cache name="lu.itrust.business.ts.model.analysis.Analysis.assessments" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+
+	<cache name="lu.itrust.business.ts.model.actionplan.ActionPlanEntry.actionPlanAssets" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000"
+		timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+
+	<cache name="lu.itrust.business.ts.model.analysis.Analysis.assets" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+
+	<cache name="lu.itrust.business.ts.model.standard.AnalysisStandard.measures" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+
+	<cache name="lu.itrust.business.ts.model.analysis.Analysis.riskInformations" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+
+	<cache name="lu.itrust.business.ts.model.analysis.Analysis.phases" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+
+	<cache name="lu.itrust.business.ts.model.analysis.Analysis.itemInformations" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+
+	<cache name="lu.itrust.business.ts.model.analysis.Analysis.histories" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+
+	<cache name="lu.itrust.business.ts.model.analysis.Analysis.userRights" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+
+	<cache name="lu.itrust.business.ts.model.analysis.Analysis.actionPlans" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+
+	<cache name="lu.itrust.business.ts.model.analysis.Analysis.riskRegisters" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+
+	<cache name="lu.itrust.business.ts.model.analysis.Analysis.riskProfiles" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+
+	<cache name="lu.itrust.business.ts.model.analysis.Analysis.summaries" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+
+	<cache name="lu.itrust.business.ts.model.standard.measuredescription.MeasureDescription.measureDescriptionTexts" maxEntriesLocalHeap="10000" eternal="false"
+		timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+	
+	<cache name="lu.itrust.business.ts.model.standard.measure.impl.NormalMeasure.assetTypeValues" maxEntriesLocalHeap="10000" eternal="false"
+		timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+	
+	<cache name="lu.itrust.business.ts.model.standard.measure.impl.AssetMeasure.measureAssetValues" maxEntriesLocalHeap="10000" eternal="false"
+		timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+
+	<cache name="lu.itrust.business.ts.model.general.TrickLog.parameters" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+
+	<cache name="lu.itrust.business.ts.usermanagement.IDS.subscribers" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+
+	<cache name="lu.itrust.business.ts.usermanagement.User.customers" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+
+	<cache name="lu.itrust.business.ts.usermanagement.User.roles" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+
+	<cache name="lu.itrust.business.ts.usermanagement.User.userSettings" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+	
+	<cache name="lu.itrust.business.ts.model.general.Customer.templates" maxEntriesLocalHeap="10000" eternal="false" timeToIdleSeconds="5184000" timeToLiveSeconds="7776000">
+		<persistence strategy="localTempSwap" />
+	</cache>
+
+</ehcache>

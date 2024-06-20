@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<taglib version="2.1" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-jsptaglibrary_2_1.xsd">
+<display-name>itrust tags</display-name>
+<tlib-version>1.0</tlib-version>
+<short-name>fct</short-name>
+<uri>https://trickservice.com/tags/functions</uri>
+<function>
+<name>matches</name>
+<function-class>lu.itrust.business.ts.helper.JSTLFunctions</function-class>
+<function-signature>boolean matches(java.lang.String, java.lang.String)</function-signature>
+</function>
+<function>
+<name>round</name>
+<function-class>lu.itrust.business.ts.helper.JSTLFunctions</function-class>
+<function-signature>double round(double	, int)</function-signature>
+</function>
+</taglib>

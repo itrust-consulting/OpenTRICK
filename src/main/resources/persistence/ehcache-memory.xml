@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns='http://www.ehcache.org/v3' xmlns:jsr107='http://www.ehcache.org/v3/jsr107'
+	xsi:schemaLocation="
+        https://www.ehcache.org/v3 https://www.ehcache.org/schema/ehcache-core-3.5.xsd
+        https://www.ehcache.org/v3/jsr107 https://www.ehcache.org/schema/ehcache-107-ext-3.5.xsd">
+
+	<service>
+		<jsr107:defaults default-template="defaultCache" enable-management="true" enable-statistics="true" />
+	</service>
+
+	<persistence directory="${java.io.tmpdir}/ot-cache" />
+
+	<cache-template name="defaultCache">
+		<expiry>
+			<ttl unit="days">90</ttl>
+		</expiry>
+		<heap unit="entries">2000</heap>
+	</cache-template>
+
+	<cache-template name="entityDefaultCache">
+		<expiry>
+			<ttl unit="days">90</ttl>
+		</expiry>
+		<heap unit="entries">10000</heap>
+	</cache-template>
+
+	<cache-template name="collectionDefaultCache">
+		<expiry>
+			<ttl unit="days">45</ttl>
+		</expiry>
+		<heap unit="entries">5000</heap>
+	</cache-template>
+
+	<cache-template name="forceDiskdefaultCache">
+		<expiry>
+			<ttl unit="days">180</ttl>
+		</expiry>
+		<resources>
+			<disk persistent="false" unit="GB">5</disk>
+		</resources>
+		<disk-store-settings thread-pool="pool-disk" writer-concurrency="10" disk-segments="16" />
+	</cache-template>
+
+	<cache alias="default-update-timestamps-region" uses-template="defaultCache" />
+
+	<cache alias="default-query-results-region" uses-template="defaultCache">
+		<expiry>
+			<tti unit="seconds">300</tti>
+		</expiry>
+	</cache>
+	<!-- Entities -->
+	<cache alias="lu.itrust.business.ts.model.history.History" uses-template="entityDefaultCache" />
+	<cache alias="lu.itrust.business.ts.model.standard.measuredescription.MeasureDescriptionText" uses-template="entityDefaultCache" />
+	<cache alias="lu.itrust.business.ts.model.actionplan.summary.SummaryStandardConformance" uses-template="entityDefaultCache" />
+	<cache alias="lu.itrust.business.ts.model.standard.measure.Measure" uses-template="entityDefaultCache" />
+	<cache alias="lu.itrust.business.ts.model.standard.AnalysisStandard" uses-template="entityDefaultCache" />
+	<cache alias="lu.itrust.business.ts.model.general.Language" uses-template="entityDefaultCache" />
+	<cache alias="lu.itrust.business.ts.model.standard.measure.MeasureAssetValue" uses-template="entityDefaultCache" />
+	<cache alias="lu.itrust.business.ts.model.TrickService" uses-template="entityDefaultCache" />
+	<cache alias="lu.itrust.business.ts.model.general.SecurityCriteria" uses-template="entityDefaultCache" />
+	<cache alias="lu.itrust.business.ts.model.general.Customer" uses-template="entityDefaultCache" />
+	<cache alias="lu.itrust.business.ts.model.actionplan.ActionPlanEntry" uses-template="entityDefaultCache" />
+	<cache alias="lu.itrust.business.ts.model.actionplan.ActionPlanAsset" uses-template="entityDefaultCache" />
+	<cache alias="lu.itrust.business.ts.model.actionplan.summary.SummaryStage" uses-template="entityDefaultCache" />
+	<cache alias="lu.itrust.business.ts.model.standard.measuredescription.MeasureDescription" uses-template="entityDefaultCache" />
+	<cache alias="lu.itrust.business.ts.model.asset.Asset" uses-template="entityDefaultCache" />
+	<cache alias="lu.itrust.business.ts.usermanagement.ResetPassword" uses-template="entityDefaultCache" />
+	<cache alias="lu.itrust.business.ts.model.assessment.Assessment" uses-template="entityDefaultCache" />
+	<cache alias="lu.itrust.business.ts.model.cssf.RiskRegisterItem" uses-template="entityDefaultCache" />
+	<cache alias="lu.itrust.business.ts.model.actionplan.ActionPlanType" uses-template="entityDefaultCache" />
+	<cache alias="lu.itrust.business.ts.usermanagement.User" uses-template="entityDefaultCache" />
+	<cache alias="lu.itrust.business.ts.model.cssf.RiskProfile" uses-template="entityDefaultCache" />
+	<cache alias="lu.itrust.business.ts.model.riskinformation.RiskInformation" uses-template="entityDefaultCache" />
+	<cache alias="lu.itrust.business.ts.model.iteminformation.ItemInformation" uses-template="entityDefaultCache" />
+	<cache alias="lu.itrust.business.ts.model.standard.Standard" uses-template="entityDefaultCache" />
+	<cache alias="lu.itrust.business.ts.model.analysis.Analysis" uses-template="entityDefaultCache" />
+	<cache alias="lu.itrust.business.ts.model.general.Phase" uses-template="entityDefaultCache" />
+	<cache alias="lu.itrust.business.ts.model.parameter.value.impl.Value" uses-template="entityDefaultCache" />
+	<cache alias="lu.itrust.business.ts.model.parameter.impl.RiskAcceptanceParameter" uses-template="entityDefaultCache" />
+	<cache alias="lu.itrust.business.ts.model.parameter.impl.ImpactParameter" uses-template="entityDefaultCache" />
+	<cache alias="lu.itrust.business.ts.model.parameter.impl.LikelihoodParameter" uses-template="entityDefaultCache" />
+	<cache alias="lu.itrust.business.ts.model.parameter.impl.DynamicParameter" uses-template="entityDefaultCache" />
+	<cache alias="lu.itrust.business.ts.model.parameter.impl.MaturityParameter" uses-template="entityDefaultCache" />
+	<cache alias="lu.itrust.business.ts.model.parameter.value.impl.RealValue" uses-template="entityDefaultCache" />
+	<cache alias="lu.itrust.business.ts.model.parameter.impl.SimpleParameter" uses-template="entityDefaultCache" />
+	<cache alias="lu.itrust.business.ts.model.parameter.value.impl.LevelValue" uses-template="entityDefaultCache" />
+	<cache alias="lu.itrust.business.ts.model.parameter.value.impl.FormulaValue" uses-template="entityDefaultCache" />
+	<cache alias="lu.itrust.business.ts.model.parameter.type.impl.ParameterType" uses-template="entityDefaultCache" />
+	<cache alias="lu.itrust.business.ts.model.analysis.AnalysisShareInvitation" uses-template="entityDefaultCache" />
+	<cache alias="lu.itrust.business.ts.model.general.TSSetting" uses-template="entityDefaultCache" />
+	<cache alias="lu.itrust.business.ts.model.general.document.impl.WordReport" uses-template="entityDefaultCache" />
+	<cache alias="lu.itrust.business.ts.model.general.document.impl.UserSQLite" uses-template="entityDefaultCache" />
+	<cache alias="lu.itrust.business.ts.model.externalnotification.ExternalNotification" uses-template="entityDefaultCache" />
+	<cache alias="lu.itrust.business.ts.usermanagement.EmailValidatingRequest" uses-template="entityDefaultCache" />
+	<cache alias="lu.itrust.business.ts.usermanagement.IDS" uses-template="entityDefaultCache" />
+	<cache alias="lu.itrust.business.ts.usermanagement.Role" uses-template="entityDefaultCache" />
+	<cache alias="lu.itrust.business.ts.model.general.TrickLog" uses-template="entityDefaultCache" />
+	<cache alias="lu.itrust.business.ts.model.standard.measure.impl.MeasureAssetValue" uses-template="entityDefaultCache" />
+	<cache alias="lu.itrust.business.ts.model.general.document.impl.ReportTemplate" uses-template="entityDefaultCache" />
+	<cache alias="lu.itrust.business.ts.usermanagement.UserCredential" uses-template="entityDefaultCache" />
+	<cache alias="lu.itrust.business.ts.model.general.TicketingSystem" uses-template="entityDefaultCache" />
+	<!-- Collections -->
+	<cache alias="lu.itrust.business.ts.model.analysis.Analysis.analysisStandards" uses-template="collectionDefaultCache" />
+	<cache alias="lu.itrust.business.ts.model.analysis.Analysis.settings" uses-template="collectionDefaultCache" />
+	<cache alias="lu.itrust.business.ts.model.actionplan.summary.SummaryStage.conformances" uses-template="collectionDefaultCache" />
+	<cache alias="lu.itrust.business.ts.model.analysis.Analysis.scenarios" uses-template="collectionDefaultCache" />
+	<cache alias="lu.itrust.business.ts.model.cssf.RiskProfile.measures" uses-template="collectionDefaultCache" />
+	<cache alias="lu.itrust.business.ts.model.analysis.Analysis.assessments" uses-template="collectionDefaultCache" />
+	<cache alias="lu.itrust.business.ts.model.actionplan.ActionPlanEntry.actionPlanAssets" uses-template="collectionDefaultCache" />
+	<cache alias="lu.itrust.business.ts.model.analysis.Analysis.assets" uses-template="collectionDefaultCache" />
+	<cache alias="lu.itrust.business.ts.model.standard.AnalysisStandard.measures" uses-template="collectionDefaultCache" />
+	<cache alias="lu.itrust.business.ts.model.analysis.Analysis.riskInformations" uses-template="collectionDefaultCache" />
+	<cache alias="lu.itrust.business.ts.model.analysis.Analysis.phases" uses-template="collectionDefaultCache" />
+	<cache alias="lu.itrust.business.ts.model.analysis.Analysis.itemInformations" uses-template="collectionDefaultCache" />
+	<cache alias="lu.itrust.business.ts.model.analysis.Analysis.histories" uses-template="collectionDefaultCache" />
+	<cache alias="lu.itrust.business.ts.model.analysis.Analysis.userRights" uses-template="collectionDefaultCache" />
+	<cache alias="lu.itrust.business.ts.model.analysis.Analysis.actionPlans" uses-template="collectionDefaultCache" />
+	<cache alias="lu.itrust.business.ts.model.analysis.Analysis.riskRegisters" uses-template="collectionDefaultCache" />
+	<cache alias="lu.itrust.business.ts.model.analysis.Analysis.riskProfiles" uses-template="collectionDefaultCache" />
+	<cache alias="lu.itrust.business.ts.model.analysis.Analysis.summaries" uses-template="collectionDefaultCache" />
+	<cache alias="lu.itrust.business.ts.model.standard.measuredescription.MeasureDescription.measureDescriptionTexts" uses-template="collectionDefaultCache" />
+	<cache alias="lu.itrust.business.ts.model.standard.measure.impl.NormalMeasure.assetTypeValues" uses-template="collectionDefaultCache" />
+	<cache alias="lu.itrust.business.ts.model.standard.measure.impl.AssetMeasure.measureAssetValues" uses-template="collectionDefaultCache" />
+	<cache alias="lu.itrust.business.ts.model.general.TrickLog.parameters" uses-template="collectionDefaultCache" />
+	<cache alias="lu.itrust.business.ts.usermanagement.IDS.subscribers" uses-template="collectionDefaultCache" />
+	<cache alias="lu.itrust.business.ts.usermanagement.User.customers" uses-template="collectionDefaultCache" />
+	<cache alias="lu.itrust.business.ts.usermanagement.User.roles" uses-template="collectionDefaultCache" />
+	<cache alias="lu.itrust.business.ts.usermanagement.User.userSettings" uses-template="collectionDefaultCache" />
+	<cache alias="lu.itrust.business.ts.model.general.Customer.templates" uses-template="collectionDefaultCache" />
+	<cache alias="lu.itrust.business.ts.usermanagement.User.credentials" uses-template="collectionDefaultCache" />
+</config>
