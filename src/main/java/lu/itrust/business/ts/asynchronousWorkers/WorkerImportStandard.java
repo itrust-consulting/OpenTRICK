@@ -8,7 +8,6 @@ import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHel
 import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.getString;
 import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.isEmpty;
 
-
 import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -146,7 +145,7 @@ public class WorkerImportStandard extends WorkerImpl {
 			getServiceTaskFeedback().send(getId(),
 					new MessageHandler(e.getCode(), e.getParameters(), e.getMessage(), e));
 			if (transaction != null && transaction.getStatus().canRollback())
-				session.getTransaction().rollback();
+				transaction.rollback();
 		} catch (Exception e) {
 			setError(e);
 			getServiceTaskFeedback().send(getId(), new MessageHandler("error.import.norm",

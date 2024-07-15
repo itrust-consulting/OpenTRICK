@@ -1428,8 +1428,6 @@ public class ControllerDataManager {
 		this.maxUploadFileSize = DataSize.parse(value).toBytes();
 	}
 
-	
-
 	private void exportProbability(Analysis analysis, SpreadsheetMLPackage mlPackage) throws Exception {
 		final String name = "Probability";
 		final ObjectFactory factory = Context.getsmlObjectFactory();
@@ -1487,7 +1485,7 @@ public class ControllerDataManager {
 								.getNameToLower());
 				if (rowColumn)
 					cellIndex += writeProbaImpact(row, cellIndex++, profile.getRawProbaImpact(), scales, false);
-				cellIndex += writeProbaImpact(row, cellIndex++, assessment, scales);
+				cellIndex += writeProbaImpact(row, cellIndex++, assessment, scales, isILR);
 				cellIndex += writeProbaImpact(row, cellIndex++, profile.getExpProbaImpact(), scales, isILR);
 			} else {
 				writeLikelihood(row, cellIndex++, assessment.getLikelihood());
@@ -2161,7 +2159,7 @@ public class ControllerDataManager {
 		setValue(row.getC().get(++colIndex), measure.getRecurrentInvestment() * 0.001);
 		setValue(row.getC().get(++colIndex), measure.getCost() * 0.001);
 		setValue(row.getC().get(++colIndex), measure.getPhase().getNumber());
-		
+
 		if (actionPlanEntry.getActionPlanType().getActionPlanMode() == ActionPlanMode.APQ)
 			setValue(row.getC().get(++colIndex), actionPlanEntry.getRiskCount());
 		else {
@@ -2172,9 +2170,11 @@ public class ControllerDataManager {
 		return row;
 	}
 
-	private int writeProbaImpact(Row row, int colIndex, Assessment assessment, List<ScaleType> scales) {
+	private int writeProbaImpact(Row row, int colIndex, Assessment assessment, List<ScaleType> scales,
+			boolean hasVulnerability) {
 		writeLikelihood(row, colIndex++, assessment.getLikelihood());
-		setValue(row, colIndex++, "v" + assessment.getVulnerability());
+		if (hasVulnerability)
+			setValue(row, colIndex++, "v" + assessment.getVulnerability());
 		for (ScaleType type : scales) {
 			IValue value = assessment.getImpact(type.getName());
 			if (value == null)
@@ -2184,7 +2184,7 @@ public class ControllerDataManager {
 			else
 				setValue(row, colIndex++, "i" + value.getLevel());
 		}
-		return 2 + scales.size();
+		return (hasVulnerability? 2: 1) + scales.size();
 	}
 
 	private int writeProbaImpact(Row row, int colIndex, RiskProbaImpact probaImpact, List<ScaleType> scales,

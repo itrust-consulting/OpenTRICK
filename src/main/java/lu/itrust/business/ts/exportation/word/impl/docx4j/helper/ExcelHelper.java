@@ -711,7 +711,7 @@ public final class ExcelHelper {
 			row.getC().sort((c1, c2) -> {
 				if (!(StringUtils.hasText(c1.getR()) || StringUtils.hasText(c2.getR())))
 					return 0;
-				return NaturalOrderComparator.compareTo(c1.getR(), c2.getR());
+				return Integer.compare(colStringToIndex(c1.getR()), colStringToIndex(c2.getR()));
 			});
 		}
 		return cell;
