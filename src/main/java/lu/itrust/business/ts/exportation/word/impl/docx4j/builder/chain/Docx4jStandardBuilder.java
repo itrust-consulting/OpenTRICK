@@ -127,7 +127,7 @@ public class Docx4jStandardBuilder extends Docx4jBuilder {
 
 	private boolean buildAdditionalCollection(Docx4jData data, ActionPlanMode... planModes) throws Exception {
 		final Docx4jReportImpl exporter = (Docx4jReportImpl) data.getExportor();
-		final P paragraph = (P) exporter.findP(data.getSource());
+		final P paragraph =  exporter.findP(data.getSource());
 		if (paragraph != null) {
 			final List<AnalysisStandard> analysisStandards = exporter.getAnalysis().getAnalysisStandards().values()
 					.stream()
@@ -188,7 +188,7 @@ public class Docx4jStandardBuilder extends Docx4jBuilder {
 
 	private boolean buildCollectionList(Docx4jData data) {
 		final Docx4jReportImpl exporter = (Docx4jReportImpl) data.getExportor();
-		final P paragraph = (P) exporter.findP(data.getSource());
+		final P paragraph = exporter.findP(data.getSource());
 		if (paragraph != null) {
 			final List<Object> objects = exporter.getAnalysis().getAnalysisStandards().values().stream()
 					.filter(a -> !(a.getStandard().is(STANDARD_27001) || a.getStandard().is(STANDARD_27002)))
@@ -225,7 +225,7 @@ public class Docx4jStandardBuilder extends Docx4jBuilder {
 		final Chart chart = (Chart) part;
 		final CTRadarChart radarChart = (CTRadarChart) chart.getContents().getChart().getPlotArea()
 				.getAreaChartOrArea3DChartOrLineChart().parallelStream()
-				.filter(web -> web instanceof CTRadarChart).findAny().orElse(null);
+				.filter(CTRadarChart.class::isInstance).findAny().orElse(null);
 		if (radarChart == null)
 			return;
 		radarChart.getSer().clear();
@@ -245,7 +245,7 @@ public class Docx4jStandardBuilder extends Docx4jBuilder {
 		}
 
 		chart.getContents().getChart().getPlotArea().getValAxOrCatAxOrDateAx().parallelStream()
-				.filter(valAx -> valAx instanceof CTValAx).map(valAx -> (CTValAx) valAx)
+				.filter(CTValAx.class::isInstance).map(CTValAx.class::cast)
 				.forEach(valAx -> {
 					valAx.getNumFmt().setSourceLinked(false);
 					valAx.getNumFmt().setFormatCode("0%");
@@ -310,14 +310,17 @@ public class Docx4jStandardBuilder extends Docx4jBuilder {
 
 			int columnIndex = 2;
 			for (Phase phase : phases) {
-				final char col = (char) (((int) 'A') + columnIndex);
+				final char col = (char) ( 'A' + columnIndex);
 
 				phaseLabel = exporter.getMessage("label.chart.phase", new Object[] { phase.getNumber() },
 						"Phase " + phase.getNumber());
+
 				compliances = ChartGenerator.ComputeCompliance(measures, phase, actionPlanMeasures, compliances,
 						exporter.getValueFactory());
+
 				ser = exporter.createChart(ser.getCat(), String.format("%s!$%s$1", reportExcelSheet.getName(), col),
-						columnIndex - 1, phaseLabel, new CTRadarSerProxy()).getProxy();
+						columnIndex - 1L, phaseLabel, new CTRadarSerProxy()).getProxy();
+						
 				ser.getVal().getNumRef().getNumCache().setFormatCode("0%");
 
 				setValue(sheet.getRow().get(rowCount = 0), columnIndex, phaseLabel);
@@ -350,7 +353,7 @@ public class Docx4jStandardBuilder extends Docx4jBuilder {
 
 	private boolean buildCurrentSecurityLevel(Docx4jData data) {
 		final Docx4jReportImpl exporter = (Docx4jReportImpl) data.getExportor();
-		final P paragraphOriginal = (P) exporter.findP(data.getSource());
+		final P paragraphOriginal = exporter.findP(data.getSource());
 		if (paragraphOriginal != null) {
 			final List<Object> contents = new LinkedList<>();
 			final AtomicInteger index = new AtomicInteger(0);

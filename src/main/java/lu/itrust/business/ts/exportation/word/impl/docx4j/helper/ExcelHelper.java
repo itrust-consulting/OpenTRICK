@@ -1,7 +1,5 @@
 package lu.itrust.business.ts.exportation.word.impl.docx4j.helper;
 
-import static org.mockito.ArgumentMatchers.nullable;
-
 import java.net.URI;
 import java.util.Collections;
 import java.util.List;
@@ -42,17 +40,21 @@ import org.xlsx4j.sml.Sheet;
 import org.xlsx4j.sml.SheetData;
 import org.xlsx4j.sml.Worksheet;
 
-import lu.itrust.business.ts.helper.NaturalOrderComparator;
+import jakarta.xml.bind.JAXBException;
 
 public final class ExcelHelper {
 
 	private static final char ABSOLUTE_REFERENCE_MARKER = '$';
 
-	public static final Pattern CELL_REF_PATTERN = Pattern.compile("(\\$?[A-Z]+)?(\\$?[0-9]+)?",
+	public static final Pattern CELL_REF_PATTERN = Pattern.compile("(\\$?[A-Z]+)?(\\$?\\d+)?",
 			Pattern.CASE_INSENSITIVE);
 
-	public static final Pattern STRICTLY_CELL_REF_PATTERN = Pattern.compile("\\$?([A-Z]+)\\$?([0-9]+)",
+	public static final Pattern STRICTLY_CELL_REF_PATTERN = Pattern.compile("\\$?([A-Z]+)\\$?(\\d+)",
 			Pattern.CASE_INSENSITIVE);
+
+	private ExcelHelper() {
+		throw new IllegalStateException("Utility class");
+	}
 
 	public static Cell setValue(Row row, int cellIndex, Object value) {
 		Cell cell2 = getOrCreateCell(row, cellIndex);
@@ -85,7 +87,7 @@ public final class ExcelHelper {
 
 	public static void setValue(Cell cell, Boolean value) {
 		cell.setT(STCellType.B);
-		cell.setV(value ? "1" : "0");
+		cell.setV(value != null && value ? "1" : "0");
 	}
 
 	public static Cell setFormula(Cell cell, String formula) {
@@ -200,10 +202,8 @@ public final class ExcelHelper {
 	 * @return address
 	 */
 	public static String getAddress(int row1, int col1, int row2, int col2) {
-		assert row1 >= 0;
-		assert row2 >= 0;
-		assert col1 >= 0;
-		assert col2 >= 0;
+		if (row1 < 0 || col1 < 0 || row2 < 0 || col2 < 0)
+			throw new IllegalArgumentException("Invalid row or column");
 		return String.format("%s%d:%s%d", numToColString(col1), (row1 + 1), numToColString(col2), (row2 + 1));
 	}
 
@@ -215,7 +215,8 @@ public final class ExcelHelper {
 		mergeCell.setRef(getAddress(rowStart, colStart, rowEnd, colEnd));
 	}
 
-	public static WorksheetPart createWorkSheetPart(SpreadsheetMLPackage mlPackage, String name) throws Exception {
+	public static WorksheetPart createWorkSheetPart(SpreadsheetMLPackage mlPackage, String name)
+			throws Docx4JException, JAXBException {
 		final int indexe = findNextSheetNumberAndId(mlPackage);
 		final Set<Long> ids = mlPackage.getWorkbookPart().getContents().getSheets().getSheet().stream()
 				.map(Sheet::getSheetId).collect(Collectors.toSet());
@@ -228,7 +229,7 @@ public final class ExcelHelper {
 		return part;
 	}
 
-	public static TablePart createTablePart(WorksheetPart worksheetPart) throws Exception {
+	public static TablePart createTablePart(WorksheetPart worksheetPart) throws Docx4JException {
 		final var mlPackage = ((SpreadsheetMLPackage) worksheetPart.getPackage());
 		final int indexe = findNextPartNumber("/xl/tables/table", ".xml", mlPackage);
 		return createTablePart(worksheetPart, new PartName(String.format("/xl/tables/table%d.xml", indexe)),
@@ -257,12 +258,12 @@ public final class ExcelHelper {
 	}
 
 	public static CTTable createHeader(WorksheetPart worksheetPart, String name, String style, String[] columns,
-			int length) throws Exception {
+			int length) throws Docx4JException {
 		return createHeader(worksheetPart, name, style, columns, 0, length);
 	}
 
 	public static CTTable createHeader(WorksheetPart worksheetPart, String name, String style, String[] columns,
-			int rowIndex, int length) throws Exception {
+			int rowIndex, int length) throws Docx4JException {
 		TablePart tablePart = createTablePart(worksheetPart);
 		CTTable table = tablePart.getContents();
 		if (style != null) {
@@ -301,7 +302,7 @@ public final class ExcelHelper {
 	}
 
 	public static Row createRow(SheetData sheetData, int cellSize) {
-		return createRow(sheetData, sheetData.getRow().size(), (int) cellSize);
+		return createRow(sheetData, sheetData.getRow().size(), cellSize);
 	}
 
 	public static WorksheetPart getWorksheetPart(Worksheet worksheet) {
@@ -353,16 +354,25 @@ public final class ExcelHelper {
 			return null;
 		if (sheet.getRow().size() > index) {
 			final Row row = sheet.getRow().get(index);
-			if ((row.getR() - 1) == index) {
+			if (row.getR() != null && (row.getR() - 1) == index) {
 				return row;
 			}
 		}
+		
 		for (int i = 0; i < sheet.getRow().size(); i++) {
 			final Row row = sheet.getRow().get(i);
-			if ((row.getR() - 1) == index) {
+			if (row.getR() != null && (row.getR() - 1) == index) {
 				return row;
 			}
 		}
+
+		if (sheet.getRow().stream().allMatch(e -> e.getR() == null)) {
+			for (int i = 0; i < sheet.getRow().size(); i++)
+				sheet.getRow().get(i).setR(i + 1L);
+			if (index >= 0 && sheet.getRow().size() > index)
+				return sheet.getRow().get(index);
+		}
+
 		return null;
 	}
 
@@ -457,7 +467,7 @@ public final class ExcelHelper {
 		}
 	}
 
-	public static Worksheet findWorkSheet(WorkbookPart workbookPart, String name) throws Exception {
+	public static Worksheet findWorkSheet(WorkbookPart workbookPart, String name) throws Docx4JException {
 		String id = workbookPart.getContents().getSheets().getSheet().parallelStream()
 				.filter(s -> s.getName().equals(name)).map(Sheet::getId).findAny().orElse(null);
 		if (isEmpty(id))
@@ -466,21 +476,21 @@ public final class ExcelHelper {
 		return worksheetPart.getContents();
 	}
 
-	public static SheetData findSheet(WorkbookPart workbookPart, String name) throws Exception {
+	public static SheetData findSheet(WorkbookPart workbookPart, String name) throws Docx4JException {
 		var worksheet = findWorkSheet(workbookPart, name);
 		if (worksheet == null)
 			return null;
 		return worksheet.getSheetData();
 	}
 
-	public static SheetData findSheet(WorkbookPart workbookPart, Sheet sheet) throws Exception {
+	public static SheetData findSheet(WorkbookPart workbookPart, Sheet sheet) throws Docx4JException {
 		WorksheetPart worksheetPart = (WorksheetPart) workbookPart.getRelationshipsPart().getPart(sheet.getId());
 		if (worksheetPart == null)
 			return null;
 		return worksheetPart.getContents().getSheetData();
 	}
 
-	public static Map<String, String> getSharedStrings(WorkbookPart workbookPart) throws Exception {
+	public static Map<String, String> getSharedStrings(WorkbookPart workbookPart) throws Docx4JException {
 		if (workbookPart.getSharedStrings() == null)
 			return Collections.emptyMap();
 		AtomicInteger integer = new AtomicInteger(0);
@@ -495,7 +505,7 @@ public final class ExcelHelper {
 				}));
 	}
 
-	public static TablePart findTable(WorksheetPart worksheetPart, String name) throws Exception {
+	public static TablePart findTable(WorksheetPart worksheetPart, String name) throws Docx4JException {
 		for (CTTablePart ctTablePart : worksheetPart.getContents().getTableParts().getTablePart()) {
 			TablePart table = (TablePart) worksheetPart.getRelationshipsPart().getPart(ctTablePart.getId());
 			if (table.getContents().getName().equals(name) || table.getContents().getDisplayName().equals(name))
@@ -504,7 +514,7 @@ public final class ExcelHelper {
 		return null;
 	}
 
-	public static TablePart findTable(SheetData sheetData, String name) throws Exception {
+	public static TablePart findTable(SheetData sheetData, String name) throws Docx4JException {
 		final Worksheet worksheet = (Worksheet) sheetData.getParent();
 		final WorksheetPart worksheetPart = (WorksheetPart) worksheet.getParent();
 		if (worksheet.getTableParts() != null) {
@@ -517,7 +527,7 @@ public final class ExcelHelper {
 		return null;
 	}
 
-	public static List<TablePart> findTable(SheetData sheetData) throws Exception {
+	public static List<TablePart> findTable(SheetData sheetData) {
 		final Worksheet worksheet = (Worksheet) sheetData.getParent();
 		final WorksheetPart worksheetPart = (WorksheetPart) worksheet.getParent();
 		if (worksheet.getTableParts() != null) {
@@ -528,7 +538,7 @@ public final class ExcelHelper {
 		return Collections.emptyList();
 	}
 
-	public static TablePart findTableNameStartWith(WorksheetPart worksheetPart, String name) throws Exception {
+	public static TablePart findTableNameStartWith(WorksheetPart worksheetPart, String name) throws Docx4JException {
 		for (CTTablePart ctTablePart : worksheetPart.getContents().getTableParts().getTablePart()) {
 			TablePart table = (TablePart) worksheetPart.getRelationshipsPart().getPart(ctTablePart.getId());
 			if (table.getContents().getName().startsWith(name) || table.getContents().getDisplayName().startsWith(name))
@@ -538,7 +548,7 @@ public final class ExcelHelper {
 	}
 
 	public static boolean applyHeaderAndFooter(String sheetSource, String sheetTarget, SpreadsheetMLPackage mlPackage)
-			throws Exception {
+			throws Docx4JException {
 		final var sourceSheet = findWorkSheet(mlPackage.getWorkbookPart(), sheetSource);
 		if (sourceSheet == null || sourceSheet.getHeaderFooter() == null)
 			return false;
@@ -664,10 +674,17 @@ public final class ExcelHelper {
 	}
 
 	private static Row createRow(SheetData sheet, int index, int colSize) {
-		Row sheetRow = Context.getsmlObjectFactory().createRow();
-		sheetRow.setR(Long.valueOf(index + 1L));
+		final Row sheetRow = Context.getsmlObjectFactory().createRow();
+		final boolean hasRowIndex = sheet.getRow().isEmpty() || sheet.getRow().get(0).getR() != null;
 		sheet.getRow().add(sheetRow);
-		sheet.getRow().sort((e1, e2) -> Long.compare(e1.getR(), e2.getR()));
+		if (hasRowIndex) {
+			sheetRow.setR(Long.valueOf(index + 1L));
+			sheet.getRow().sort((e1, e2) -> {
+				if (e1.getR() == null || e2.getR() == null)
+					return 0;
+				return Long.compare(e1.getR(), e2.getR());
+			});
+		}
 		initialiseCells(sheetRow, colSize);
 		return sheetRow;
 	}
@@ -718,7 +735,7 @@ public final class ExcelHelper {
 	}
 
 	private static TablePart createTablePart(WorksheetPart worksheetPart, PartName partName, String name, long id)
-			throws Exception {
+			throws Docx4JException {
 		CTTablePart tablePart = new CTTablePart();
 		TablePart part = new TablePart(partName);
 		Relationship r = worksheetPart.addTargetPart(part);

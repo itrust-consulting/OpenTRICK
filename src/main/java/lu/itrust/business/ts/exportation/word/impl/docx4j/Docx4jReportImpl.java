@@ -177,9 +177,7 @@ public class Docx4jReportImpl implements Docx4jReport {
 
 	private org.docx4j.openpackaging.packages.WordprocessingMLPackage wordMLPackage;
 
-	/**
-	 *
-	 */
+	
 	public Docx4jReportImpl() {
 	}
 
@@ -236,7 +234,7 @@ public class Docx4jReportImpl implements Docx4jReport {
 	public P addFigureCaption(String value) {
 		P paragraph = setStyle(factory.createP(), "Caption");
 		R run = setText(factory.createR(), getMessage("report.caption.figure.name", null, "Figure", locale));
-		run.getContent().stream().filter(text -> text instanceof Text).map(text -> (Text) text)
+		run.getContent().stream().filter(Text.class::isInstance).map(Text.class::cast)
 				.forEach(text -> text.setSpace("preserve"));
 		paragraph.getContent().add(run);
 		paragraph.getContent().add(createSpecialRun(STFldCharType.BEGIN));
@@ -428,8 +426,7 @@ public class Docx4jReportImpl implements Docx4jReport {
 
 	}
 
-	public P createGraphic(String name, String description, String refId)
-			throws XPathBinderAssociationIsPartialException, JAXBException {
+	public P createGraphic(String name, String description, String refId){
 		P paragraph = setStyle(getFactory().createP(), "FigurewithCaption");
 		R run = getFactory().createR();
 		run.setRPr(getFactory().createRPr());
@@ -551,7 +548,7 @@ public class Docx4jReportImpl implements Docx4jReport {
 	public void export(TrickTemplate template, Task task, Analysis analysis, ServiceTaskFeedback serviceTaskFeedback) {
 		if (!(template == null || template instanceof TrickTemplate))
 			throw new TrickException("error.wrong.template.type", "The given template is not supported");
-		internalReportExport(task, analysis, (TrickTemplate) template, serviceTaskFeedback);
+		internalReportExport(task, analysis, template, serviceTaskFeedback);
 	}
 
 	public Part findChart(CTBookmark bookmark) throws InvalidFormatException {
@@ -1252,7 +1249,7 @@ public class Docx4jReportImpl implements Docx4jReport {
 		return value == null ? "" : value;
 	}
 
-	protected boolean initialise() throws Docx4JException, IOException {
+	protected boolean initialise() throws Docx4JException {
 		if (getTemplate() != null) {
 			setFile(InstanceManager.getServiceStorage().createTmpFile());
 			InstanceManager.getServiceStorage().store(getTemplate().getData(), getFile().getName());
@@ -1332,7 +1329,7 @@ public class Docx4jReportImpl implements Docx4jReport {
 			});
 			updateProperties();
 			getWordMLPackage().save(getFile());
-		} catch (Docx4JException | IOException e) {
+		} catch (Docx4JException e) {
 			throw new TrickException("error.export.internal", "An error occurred while exporting word report!", e);
 		}
 	}
