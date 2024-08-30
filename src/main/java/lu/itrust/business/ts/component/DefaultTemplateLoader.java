@@ -16,7 +16,9 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.commons.compress.utils.FileNameUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
+import org.docx4j.com.google.common.base.Objects;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.docx4j.openpackaging.packages.SpreadsheetMLPackage;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
@@ -169,7 +171,7 @@ public class DefaultTemplateLoader {
 		if (template == null)
 			throw new TrickException("error.template." + type.name().toLowerCase() + ".not_found",
 					"Template '" + type.name().toLowerCase() + "' cannot be found");
-		final String filename = ServiceStorage.RandoomFilename(FileNameUtils.getExtension(template.getName()));
+		final String filename = ServiceStorage.RandoomFilename(FilenameUtils.getExtension(template.getName()));
 		InstanceManager.getServiceStorage().store(template.getData(), filename);
 		return InstanceManager.getServiceStorage().loadAsFile(filename);
 	}
@@ -208,8 +210,6 @@ public class DefaultTemplateLoader {
 		if (daoLanguage.existsByAlpha3("ENG", "FRA"))
 			loadLanguages();
 		final List<TrickTemplate> templates = initializedTemplates();
-		;
-
 		final Customer customer = getDefaultCustomer();
 		if (customer == null)
 			throw new TrickException("error.default.customer.cannot.be.created", "Profile customer cannot be created");
@@ -222,9 +222,8 @@ public class DefaultTemplateLoader {
 				TrickTemplate template = mappers.get(p.getKey());
 				if (template == null)
 					customer.getTemplates().add(p);
-				else {
-					if (!template.getVersion().equals(p.getVersion()))
-						template.update(p);
+				else if (!(template.getVersion().equals(p.getVersion()) && template.getLength() == p.getLength())) {
+					template.update(p);
 					template.setEditable(false);
 				}
 			});
@@ -287,7 +286,7 @@ public class DefaultTemplateLoader {
 			reportTemplate.setVersion(fields[2]);
 			reportTemplate.setName(file.getFilename());
 			reportTemplate.setData(IOUtils.toByteArray(stream));
-			reportTemplate.setLength(reportTemplate.getData().length);
+			reportTemplate.setLength(file.contentLength());
 			reportTemplate.setCreated(new Timestamp(file.lastModified()));
 			reportTemplate.setEditable(false);
 			templates.add(reportTemplate);

@@ -14,7 +14,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.apache.commons.compress.utils.FileNameUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
@@ -1073,7 +1073,7 @@ public class ControllerAdmin {
 			throw new AccessDeniedException(
 					messageSource.getMessage("error.permission_denied", null, "Permission denied!", locale));
 
-		final String extension = FileNameUtils.getExtension(template.getName());
+		final String extension = FilenameUtils.getExtension(template.getName());
 
 		// set response contenttype to sqlite
 		response.setContentType(extension);
@@ -1083,7 +1083,7 @@ public class ControllerAdmin {
 				+ String.format("%s_v%s.%s", template.getLabel(), template.getVersion(), extension) + "\"");
 
 		// set sqlite file size as response size
-		response.setContentLength((int) template.getLength());
+		response.setContentLength((int)template.getLength());
 
 		// return the sqlite file (as copy) to the response outputstream ( whihc
 		// creates on the
@@ -1092,26 +1092,27 @@ public class ControllerAdmin {
 		/**
 		 * Log
 		 */
+		var language = template.getLanguage().getAlpha3() == null ? "ALL" : template.getLanguage().getAlpha3();
 		if (template.getType() == TrickTemplateType.REPORT) {
 			TrickLogManager.Persist(LogType.ANALYSIS, "log.customer.report.template.download",
 					String.format("Customer: %s, Template: %s, version: %s, created at: %s, type: %s, Language: %s",
 							customer.getContactPerson(), template.getLabel(),
 							template.getVersion(), template.getCreated(), template.getAnalysisType(),
-							template.getLanguage().getAlpha3()),
+							language),
 					principal.getName(), LogAction.DOWNLOAD, customer.getContactPerson(), template.getLabel(),
 					template.getVersion(),
 					String.valueOf(template.getCreated()), String.valueOf(template.getAnalysisType()),
-					template.getLanguage().getAlpha3());
+					language);
 		} else {
 			TrickLogManager.Persist(LogType.ANALYSIS, "log.customer.template.download",
 					String.format("Customer: %s, Template: %s, version: %s, created at: %s, type: %s, Language: %s",
 							customer.getContactPerson(), template.getLabel(),
 							template.getVersion(), template.getCreated(), template.getType(),
-							template.getLanguage().getAlpha3()),
+							language),
 					principal.getName(), LogAction.DOWNLOAD, customer.getContactPerson(), template.getLabel(),
 					template.getVersion(),
 					String.valueOf(template.getCreated()), String.valueOf(template.getType()),
-					template.getLanguage().getAlpha3());
+					language);
 		}
 
 		// return

@@ -128,6 +128,7 @@ public class TrickTemplate extends AnalysisDocument {
 	 */
 	public void update(TrickTemplate template) {
 		setType(template.getType());
+		setLength(template.getLength());
 		setAnalysisType(template.getAnalysisType());
 		setLabel(template.getLabel());
 		setCreated(template.getCreated());

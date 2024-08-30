@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.apache.commons.compress.utils.FileNameUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
@@ -376,11 +376,11 @@ public class ControllerCustomer {
 	 * @param principal
 	 * @param response
 	 * @return
-	 * @throws Exception
+	 * @throws IOException
 	 */
 	@RequestMapping("/Template/{id}/Download")
 	public String downloadReport(@PathVariable Long id, Principal principal, HttpServletResponse response,
-			Locale locale) throws Exception {
+			Locale locale) throws IOException {
 
 		TrickTemplate template = serviceTrickTemplate.findOne(id);
 
@@ -397,7 +397,7 @@ public class ControllerCustomer {
 			throw new AccessDeniedException(
 					messageSource.getMessage("error.permission_denied", null, "Permission denied!", locale));
 
-		final String extension = FileNameUtils.getExtension(template.getName());
+		final String extension = FilenameUtils.getExtension(template.getName());
 
 		// set response contenttype to extension
 		response.setContentType(extension);
@@ -417,26 +417,26 @@ public class ControllerCustomer {
 		 * Log
 		 */
 
+		var language = template.getLanguage().getAlpha3() == null ? "ALL" : template.getLanguage().getAlpha3();
 		if (template.getType() == TrickTemplateType.REPORT) {
 			TrickLogManager.Persist(LogType.ANALYSIS, "log.customer.report.template.download",
 					String.format("Customer: %s, Template: %s, version: %s, created at: %s, type: %s, Language: %s",
 							customer.getContactPerson(), template.getLabel(),
 							template.getVersion(), template.getCreated(), template.getAnalysisType(),
-							template.getLanguage().getAlpha3()),
+							language),
 					principal.getName(), LogAction.DOWNLOAD, customer.getContactPerson(), template.getLabel(),
 					template.getVersion(),
 					String.valueOf(template.getCreated()), String.valueOf(template.getAnalysisType()),
-					template.getLanguage().getAlpha3());
+					language);
 		} else {
 			TrickLogManager.Persist(LogType.ANALYSIS, "log.customer.template.download",
 					String.format("Customer: %s, Template: %s, version: %s, created at: %s, type: %s, Language: %s",
 							customer.getContactPerson(), template.getLabel(),
-							template.getVersion(), template.getCreated(), template.getType(),
-							template.getLanguage().getAlpha3()),
+							template.getVersion(), template.getCreated(), template.getType(), language),
 					principal.getName(), LogAction.DOWNLOAD, customer.getContactPerson(), template.getLabel(),
 					template.getVersion(),
 					String.valueOf(template.getCreated()), String.valueOf(template.getType()),
-					template.getLanguage().getAlpha3());
+					language);
 		}
 
 		// return

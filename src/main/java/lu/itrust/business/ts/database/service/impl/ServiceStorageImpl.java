@@ -7,33 +7,31 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import jakarta.annotation.PreDestroy;
-import jakarta.servlet.ServletContext;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import jakarta.annotation.PreDestroy;
+import jakarta.servlet.ServletContext;
 import lu.itrust.business.ts.component.TrickLogManager;
 import lu.itrust.business.ts.database.service.ServiceStorage;
 import lu.itrust.business.ts.exception.TrickException;
@@ -193,7 +191,8 @@ public class ServiceStorageImpl implements ServiceStorage {
 		final InputStream inputStream = resource.getInputStream();
 		final File file = new File(filePath);
 		if (!file.exists())
-			FileUtils.copyInputStreamToFile(inputStream, file);
+			Files.copy(inputStream, file.toPath(), StandardCopyOption.COPY_ATTRIBUTES);
+
 	}
 
 	@Override
