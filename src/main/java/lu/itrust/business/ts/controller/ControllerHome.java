@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -40,7 +39,6 @@ import lu.itrust.business.ts.model.general.TSSetting;
 import lu.itrust.business.ts.model.general.TSSettingName;
 import lu.itrust.business.ts.usermanagement.EmailValidatingRequest;
 import lu.itrust.business.ts.usermanagement.User;
-import org.springframework.web.bind.annotation.RequestParam;
 
 
 /**
