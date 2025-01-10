@@ -8,7 +8,7 @@
 		<spring:eval expression="T(java.util.Calendar).YEAR" var="YEAR" />
 		<spring:eval expression="T(java.util.Calendar).getInstance().get(YEAR)" var="year" />
 		<c:if test="${empty locale }">
-			<spring:eval expression="T(org.springframework.web.servlet.support.RequestContextUtils).getLocale(pageContext.request)" var="locale" />
+			<spring:eval expression="T(org.springframework.context.i18n.LocaleContextHolder).getLocale()" var="locale" scope="request" />
 		</c:if>
 		<c:set var="copyRight">
 			<spring:message code="label.copy_right.text" text="2015-${year} itrust consulting - All Rights Reserved" />

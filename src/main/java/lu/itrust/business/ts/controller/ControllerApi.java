@@ -15,9 +15,9 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.FileCopyUtils;
@@ -30,7 +30,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -57,6 +56,7 @@ import lu.itrust.business.ts.database.service.ServiceLikelihoodParameter;
 import lu.itrust.business.ts.database.service.ServiceRiskAcceptanceParameter;
 import lu.itrust.business.ts.database.service.ServiceScenario;
 import lu.itrust.business.ts.database.service.ServiceStandard;
+import lu.itrust.business.ts.database.service.WorkersPoolManager;
 import lu.itrust.business.ts.exception.ResourceNotFoundException;
 import lu.itrust.business.ts.exception.TrickException;
 import lu.itrust.business.ts.helper.JsonMessage;
@@ -103,7 +103,7 @@ import lu.itrust.business.ts.usermanagement.IDS;
  * that certain events happen, are deduced and stored in variables ready to be
  * used within the TRICK service user interface (asset/scenario estimation).
  * 
- * @author Steve Muller  itrust consulting s.à r.l.
+ * @author Steve Muller itrust consulting s.à r.l.
  * @since Jun 4, 2015
  */
 @RestController
@@ -113,14 +113,11 @@ public class ControllerApi {
 	@Autowired
 	private ServiceExternalNotification serviceExternalNotification;
 
-	@Value("${app.settings.dynamicparameters.computationdelayseconds}")
-	private Integer computationDelayInSeconds;
-
 	@Autowired
 	private DynamicParameterComputer dynamicParameterComputer;
 
 	@Autowired
-	private ThreadPoolTaskScheduler scheduler;
+	protected TaskExecutor executor;
 
 	@Autowired
 	private ServiceAnalysis serviceAnalysis;
@@ -167,11 +164,14 @@ public class ControllerApi {
 	@Autowired
 	private ServiceAssetEdge serviceAssetEdge;
 
+	@Autowired
+	protected WorkersPoolManager workersPoolManager;
+
 	private Long maxUploadFileSize;
 
 	@PostMapping("/data/analysis/{idAnalysis}/new-asset")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).EXPORT)")
-	public @ResponseBody Object createAnalysisAsset(@PathVariable final Integer idAnalysis,
+	public Object createAnalysisAsset(@PathVariable final Integer idAnalysis,
 			@RequestParam(name = "name") final String assetName,
 			@RequestParam(name = "type") final String assetTypeName,
 			@RequestParam(name = "selected", defaultValue = "false") final boolean selected, final Principal principal,
@@ -212,7 +212,7 @@ public class ControllerApi {
 
 	@DeleteMapping("/data/analysis/{idAnalysis}/assets/{idAsset}")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).EXPORT)")
-	public @ResponseBody Object deleteAnalysisAsset(@PathVariable final Integer idAnalysis,
+	public Object deleteAnalysisAsset(@PathVariable final Integer idAnalysis,
 			@PathVariable final Integer idAsset,
 			final Principal principal, final Locale locale) {
 		try {
@@ -231,7 +231,7 @@ public class ControllerApi {
 
 	@PostMapping("/data/analysis/{idAnalysis}/assets/{idAsset}")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).EXPORT)")
-	public @ResponseBody Object editAnalysisAsset(@PathVariable final Integer idAnalysis,
+	public Object editAnalysisAsset(@PathVariable final Integer idAnalysis,
 			@PathVariable final Integer idAsset,
 			@RequestParam(name = "name") final String assetName,
 			@RequestParam(name = "type") final String assetTypeName,
@@ -269,7 +269,7 @@ public class ControllerApi {
 
 	@PostMapping("/data/analysis/{idAnalysis}/dependency")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).EXPORT)")
-	public @ResponseBody Object updateAssetDependencies(@PathVariable final Integer idAnalysis,
+	public Object updateAssetDependencies(@PathVariable final Integer idAnalysis,
 			@RequestBody final ApiGraph graph, final Principal principal,
 			final Locale locale) {
 
@@ -325,7 +325,7 @@ public class ControllerApi {
 
 	@PostMapping("/data/analysis/{idAnalysis}/dependency/{type}")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).EXPORT)")
-	public @ResponseBody Object updateAssetDependenciesPng(@PathVariable final Integer idAnalysis,
+	public Object updateAssetDependenciesPng(@PathVariable final Integer idAnalysis,
 			@PathVariable String type,
 			@RequestParam(value = "file") final MultipartFile file, final Principal principal,
 			final Locale locale) throws IOException {
@@ -411,14 +411,14 @@ public class ControllerApi {
 
 	@GetMapping("/data/analysis/{idAnalysis}/dependency")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).EXPORT)")
-	public @ResponseBody Object getAssetDependencies(@PathVariable final Integer idAnalysis, final Principal principal,
+	public Object getAssetDependencies(@PathVariable final Integer idAnalysis, final Principal principal,
 			final Locale locale) {
 		return new ApiGraph(serviceAnalysis.get(idAnalysis).getAssetNodes());
 	}
 
 	@GetMapping("/data/analysis/{idAnalysis}/assessments")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).EXPORT)")
-	public @ResponseBody Object getAnalysisAssessments(@PathVariable final Integer idAnalysis,
+	public Object getAnalysisAssessments(@PathVariable final Integer idAnalysis,
 			final Principal principal,
 			final Locale locale) {
 		return serviceAnalysis.get(idAnalysis).getAssessments().stream().map(ApiAssessment::create)
@@ -428,7 +428,7 @@ public class ControllerApi {
 	/**
 	 * Home of the API. Always returns success.
 	 */
-	@RequestMapping
+	@RequestMapping({ "", "/" })
 	public Object home(final Principal principal) {
 		if (principal == null)
 			return new ApiResult(0, "<not logged in>");
@@ -437,7 +437,7 @@ public class ControllerApi {
 	}
 
 	@GetMapping("/data/analysis/all")
-	public @ResponseBody Object loadAnalyses(@RequestParam(name = "customerId") final Integer idCustomer,
+	public Object loadAnalyses(@RequestParam(name = "customerId") final Integer idCustomer,
 			final Principal principal,
 			final Locale locale) {
 		if (idCustomer == null)
@@ -448,7 +448,7 @@ public class ControllerApi {
 	}
 
 	@GetMapping("/data/analysis/versions")
-	public @ResponseBody Object loadAnalysesVersion(@RequestParam(name = "customerId") final Integer idCustomer,
+	public Object loadAnalysesVersion(@RequestParam(name = "customerId") final Integer idCustomer,
 			@RequestParam(name = "identifier") final String identifier,
 			final Principal principal, final Locale locale) {
 		if (idCustomer == null)
@@ -465,7 +465,7 @@ public class ControllerApi {
 
 	@GetMapping("/data/analysis/{idAnalysis}/assets")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).EXPORT)")
-	public @ResponseBody Object loadAnalysisAssets(@PathVariable("idAnalysis") final Integer idAnalysis,
+	public Object loadAnalysisAssets(@PathVariable("idAnalysis") final Integer idAnalysis,
 			final Principal principal) {
 		return serviceAsset.getAllFromAnalysis(idAnalysis).stream().map(ApiAsset::create)
 				.collect(Collectors.toList());
@@ -473,7 +473,7 @@ public class ControllerApi {
 
 	@GetMapping("/data/analysis/{idAnalysis}/risk-acceptance")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).EXPORT)")
-	public @ResponseBody Object loadAnalysisRiskAcceptance(@PathVariable("idAnalysis") final Integer idAnalysis,
+	public Object loadAnalysisRiskAcceptance(@PathVariable("idAnalysis") final Integer idAnalysis,
 			final Principal principal) {
 		final ApiRiskAcceptance apiObject = new ApiRiskAcceptance();
 		apiObject.setAcceptanceLevels(serviceRiskAcceptanceParameter.findByAnalysisId(idAnalysis).stream()
@@ -488,7 +488,7 @@ public class ControllerApi {
 
 	@GetMapping("/data/analysis/{idAnalysis}/scenarios")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).EXPORT)")
-	public @ResponseBody Object loadAnalysisScenarios(@PathVariable("idAnalysis") final Integer idAnalysis,
+	public Object loadAnalysisScenarios(@PathVariable("idAnalysis") final Integer idAnalysis,
 			final Principal principal) {
 		return serviceScenario.getAllFromAnalysis(idAnalysis).stream().map(scenario -> ApiScenario.create(scenario))
 				.collect(Collectors.toList());
@@ -496,7 +496,7 @@ public class ControllerApi {
 
 	@GetMapping("/data/analysis/{idAnalysis}/standards")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).EXPORT)")
-	public @ResponseBody Object loadAnalysisStandards(@PathVariable("idAnalysis") final Integer idAnalysis,
+	public Object loadAnalysisStandards(@PathVariable("idAnalysis") final Integer idAnalysis,
 			final Principal principal) {
 		return serviceStandard.getAllFromAnalysis(idAnalysis).stream()
 				.map(standard -> new ApiNamable(standard.getId(), standard.getName())).collect(Collectors.toList());
@@ -514,7 +514,7 @@ public class ControllerApi {
 	 * @throws Exception
 	 */
 	@GetMapping("/data/load-rrf")
-	public @ResponseBody Object loadRRF(@RequestParam(name = "analysisId") final Integer idAnalysis,
+	public Object loadRRF(@RequestParam(name = "analysisId") final Integer idAnalysis,
 			@RequestParam(name = "assetId") final Integer idAsset,
 			@RequestParam(name = "scenarioId") final Integer idScenario,
 			@RequestParam(name = "standards") final String standard,
@@ -571,7 +571,7 @@ public class ControllerApi {
 	}
 
 	@GetMapping("/data/customers")
-	public @ResponseBody Object loadUserCustomer(final Principal principal, final Locale locale) {
+	public Object loadUserCustomer(final Principal principal, final Locale locale) {
 		return serviceCustomer.getAllNotProfileOfUser(principal.getName()).stream()
 				.map(customer -> new ApiNamable(customer.getId(), customer.getOrganisation()))
 				.collect(Collectors.toList());
@@ -600,8 +600,13 @@ public class ControllerApi {
 		// Trigger execution of worker which computes dynamic parameters.
 		// This method only schedules the task if it does not have been
 		// scheduled yet for the given user.
-		WorkerComputeDynamicParameters.trigger(ids.getPrefix(), computationDelayInSeconds, dynamicParameterComputer,
-				scheduler);
+
+		var worker = new WorkerComputeDynamicParameters(ids.getPrefix(), dynamicParameterComputer);
+
+		if (workersPoolManager.exist(ids.getPrefix()) || !workersPoolManager.add(worker))
+			return new ApiResult(1, "Too many tasks running in the background");
+
+		executor.execute(worker);
 
 		serviceIDS.saveOrUpdate(ids);
 
@@ -611,7 +616,7 @@ public class ControllerApi {
 
 	@PostMapping("/data/analysis/{idAnalysis}/assessments/save")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#idAnalysis, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).EXPORT)")
-	public @ResponseBody Object saveAnalysisAssessments(@PathVariable final Integer idAnalysis,
+	public Object saveAnalysisAssessments(@PathVariable final Integer idAnalysis,
 			@RequestBody final ApiAssessmentValue assessmentValue, final Principal principal, final Locale locale) {
 		try {
 			final Analysis analysis = serviceAnalysis.get(idAnalysis);

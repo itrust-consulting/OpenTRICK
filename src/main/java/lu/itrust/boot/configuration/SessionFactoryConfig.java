@@ -90,6 +90,8 @@ public class SessionFactoryConfig {
 		properties.getProperties().put("hibernate.hbm2ddl.auto", env.getProperty("jdbc.hbm2ddl.auto"));
 		properties.getProperties().put("hibernate.javax.cache.missing_cache_strategy",
 				env.getProperty("jdbc.cache.missing_cache_strategy"));
+		/*properties.getProperties().put("hibernate.transaction.jta.platform",
+				env.getProperty("hibernate.transaction.jta.platform"));*/
 		properties.getProperties().put("hibernate.javax.cache.provider",
 				env.getProperty("jdbc.cache.provider"));
 		properties.getProperties().put("hibernate.cache.use_query_cache",

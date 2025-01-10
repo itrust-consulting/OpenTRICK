@@ -7,7 +7,7 @@
 <%@ taglib uri="jakarta.tags.functions" prefix="fn"%>
 <!-- ###################################################################### HTML #################################################################### -->
 <c:if test="${empty locale }">
-	<spring:eval expression="T(org.springframework.web.servlet.support.RequestContextUtils).getLocale(pageContext.request)" var="locale" scope="request" />
+	<spring:eval expression="T(org.springframework.context.i18n.LocaleContextHolder).getLocale()" var="locale" scope="request" />
 </c:if>
 <!DOCTYPE html>
 <html lang="${locale.language}">

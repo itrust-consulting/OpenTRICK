@@ -59,6 +59,8 @@ import lu.itrust.business.ts.usermanagement.helper.OTPAuthenticationProcessingFi
 @Configuration
 public class SecurityConfig {
 
+        private static final String API_DATA = "/Api/data/**";
+
         private static final String API_IDS = "/Api/ids/**";
 
         @Autowired
@@ -77,7 +79,8 @@ public class SecurityConfig {
          * Creates a security filter chain for API IDs.
          *
          * @param http The HttpSecurity object to configure the security.
-         * @param mvc The MvcRequestMatcher.Builder object to build the request matcher.
+         * @param mvc  The MvcRequestMatcher.Builder object to build the request
+         *             matcher.
          * @return The configured SecurityFilterChain object.
          * @throws Exception if an error occurs during configuration.
          */
@@ -103,7 +106,8 @@ public class SecurityConfig {
          * Configures the security filter chain for API data requests.
          * 
          * @param http The HttpSecurity object used for configuring security.
-         * @param mvc The MvcRequestMatcher.Builder object used for matching MVC requests.
+         * @param mvc  The MvcRequestMatcher.Builder object used for matching MVC
+         *             requests.
          * @return The configured SecurityFilterChain object.
          * @throws Exception If an error occurs during configuration.
          */
@@ -111,16 +115,15 @@ public class SecurityConfig {
         @Order(2)
         public SecurityFilterChain apiDatafilterChain(HttpSecurity http, MvcRequestMatcher.Builder mvc)
                         throws Exception {
-                http.securityMatchers(matchers -> matchers.requestMatchers(mvc.pattern("/Api/data/**")))
+                http.securityMatchers(matchers -> matchers.requestMatchers(mvc.pattern(API_DATA)))
                                 .authorizeHttpRequests(authz -> authz.anyRequest().hasAnyAuthority(Constant.ROLE_USER,
                                                 Constant.ROLE_CONSULTANT, Constant.ROLE_ADMIN,
                                                 Constant.ROLE_SUPERVISOR))
                                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                                .requiresChannel(ch -> ch.requestMatchers(mvc.pattern(API_IDS)).requiresSecure())
+                                .requiresChannel(ch -> ch.requestMatchers(mvc.pattern(API_DATA)).requiresSecure())
                                 .csrf(csrf -> csrf.disable())
                                 .cors(Customizer.withDefaults())
-                                .httpBasic(basic -> basic
-                                                .realmName("Open Trick application"))
+                                .httpBasic(Customizer.withDefaults())
                                 .authenticationManager(authenticationManager);
                 return http.build();
         }
@@ -129,7 +132,8 @@ public class SecurityConfig {
          * Configures the security filter chain for web requests.
          *
          * @param http The HttpSecurity object used for configuring security settings.
-         * @param mvc The MvcRequestMatcher.Builder object used for matching request patterns.
+         * @param mvc  The MvcRequestMatcher.Builder object used for matching request
+         *             patterns.
          * @return The configured SecurityFilterChain object.
          * @throws Exception if an error occurs during configuration.
          */
@@ -153,15 +157,17 @@ public class SecurityConfig {
                                                                 mvc.pattern("/Signout/**"), mvc.pattern("/Signin/**"),
                                                                 mvc.pattern("/ResetPassword/**"),
                                                                 mvc.pattern("/ChangePassword/**"),
-                                                                mvc.pattern("/Api/**") /**
-                                                                                        * This filterchain
-                                                                                        * will not be used
-                                                                                        * to
-                                                                                        * protect Api
-                                                                                        */
-                                                                ,
                                                                 mvc.pattern("/Analysis-access-management/**"),
-                                                                mvc.pattern("/Validate/**"))
+                                                                mvc.pattern("/Validate/**"),
+                                                                mvc.pattern("/Api/**"), // Disable for API
+                                                                mvc.pattern("/WEB-INF/views/jsp/errors/**"))// Allow
+                                                                                                            // errors
+                                                                                                            // for
+                                                                                                            // anonymous,
+                                                                                                            // The 401
+                                                                                                            // error is
+                                                                                                            // useful
+                                                                                                            // for API.
                                                                 .permitAll())
                                 .authorizeHttpRequests(e -> e
                                                 .requestMatchers(mvc.pattern("/DoRegister/**"),
@@ -245,7 +251,8 @@ public class SecurityConfig {
 
         /**
          * This class represents the entry point for API authentication.
-         * It is responsible for handling authentication errors and returning appropriate responses.
+         * It is responsible for handling authentication errors and returning
+         * appropriate responses.
          */
         @Bean
         public ApiAuthenticationEntryPoint apiAuthenticationEntryPoint() {
@@ -253,21 +260,24 @@ public class SecurityConfig {
         }
 
         /**
-         * A default implementation of the {@link MethodSecurityExpressionHandler} interface.
-         * This class provides the necessary methods to evaluate method-level security expressions.
-         * It uses a {@link PermissionEvaluator} to evaluate permissions for the expressions.
+         * A default implementation of the {@link MethodSecurityExpressionHandler}
+         * interface.
+         * This class provides the necessary methods to evaluate method-level security
+         * expressions.
+         * It uses a {@link PermissionEvaluator} to evaluate permissions for the
+         * expressions.
          */
-       // @Bean
-        public DefaultMethodSecurityExpressionHandler methodSecurityExpressionHandler(
-                        PermissionEvaluator permissionEvaluator) {
-                var handler = new DefaultMethodSecurityExpressionHandler();
-               // handler.setPermissionEvaluator(permissionEvaluator);
-                return handler;
+        // @Bean
+        public DefaultMethodSecurityExpressionHandler methodSecurityExpressionHandler() {
+                return new DefaultMethodSecurityExpressionHandler();
+                // handler.setPermissionEvaluator(permissionEvaluator);
+                // return handler;
         }
 
         /**
          * This class represents a custom authentication failure handler.
-         * It is responsible for handling authentication failures and redirecting the user to the specified error page.
+         * It is responsible for handling authentication failures and redirecting the
+         * user to the specified error page.
          */
         @Bean
         public CustomAuthenticationFailureHandler authenticationFailureHandler() {
@@ -285,9 +295,12 @@ public class SecurityConfig {
 
         /**
          * A filter that handles concurrent session control for Spring Security.
-         * This filter is responsible for checking if a user's session is already active and if the maximum number of sessions has been reached.
-         * If the maximum number of sessions has been reached, the filter will invalidate the oldest session and allow the new session to proceed.
-         * This filter is typically used in combination with session management configuration in Spring Security.
+         * This filter is responsible for checking if a user's session is already active
+         * and if the maximum number of sessions has been reached.
+         * If the maximum number of sessions has been reached, the filter will
+         * invalidate the oldest session and allow the new session to proceed.
+         * This filter is typically used in combination with session management
+         * configuration in Spring Security.
          *
          * @return The ConcurrentSessionFilter instance.
          */
@@ -297,7 +310,8 @@ public class SecurityConfig {
         }
 
         /**
-         * A strategy that redirects the user to a specified URL when their session information has expired.
+         * A strategy that redirects the user to a specified URL when their session
+         * information has expired.
          * The URL can be customized by providing it as a parameter to the constructor.
          */
         @Bean
@@ -306,16 +320,22 @@ public class SecurityConfig {
         }
 
         /**
-         * This class represents a custom implementation of the UsernamePasswordAuthenticationFilter.
-         * It extends the UsernamePasswordAuthenticationFilter class and provides additional functionality.
+         * This class represents a custom implementation of the
+         * UsernamePasswordAuthenticationFilter.
+         * It extends the UsernamePasswordAuthenticationFilter class and provides
+         * additional functionality.
          * 
-         * This filter is responsible for handling the authentication process for username and password-based authentication.
-         * It is used to authenticate users based on their provided username and password credentials.
+         * This filter is responsible for handling the authentication process for
+         * username and password-based authentication.
+         * It is used to authenticate users based on their provided username and
+         * password credentials.
          * 
-         * The filter can be configured to enable or disable two-factor authentication (2FA) based on the application settings.
+         * The filter can be configured to enable or disable two-factor authentication
+         * (2FA) based on the application settings.
          * It can also be configured to force the use of 2FA for all users.
          * 
-         * This filter is typically used in the SecurityConfig class to configure the authentication process.
+         * This filter is typically used in the SecurityConfig class to configure the
+         * authentication process.
          * 
          * @see org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
          */
@@ -348,9 +368,11 @@ public class SecurityConfig {
         }
 
         /**
-         * This class represents a filter used for OTP (One-Time Password) authentication processing.
+         * This class represents a filter used for OTP (One-Time Password)
+         * authentication processing.
          * It is responsible for handling the authentication process for OTP requests.
-         * The filter sets the authentication failure handler, authentication success handler,
+         * The filter sets the authentication failure handler, authentication success
+         * handler,
          * security context repository, and initializes the filter properties.
          *
          * @param path The path for OTP authorization requests.
@@ -368,7 +390,8 @@ public class SecurityConfig {
 
         /**
          * Creates a bean for the LoginUrlAuthenticationEntryPoint.
-         * This bean is responsible for redirecting unauthenticated users to the login page.
+         * This bean is responsible for redirecting unauthenticated users to the login
+         * page.
          *
          * @return The LoginUrlAuthenticationEntryPoint bean.
          */
@@ -378,9 +401,12 @@ public class SecurityConfig {
         }
 
         /**
-         * A composite implementation of the {@link SessionAuthenticationStrategy} interface.
-         * This class allows multiple session authentication strategies to be combined into a single strategy.
-         * When the `onAuthentication` method is called, each strategy in the composite is invoked in the order they were added.
+         * A composite implementation of the {@link SessionAuthenticationStrategy}
+         * interface.
+         * This class allows multiple session authentication strategies to be combined
+         * into a single strategy.
+         * When the `onAuthentication` method is called, each strategy in the composite
+         * is invoked in the order they were added.
          * This allows for a flexible and customizable session authentication strategy.
          */
         @Bean
@@ -399,24 +425,32 @@ public class SecurityConfig {
                 return new SessionRegistryImpl();
         }
 
-       /**
-	 * Creates and returns a PasswordEncoder instance.
-	 * The PasswordEncoder is responsible for encoding passwords and verifying encoded passwords.
-	 *
-	 * @return the PasswordEncoder instance
-	 */
+        /**
+         * Creates and returns a PasswordEncoder instance.
+         * The PasswordEncoder is responsible for encoding passwords and verifying
+         * encoded passwords.
+         *
+         * @return the PasswordEncoder instance
+         */
         @Bean
         public PasswordEncoder passwordEncoder() {
                 return PasswordEncoderFactories.createDelegatingPasswordEncoder();
         }
 
-
         /**
-         * A security context repository that delegates to multiple other security context repositories.
-         * This class allows you to chain multiple security context repositories together, so that each repository can handle a specific aspect of security context management.
-         * When a security context is requested, the `DelegatingSecurityContextRepository` will iterate over the configured repositories and delegate the request to the first repository that can provide a security context.
-         * If none of the repositories can provide a security context, a new empty security context will be created.
-         * This class is typically used in conjunction with other security context repositories to provide additional functionality or customization.
+         * A security context repository that delegates to multiple other security
+         * context repositories.
+         * This class allows you to chain multiple security context repositories
+         * together, so that each repository can handle a specific aspect of security
+         * context management.
+         * When a security context is requested, the
+         * `DelegatingSecurityContextRepository` will iterate over the configured
+         * repositories and delegate the request to the first repository that can
+         * provide a security context.
+         * If none of the repositories can provide a security context, a new empty
+         * security context will be created.
+         * This class is typically used in conjunction with other security context
+         * repositories to provide additional functionality or customization.
          */
         @Bean
         DelegatingSecurityContextRepository delegatingSecurityContextRepository() {

@@ -229,6 +229,13 @@
 								</div>
 							</div>
 							<div class="form-group">
+								<label for="assetDependancy" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.analysis.advance.asset_dependancy" />'> <spring:message
+										code="label.analysis.asset_dependancy" text="Dependancy graph" /></label>
+								<div class="col-sm-9" align="center">
+									<input type="checkbox" class="checkbox" name="assetDependancy" disabled="disabled" />
+								</div>
+							</div>
+							<div class="form-group">
 								<label for="standards" class="col-sm-3 control-label" title='<spring:message code="label.analysis.standards" text="Standards" />'
 									data-helper-content='<spring:message code="help.analysis.advance.standards" />'><spring:message code="label.analysis.standards" /></label>
 								<div class="col-sm-9" id="analysis-build-standards" data-trick-name="standards" dropzone="true">

@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -39,6 +40,8 @@ import lu.itrust.business.ts.model.general.TSSetting;
 import lu.itrust.business.ts.model.general.TSSettingName;
 import lu.itrust.business.ts.usermanagement.EmailValidatingRequest;
 import lu.itrust.business.ts.usermanagement.User;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 /**
  * @author oensuifudine
@@ -68,11 +71,6 @@ public class ControllerHome {
 	@Autowired
 	private ServiceEmailValidatingRequest serviceEmailValidatingRequest;
 
-	@GetMapping("/test")
-	public String test() {
-		return "templates/base/home";
-	}
-
 	// @PreAuthorize(Constant.ROLE_MIN_OTP)
 	@RequestMapping({ "", "/", "/Home" })
 	public String home(HttpServletRequest request) {
@@ -80,6 +78,12 @@ public class ControllerHome {
 			return "redirect:/OTP";
 		return "jsp/default/home";
 	}
+
+	@RequestMapping("/sm/{id}.map")
+	public @ResponseBody String ignoredURL(@PathVariable String id) {
+		return id;//firefox ghost request.
+	}
+
 
 	@RequestMapping(value = "/MessageResolver", method = RequestMethod.POST, headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody String resolveMessage(@RequestBody MessageHandler message, Locale locale) {

@@ -9,7 +9,7 @@
 <script src="<c:url value="/js/jquery-3.5.1.min.js" />"></script>
 <script src="<c:url value="/js/jquery-migrate-3.3.0.min.js" />"></script>
 <script src="<c:url value="/js/bootstrap/bootstrap.min.js" />"></script>
-<script src="<c:url value="/js/underscore-min.js" />"></script>
+<!--<script src="<c:url value="/js/underscore-min.js" />"></script>-->
 
 <c:forEach items="${customJSs}" var="customJS">
 	<script src="<c:url value="${customJS}" />"></script>

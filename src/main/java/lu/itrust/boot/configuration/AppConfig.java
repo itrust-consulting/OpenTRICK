@@ -10,13 +10,13 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
-import org.apache.tomcat.dbcp.dbcp2.BasicDataSource;
 import org.apache.tomcat.util.descriptor.web.ServletDef;
 import org.apache.tomcat.util.descriptor.web.WebXml;
 import org.apache.tomcat.util.descriptor.web.WebXmlParser;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.boot.web.servlet.ServletContextInitializer;
 import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.context.MessageSource;
@@ -112,12 +112,12 @@ public class AppConfig {
 	 */
 	@Bean
 	public DataSource dataSource(Environment environment) {
-		var dataSource = new BasicDataSource();
-		dataSource.setDriverClassName(environment.getRequiredProperty("jdbc.driverClassName"));
-		dataSource.setUrl(environment.getRequiredProperty("jdbc.databaseurl"));
-		dataSource.setUsername(environment.getRequiredProperty("jdbc.username"));
-		dataSource.setPassword(environment.getRequiredProperty("jdbc.password"));
-		return dataSource;
+		var dataSourceBuilder = DataSourceBuilder.create();
+		dataSourceBuilder.driverClassName(environment.getRequiredProperty("jdbc.driverClassName"));
+		dataSourceBuilder.url(environment.getRequiredProperty("jdbc.databaseurl"));
+		dataSourceBuilder.username(environment.getRequiredProperty("jdbc.username"));
+		dataSourceBuilder.password(environment.getRequiredProperty("jdbc.password"));
+		return dataSourceBuilder.build();
 	}
 
 	/**

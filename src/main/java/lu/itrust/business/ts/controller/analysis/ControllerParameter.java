@@ -13,8 +13,6 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import jakarta.servlet.http.HttpSession;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -27,9 +25,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import jakarta.servlet.http.HttpSession;
+import lu.itrust.business.expressions.TokenType;
+import lu.itrust.business.expressions.TokenizerToString;
 import lu.itrust.business.ts.asynchronousWorkers.Worker;
 import lu.itrust.business.ts.asynchronousWorkers.WorkerScaleLevelMigrator;
 import lu.itrust.business.ts.component.AnalysisImpactManager;
@@ -63,9 +63,6 @@ import lu.itrust.business.ts.model.scale.ScaleType;
 import lu.itrust.business.ts.model.standard.AnalysisStandard;
 import lu.itrust.business.ts.model.standard.MaturityStandard;
 import lu.itrust.business.ts.model.standard.measure.Measure;
-import net.bytebuddy.agent.ByteBuddyAgent.AttachmentProvider.Accessor.Simple;
-import lu.itrust.business.expressions.TokenType;
-import lu.itrust.business.expressions.TokenizerToString;
 
 /**
  * @author eom
