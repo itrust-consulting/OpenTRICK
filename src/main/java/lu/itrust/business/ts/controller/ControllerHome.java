@@ -40,7 +40,6 @@ import lu.itrust.business.ts.model.general.TSSettingName;
 import lu.itrust.business.ts.usermanagement.EmailValidatingRequest;
 import lu.itrust.business.ts.usermanagement.User;
 
-
 /**
  * @author oensuifudine
  * 
@@ -79,9 +78,9 @@ public class ControllerHome {
 
 	@RequestMapping("/sm/{id}.map")
 	public @ResponseBody String ignoredURL(@PathVariable String id) {
-		return id;//firefox ghost request.
+		System.out.println("Firefox issue....: ID:" + id);
+		return id;// firefox ghost request.
 	}
-
 
 	@RequestMapping(value = "/MessageResolver", method = RequestMethod.POST, headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody String resolveMessage(@RequestBody MessageHandler message, Locale locale) {
