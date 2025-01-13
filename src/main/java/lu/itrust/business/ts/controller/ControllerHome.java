@@ -76,11 +76,11 @@ public class ControllerHome {
 		return "jsp/default/home";
 	}
 
-	@RequestMapping("/sm/{id}.map")
+	/*@RequestMapping("/sm/{id}.map")
 	public @ResponseBody String ignoredURL(@PathVariable String id) {
 		System.out.println("Firefox issue....: ID:" + id);
 		return id;// firefox ghost request.
-	}
+	}*/
 
 	@RequestMapping(value = "/MessageResolver", method = RequestMethod.POST, headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody String resolveMessage(@RequestBody MessageHandler message, Locale locale) {

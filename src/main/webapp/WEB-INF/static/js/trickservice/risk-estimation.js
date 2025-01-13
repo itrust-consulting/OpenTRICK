@@ -673,6 +673,7 @@ function displayParameters(name, title) {
 	$modalBody.css({ "overflow-y": "auto", "max-height": "800px" }).find("th[data-th-name='qualification']").css({
 		"text-align": "center"
 	});
+	$modalBody.find("th[data-name='action'],td[data-name='action'],tr[data-trick-class='ExcludeDynamicParameter']").remove();
 	$modalBody.find("tbody").css({
 		"text-align": "center"
 	}).find("td").removeAttributes();

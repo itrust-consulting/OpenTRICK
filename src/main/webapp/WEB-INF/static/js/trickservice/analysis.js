@@ -1326,7 +1326,12 @@ function deleteDynamicParameter(id, acronym) {
 				contentType: "application/json;charset=UTF-8",
 				success: function (response, textStatus, jqXHR) {
 					if (response.success) {
-						$("tr[data-trick-class='DynamicParameter'][data-trick-id=" + id + "]").remove();
+						let swtichState = $("#display-exclude-dynamic-parameter").is(":checked");
+						if (swtichState) {
+							reloadSection("section_parameter_impact_probability");
+						} else {
+							$("tr[data-trick-class='DynamicParameter'][data-trick-id=" + id + "]").remove();
+						}
 						$("datalist[id^='dataList-parameter-']").remove();
 						updateAssessmentAle(true);
 					}
@@ -1344,6 +1349,36 @@ function deleteDynamicParameter(id, acronym) {
 		return false;
 	});
 
+}
+
+/**
+ * Remove acronym from Exclude list
+ * @param {string} acronym 
+ */
+function restoreDynamicParameter(acronym) {
+	let $progress = $("#loading-indicator").show();
+	$.ajax(
+		{
+			url: context + "/Analysis/Parameter/Dynamic/Restore/" + acronym,
+			type: "DELETE",
+			contentType: "application/json;charset=UTF-8",
+			success: function (response, textStatus, jqXHR) {
+				if (response.success) {
+					//$("tr[data-trick-class='ExcludeDynamicParameter'][data-trick-id=" + acronym + "]").remove();
+					reloadSection("section_parameter_impact_probability");
+					$("datalist[id^='dataList-parameter-']").remove();
+					updateAssessmentAle(true);
+				}
+				else if (response.error)
+					showDialog("#alert-dialog", response.error);
+				else
+					unknowError();
+				return false;
+			},
+			error: unknowError
+		}).complete(function () {
+			$progress.hide();
+		});
 }
 
 /**
@@ -2128,4 +2163,31 @@ function restoreFieldHeight(baseName, name, container) {
 		}
 	}
 	return false;
+}
+
+function swtichExcludeDynamic(e) {
+	let $progress = $("#loading-indicator").show();
+	$.ajax({
+		url: context + "/Analysis/Manage-settings/Save",
+		type: "post",
+		data: JSON.stringify({
+			"ALLOW_EXCLUDE_DYNAMIC_ANALYSIS": e.checked
+		}),
+		contentType: "application/json;charset=UTF-8",
+		success: function (response, textStatus, jqXHR) {
+			if (response.error != undefined)
+				showDialog("#alert-dialog", response.error);
+			else if (response.success != undefined) {
+				showDialog("success", response.success);
+				reloadSection("section_parameter_impact_probability");
+			} else
+				unknowError();
+		},
+		error: unknowError
+	}).complete(function () {
+		$progress.hide();
+	});
+
+	return false;
+
 }

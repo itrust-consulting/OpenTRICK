@@ -585,7 +585,7 @@ public class ControllerAnalysis extends AbstractController {
 		}
 
 		serviceAnalysis.saveOrUpdate(analysis);
-		
+
 		return JsonMessage.Success(messageSource.getMessage("success.update.analysis.settings", null, locale));
 	}
 
@@ -702,8 +702,20 @@ public class ControllerAnalysis extends AbstractController {
 				setupQualitativeParameterUI(model, analysis);
 			}
 
-			if (analysis.isQuantitative())
-				model.addAttribute("showDynamicAnalysis", analysis.findSetting(AnalysisSetting.ALLOW_DYNAMIC_ANALYSIS));
+			if (analysis.isQuantitative()) {
+				boolean showDynamicAnalysis = analysis.findSetting(AnalysisSetting.ALLOW_DYNAMIC_ANALYSIS);
+				if (showDynamicAnalysis) {
+					boolean showExcludeDynamic = analysis.findSetting(AnalysisSetting.ALLOW_EXCLUDE_DYNAMIC_ANALYSIS);
+					model.addAttribute("showExcludeDynamic",
+							showExcludeDynamic);
+					if (showExcludeDynamic) {
+						model.addAttribute("excludeAcronyms",
+								analysis.getExcludeAcronyms().stream().sorted(NaturalOrderComparator::compareTo)
+										.toList());
+					}
+				}
+				model.addAttribute("showDynamicAnalysis", showDynamicAnalysis);
+			}
 
 			if (analysis.isHybrid() && hasMaturity) {
 				model.addAttribute("effectImpl27002",

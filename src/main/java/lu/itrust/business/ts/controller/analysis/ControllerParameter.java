@@ -45,6 +45,7 @@ import lu.itrust.business.ts.database.service.ServiceScaleType;
 import lu.itrust.business.ts.database.service.ServiceSimpleParameter;
 import lu.itrust.business.ts.exception.TrickException;
 import lu.itrust.business.ts.helper.JsonMessage;
+import lu.itrust.business.ts.helper.NaturalOrderComparator;
 import lu.itrust.business.ts.model.analysis.Analysis;
 import lu.itrust.business.ts.model.analysis.AnalysisSetting;
 import lu.itrust.business.ts.model.analysis.helper.AnalysisUtils;
@@ -184,6 +185,7 @@ public class ControllerParameter extends AbstractController {
 		model.addAttribute("isILR", Analysis.isILR(analysis));
 		model.addAttribute("isEditable", !OpenMode.isReadOnly((OpenMode) session.getAttribute(OPEN_MODE)));
 		model.addAttribute("mappedParameters", AnalysisUtils.SplitParameters(analysis.getParameters()));
+
 		return "jsp/analyses/single/components/parameters/other";
 	}
 
@@ -199,22 +201,29 @@ public class ControllerParameter extends AbstractController {
 	 */
 	@RequestMapping(value = "/Impact-probability/Section", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).READ)")
-	public String impactSection(Model model, HttpSession session, Principal principal) throws Exception {
-		final Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
-		final List<ImpactParameter> impactParameters = serviceImpactParameter.findByAnalysisId(idAnalysis);
-		final List<IParameter> parameters = new LinkedList<>(impactParameters);
-		final AnalysisSetting dynamicAnalysis = AnalysisSetting.ALLOW_DYNAMIC_ANALYSIS;
-		final Map<String, String> settings = serviceAnalysis.getSettingsByIdAnalysis(idAnalysis);
-		model.addAttribute("impactTypes", impactParameters.parallelStream().map(ImpactParameter::getType).distinct()
-				.collect(Collectors.toList()));
-		parameters.addAll(serviceLikelihoodParameter.findByAnalysisId(idAnalysis));
-		parameters.addAll(serviceDynamicParameter.findByAnalysisId(idAnalysis));
-		parameters.addAll(
-				serviceSimpleParameter.findByTypeAndAnalysisId(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME, idAnalysis));
-		model.addAttribute("mappedParameters", AnalysisUtils.SplitParameters(parameters));
-		model.addAttribute("type", serviceAnalysis.getAnalysisTypeById(idAnalysis));
-		model.addAttribute("showDynamicAnalysis",
-				Analysis.findSetting(dynamicAnalysis, settings.get(dynamicAnalysis.name())));
+	public String impactSection(Model model, HttpSession session, Principal principal) {
+		final Analysis analysis = serviceAnalysis.get((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS));
+
+		if (analysis.getType().isQuantitative()) {
+			final boolean showDynamicAnalysis = analysis.findSetting(AnalysisSetting.ALLOW_DYNAMIC_ANALYSIS);
+			if (showDynamicAnalysis) {
+				boolean showExcludeDynamic = analysis.findSetting(AnalysisSetting.ALLOW_EXCLUDE_DYNAMIC_ANALYSIS);
+				model.addAttribute("showExcludeDynamic",
+						showExcludeDynamic);
+				if (showExcludeDynamic) {
+					model.addAttribute("excludeAcronyms",
+							analysis.getExcludeAcronyms().stream().sorted(NaturalOrderComparator::compareTo)
+									.toList());
+				}
+			}
+			model.addAttribute("showDynamicAnalysis", showDynamicAnalysis);
+		}
+		model.addAttribute("impactTypes",
+				analysis.getImpactParameters().parallelStream().map(ImpactParameter::getType).distinct()
+						.toList());
+		model.addAttribute("isEditable", !OpenMode.isReadOnly((OpenMode) session.getAttribute(OPEN_MODE)));
+		model.addAttribute("mappedParameters", AnalysisUtils.SplitParameters(analysis.getParameters()));
+		model.addAttribute("type", analysis.getType());
 		return "jsp/analyses/single/components/parameters/impact_probability";
 	}
 
@@ -249,9 +258,9 @@ public class ControllerParameter extends AbstractController {
 	 */
 	@RequestMapping(value = "/Risk-acceptance/form", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).MODIFY)")
-	public String riskAcceptanceForm(Model model, HttpSession session, Principal principal) throws Exception {
-		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS),
-				level = serviceLikelihoodParameter.findMaxLevelByIdAnalysis(idAnalysis);
+	public String riskAcceptanceForm(Model model, HttpSession session, Principal principal) {
+		final Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		final Integer level = serviceLikelihoodParameter.findMaxLevelByIdAnalysis(idAnalysis);
 		model.addAttribute("maxImportance", level * level);
 		model.addAttribute("parameters", serviceRiskAcceptanceParameter.findByAnalysisId(idAnalysis));
 		return "jsp/analyses/single/components/parameters/form/riskAcceptance";
@@ -266,12 +275,11 @@ public class ControllerParameter extends AbstractController {
 			final Analysis analysis = serviceAnalysis.get(idAnalysis);
 			final DynamicParameter parameter = analysis.getDynamicParameters().stream().filter(p -> p.getId() == id)
 					.findAny().orElse(null);
-			final boolean deleteable[] = { true };
+			final boolean[] deleteable = { true };
 			for (Assessment e : analysis.getAssessments()) {
-				if (e.getLikelihood() != null && e.getLikelihood() instanceof FormulaValue
+				if (e.getLikelihood() instanceof FormulaValue
 						&& hasVariable(parameter.getAcronym(), e.getLikelihood().getVariable())) {
 					deleteable[0] = false;
-					break;
 				} else {
 					for (IValue b : e.getImpacts()) {
 						if (b instanceof FormulaValue && hasVariable(parameter.getAcronym(), b.getVariable())) {
@@ -279,20 +287,21 @@ public class ControllerParameter extends AbstractController {
 							break;
 						}
 					}
-					if (!deleteable[0])
-						break;
 				}
+				if (!deleteable[0])
+					break;
 			}
 
 			if (deleteable[0]) {
 				for (AnalysisStandard standard : analysis.getAnalysisStandards().values()) {
-					if (standard instanceof MaturityStandard)
-						continue;
-					for (Measure measure : standard.getMeasures()) {
-						if (measure.getImplementationRate() instanceof String
-								&& hasVariable(parameter.getAcronym(), measure.getImplementationRate().toString())) {
-							deleteable[0] = false;
-							break;
+					if (!(standard instanceof MaturityStandard)) {
+						for (Measure measure : standard.getMeasures()) {
+							if (measure.getImplementationRate() instanceof String
+									&& hasVariable(parameter.getAcronym(),
+											measure.getImplementationRate().toString())) {
+								deleteable[0] = false;
+								break;
+							}
 						}
 					}
 					if (!deleteable[0])
@@ -318,6 +327,30 @@ public class ControllerParameter extends AbstractController {
 		}
 	}
 
+	@DeleteMapping(value = "/Dynamic/Restore/{acronym}", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).MODIFY)")
+	public @ResponseBody String restoreDynamicParameter(@PathVariable String acronym, HttpSession session,
+			Principal principal,
+			Locale locale) {
+		try {
+			final Analysis analysis = serviceAnalysis.get((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS));
+			if (analysis.getExcludeAcronyms().remove(acronym)) {
+				analysis.getDynamicParameters()
+						.add(new DynamicParameter(acronym, String.format("dynamic:%s", acronym), 0.0));
+				serviceAnalysis.saveOrUpdate(analysis);
+				return JsonMessage.Success(messageSource.getMessage("success.restore.parameter", null,
+						"Parameter has been successfully restored", locale));
+			}
+			return JsonMessage.Error(messageSource.getMessage("error.acronym.not_found", null,
+					"Acronym does not exist!", locale));
+
+		} catch (Exception e) {
+			TrickLogManager.Persist(e);
+			return JsonMessage
+					.Error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
+		}
+	}
+
 	/**
 	 * section: <br>
 	 * Description
@@ -331,8 +364,7 @@ public class ControllerParameter extends AbstractController {
 	@PostMapping(value = "/Risk-acceptance/Save", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String riskAcceptanceSave(@RequestBody List<RiskAcceptanceParameter> parameters,
-			HttpSession session, Principal principal, Locale locale)
-			throws Exception {
+			HttpSession session, Principal principal, Locale locale) {
 		try {
 			Analysis analysis = serviceAnalysis.get((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS));
 			Map<Integer, RiskAcceptanceParameter> riskAcceptanceParameters = analysis.getRiskAcceptanceParameters()
@@ -361,9 +393,9 @@ public class ControllerParameter extends AbstractController {
 		} catch (Exception e) {
 			e.printStackTrace();
 			TrickLogManager.Persist(e);
-			if (e instanceof TrickException)
-				return JsonMessage.Error(messageSource.getMessage(((TrickException) e).getCode(),
-						((TrickException) e).getParameters(), e.getMessage(), locale));
+			if (e instanceof TrickException e1)
+				return JsonMessage.Error(messageSource.getMessage(e1.getCode(),
+						e1.getParameters(), e.getMessage(), locale));
 			return JsonMessage
 					.Error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 		}
