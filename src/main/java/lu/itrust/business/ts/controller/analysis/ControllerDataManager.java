@@ -1455,7 +1455,7 @@ public class ControllerDataManager {
 			setValue(row.getC().get(0), parameter.getAcronym());
 			setValue(row.getC().get(1),
 					parameter.getLabel());
-			setValue(row.getC().get(2), parameter.getValue() * 0.01);
+			setValue(row.getC().get(2), parameter.getValue());
 			setValue(row.getC().get(3), parameter.getIlrLevel());
 			sheet.getRow().add(row);
 		}
