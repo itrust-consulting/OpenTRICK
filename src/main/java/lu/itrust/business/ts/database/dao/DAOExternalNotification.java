@@ -28,15 +28,17 @@ public interface DAOExternalNotification {
 	 *            The timestamp at which the probabilities shall be computed. In
 	 *            general the right value to specify here is NOW, unless a
 	 *            history entry is to be computed.
+	 * @param prefix
+	 *	          The name of the user who reported the external notifications.
+	 *
 	 * @param acronym
 	 *            The name of the user and category who reported the external notifications.
 	 *            Only the specific category is considered.
-	 * 
 	 * @return Returns a map which assigns to each notification category the
 	 *         probability that the associated event occurs.
 	 * @throws Exception
 	 */
-	public Double computeProbabilityAtTime(long timestamp, String acronym);
+	public Double computeProbabilityAtTime(long timestamp, String prefix, String acronym);
 
 
 		/**
@@ -99,10 +101,11 @@ public interface DAOExternalNotification {
 
 	/**
 	 * Retrives the last severety of given acronym
+	 * @param prefix
 	 * @param acronym
 	 * @return
 	 */
-	public Double findLastSeverity(String acronym);
+	public Double findLastSeverity(String prefix, String acronym);
 
 	/**
 	 * Retrives the last severeties of given categories
@@ -111,4 +114,21 @@ public interface DAOExternalNotification {
 	 * @return
 	 */
     public Map<String, Double> findLastSeverities(String sourceUserName, List<String> categories);
+
+	/**
+	 * Extract prefix and category from Parameter.
+	 * @param parameter
+	 * @param idsNames
+	 * @return
+	 */
+	public String [] extractPrefixAndCategory(String parameter, List<String> idsNames);
+
+	/**
+	 *  Check if Notification exists by prefix and category
+	 * @param prefix
+	 * @param category
+	 * @return
+	 */
+	public boolean exists(String prefix, String category);
+
 }

@@ -75,6 +75,7 @@ import lu.itrust.business.ts.model.analysis.AnalysisSetting;
 import lu.itrust.business.ts.model.analysis.AnalysisType;
 import lu.itrust.business.ts.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.ts.model.assessment.helper.Estimation;
+import lu.itrust.business.ts.model.externalnotification.helper.ExternalNotificationHelper;
 import lu.itrust.business.ts.model.general.Customer;
 import lu.itrust.business.ts.model.general.Language;
 import lu.itrust.business.ts.model.general.LogAction;
@@ -463,7 +464,7 @@ public class ControllerAnalysis extends AbstractController {
 	public String requestEditAnalysis(Principal principal, @PathVariable("analysisId") Integer analysisId,
 			Map<String, Object> model, Locale locale) throws Exception {
 		// retrieve analysis
-		
+
 		// add languages
 		model.put("languages", serviceLanguage.getAll());
 
@@ -691,19 +692,22 @@ public class ControllerAnalysis extends AbstractController {
 					model.addAttribute("showExcludeDynamic",
 							showExcludeDynamic);
 					if (showExcludeDynamic) {
+						final List<String> idsNames = serviceIDS.getPrefixesByAnalysisId(analysis.getId());
 						Map<String, List<String>> excludesMap = analysis.getExcludeAcronyms().stream()
-							.map(e -> e.split("_", 2)).collect(Collectors.groupingBy(e -> e[0],
-									Collectors.mapping(e -> e[1], Collectors.toList())));
+								.map(e -> serviceExternalNotification.extractPrefixAndCategory(e, idsNames))
+								.filter(e -> e.length == 2).collect(Collectors.groupingBy(e -> e[0],
+										Collectors.mapping(e -> e[1], Collectors.toList())));
 
-					if (excludesMap.keySet().size() < 2) {
-						excludesMap.forEach((k, v) -> model.addAttribute("excludeAcronyms",
-								serviceExternalNotification.findLastSeverities(k, v)));
-					} else {
-						final Map<String, Double> excludesValues = new LinkedHashMap<>();
-						excludesMap.forEach(
-								(k, v) -> excludesValues.putAll(serviceExternalNotification.findLastSeverities(k, v)));
-						model.addAttribute("excludeAcronyms", excludesValues);
-					}
+						if (excludesMap.keySet().size() < 2) {
+							excludesMap.forEach((k, v) -> model.addAttribute("excludeAcronyms",
+									serviceExternalNotification.findLastSeverities(k, v)));
+						} else {
+							final Map<String, Double> excludesValues = new LinkedHashMap<>();
+							excludesMap.forEach(
+									(k, v) -> excludesValues
+											.putAll(serviceExternalNotification.findLastSeverities(k, v)));
+							model.addAttribute("excludeAcronyms", excludesValues);
+						}
 
 					}
 				}

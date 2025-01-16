@@ -9,6 +9,7 @@ import java.util.Map;
 import org.hibernate.Session;
 import org.springframework.stereotype.Repository;
 
+import lu.itrust.business.expressions.StringExpressionHelper;
 import lu.itrust.business.ts.database.dao.DAOExternalNotification;
 import lu.itrust.business.ts.model.externalnotification.ExternalNotification;
 import lu.itrust.business.ts.model.externalnotification.helper.ExternalNotificationHelper;
@@ -83,7 +84,7 @@ public class DAOExternalNotificationHBM extends DAOHibernate implements DAOExter
 				+ "LEFT JOIN ExternalNotification extnotmax WITH extnotmax.sourceUserName=:sourceUserName AND extnotmax.timestamp <= :now AND extnotmax.category=extnot.category AND extnotmax.timestamp > extnot.timestamp "
 				+ "WHERE extnot.sourceUserName = :sourceUserName AND extnot.timestamp <= :now AND extnotmax.id IS NULL";
 
-		Map<String, Double> probabilities = new HashMap<>();
+		final Map<String, Double> probabilities = new HashMap<>();
 		getSession().createQuery(query, ExternalNotification.class).setParameter("now", timestamp)
 				.setParameter("sourceUserName", sourceUserName).getResultStream().forEach(notification -> {
 					// Deduce parameter name from category
@@ -115,7 +116,7 @@ public class DAOExternalNotificationHBM extends DAOHibernate implements DAOExter
 		// half-life time, because their influence is (1/2)^7 < 1%,
 		// which can be neglected if the severity is roughly the same for all
 		// notifications of the same category (which we assume).
-		String query = "FROM ExternalNotification extnot WHERE extnot.timestamp + extnot.halfLife*7 >= :begin AND extnot.timestamp <= :end AND extnot.sourceUserName = :sourceUserName ORDER BY extnot.timestamp DESC";
+		String query = "FROM ExternalNotification extnot WHERE extnot.timestamp + extnot.halfLife*7.0 >= :begin AND extnot.timestamp <= :end AND extnot.sourceUserName = :sourceUserName ORDER BY extnot.timestamp DESC";
 
 		// Our strategy looks as follows.
 		// Take the whole time interval and all notifications issued during that period.
@@ -173,13 +174,11 @@ public class DAOExternalNotificationHBM extends DAOHibernate implements DAOExter
 
 	/** {@inheritDoc} */
 	@Override
-	public Double computeProbabilityAtTime(long timestamp, String acronym) {
+	public Double computeProbabilityAtTime(long timestamp, String prefix, String category) {
 		// Select the latest external notification for each category
 		// (Take the external notifications. Join them to all external notifications
 		// that occur later. Those who do not have a later external notification are the
 		// latest ones. Fetch these.)
-
-		final String[] myId = acronym.split("_", 2);
 
 		final String query = ""
 				+ "SELECT extnot "
@@ -189,7 +188,7 @@ public class DAOExternalNotificationHBM extends DAOHibernate implements DAOExter
 
 		final double[] probability = { 0.0 };
 		getSession().createQuery(query, ExternalNotification.class).setParameter("now", timestamp)
-				.setParameter("sourceUserName", myId[0]).setParameter("category", myId[1]).getResultStream()
+				.setParameter("sourceUserName", prefix).setParameter("category",category).getResultStream()
 				.forEach(notification -> {
 
 					// Compute probability level:
@@ -249,13 +248,12 @@ public class DAOExternalNotificationHBM extends DAOHibernate implements DAOExter
 	}
 
 	@Override
-	public Double findLastSeverity(String acronym) {
+	public Double findLastSeverity(String prefix, String category) {
 		// Select the latest external notification for each category
 		// (Take the external notifications. Join them to all external notifications
 		// that occur later. Those who do not have a later external notification are the
 		// latest ones. Fetch these.)
 
-		final String[] myId = acronym.split("_", 2);
 
 		final String query = ""
 				+ "SELECT extnot "
@@ -265,7 +263,7 @@ public class DAOExternalNotificationHBM extends DAOHibernate implements DAOExter
 
 		final double[] probability = { 0.0 };
 		getSession().createQuery(query, ExternalNotification.class).setParameter("now", System.currentTimeMillis())
-				.setParameter("sourceUserName", myId[0]).setParameter("category", myId[1]).getResultStream()
+				.setParameter("sourceUserName", prefix).setParameter("category", category).getResultStream()
 				.forEach(notification -> {
 					probability[0] = notification.getSeverity();
 				});
@@ -297,5 +295,27 @@ public class DAOExternalNotificationHBM extends DAOHibernate implements DAOExter
 				});
 
 		return probabilities;
+	}
+
+	@Override
+	public String[] extractPrefixAndCategory(String parameter, List<String> idsNames) {
+		for (var prefix : idsNames) {
+			if (parameter.startsWith(StringExpressionHelper.makeValidVariable(prefix)) && parameter.length() > (prefix.length() + 1)) {
+				var categorie = parameter.substring(prefix.length() + 1);
+				if (exists(prefix, categorie))
+					return new String[] { prefix, categorie };
+
+			}
+
+		}
+		return new String[] {};
+	}
+
+	@Override
+	public boolean exists(String prefix, String category) {
+		return getSession().createQuery(
+				"Select count(*)>0 From ExternalNotification where sourceUserName = :prefix and category = :category",
+				Boolean.class).setParameter("prefix", prefix).setParameter("category", category).uniqueResultOptional()
+				.orElse(false);
 	}
 }

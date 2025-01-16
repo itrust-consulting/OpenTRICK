@@ -85,6 +85,7 @@ import lu.itrust.business.ts.model.standard.measure.Measure;
 import lu.itrust.business.ts.model.standard.measure.impl.AssetMeasure;
 import lu.itrust.business.ts.model.standard.measure.impl.MeasureAssetValue;
 import lu.itrust.business.ts.model.standard.measure.impl.NormalMeasure;
+import lu.itrust.business.ts.usermanagement.IDS;
 
 /**
  * ChartGenerator.java: <br>
@@ -621,7 +622,7 @@ public class ChartGenerator {
 	 */
 	public Chart dynamicParameterEvolution(int idAnalysis, Locale locale) throws Exception {
 		// Find the user names of all sources involved
-		List<String> sourceUserNames = daoIDS.getByAnalysisId(idAnalysis).stream().map(ids -> ids.getPrefix()).collect(Collectors.toList());
+		List<String> sourceUserNames = daoIDS.getByAnalysisId(idAnalysis).stream().map(IDS::getPrefix).toList();
 
 		/*
 		 * final Analysis analysis = daoAnalysis.get(idAnalysis); final double
@@ -647,10 +648,9 @@ public class ChartGenerator {
 			for (String sourceUserName : sourceUserNames) {
 				Map<String, Double> likelihoods = serviceExternalNotification.computeProbabilitiesInInterval(timeEnd - nextTimeIntervalSize, timeEnd, sourceUserName,
 						minimumProbability);
-				for (String parameterName : likelihoods.keySet()) {
+				for (var entry : likelihoods.entrySet()) {
 					// Store data
-					data.putIfAbsent(parameterName, new HashMap<>());
-					data.get(parameterName).put(timeEnd, likelihoods.get(parameterName));
+					data.computeIfAbsent(entry.getKey(), k-> new HashMap<>()).put(timeEnd, entry.getValue());
 				}
 			}
 			// Modify interval size
@@ -659,10 +659,10 @@ public class ChartGenerator {
 		}
 
 		data.values().removeIf(v -> v.values().parallelStream().allMatch(p -> p == null || p == minimumProbability));
-		for (String parameterName : data.keySet()) {
-			Dataset<String> dataset = new Dataset<String>(parameterName, getColor(chart.getDatasets().size()));
+		for (var entry : data.entrySet()) {
+			Dataset<String> dataset = new Dataset<>(entry.getKey(), getColor(chart.getDatasets().size()));
 			for (long timeEnd : xAxisValues)
-				dataset.getData().add(data.get(parameterName).getOrDefault(timeEnd, minimumProbability));
+				dataset.getData().add(entry.getValue().getOrDefault(timeEnd, minimumProbability));
 			chart.getDatasets().add(dataset);
 		}
 		chart.getDatasets().sort((d1, d2) -> NaturalOrderComparator.compareTo(d1.getLabel(), d2.getLabel()));

@@ -1,10 +1,10 @@
 package lu.itrust.business.ts.model.externalnotification.helper;
 
+import lu.itrust.business.expressions.StringExpressionHelper;
 import lu.itrust.business.ts.exception.TrickException;
 import lu.itrust.business.ts.model.api.ApiExternalNotification;
 import lu.itrust.business.ts.model.externalnotification.ExternalNotification;
 import lu.itrust.business.ts.model.externalnotification.ExternalNotificationType;
-import lu.itrust.business.expressions.StringExpressionHelper;
 
 /**
  * Provides helper functionality for external notification instances.
@@ -38,6 +38,5 @@ public class ExternalNotificationHelper {
 	public static String createParameterName(String sourceUserName, String category) {
 		return StringExpressionHelper.makeValidVariable(String.format("%s_%s", sourceUserName, category));
 	}
-
 	
 }

@@ -79,16 +79,15 @@ public class ServiceExternalNotificationImpl implements ServiceExternalNotificat
 
 	/** {@inheritDoc} */
 	@Override
-	public Double computeProbabilityAtTime(long timestamp, String sourceUserName) {
-		return daoExternalNotification.computeProbabilityAtTime(timestamp, sourceUserName);
+	public Double computeProbabilityAtTime(long timestamp, String prefix, String category) {
+		return daoExternalNotification.computeProbabilityAtTime(timestamp, prefix, category);
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	public Double findLastSeverity(String sourceUserName) {
-		return daoExternalNotification.findLastSeverity(sourceUserName);
+	public Double findLastSeverity(String prefix, String category) {
+		return daoExternalNotification.findLastSeverity(prefix, category);
 	}
-
 
 	/** {@inheritDoc} */
 	@Override
@@ -102,5 +101,11 @@ public class ServiceExternalNotificationImpl implements ServiceExternalNotificat
 	public Map<String, Double> findLastSeverities(String sourceUserName,
 			List<String> categories) {
 		return daoExternalNotification.findLastSeverities(sourceUserName, categories);
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	public String[] extractPrefixAndCategory(String parameter, List<String> idsNames) {
+		return daoExternalNotification.extractPrefixAndCategory(parameter, idsNames);
 	}
 }

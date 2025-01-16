@@ -250,10 +250,10 @@ public class WorkerImportItemInformation extends WorkerImpl {
 		ItemInformation.defaultItems().forEach(e -> {
 			for (var myLocale : locales) {
 				mappers.put(messageSource.getMessage(
-						"label.item_information." + e.getDescription().trim(), null,
+						"label.item_information." + e.getDescription().toLowerCase(), null,
 						e.getDescription(), myLocale).toLowerCase(), e.getDescription().toLowerCase());//
 			}
-			categories.put(e.getDescription().trim().toLowerCase(), e.getType());
+			categories.put(e.getDescription().toLowerCase(), e.getType());
 		});
 
 		for (int i = address.getBegin().getRow() + 1; i < size; i++) {
@@ -273,12 +273,7 @@ public class WorkerImportItemInformation extends WorkerImpl {
 				analysis.getItemInformations().add(itemInformation = new ItemInformation(mappers.getOrDefault(descriptionText, description),
 						categories.getOrDefault(descriptionText, Constant.ITEMINFORMATION_SCOPE), ""));
 
-			final String value = trim(getString(row, 1, formatter));
-
-			if (!StringUtils.hasText(value))
-				emptyCellError(SHEET_TABLE_NAME, i, 1);
-
-			itemInformation.setValue(value);
+			itemInformation.setValue(trim(getString(row, 1, formatter)));
 
 			messageHandler.setProgress((int) (minProgress + ((i / (double) size) * maxProgress)));
 		}

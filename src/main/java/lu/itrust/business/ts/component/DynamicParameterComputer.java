@@ -139,7 +139,7 @@ public class DynamicParameterComputer {
 			// zero.
 			// NB: the user is free to enforce a minimum value by using the
 			// max() function in his formula
-			parameter.setValue(likelihoods.getOrDefault(parameterName, 0.0));
+			parameter.setValue(likelihoods.getOrDefault(parameterName, minimumProbability));
 		});
 
 		// Update Dynamics impact.

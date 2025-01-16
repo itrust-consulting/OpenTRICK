@@ -1819,7 +1819,7 @@ public class ControllerDataManager {
 		final ObjectFactory factory = Context.getsmlObjectFactory();
 		final WorksheetPart worksheetPart = createWorkSheetPart(spreadsheetMLPackage, name);
 		final SheetData sheet = worksheetPart.getContents().getSheetData();
-		final List<String> myColumns = new ArrayList<>(Arrays.asList("Description", "Value", "Type"));
+		final List<String> myColumns = new ArrayList<>(Arrays.asList("Description", "Value"));
 		final String[] columns = myColumns.toArray(new String[myColumns.size()]);
 		final Locale locale = Locale.forLanguageTag(analysis.getLanguage().getAlpha2());
 		createHeader(worksheetPart, name, defaultExcelTableStyle, columns, analysis.getItemInformations().size());
@@ -1834,7 +1834,6 @@ public class ControllerDataManager {
 					messageSource.getMessage("label.item_information." + item.getDescription().trim(), null,
 							item.getDescription(), locale));
 			setValue(row.getC().get(1), item.getValue());
-			setValue(row.getC().get(2), item.getType());
 
 			sheet.getRow().add(row);
 		}
