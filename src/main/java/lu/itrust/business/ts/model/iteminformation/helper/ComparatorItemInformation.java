@@ -5,26 +5,31 @@ package lu.itrust.business.ts.model.iteminformation.helper;
 
 import java.util.Comparator;
 
+import lu.itrust.business.ts.helper.NaturalOrderComparator;
 import lu.itrust.business.ts.model.iteminformation.ItemInformation;
 
-
 /**
- * A comparator for comparing ItemInformation objects based on their description.
+ * A comparator for comparing ItemInformation objects based on their
+ * description.
  */
 public class ComparatorItemInformation implements Comparator<ItemInformation> {
 
 	/**
-	 * Compares two ItemInformation objects based on the weight of their descriptions.
+	 * Compares two ItemInformation objects based on the weight of their
+	 * descriptions.
 	 *
 	 * @param o1 the first ItemInformation object
 	 * @param o2 the second ItemInformation object
-	 * @return a negative integer if o1's description has a lower weight than o2's description,
+	 * @return a negative integer if o1's description has a lower weight than o2's
+	 *         description,
 	 *         zero if both descriptions have the same weight,
-	 *         a positive integer if o1's description has a higher weight than o2's description
+	 *         a positive integer if o1's description has a higher weight than o2's
+	 *         description
 	 */
 	@Override
 	public int compare(ItemInformation o1, ItemInformation o2) {
-		return Integer.compare(WeigthOf(o1.getDescription()), WeigthOf(o2.getDescription()));
+		var result = Integer.compare(WeigthOf(o1.getDescription()), WeigthOf(o2.getDescription()));
+		return result == 0 ? NaturalOrderComparator.compareTo(o1.getDescription(), o2.getDescription()) : result;
 	}
 
 	/**
@@ -87,13 +92,13 @@ public class ComparatorItemInformation implements Comparator<ItemInformation> {
 				return -1;
 			case "strategic":
 				return 0;
-			case "financialParameters":
+			case "financialParameters", "financialparameters":
 				return 1;
-			case "riskEvaluationCriteria":
+			case "riskEvaluationCriteria", "riskevaluationcriteria":
 				return 2;
-			case "impactCriteria":
+			case "impactCriteria", "impactcriteria":
 				return 3;
-			case "riskAcceptanceCriteria":
+			case "riskAcceptanceCriteria", "riskacceptancecriteria":
 				return 4;
 			default:
 				return 5;

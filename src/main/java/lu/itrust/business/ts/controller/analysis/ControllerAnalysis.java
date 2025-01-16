@@ -58,6 +58,7 @@ import lu.itrust.business.ts.component.TrickLogManager;
 import lu.itrust.business.ts.constants.Constant;
 import lu.itrust.business.ts.database.service.ServiceCustomer;
 import lu.itrust.business.ts.database.service.ServiceDataValidation;
+import lu.itrust.business.ts.database.service.ServiceExternalNotification;
 import lu.itrust.business.ts.database.service.ServiceIDS;
 import lu.itrust.business.ts.database.service.ServiceLanguage;
 import lu.itrust.business.ts.database.service.ServiceTicketingSystem;
@@ -139,6 +140,9 @@ public class ControllerAnalysis extends AbstractController {
 
 	@Autowired
 	private PermissionEvaluator permissionEvaluator;
+
+	@Autowired
+	private ServiceExternalNotification serviceExternalNotification;
 
 	/**
 	 * Retrieves the path to the JSP file for creating a new version of an analysis.
@@ -459,22 +463,7 @@ public class ControllerAnalysis extends AbstractController {
 	public String requestEditAnalysis(Principal principal, @PathVariable("analysisId") Integer analysisId,
 			Map<String, Object> model, Locale locale) throws Exception {
 		// retrieve analysis
-		/*
-		 * Analysis analysis = ;
-		 * if (analysis == null)
-		 * throw new ResourceNotFoundException(
-		 * messageSource.getMessage("error.analysis.not_found", null,
-		 * "Analysis cannot be found!", locale));
-		 * 
-		 * // prepare permission evaluator
-		 * PermissionEvaluatorImpl permissionEvaluator = new
-		 * PermissionEvaluatorImpl(serviceUser, serviceAnalysis,
-		 * serviceUserAnalysisRight);
-		 * 
-		 * if (permissionEvaluator.userIsAuthorized(analysisId, principal,
-		 * AnalysisRight.MODIFY)) {
-		 */
-
+		
 		// add languages
 		model.put("languages", serviceLanguage.getAll());
 
@@ -487,13 +476,6 @@ public class ControllerAnalysis extends AbstractController {
 		model.put("analysis", serviceAnalysis.get(analysisId));
 
 		return "jsp/analyses/all/forms/editAnalysis";
-		/*
-		 * }
-		 * 
-		 * throw new AccessDeniedException(
-		 * messageSource.getMessage("error.permission_denied", null,
-		 * "Permission denied!", locale));
-		 */
 	}
 
 	// *****************************************************************
@@ -665,7 +647,7 @@ public class ControllerAnalysis extends AbstractController {
 					messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
 		User user = serviceUser.get(principal.getName());
 		ValueFactory valueFactory = new ValueFactory(analysis.getParameters());
-		Boolean readOnly = OpenMode.isReadOnly(mode);
+		boolean readOnly = OpenMode.isReadOnly(mode);
 
 		boolean hasMaturity = false;
 		boolean hasPermission = analysis.isProfile() ? user.isAutorised(RoleType.ROLE_CONSULTANT)
@@ -709,9 +691,20 @@ public class ControllerAnalysis extends AbstractController {
 					model.addAttribute("showExcludeDynamic",
 							showExcludeDynamic);
 					if (showExcludeDynamic) {
-						model.addAttribute("excludeAcronyms",
-								analysis.getExcludeAcronyms().stream().sorted(NaturalOrderComparator::compareTo)
-										.toList());
+						Map<String, List<String>> excludesMap = analysis.getExcludeAcronyms().stream()
+							.map(e -> e.split("_", 2)).collect(Collectors.groupingBy(e -> e[0],
+									Collectors.mapping(e -> e[1], Collectors.toList())));
+
+					if (excludesMap.keySet().size() < 2) {
+						excludesMap.forEach((k, v) -> model.addAttribute("excludeAcronyms",
+								serviceExternalNotification.findLastSeverities(k, v)));
+					} else {
+						final Map<String, Double> excludesValues = new LinkedHashMap<>();
+						excludesMap.forEach(
+								(k, v) -> excludesValues.putAll(serviceExternalNotification.findLastSeverities(k, v)));
+						model.addAttribute("excludeAcronyms", excludesValues);
+					}
+
 					}
 				}
 				model.addAttribute("showDynamicAnalysis", showDynamicAnalysis);

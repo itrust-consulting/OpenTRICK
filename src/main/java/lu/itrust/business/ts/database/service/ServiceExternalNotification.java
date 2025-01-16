@@ -40,9 +40,22 @@ public interface ServiceExternalNotification {
 	 */
 	public void delete(ExternalNotification externalNotification);
 
-	/** @see lu.itrust.business.ts.database.dao.DAOExternalNotification#computeProbabilitiesAtTime(long, String, Map) */
-	public Map<String, Double> computeProbabilitiesAtTime(long timestamp, String sourceUserName, double minimumProbability);
+	/** @see lu.itrust.business.ts.database.dao.DAOExternalNotification#computeProbabilityAtTime(long, String) */
+	public Double computeProbabilityAtTime(long timestamp, String acronym);
+
+	/** @see lu.itrust.business.ts.database.dao.DAOExternalNotification#computeProbabilitiesAtTime(long, String,List) */
+	public Map<String,Double> computeProbabilitiesAtTime(long timestamp, String sourceUserName, List<String> categories);
+
+	/** @see lu.itrust.business.ts.database.dao.DAOExternalNotification#computeProbabilitiesAtTime(long, String) */
+	public Map<String, Double> computeProbabilitiesAtTime(long timestamp, String sourceUserName);
 	
 	/** @see lu.itrust.business.ts.database.dao.DAOExternalNotification#computeProbabilitiesInInterval(long, String, Map) */
 	public Map<String, Double> computeProbabilitiesInInterval(long timestampBegin, long timestampEnd, String sourceUserName, double minimumProbability);
+
+	/** @see lu.itrust.business.ts.database.dao.DAOExternalNotification#findLastSeverity(String) */
+	public Double findLastSeverity(String acronym);
+
+	/** @see lu.itrust.business.ts.database.dao.DAOExternalNotification#findLastSeverities(String, Map) */
+	public Map<String, Double> findLastSeverities(String sourceUserName,
+			List<String> categories);
 }

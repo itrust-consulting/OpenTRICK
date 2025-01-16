@@ -149,6 +149,10 @@ public class Constant {
 	public static final String STAKEHOLDER_RELATION = "stakeholder_relation";
 	public static final String ESCALATION_WAY = "escalation_way";
 	public static final String DOCUMENT_CONSERVE = "document_conserve";
+	public static final String FINANCIAL_PARAMETERS = "financialParameters";
+	public static final String IMPACT_CRITERIA = "impactCriteria";
+	public static final String RISK_ACCEPTANCE_CRITERIA = "riskAcceptanceCriteria";
+	public static final String RISK_EVALUATION_CRITERIA = "riskEvaluationCriteria";
 
 	public static final String IS_NOT_ACHIEVED = "not_achieved";
 	public static final String IS_RUDIMENTARY_ACHIEVED = "rudimentary_achieved";

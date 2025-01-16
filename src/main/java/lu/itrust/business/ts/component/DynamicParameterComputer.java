@@ -111,7 +111,7 @@ public class DynamicParameterComputer {
 		final long now = java.time.Instant.now().getEpochSecond();
 
 		// Compute likelihoods
-		final Map<String, Double> likelihoods = serviceExternalNotification.computeProbabilitiesAtTime(now, userName, minimumProbability);
+		final Map<String, Double> likelihoods = serviceExternalNotification.computeProbabilitiesAtTime(now, userName);
 
 		// Fetch instances of all (existing) dynamic parameters
 		// and map them by their acronym

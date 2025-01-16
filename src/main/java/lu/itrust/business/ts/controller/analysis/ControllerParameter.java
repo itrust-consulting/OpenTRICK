@@ -36,6 +36,7 @@ import lu.itrust.business.ts.component.AnalysisImpactManager;
 import lu.itrust.business.ts.component.TrickLogManager;
 import lu.itrust.business.ts.constants.Constant;
 import lu.itrust.business.ts.database.service.ServiceDynamicParameter;
+import lu.itrust.business.ts.database.service.ServiceExternalNotification;
 import lu.itrust.business.ts.database.service.ServiceIlrSoaScaleParameter;
 import lu.itrust.business.ts.database.service.ServiceImpactParameter;
 import lu.itrust.business.ts.database.service.ServiceLikelihoodParameter;
@@ -81,7 +82,7 @@ public class ControllerParameter extends AbstractController {
 	private ServiceDynamicParameter serviceDynamicParameter;
 
 	@Autowired
-	private ServiceImpactParameter serviceImpactParameter;
+	private ServiceExternalNotification serviceExternalNotification;
 
 	@Autowired
 	private ServiceLikelihoodParameter serviceLikelihoodParameter;
@@ -211,9 +212,20 @@ public class ControllerParameter extends AbstractController {
 				model.addAttribute("showExcludeDynamic",
 						showExcludeDynamic);
 				if (showExcludeDynamic) {
-					model.addAttribute("excludeAcronyms",
-							analysis.getExcludeAcronyms().stream().sorted(NaturalOrderComparator::compareTo)
-									.toList());
+					Map<String, List<String>> excludesMap = analysis.getExcludeAcronyms().stream()
+							.map(e -> e.split("_", 2)).collect(Collectors.groupingBy(e -> e[0],
+									Collectors.mapping(e -> e[1], Collectors.toList())));
+
+					if (excludesMap.keySet().size() < 2) {
+						excludesMap.forEach((k, v) -> model.addAttribute("excludeAcronyms",
+								serviceExternalNotification.findLastSeverities(k, v)));
+					} else {
+						final Map<String, Double> excludesValues = new LinkedHashMap<>();
+						excludesMap.forEach(
+								(k, v) -> excludesValues.putAll(serviceExternalNotification.findLastSeverities(k, v)));
+						model.addAttribute("excludeAcronyms", excludesValues);
+					}
+
 				}
 			}
 			model.addAttribute("showDynamicAnalysis", showDynamicAnalysis);
@@ -336,7 +348,8 @@ public class ControllerParameter extends AbstractController {
 			final Analysis analysis = serviceAnalysis.get((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS));
 			if (analysis.getExcludeAcronyms().remove(acronym)) {
 				analysis.getDynamicParameters()
-						.add(new DynamicParameter(acronym, String.format("dynamic:%s", acronym), 0.0));
+						.add(new DynamicParameter(acronym, String.format("dynamic:%s", acronym),
+								serviceExternalNotification.findLastSeverity(acronym)));
 				serviceAnalysis.saveOrUpdate(analysis);
 				return JsonMessage.Success(messageSource.getMessage("success.restore.parameter", null,
 						"Parameter has been successfully restored", locale));

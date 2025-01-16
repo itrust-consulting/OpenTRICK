@@ -1,5 +1,6 @@
 package lu.itrust.business.ts.database.dao.hbm;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.hibernate.Session;
@@ -41,7 +42,7 @@ public class DAOItemInformationHBM extends DAOHibernate implements DAOItemInform
 	 * @see lu.itrust.business.ts.database.dao.DAOItemInformation#get(int)
 	 */
 	@Override
-	public ItemInformation get(Integer id)  {
+	public ItemInformation get(Integer id) {
 		return (ItemInformation) getSession().get(ItemInformation.class, id);
 	}
 
@@ -54,15 +55,16 @@ public class DAOItemInformationHBM extends DAOHibernate implements DAOItemInform
 	 * @return
 	 * @
 	 * 
-	 * @see lu.itrust.business.ts.database.dao.DAOItemInformation#getFromAnalysisById(java.lang.Integer,
-	 *      java.lang.Integer)
+	 *   @see
+	 *   lu.itrust.business.ts.database.dao.DAOItemInformation#getFromAnalysisById(java.lang.Integer,
+	 *   java.lang.Integer)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public ItemInformation getFromAnalysisById(Integer idAnalysis, Integer idIteminformation)  {
-		String query =
-			"Select iteminformation From Analysis as analysis inner join analysis.itemInformations as iteminformation where analysis.id = :idAnalysis and iteminformation.id = :idIteminformation";
-		return (ItemInformation) getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).setParameter("idIteminformation", idIteminformation).uniqueResultOptional().orElse(null);
+	public ItemInformation getFromAnalysisById(Integer idAnalysis, Integer idIteminformation) {
+		String query = "Select iteminformation From Analysis as analysis inner join analysis.itemInformations as iteminformation where analysis.id = :idAnalysis and iteminformation.id = :idIteminformation";
+		return (ItemInformation) getSession().createQuery(query).setParameter("idAnalysis", idAnalysis)
+				.setParameter("idIteminformation", idIteminformation).uniqueResultOptional().orElse(null);
 	}
 
 	/**
@@ -74,10 +76,11 @@ public class DAOItemInformationHBM extends DAOHibernate implements DAOItemInform
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public ItemInformation getFromAnalysisByDescription(Integer analysisId, String description)  {
+	public ItemInformation getFromAnalysisByDescription(Integer analysisId, String description) {
 		String query = "Select itemInformation From Analysis as analysis inner join analysis.itemInformations as itemInformation  where analysis.id = :id and ";
 		query += "iteminformation.description = :iteminformation";
-		return (ItemInformation) getSession().createQuery(query).setParameter("id", analysisId).setParameter("description", description).uniqueResultOptional().orElse(null);
+		return (ItemInformation) getSession().createQuery(query).setParameter("id", analysisId)
+				.setParameter("description", description).uniqueResultOptional().orElse(null);
 	}
 
 	/**
@@ -88,10 +91,11 @@ public class DAOItemInformationHBM extends DAOHibernate implements DAOItemInform
 	 *      java.lang.Integer)
 	 */
 	@Override
-	public boolean belongsToAnalysis(Integer analysisId, Integer iteminformationId)  {
+	public boolean belongsToAnalysis(Integer analysisId, Integer iteminformationId) {
 		String query = "Select count(itemInformation) > 0 From Analysis as analysis inner join analysis.itemInformations as itemInformation where analysis.id = :analysisid and ";
 		query += "itemInformation.id = :itemInformationId";
-		return (boolean) getSession().createQuery(query).setParameter("analysisid", analysisId).setParameter("itemInformationId", iteminformationId).getSingleResult();
+		return (boolean) getSession().createQuery(query).setParameter("analysisid", analysisId)
+				.setParameter("itemInformationId", iteminformationId).getSingleResult();
 	}
 
 	/**
@@ -102,7 +106,7 @@ public class DAOItemInformationHBM extends DAOHibernate implements DAOItemInform
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<ItemInformation> getAll()  {
+	public List<ItemInformation> getAll() {
 		return getSession().createQuery("From ItemInformation").getResultList();
 	}
 
@@ -114,8 +118,8 @@ public class DAOItemInformationHBM extends DAOHibernate implements DAOItemInform
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<ItemInformation> getAllFromAnalysis(Integer analysisID)  {
-		String casepart  = "";
+	public List<ItemInformation> getAllFromAnalysis(Integer analysisID) {
+		String casepart = "";
 		casepart += "when 'type_organism' then -25 ";
 		casepart += "when 'type_profit_organism' then -24 ";
 		casepart += "when 'name_organism' then -23 ";
@@ -144,7 +148,8 @@ public class DAOItemInformationHBM extends DAOHibernate implements DAOItemInform
 		casepart += "when 'strategic' then 0 ";
 		casepart += "else 1 ";
 		casepart += "end";
-		String query = "Select itemInformation From Analysis as analysis inner join analysis.itemInformations as itemInformation  where analysis.id = :id order by case itemInformation.description " + casepart;
+		String query = "Select itemInformation From Analysis as analysis inner join analysis.itemInformations as itemInformation  where analysis.id = :id order by case itemInformation.description "
+				+ casepart;
 		return getSession().createQuery(query).setParameter("id", analysisID).getResultList();
 	}
 
@@ -155,7 +160,7 @@ public class DAOItemInformationHBM extends DAOHibernate implements DAOItemInform
 	 * @see lu.itrust.business.ts.database.dao.DAOItemInformation#save(lu.itrust.business.ts.model.iteminformation.ItemInformation)
 	 */
 	@Override
-	public void save(ItemInformation itemInformation)  {
+	public void save(ItemInformation itemInformation) {
 		getSession().save(itemInformation);
 	}
 
@@ -166,7 +171,7 @@ public class DAOItemInformationHBM extends DAOHibernate implements DAOItemInform
 	 * @see lu.itrust.business.ts.database.dao.DAOItemInformation#saveOrUpdate(lu.itrust.business.ts.model.iteminformation.ItemInformation)
 	 */
 	@Override
-	public void saveOrUpdate(ItemInformation itemInformation)  {
+	public void saveOrUpdate(ItemInformation itemInformation) {
 		getSession().saveOrUpdate(itemInformation);
 	}
 
@@ -177,7 +182,13 @@ public class DAOItemInformationHBM extends DAOHibernate implements DAOItemInform
 	 * @see lu.itrust.business.ts.database.dao.DAOItemInformation#delete(lu.itrust.business.ts.model.iteminformation.ItemInformation)
 	 */
 	@Override
-	public void delete(ItemInformation itemInformation)  {
+	public void delete(ItemInformation itemInformation) {
 		getSession().delete(itemInformation);
+	}
+
+	@Override
+	public void delete(Collection<ItemInformation> itemInformation) {
+		if (itemInformation != null)
+			itemInformation.forEach(this::delete);
 	}
 }

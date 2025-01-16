@@ -159,6 +159,7 @@ function findControllerBySection(section, subSection) {
 		"section_ids": "/Admin/IDS/Section",
 		"section_kb_scale_type": "/KnowledgeBase/ScaleType",
 		"section_parameter": "/Analysis/Parameter/Section",
+		"section_item-information": "/Analysis/Item-information/Section",
 		"section_parameter_impact_probability": "/Analysis/Parameter/Impact-probability/Section",
 		"section_risk-information_risk": "/Analysis/Risk-information/Section/Risk",
 		"section_risk-information_vul": "/Analysis/Risk-information/Section/Vul",
@@ -275,6 +276,7 @@ SectionSmartUpdate.prototype = {
 			case "section_customer":
 			case "section_credential":
 			case "section_kb_measure":
+			case "section_item-information":
 			case "section_profile_analysis":
 				return this.__generic_update(this.data, "#" + this.sectionName, -1);
 			default:

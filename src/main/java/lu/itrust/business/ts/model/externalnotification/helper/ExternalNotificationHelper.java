@@ -38,4 +38,6 @@ public class ExternalNotificationHelper {
 	public static String createParameterName(String sourceUserName, String category) {
 		return StringExpressionHelper.makeValidVariable(String.format("%s_%s", sourceUserName, category));
 	}
+
+	
 }

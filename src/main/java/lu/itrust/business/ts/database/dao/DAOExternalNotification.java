@@ -21,10 +21,46 @@ public interface DAOExternalNotification {
 	/** Removes an entity from the DAO. */
 	public void delete(ExternalNotification externalNotification);
 
+		/**
+	 * Derives the probabilities of occurrence of categories from the external
+	 * notifications in the database for a given instant.
+	 * @param timestamp
+	 *            The timestamp at which the probabilities shall be computed. In
+	 *            general the right value to specify here is NOW, unless a
+	 *            history entry is to be computed.
+	 * @param acronym
+	 *            The name of the user and category who reported the external notifications.
+	 *            Only the specific category is considered.
+	 * 
+	 * @return Returns a map which assigns to each notification category the
+	 *         probability that the associated event occurs.
+	 * @throws Exception
+	 */
+	public Double computeProbabilityAtTime(long timestamp, String acronym);
+
+
+		/**
+	 * Derives the probabilities of occurrence of categories from the external
+	 * notifications in the database for a given instant.
+	 * @param timestamp
+	 *            The timestamp at which the probabilities shall be computed. In
+	 *            general the right value to specify here is NOW, unless a
+	 *            history entry is to be computed.
+	 * @param sourceUserName
+	 *            The name of the user who reported the external notifications.
+	 * 
+	 * @param categories
+	 *            Only these categories user are considered.          
+	 * 
+	 * @return Returns a map which assigns to each notification category the
+	 *         probability that the associated event occurs.
+	 * @throws Exception
+	 */
+	public Map<String, Double> computeProbabilitiesAtTime(long timestamp, String sourceUserName, List<String> categories);
+
 	/**
 	 * Derives the probabilities of occurrence of categories from the external
 	 * notifications in the database for a given instant.
-	 * 
 	 * @param timestamp
 	 *            The timestamp at which the probabilities shall be computed. In
 	 *            general the right value to specify here is NOW, unless a
@@ -32,14 +68,12 @@ public interface DAOExternalNotification {
 	 * @param sourceUserName
 	 *            The name of the user who reported the external notifications.
 	 *            Only categories reported by this user are considered.
-	 * @param minimumProbability
-	 *            The minimum probability that a parameter should have at all
-	 *            time.
+	 * 
 	 * @return Returns a map which assigns to each notification category the
 	 *         probability that the associated event occurs.
 	 * @throws Exception
 	 */
-	public Map<String, Double> computeProbabilitiesAtTime(long timestamp, String sourceUserName, double minimumProbability);
+	public Map<String, Double> computeProbabilitiesAtTime(long timestamp, String sourceUserName);
 
 	/**
 	 * Derives the probabilities of occurrence of categories from the external
@@ -62,4 +96,19 @@ public interface DAOExternalNotification {
 	 * @throws Exception
 	 */
 	public Map<String, Double> computeProbabilitiesInInterval(long timestampBegin, long timestampEnd, String sourceUserName, double minimumProbability);
+
+	/**
+	 * Retrives the last severety of given acronym
+	 * @param acronym
+	 * @return
+	 */
+	public Double findLastSeverity(String acronym);
+
+	/**
+	 * Retrives the last severeties of given categories
+	 * @param sourceUserName
+	 * @param categories
+	 * @return
+	 */
+    public Map<String, Double> findLastSeverities(String sourceUserName, List<String> categories);
 }

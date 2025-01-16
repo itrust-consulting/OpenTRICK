@@ -15,7 +15,7 @@
 			</div>
 		</div>
 	</div>
-	<div class="section" id="section_itemInformation">
+	<div class="section" id="section_item-information">
 		<table id="iteminformationtable" class="table table-condensed table-hover table-fixed-header-analysis">
 			<thead>
 				<tr>

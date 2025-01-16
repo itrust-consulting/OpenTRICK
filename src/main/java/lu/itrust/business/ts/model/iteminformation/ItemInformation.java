@@ -9,6 +9,10 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
+import java.beans.Transient;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
@@ -38,7 +42,7 @@ public class ItemInformation implements Cloneable {
 	private int id = 0;
 
 	/** The Item Information Value */
-	@Column(name = "dtValue", nullable = false, length=16777216)
+	@Column(name = "dtValue", nullable = false, length = 16777216)
 	private String value = "";
 
 	/** The Item Information description */
@@ -88,7 +92,7 @@ public class ItemInformation implements Cloneable {
 	 * Sets the "value" field with a value
 	 * 
 	 * @param value
-	 *            The value to set the Item Information Value
+	 *              The value to set the Item Information Value
 	 */
 	public void setValue(String value) {
 		this.value = value;
@@ -109,7 +113,7 @@ public class ItemInformation implements Cloneable {
 	 * Sets the "description" field with a value
 	 * 
 	 * @param description
-	 *            The value to set the Item Information Description
+	 *                    The value to set the Item Information Description
 	 * @throws TrickException
 	 */
 	public void setDescription(String description) throws TrickException {
@@ -133,13 +137,14 @@ public class ItemInformation implements Cloneable {
 	 * Sets the "type" field with a value
 	 * 
 	 * @param type
-	 *            The value to set the Item Information Type (Scope or
-	 *            Organisation)
+	 *             The value to set the Item Information Type (Scope or
+	 *             Organisation)
 	 * @throws TrickException
 	 */
 	public void setType(String type) throws TrickException {
 		if (type == null || !type.matches(Constant.REGEXP_VALID_ITEMINFORMATION_TYPE))
-			throw new TrickException("error.item_information.type.empty", "Type needs to be Scope or Organisation only!");
+			throw new TrickException("error.item_information.type.empty",
+					"Type needs to be Scope or Organisation only!");
 		this.type = type;
 	}
 
@@ -158,7 +163,7 @@ public class ItemInformation implements Cloneable {
 	 * Sets the Field "id" with a value.
 	 * 
 	 * @param id
-	 *            The Value to set the id field
+	 *           The Value to set the id field
 	 */
 	public void setId(int id) {
 		this.id = id;
@@ -192,6 +197,7 @@ public class ItemInformation implements Cloneable {
 
 	/**
 	 * reset value + id
+	 * 
 	 * @return duplicate
 	 */
 	public ItemInformation anonymise() {
@@ -203,6 +209,63 @@ public class ItemInformation implements Cloneable {
 			throw new RuntimeException(e);
 		}
 
+	}
+
+	@Transient
+	public static List<ItemInformation> defaultItems() {
+		final List<ItemInformation> items = new ArrayList<>();
+		items.add(new ItemInformation(Constant.TYPE_ORGANISM, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING));
+		items.add(new ItemInformation(Constant.TYPE_PROFIT_ORGANISM, Constant.ITEMINFORMATION_SCOPE,
+				Constant.EMPTY_STRING));
+		items.add(new ItemInformation(Constant.NAME_ORGANISM, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING));
+		items.add(new ItemInformation(Constant.PRESENTATION_ORGANISM, Constant.ITEMINFORMATION_SCOPE,
+				Constant.EMPTY_STRING));
+		items.add(new ItemInformation(Constant.SECTOR_ORGANISM, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING));
+		items.add(new ItemInformation(Constant.RESPONSIBLE_ORGANISM, Constant.ITEMINFORMATION_SCOPE,
+				Constant.EMPTY_STRING));
+		items.add(new ItemInformation(Constant.STAFF_ORGANISM, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING));
+		items.add(new ItemInformation(Constant.ACTIVITIES_ORGANISM, Constant.ITEMINFORMATION_SCOPE,
+				Constant.EMPTY_STRING));
+		items.add(new ItemInformation(Constant.EXCLUDED_ASSETS, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING));
+		items.add(new ItemInformation(Constant.OCCUPATION, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING));
+		items.add(new ItemInformation(Constant.FUNCTIONAL, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING));
+		items.add(new ItemInformation(Constant.JURIDIC, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING));
+		items.add(new ItemInformation(Constant.POL_ORGANISATION, Constant.ITEMINFORMATION_SCOPE,
+				Constant.EMPTY_STRING));
+		items.add(new ItemInformation(Constant.MANAGEMENT_ORGANISATION, Constant.ITEMINFORMATION_SCOPE,
+				Constant.EMPTY_STRING));
+		items.add(new ItemInformation(Constant.PREMISES, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING));
+		items.add(new ItemInformation(Constant.REQUIREMENTS, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING));
+		items.add(new ItemInformation(Constant.EXPECTATIONS, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING));
+		items.add(new ItemInformation(Constant.ENVIRONMENT, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING));
+		items.add(new ItemInformation(Constant.INTERFACE, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING));
+		items.add(new ItemInformation(Constant.STRATEGIC, Constant.ITEMINFORMATION_SCOPE, Constant.EMPTY_STRING));
+		items.add(new ItemInformation(Constant.PROCESSUS_DEVELOPMENT, Constant.ITEMINFORMATION_ORGANISATION,
+				Constant.EMPTY_STRING));
+		items.add(new ItemInformation(Constant.STAKEHOLDER_IDENTIFICATION, Constant.ITEMINFORMATION_ORGANISATION,
+				Constant.EMPTY_STRING));
+		items.add(new ItemInformation(Constant.ROLE_RESPONSABILITY, Constant.ITEMINFORMATION_ORGANISATION,
+				Constant.EMPTY_STRING));
+		items.add(new ItemInformation(Constant.STAKEHOLDER_RELATION, Constant.ITEMINFORMATION_ORGANISATION,
+				Constant.EMPTY_STRING));
+		items.add(new ItemInformation(Constant.ESCALATION_WAY, Constant.ITEMINFORMATION_ORGANISATION,
+				Constant.EMPTY_STRING));
+		items.add(new ItemInformation(Constant.DOCUMENT_CONSERVE, Constant.ITEMINFORMATION_ORGANISATION,
+				Constant.EMPTY_STRING));
+
+		items.add(new ItemInformation(Constant.RISK_ACCEPTANCE_CRITERIA, Constant.ITEMINFORMATION_SCOPE,
+				Constant.EMPTY_STRING));
+
+		items.add(new ItemInformation(Constant.RISK_EVALUATION_CRITERIA, Constant.ITEMINFORMATION_SCOPE,
+				Constant.EMPTY_STRING));
+
+		items.add(new ItemInformation(Constant.FINANCIAL_PARAMETERS, Constant.ITEMINFORMATION_SCOPE,
+				Constant.EMPTY_STRING));
+
+		items.add(new ItemInformation(Constant.IMPACT_CRITERIA, Constant.ITEMINFORMATION_SCOPE,
+				Constant.EMPTY_STRING));
+
+		return items;
 	}
 
 }

@@ -47,9 +47,9 @@
 											<spring:message code="label.title.data_manager.import.${viewName}" />
 										</legend>
 										<div class='alert alert-sm alert-danger' style="margin-bottom: 15px" data-alert='danger'>
-											<spring:message code="${item.name == 'risk-information'? 'warning':'info'}.data_manager.import.${viewName}" />
+											<spring:message code="${item.name == 'risk-information' or item.name == 'item-information' ? 'warning':'info'}.data_manager.import.${viewName}" />
 										</div>
-										<c:if test="${item.name == 'risk-information' }">
+										<c:if test="${item.name == 'risk-information' or item.name == 'item-information'}">
 											<div class='alert alert-sm alert-warning' data-alert='warning' style="margin-bottom: 15px; display: none;">
 												<spring:message code="info.data_manager.import.${viewName}" />
 											</div>
@@ -57,7 +57,7 @@
 										<form name="${item.name}" method="post" action="${pageContext.request.contextPath}${item.processURL}?${_csrf.parameterName}=${_csrf.token}" class="form-inline"
 											id="form-${item.name}" enctype="multipart/form-data">
 											<div class="row">
-												<c:if test="${item.name == 'risk-information' }">
+												<c:if test="${item.name == 'risk-information' or item.name == 'item-information'}">
 													<label class="col-lg-12"><spring:message code='label.import.${viewName}.option' /></label>
 													<div class="col-lg-12 text-right" style="margin-bottom: 15px;">
 														<div class="btn-group btn-group-justified" data-toggle="buttons">

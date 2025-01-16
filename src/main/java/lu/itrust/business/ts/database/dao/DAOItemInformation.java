@@ -1,5 +1,6 @@
 package lu.itrust.business.ts.database.dao;
 
+import java.util.Collection;
 import java.util.List;
 
 import lu.itrust.business.ts.model.iteminformation.ItemInformation;
@@ -13,22 +14,24 @@ import lu.itrust.business.ts.model.iteminformation.ItemInformation;
  * @since 16 janv. 2013
  */
 public interface DAOItemInformation {
-	public ItemInformation get(Integer id);
+	ItemInformation get(Integer id);
 
-	public ItemInformation getFromAnalysisById(Integer idAnalysis, Integer idIteminformation);
-	
-	public ItemInformation getFromAnalysisByDescription(Integer analysisId, String description);
+	ItemInformation getFromAnalysisById(Integer idAnalysis, Integer idIteminformation);
 
-	public boolean belongsToAnalysis(Integer analysisId, Integer historyId);
+	ItemInformation getFromAnalysisByDescription(Integer analysisId, String description);
 
-	public List<ItemInformation> getAll();
+	boolean belongsToAnalysis(Integer analysisId, Integer historyId);
 
-	public List<ItemInformation> getAllFromAnalysis(Integer analysisId);
+	List<ItemInformation> getAll();
 
-	public void save(ItemInformation itemInformation);
+	List<ItemInformation> getAllFromAnalysis(Integer analysisId);
 
-	public void saveOrUpdate(ItemInformation itemInformation);
+	void save(ItemInformation itemInformation);
 
-	public void delete(ItemInformation itemInformation);
-	
+	void saveOrUpdate(ItemInformation itemInformation);
+
+	void delete(ItemInformation itemInformation);
+
+	void delete(Collection<ItemInformation> itemInformation);
+
 }

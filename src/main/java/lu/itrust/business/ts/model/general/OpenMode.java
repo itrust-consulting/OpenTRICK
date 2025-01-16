@@ -114,7 +114,7 @@ public enum OpenMode {
 	 * @param mode the OpenMode to check
 	 * @return true if the OpenMode is read-only or null, false otherwise
 	 */
-	public static Boolean isReadOnly(OpenMode mode) {
+	public static boolean isReadOnly(OpenMode mode) {
 		return mode == null || mode.isReadOnly();
 	}
 }

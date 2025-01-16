@@ -32,6 +32,10 @@ let DataManagerExport = {
 		setup: ($view, $tab) => DataManagerExport["default"].setup($view, $tab),
 		process: ($view, $tab) => DataManagerExport["default"].process($view, $tab)
 	},
+	"item-information":{
+		setup: ($view, $tab) => DataManagerExport["default"].setup($view, $tab),
+		process: ($view, $tab) => DataManagerExport["default"].process($view, $tab)
+	},
 	"risk-information": {
 		setup: ($view, $tab) => DataManagerExport["default"].setup($view, $tab),
 		process: ($view, $tab) => DataManagerExport["default"].process($view, $tab)

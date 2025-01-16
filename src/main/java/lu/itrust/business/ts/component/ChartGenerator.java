@@ -649,7 +649,7 @@ public class ChartGenerator {
 						minimumProbability);
 				for (String parameterName : likelihoods.keySet()) {
 					// Store data
-					data.putIfAbsent(parameterName, new HashMap<Long, Double>());
+					data.putIfAbsent(parameterName, new HashMap<>());
 					data.get(parameterName).put(timeEnd, likelihoods.get(parameterName));
 				}
 			}

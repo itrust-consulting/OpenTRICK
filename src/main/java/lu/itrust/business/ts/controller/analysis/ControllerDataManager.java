@@ -18,6 +18,7 @@ import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHel
 import static lu.itrust.business.ts.helper.InstanceManager.loadTemplate;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.security.Principal;
 import java.util.ArrayList;
@@ -81,6 +82,7 @@ import lu.itrust.business.ts.asynchronousWorkers.WorkerExportRiskRegister;
 import lu.itrust.business.ts.asynchronousWorkers.WorkerExportRiskSheet;
 import lu.itrust.business.ts.asynchronousWorkers.WorkerExportWordReport;
 import lu.itrust.business.ts.asynchronousWorkers.WorkerImportEstimation;
+import lu.itrust.business.ts.asynchronousWorkers.WorkerImportItemInformation;
 import lu.itrust.business.ts.asynchronousWorkers.WorkerImportMeasureData;
 import lu.itrust.business.ts.asynchronousWorkers.WorkerImportRiskInformation;
 import lu.itrust.business.ts.asynchronousWorkers.WorkerSOAExport;
@@ -147,6 +149,7 @@ import lu.itrust.business.ts.model.general.helper.Utils;
 import lu.itrust.business.ts.model.ilr.AssetImpact;
 import lu.itrust.business.ts.model.ilr.AssetNode;
 import lu.itrust.business.ts.model.ilr.ILRImpact;
+import lu.itrust.business.ts.model.iteminformation.helper.ComparatorItemInformation;
 import lu.itrust.business.ts.model.parameter.IAcronymParameter;
 import lu.itrust.business.ts.model.parameter.IBoundedParameter;
 import lu.itrust.business.ts.model.parameter.IImpactParameter;
@@ -360,6 +363,52 @@ public class ControllerDataManager {
 	}
 
 	/**
+	 * Exports the asset process for a given analysis.
+	 *
+	 * @param request   the HTTP servlet request
+	 * @param response  the HTTP servlet response
+	 * @param session   the HTTP session
+	 * @param principal the principal object representing the user
+	 * @param locale    the locale of the analysis
+	 * @throws Docx4JException
+	 * @throws JAXBException
+	 * @throws IOException
+	 * @throws Exception       if an error occurs during the export process
+	 */
+	@GetMapping(value = "/Item-information/Export-process", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).EXPORT)")
+	public void exportItemInformationProcess(HttpServletRequest request, HttpServletResponse response,
+			HttpSession session,
+			Principal principal, Locale locale) throws Docx4JException, JAXBException, IOException {
+		final Analysis analysis = serviceAnalysis.get((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS));
+		final File file = loadTemplate(analysis.getCustomer(), TrickTemplateType.DEFAULT_EXCEL, analysis.getLanguage());
+		try {
+			final SpreadsheetMLPackage spreadsheetMLPackage = SpreadsheetMLPackage.load(file);
+			final String extension = getExtension(spreadsheetMLPackage);
+			exportScope(analysis, spreadsheetMLPackage);
+			response.setContentType(extension);
+			final String filename = String.format(Constant.ITR_FILE_NAMING,
+					Utils.cleanUpFileName(analysis.findSetting(ExportFileName.SCOPE)),
+					Utils.cleanUpFileName(analysis.getCustomer().getOrganisation()),
+					Utils.cleanUpFileName(analysis.getLabel()), "Scope", analysis.getVersion(),
+					extension);
+			// set response header with location of the filename
+			response.setHeader("Content-Disposition", "attachment; filename=\""
+					+ filename + "\"");
+			updateTokenCookie(request, response);
+			spreadsheetMLPackage.save(response.getOutputStream());
+			// Log
+			TrickLogManager.Persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.export.scope",
+					String.format("Analysis: %s, version: %s, type: Scope", analysis.getIdentifier(),
+							analysis.getVersion()),
+					principal.getName(), LogAction.EXPORT,
+					analysis.getIdentifier(), analysis.getVersion());
+		} finally {
+			serviceStorage.delete(file.getAbsolutePath());
+		}
+	}
+
+	/**
 	 * Exportation method that returns a String.
 	 * This method exports data related to the analysis identified by the given
 	 * analysisId.
@@ -391,6 +440,7 @@ public class ControllerDataManager {
 		if (!analysis.getActionPlans().isEmpty())
 			items.add(new DataManagerItem("action-plan-raw", "/Analysis/Data-manager/Action-plan-raw/Export-process"));
 		items.add(new DataManagerItem("asset", "/Analysis/Data-manager/Asset/Export-process"));
+		items.add(new DataManagerItem("item-information", "/Analysis/Data-manager/Item-information/Export-process"));
 		items.add(new DataManagerItem("risk-information", "/Analysis/Data-manager/Risk-information/Export-process"));
 		if (!analysis.getAnalysisStandards().isEmpty())
 			items.add(new DataManagerItem("measure", "/Analysis/Data-manager/Measure/Export-form", null, null));
@@ -1254,6 +1304,8 @@ public class ControllerDataManager {
 		final Analysis analysis = serviceAnalysis.findByIdAndEager(idAnalysis);
 		final List<DataManagerItem> items = new LinkedList<>();
 		items.add(new DataManagerItem("asset", "/Analysis/Data-manager/Asset/Import-process", ".xls,.xlsx,.xlsm"));
+		items.add(new DataManagerItem("item-information", "/Analysis/Data-manager/Item-information/Import-process",
+				".xls,.xlsx,.xlsm"));
 		items.add(new DataManagerItem("risk-information", "/Analysis/Data-manager/Risk-information/Import-process",
 				".xls,.xlsx,.xlsm"));
 		if (!analysis.getAnalysisStandards().isEmpty())
@@ -1307,8 +1359,7 @@ public class ControllerDataManager {
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String importRiskInformationProcess(@RequestParam(value = "file") MultipartFile file,
 			@RequestParam(value = "overwrite", defaultValue = "true") boolean overwrite, HttpSession session,
-			Principal principal, HttpServletRequest request, Locale locale)
-			throws Exception {
+			Principal principal, HttpServletRequest request, Locale locale) {
 		final String filename = ServiceStorage.RandoomFilename();
 		final Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		final Worker worker = new WorkerImportRiskInformation(idAnalysis, principal.getName(), filename, overwrite);
@@ -1319,6 +1370,23 @@ public class ControllerDataManager {
 		executor.execute(worker);
 		return JsonMessage.Success(messageSource.getMessage("success.start.import.risk.information", null,
 				"Importing of risk information", locale));
+	}
+
+	@PostMapping(value = "/Item-information/Import-process", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).MODIFY)")
+	public @ResponseBody String importItemInformationProcess(@RequestParam(value = "file") MultipartFile file,
+			@RequestParam(value = "overwrite", defaultValue = "true") boolean overwrite, HttpSession session,
+			Principal principal, HttpServletRequest request, Locale locale) {
+		final String filename = ServiceStorage.RandoomFilename();
+		final Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		final Worker worker = new WorkerImportItemInformation(idAnalysis, principal.getName(), filename, overwrite);
+		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale))
+			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null,
+					"Too many tasks running in background", locale));
+		serviceStorage.store(file, filename);
+		executor.execute(worker);
+		return JsonMessage.Success(messageSource.getMessage("success.start.import.item.information", null,
+				"Importing of item information", locale));
 	}
 
 	/**
@@ -1346,7 +1414,7 @@ public class ControllerDataManager {
 		Collections.sort(analyses, new AnalysisComparator());
 		List<Customer> customers = new ArrayList<>();
 		analyses.stream().map(Analysis::getCustomer).distinct()
-				.forEach(customer -> customers.add(customer));
+				.forEach(customers::add);
 		model.addAttribute("standards", standards);
 		model.addAttribute("customers", customers);
 		model.addAttribute("analyses", analyses);
@@ -1659,27 +1727,6 @@ public class ControllerDataManager {
 		ExcelHelper.applyHeaderAndFooter(headerFooterSheetName, "Dependency", mlPackage);
 	}
 
-	@Deprecated
-	private void sortNodeByDependancyLevel(final AssetNode node, final Set<AssetNode> rootNodes,
-			final Set<AssetNode> branchNodes, final Set<AssetNode> leafNodes) {
-		if (leafNodes.contains(node) || rootNodes.contains(node))
-			return;
-		if (node.isLeaf())
-			leafNodes.add(node);
-		else {
-			if (!branchNodes.contains(node))
-				rootNodes.add(node);
-			node.getEdges().values().forEach(c -> {
-				if (c.getChild().isLeaf())
-					leafNodes.add(c.getChild());
-				else {
-					branchNodes.add(c.getChild());
-					sortNodeByDependancyLevel(c.getChild(), rootNodes, branchNodes, leafNodes);
-				}
-			});
-		}
-	}
-
 	private String[] createTableHeader(List<ScaleType> scales, Collection<String> extrasColumns, boolean qualitative,
 			boolean isILR,
 			boolean hiddenComment, boolean rowColumn, boolean uncertainty) {
@@ -1766,6 +1813,34 @@ public class ControllerDataManager {
 		ExcelHelper.applyHeaderAndFooter(headerFooterSheetName, name, spreadsheetMLPackage);
 	}
 
+	private void exportScope(Analysis analysis, SpreadsheetMLPackage spreadsheetMLPackage)
+			throws JAXBException, Docx4JException {
+		final String name = "Scope";
+		final ObjectFactory factory = Context.getsmlObjectFactory();
+		final WorksheetPart worksheetPart = createWorkSheetPart(spreadsheetMLPackage, name);
+		final SheetData sheet = worksheetPart.getContents().getSheetData();
+		final List<String> myColumns = new ArrayList<>(Arrays.asList("Description", "Value", "Type"));
+		final String[] columns = myColumns.toArray(new String[myColumns.size()]);
+		final Locale locale = Locale.forLanguageTag(analysis.getLanguage().getAlpha2());
+		createHeader(worksheetPart, name, defaultExcelTableStyle, columns, analysis.getItemInformations().size());
+		Collections.sort(analysis.getItemInformations(), new ComparatorItemInformation());
+		for (var item : analysis.getItemInformations()) {
+			final Row row = factory.createRow();
+			for (int i = 0; i <= columns.length; i++) {
+				if (row.getC().size() < i)
+					row.getC().add(Context.smlObjectFactory.createCell());
+			}
+			setValue(row.getC().get(0),
+					messageSource.getMessage("label.item_information." + item.getDescription().trim(), null,
+							item.getDescription(), locale));
+			setValue(row.getC().get(1), item.getValue());
+			setValue(row.getC().get(2), item.getType());
+
+			sheet.getRow().add(row);
+		}
+		ExcelHelper.applyHeaderAndFooter(headerFooterSheetName, name, spreadsheetMLPackage);
+	}
+
 	private void writeAssetDefaultCells(final Map<String, String> assetTypes, Asset asset, final Row row) {
 		setValue(row.getC().get(0), asset.getName());
 		setValue(row.getC().get(1),
@@ -1807,10 +1882,8 @@ public class ControllerDataManager {
 
 		myColumns.addAll(ilrImpactHeaders);
 
-		if (!ilrImpactHeaders.isEmpty()) {
-			for (String cia : cias)
-				myColumns.add(cia);
-		}
+		if (!ilrImpactHeaders.isEmpty())
+			Collections.addAll(myColumns, cias);
 
 		analysis.getAssets().forEach(a -> ilrAssetImpacts.put(a.getName(),
 				ilrImpactHeaders.stream().collect(Collectors.toMap(Function.identity(), r -> -1))));
@@ -2184,7 +2257,7 @@ public class ControllerDataManager {
 			else
 				setValue(row, colIndex++, "i" + value.getLevel());
 		}
-		return (hasVulnerability? 2: 1) + scales.size();
+		return (hasVulnerability ? 2 : 1) + scales.size();
 	}
 
 	private int writeProbaImpact(Row row, int colIndex, RiskProbaImpact probaImpact, List<ScaleType> scales,

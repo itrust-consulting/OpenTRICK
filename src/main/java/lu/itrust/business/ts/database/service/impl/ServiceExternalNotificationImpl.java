@@ -13,9 +13,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
- * Represents a default implementation of the ServiceExternalNotification interface,
+ * Represents a default implementation of the ServiceExternalNotification
+ * interface,
  * just passing method calls down to a DAOExternalNotification instance.
- * @author Steve Muller  itrust consulting s.à r.l.
+ * 
+ * @author Steve Muller itrust consulting s.à r.l.
  * @since Jun 8, 2015
  */
 @Service
@@ -33,43 +35,72 @@ public class ServiceExternalNotificationImpl implements ServiceExternalNotificat
 
 	/** {@inheritDoc} */
 	@Override
-	public ExternalNotification get(Integer id){
-		return daoExternalNotification.get(id); 
+	public ExternalNotification get(Integer id) {
+		return daoExternalNotification.get(id);
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	public List<ExternalNotification> getAll(){
+	public List<ExternalNotification> getAll() {
 		return daoExternalNotification.getAll();
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	public void save(ExternalNotification externalNotification){
+	public void save(ExternalNotification externalNotification) {
 		daoExternalNotification.save(externalNotification);
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	public void saveOrUpdate(ExternalNotification externalNotification){
+	public void saveOrUpdate(ExternalNotification externalNotification) {
 		daoExternalNotification.save(externalNotification);
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	public void delete(ExternalNotification externalNotification){
+	public void delete(ExternalNotification externalNotification) {
 		daoExternalNotification.delete(externalNotification);
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	public Map<String, Double> computeProbabilitiesAtTime(long timestampNow, String sourceUserName, double minimumProbability){
-		return daoExternalNotification.computeProbabilitiesAtTime(timestampNow, sourceUserName, minimumProbability);
+	public Map<String, Double> computeProbabilitiesAtTime(long timestampNow, String sourceUserName) {
+		return daoExternalNotification.computeProbabilitiesAtTime(timestampNow, sourceUserName);
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	public Map<String, Double> computeProbabilitiesInInterval(long timestampBegin, long timestampEnd, String sourceUserName, double minimumProbability){
-		return daoExternalNotification.computeProbabilitiesInInterval(timestampBegin, timestampEnd, sourceUserName, minimumProbability);
+	public Map<String, Double> computeProbabilitiesInInterval(long timestampBegin, long timestampEnd,
+			String sourceUserName, double minimumProbability) {
+		return daoExternalNotification.computeProbabilitiesInInterval(timestampBegin, timestampEnd, sourceUserName,
+				minimumProbability);
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	public Double computeProbabilityAtTime(long timestamp, String sourceUserName) {
+		return daoExternalNotification.computeProbabilityAtTime(timestamp, sourceUserName);
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	public Double findLastSeverity(String sourceUserName) {
+		return daoExternalNotification.findLastSeverity(sourceUserName);
+	}
+
+
+	/** {@inheritDoc} */
+	@Override
+	public Map<String, Double> computeProbabilitiesAtTime(long timestamp, String sourceUserName,
+			List<String> categories) {
+		return daoExternalNotification.computeProbabilitiesAtTime(timestamp, sourceUserName, categories);
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	public Map<String, Double> findLastSeverities(String sourceUserName,
+			List<String> categories) {
+		return daoExternalNotification.findLastSeverities(sourceUserName, categories);
 	}
 }

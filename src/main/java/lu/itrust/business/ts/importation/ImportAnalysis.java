@@ -1666,8 +1666,6 @@ public class ImportAnalysis {
 		ResultSet rs = null;
 		String query = "";
 		ResultSetMetaData rsMetaData = null;
-		String[] extendedScopes = new String[] { "financialParameters", "riskEvaluationCriteria", "impactCriteria",
-				"riskAcceptanceCriteria" };
 		int numColumns = 0;
 		setCurrentSqliteTable("scope");
 
@@ -1720,12 +1718,7 @@ public class ImportAnalysis {
 			}
 			// close result
 			rs.close();
-			// Add missing scope
-			for (String scopeName : extendedScopes) {
-				if (this.analysis.getItemInformations().stream()
-						.noneMatch(itemInformation -> itemInformation.getDescription().equals(scopeName)))
-					this.analysis.add(new ItemInformation(scopeName, Constant.ITEMINFORMATION_SCOPE, ""));
-			}
+			// Code to add missing scope has been removed from version 2.18b as scope can now be imported and exported.
 			setCurrentSqliteTable("organisation");
 			// build and execute query
 			rs = sqlite.query("SELECT * FROM organisation", null);

@@ -49,11 +49,11 @@
 						<tr data-trick-class="ExcludeDynamicParameter">
 							<th class="textaligncenter" colspan='${isEditable? 3:2 }'><spring:message code="label.exclude.dynamic.parameters"/></th>
 						</tr>
-						<c:forEach items="${excludeAcronyms}" var="dynamicAcronym" varStatus="status">
-							<spring:message text="${dynamicAcronym}" var="acronym"/>
+						<c:forEach items="${excludeAcronyms}" var="entrySet" varStatus="status">
+							<spring:message text="${entrySet.key}" var="acronym"/>
 							<tr data-trick-class="ExcludeDynamicParameter" data-trick-id="${acronym}">
 								<td class="textaligncenter">${acronym}</td>
-								<td class="textaligncenter"><fmt:formatNumber value="${0}" maxFractionDigits="4" minFractionDigits="4" /></td>
+								<td class="textaligncenter"><fmt:formatNumber value="${entrySet.value}" maxFractionDigits="4" minFractionDigits="4" /></td>
 								<c:if test="${isEditable}">
 									<td class='text-center' data-name='action'><button class='btn btn-warning' onclick="restoreDynamicParameter('${acronym}')"><i class='glyphicon glyphicon-repeat'></i></button></td>
 								</c:if>
