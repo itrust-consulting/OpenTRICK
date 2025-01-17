@@ -329,7 +329,7 @@
 		<li>Create an analysis from scratch;</li>
 		<li>Create an analysis based on existing analysis.</li>
 	</ul>
-	<h4>Create a new analysis from scratch</h4>
+	<h4 id="create-analysis-from-scratch">Create a new analysis from scratch</h4>
 	<p>The information required to create the analysis is the following:</p>
 	<ul>
 		<li>Type: Choose if the risk analysis should be made quantitatively, qualitatively, or a mix of both;</li>
@@ -353,23 +353,24 @@
 		<li>Max impact: Specify the maximum value for the quantitative impact scale (only for mixed analysis). This option cannot be changed if “From profile”
 			is selected in the list above, since in that case the maximum from the profile is considered. Note that the value provided
 			here is only used to initialise the scale with default values; you can fully change the scale afterwards.</li>
-	</ul>
-	<p>Once all the parameters have been filled in, click the “Save” button to generate the new risk analysis.</p>
-	<figure id="_FIG_22" class="figure">
+			Once all the parameters have been filled in, click the “Save” button to generate the new risk analysis.
+		</ul>
+		<figure id="_FIG_22" class="figure">
 		<img src="img/24.png" class="figure-img img-fluid" />
 		<figcaption class="figure-caption">Create a new analysis.</figcaption>
 	</figure>
+	
 	<h4>Create a new analysis by taking parts of existing analysis</h4>
 	<p>If you want to reuse parts of existing analyses for creating a new one, click on the “Advanced” tab.</p>
 	<figure id="_FIG_23" class="figure">
-		<img src="img/25.png" class="figure-img img-fluid" />
+		<img src="img/25_upd.png" class="figure-img img-fluid" />
 		<figcaption class="figure-caption">Create new analysis from existing analysis.</figcaption>
 	</figure>
 	<p>In the advanced tab, choose a customer and an analysis from which you want to pick some parts to be put in your new risk
 		analysis. Now you get a list of existing versions of the risk analysis. To copy the parts you want to reuse, drag, and
 		drop the version from which you want to copy parts in the corresponding fields on the right side.</p>
 	<figure id="_FIG_24" class="figure">
-		<img src="img/26.png" class="figure-img img-fluid" />
+		<img src="img/26_upd.png" class="figure-img img-fluid" />
 		<figcaption class="figure-caption">Example of elements taken over from existing analyses.</figcaption>
 	</figure>
 	<p>You can copy the scope, the risk information (brainstorming), the parameters, the assets, the scenarios, the risk estimation,
@@ -941,8 +942,8 @@
 		<caption>Description of parameters in the scope table.</caption>
 		<thead>
 			<tr>
-				<th>Column</th>
 				<th>Description</th>
+				<th>Value</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -1207,6 +1208,69 @@
 		vital. In <a href="#_FIG_54">[Figure]</a>, all areas highlighted in blue are editable. The indicated values should be in accordance with the size and
 		financial situation of the organisation.</p>
 	<p>The impact scale values are used for computation during the risk estimation step.</p>
+
+	<h3 id="dynamic-probability-parameters">Dynamic probability parameters</h3>
+	<p>In order to do a quantitative evaluation modelling dynamic parameters can be added to the risk analysis. 
+		<ul>The following steps can be used to achieve this:
+			<li><strong>Add Probe to access OpenTRICK API.</strong> Refer <a href="#ids">[SECTION]</a></li>
+			<li><strong>Enable probe subscription for the risk analysis. </strong>Refer <a href="#manage-ids">[SECTION]</a>. Note that multiple 
+			analysis can share the same probe and thus there are certain limitations with the use of these probes.</li>
+			<li><strong>Setup dynamic parameters for risk analysis. </strong>Use the script <a href="./js/SRC_Rxxx_TS-NotifyToTS_v0.0.2.txt" target="_blank"> Push-To-TS </a> in a power shell client to set dynamic parameters.
+				Refer <a href="#_set_dynamic_params" target="_blank"> [FIGURE] </a> for setting dynamic parameters defined in a CSV file Example: <a href="./js/data.csv">data.csv</a>. 
+				All the analysis where the probe subscription is enabled will have the dynamic parameters set after running this script on command line. The script if run successfully will return
+				a status of 200. Once set these parameters are visible in "Risk context" as "Dynamic probability parameters" Refer <a href="#_view_dynamic_parameters" target="_blank"> [FIGURE] </a>. <br><br>
+				<em>Please note that dynamic parameters are prefixed with the name of the probe, where any special characters in the probe name are replaced by underscores ("_"). Additionally, any special characters in the parameter name are also replaced by underscores to prevent issues with mathematical operators (e.g., "-") that could interfere with expression evaluation.
+				</em>
+			</li>
+			<li><strong>Setup impacts based on dynamic parameters. </strong>Once the dynamic parameters are set these parameters can be used as arithmetic expressions to define impacts for the given risk analysis
+				Refer <a href="#_set_impacts_based_on_dynamic_params" target="_blank"> [FIGURE] </a>.</li>			
+		</ul>	
+	</p>
+	
+	<figure id="_set_dynamic_params" class="figure">
+		<img src="img/SetDynamicParametersExample.png" class="figure-img img-fluid" />
+		<figcaption class="figure-caption">Setting dymamic parameters from power shell.</figcaption>
+	</figure>
+
+	<figure id="_view_dynamic_parameters" class="figure">
+		<img src="img/DynamicParamsExample.png" class="figure-img img-fluid" />
+		<figcaption class="figure-caption">Dynamic parameters view.</figcaption>
+	</figure>
+
+	<figure id="_set_impacts_based_on_dynamic_params" class="figure">
+		<img src="img/ImpactsBasedOnDynamicParamsExample.png" class="figure-img img-fluid" />
+		<figcaption class="figure-caption">Setting impacts based on dynamic parameters in Risk Analysis.</figcaption>
+	</figure>
+
+	<h4 id="exclusion-and-reinclusion-of-dynamic-params">Exclusion and reinclusion of dynamic parameters</h4>
+	<ul>
+		<li><strong>Exclusion:</strong>Dynamic parameters once added to risk analysis can be excluded from the analysis by pressing the trash button next to the parameter.
+			These excluded parameters are moved to "Excluded dynamic parameters" section.
+			If a parameter is in use (example an expression in the risk analysis) it cannot be excluded.
+			A permanent exclusion of paramater can only happen if the risk analysis unsubscribes from the probe and doesnt subscribe again.
+		<li><strong>Reinclusion:</strong>Dynamic parameters once excluded can be reincluded by pressing the redo button.</li>
+		<li><strong>Properties of Exclusion & Reinclusion:</strong>
+			<ul>
+				<li>If an excluded parameter is added again by running the Push-To-TS script (whether with the same or modified value):
+					<ul>
+						<li>It will not be automatically moved to the dynamic parameter list. Instead, it will remain in the excluded parameter list until it is manually restored.</li>
+						<li>The value of parameter will be updated however.</li>
+					</ul>
+				</li>
+				<li>If the analysis is unsubscribed from the probe, the excluded parameters will no longer be available/visible in the analysis.
+					Re-subscribing to the probe will show up the excluded list corresponding to the given probe.
+				</li>
+			</ul>
+		</li>		
+	</ul>
+	<figure id="_FIG_DY1" class="figure">
+		<img src="img/DynamicParamsIncluded&Excluded.png" class="figure-img img-fluid" />
+		<figcaption class="figure-caption">Exclude or reinclude dynamic parameters.</figcaption>
+	</figure>
+	
+	
+
+
 	<h3>Maturity parameters</h3><!---must be explained how to implement it-->
 	<p>Only if you imported "Maturity" from the measures collection for the risk analysis:</p>
 
@@ -2594,7 +2658,7 @@
 	<h3 id="export--">Export</h3>
 	<p>Clicking on “Export” will open the centralised export interface, from where most of the data entered into OpenTRICK can be exported to portable formats.</p>
 	<figure class="figure" id="_FIG_exportui">
-		<img src="img/export_v15.png" class="figure-img img-fluid" />
+		<img src="img/export_v15_1.png" class="figure-img img-fluid" />
 		<figcaption class="figure-caption">Centralized export interface.</figcaption>
 	</figure>
 	<p>The interface is structured as follows: on the right-hand side, the user can choose what shall be exported. The left-hand side of the interface will then show configuration options (if applicable), which are explained in the sub-sections below. As a final step, the data can be exported via the “Export” button in the lower right corner. See <a href="#_FIG_exportui">[Figure]</a> for an illustration.</p>
@@ -2777,6 +2841,9 @@
 	</ul>
 	<div class="alert alert-warning">The risk sheet is only meant for documentation/compliance purposes. It cannot be imported back into OpenTRICK! Consider exporting the risk estimations, instead.</div>
 	
+	<h4 id="export--scope">Scope</h4>
+	<p>Exports Scope of the risk analysis as an excel file. This scope can be viewed in Risk context->Scope tab</p>
+
 	<h4 id="export--measures">Security measures</h4>
 	<p>Exports all security measures from the selected measure collections as an Excel sheet. Multiple standards can be selected using the SHIFT and CTRL keys on the keyboard.</p>
 	<h4 id="word--report">Word report</h4>
@@ -3076,6 +3143,18 @@
 	</figure>
 	<h4 id="import--risk-scenario">Risk scenarios</h4>
 	Imports back previously exported risk scenarios from an Excel sheet produced by OpenTRICK that can be edited manually before being imported.
+	<h4 id="import--scope">Scope</h4>
+	<p>Imports scope of the risk analysis which can be viewed under Risk context->Scope. 
+		There are two modes to import a scope:
+		<ul>
+			<li><strong>Overwrite:</strong>Clears all data from the sheets in OpenTRICK, and replaces it with the data contained in the provided Excel file. It is strongly recommended to use a previously exported file as a template for import.</li>
+			<li><strong>Update:</strong> If this mode is selected the import of a brainstorming excel sheet will not erase the existing values before the import. When this option is selected the values that have the same description are overwritten.</li>
+		</ul>
+		<figure class="figure">
+			<img src="img/import_scope.png" class="figure-img img-fluid" />
+			<figcaption class="figure-caption">Scope import dialog.</figcaption>
+		</figure>
+	</p>
 	<h4 id="import--security-measures">Security measures</h4>
 	<p>Imports back previously exported security measures from an Excel spreadsheet. The format of the file is the same than the one exported by OpenTRICK (<a href="#export--measures">[Section]</a>). Instead of starting from a raw file, consider exporting a file, adapting it, and importing it.</p>
 	<h3 id="rrf-only-for-quantitative-risk-analyses">Risk reduction factor (only for quantitative risk analyses)</h3>
@@ -3135,6 +3214,7 @@
 		<li><strong>Enable ILR analysis:</strong> Enables the Risk analysis with ILR compatibility. The analysis can be exported in ILR compatible JSON format and further imported in Serima platform ( <a href="#export--json_interface">[Section]</a>).</li>
 		<li><strong>Show hidden comments:</strong> displays the “hidden comment” in the risk sheets ( <a href="#risk-assessment">[Section]</a>). This field was used in old OpenTRICK versions, and is hidden by default in more recent releases.</li>
 		<li><strong>Show dynamic analysis:</strong> enables the use of dynamic parameters in the risk analysis for the sake of real-time risk monitoring.</li>
+		<li><strong>Display excluded dynamic parameters:</strong> enables viewing and in turn re-inclusion of the excluded dynamic parameters from a risk analysis</li>
 		<li><strong>Include qualitative impacts into quantitative report:</strong> whether to include risk assessments for <em>qualitative</em> impacts in a <em>quantitative</em> report.</li>
 	</ul>
 	<h2 id="close-analysis">Close analysis</h2>
@@ -4060,6 +4140,16 @@
 	</table>
 
 	<h1 id="annex-d-changelog">Annex D – Changelog</h1>
+
+	<h2 id="whats-new-in-ts-2.18">What's new in OpenTRICK 2.18</h2>
+	<ul>
+		<li>Import (Refer <a href="#import--scope">[Section]</a>) of scope and export (Refer <a href="#export--scope">[Section]</a>) of scope.</li>
+		<li>Enable copying asset dependency while creating a new analysis from parts of existing Risk analysis (Refer <a href="#creating-a-new-analysis">[Section]</a>).</li>
+		<li>Enable viewing and reinclusion of excluded dynamic parameters from a risk analysis (Refer <a href="#advanced-settings">[Section]</a>).</li>
+		<li>Dynamic parameters exclusion and reinclusion (Refer <a href="#exclusion-and-reinclusion-of-dynamic-params">[Section]</a>).</li>
+		<li>Security improvement around connectivity with <a href="https://draw.trickservice.com">DRAW</a>.</li>
+		<li>Bug fixes around RRF sheet export, creation of analysis from existing analysis.</li>
+	</ul>
 
 	<h2 id="whats-new-in-ts-2.17">What's new in OpenTRICK 2.17</h2>
 	<ul>
