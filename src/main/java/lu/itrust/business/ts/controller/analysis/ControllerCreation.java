@@ -10,11 +10,13 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.Map.Entry;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -66,6 +68,7 @@ import lu.itrust.business.ts.database.service.ServiceUserAnalysisRight;
 import lu.itrust.business.ts.exception.TrickException;
 import lu.itrust.business.ts.form.AnalysisForm;
 import lu.itrust.business.ts.helper.JsonMessage;
+import lu.itrust.business.ts.helper.NaturalOrderComparator;
 import lu.itrust.business.ts.model.analysis.Analysis;
 import lu.itrust.business.ts.model.analysis.AnalysisType;
 import lu.itrust.business.ts.model.analysis.helper.AnalysisBaseInfo;
@@ -515,6 +518,7 @@ public class ControllerCreation {
 			if (analysisForm.isAssetDependancy() && !assets.isEmpty()) {
 				final Map<Long, AssetNode> nodes = new HashMap<>();
 				final Map<Long, AssetImpact> assetImpacts = new HashMap<>();
+				final Set<ScaleType> scales = new HashSet<>();
 
 				for (AssetNode node : serviceAssetNode.findByAnalysisId(analysisForm.getAsset())) {
 					final AssetImpact impact = assetImpacts.computeIfAbsent(node.getImpact().getId(),
@@ -532,6 +536,16 @@ public class ControllerCreation {
 								.collect(Collectors.toMap(AssetEdge::getChild, Function.identity())))
 
 						);
+
+				assetImpacts.values().stream().forEach(e -> {
+					scales.addAll(e.getAvailabilityImpacts().keySet());
+					scales.addAll(e.getConfidentialityImpacts().keySet());
+					scales.addAll(e.getIntegrityImpacts().keySet());
+				});
+
+				analysis.setIlrImpactTypes(scales.stream()
+						.sorted((e1, e2) -> NaturalOrderComparator.compareTo(e1.getDisplayName(), e2.getDisplayName()))
+						.toList());
 
 				analysis.setDocuments(serviceSimpleDocument.findByAnalysisId(analysisForm.getAsset()).stream()
 						.map(SimpleDocument::new)
