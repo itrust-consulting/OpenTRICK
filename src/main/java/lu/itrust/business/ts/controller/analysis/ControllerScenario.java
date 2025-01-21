@@ -132,7 +132,7 @@ public class ControllerScenario {
 					"Scenario was updated successfully", locale));
 		} catch (Exception e) {
 			// return error message
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage
 					.Error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 		}
@@ -169,7 +169,7 @@ public class ControllerScenario {
 
 		} catch (Exception e) {
 			// return error message
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			errors.add(JsonMessage
 					.Error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale)));
 			return errors;
@@ -199,11 +199,11 @@ public class ControllerScenario {
 			return JsonMessage.Success(messageSource.getMessage("success.scenario.delete.successfully", null,
 					"Scenario was deleted successfully", locale));
 		} catch (TrickException e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			// return error message
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage.Error(messageSource.getMessage("error.scenario.delete.failed", null,
 					"Scenario cannot be deleted", locale));
 		}
@@ -277,7 +277,7 @@ public class ControllerScenario {
 			return JsonMessage.Success(messageSource.getMessage("success.delete.assettypevalue.duplication", null,
 					"Duplication were successfully deleted", locale));
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage.Error(messageSource.getMessage("error.delete.assettypevalue.duplication", null,
 					"Duplication cannot be deleted", locale));
 		}
@@ -348,11 +348,11 @@ public class ControllerScenario {
 			results.put("id", scenario.getId());
 		} catch (TrickException e) {
 			errors.put("scenario", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 		} catch (Exception e) {
 			errors.put("scenario",
 					messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 		}
 		return results;
 
@@ -560,11 +560,11 @@ public class ControllerScenario {
 			else
 				errors.put("scenario",
 						messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 		} catch (Exception e) {
 			errors.put("scenario",
 					messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 		}
 		return null;
 

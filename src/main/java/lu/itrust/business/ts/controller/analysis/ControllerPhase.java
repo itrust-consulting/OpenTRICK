@@ -151,7 +151,7 @@ public class ControllerPhase {
 		} catch (TrickException e) {
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage.Error(messageSource.getMessage("error.phase.unknown", null, "An unknown error occurred while phase deleting", locale));
 		}
 	}
@@ -242,12 +242,12 @@ public class ControllerPhase {
 			return errors.isEmpty() ? JsonMessage.Success(messageSource.getMessage("success.phase.save.update", new Object[] { form.getId() }, null, locale)) : errors;
 
 		} catch (TrickException e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			errors.put("error", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			if (e instanceof AccessDeniedException)
 				throw e;
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			errors.put("error", messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 		}
 		return errors;

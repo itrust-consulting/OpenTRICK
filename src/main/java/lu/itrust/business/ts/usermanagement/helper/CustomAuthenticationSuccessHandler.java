@@ -82,20 +82,20 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
 				System.out.println(stringdate + " CustomAuthenticationSuccessHandler - Pre-authentication: "
 						+ authentication.getName() + " is pre-authenticated! Requesting IP: "
 						+ remoteaddr);
-				TrickLogManager.Persist(LogType.AUTHENTICATION, "log.user.pre_authenticated",
+				TrickLogManager.persist(LogType.AUTHENTICATION, "log.user.pre_authenticated",
 						String.format("%s is pre-authenticated from %s", authentication.getName(), remoteaddr),
 						authentication.getName(), LogAction.SIGN_IN, remoteaddr);
 			} else {
 				System.out.println(
 						stringdate + " CustomAuthenticationSuccessHandler - SUCCESS: Login success of user '"
 								+ authentication.getName() + "'! Requesting IP: " + remoteaddr);
-				TrickLogManager.Persist(LogType.AUTHENTICATION, "log.user.connect",
+				TrickLogManager.persist(LogType.AUTHENTICATION, "log.user.connect",
 						String.format("%s connects from %s", authentication.getName(), remoteaddr),
 						authentication.getName(), LogAction.SIGN_IN, remoteaddr);
 				accountLockerManager.clean(authentication.getName(), remoteaddr);
 			}
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 		} finally {
 			if (!response.isCommitted())
 				super.onAuthenticationSuccess(request, response, authentication);

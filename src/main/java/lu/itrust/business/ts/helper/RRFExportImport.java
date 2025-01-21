@@ -140,7 +140,7 @@ public class RRFExportImport {
 			loadScenarios(analysis.getScenarios(), analysis.getAssets(), mlPackage.getWorkbookPart(), formatter);
 			loadStandards(analysis.getAnalysisStandards().values(), mlPackage.getWorkbookPart(), formatter);
 			serviceAnalysis.saveOrUpdate(analysis); // Log
-			TrickLogManager.Persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.import.raw.rrf",
+			TrickLogManager.persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.import.raw.rrf",
 					String.format("Analysis: %s, version: %s, type: Raw RRF", analysis.getIdentifier(),
 							analysis.getVersion()),
 					username, LogAction.IMPORT,

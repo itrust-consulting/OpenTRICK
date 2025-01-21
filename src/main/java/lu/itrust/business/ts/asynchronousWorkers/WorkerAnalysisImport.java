@@ -101,7 +101,7 @@ public class WorkerAnalysisImport extends WorkerImpl {
 				}
 			}
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			setError(e);
 		} finally {
 			if (isWorking()) {
@@ -179,7 +179,7 @@ public class WorkerAnalysisImport extends WorkerImpl {
 		/**
 		 * Log
 		 */
-		TrickLogManager.Persist(LogType.ANALYSIS, "log.analysis.import", String.format("Analyis: %s, version: %s", analysis.getIdentifier(), analysis.getVersion()), username,
+		TrickLogManager.persist(LogType.ANALYSIS, "log.analysis.import", String.format("Analyis: %s, version: %s", analysis.getIdentifier(), analysis.getVersion()), username,
 				LogAction.IMPORT, analysis.getIdentifier(), analysis.getVersion());
 	}
 
@@ -217,7 +217,7 @@ public class WorkerAnalysisImport extends WorkerImpl {
 
 		} catch (TrickException e) {
 			try {
-				TrickLogManager.Persist(e);
+				TrickLogManager.persist(e);
 				if (session != null && session.getTransaction().getStatus().canRollback())
 					session.getTransaction().rollback();
 			} catch (Exception e1) {
@@ -228,7 +228,7 @@ public class WorkerAnalysisImport extends WorkerImpl {
 			}
 		} catch (Exception e) {
 			try {
-				TrickLogManager.Persist(e);
+				TrickLogManager.persist(e);
 				if (session != null && session.getTransaction().getStatus().canRollback())
 					session.getTransaction().rollback();
 			} catch (Exception e1) {
@@ -242,7 +242,7 @@ public class WorkerAnalysisImport extends WorkerImpl {
 				if (session != null && session.isOpen())
 					session.close();
 			} catch (Exception e) {
-				TrickLogManager.Persist(e);
+				TrickLogManager.persist(e);
 			} finally {
 				if (isWorking()) {
 					synchronized (this) {

@@ -157,10 +157,10 @@ public class ControllerAsset {
 			return JsonMessage.Success(messageSource.getMessage("success.asset.delete.successfully", null,
 					"Asset was deleted successfully", locale));
 		} catch (TrickException e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage.Error(
 					messageSource.getMessage("error.asset.delete.failed", null, "Asset cannot be deleted", locale));
 		}
@@ -300,9 +300,9 @@ public class ControllerAsset {
 			results.put("id", asset.getId());
 		} catch (TrickException e) {
 			errors.put("asset", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			errors.put("asset", messageSource.getMessage(e.getMessage(), null, locale));
 		}
 		return results;
@@ -373,7 +373,7 @@ public class ControllerAsset {
 					"Asset was updated successfully", locale));
 		} catch (Exception e) {
 			// return error message
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage
 					.Error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 		}
@@ -472,11 +472,11 @@ public class ControllerAsset {
 		} catch (TrickException e) {
 			// return error message
 			errors.put("asset", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 		} catch (Exception e) {
 			// return error message
 			errors.put("asset", messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 		}
 
 		// return error message

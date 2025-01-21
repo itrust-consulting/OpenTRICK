@@ -105,7 +105,7 @@ public class ServiceMessageNotifierImpl implements ServiceMessageNotifier, Seria
 				else
 					messagingTemplate.convertAndSendToUser(username, NOTIFICATION_DESTINATION, notification);
 			} catch (MessagingException e) {
-				TrickLogManager.Persist(e);
+				TrickLogManager.persist(e);
 			}
 		}
 	}

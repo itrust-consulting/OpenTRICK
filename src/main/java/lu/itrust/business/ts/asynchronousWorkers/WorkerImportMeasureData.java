@@ -103,7 +103,7 @@ public class WorkerImportMeasureData extends WorkerImpl {
 			}
 		} catch (Exception e) {
 			setError(e);
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 		} finally {
 			cleanUp();
 		}
@@ -155,7 +155,7 @@ public class WorkerImportMeasureData extends WorkerImpl {
 
 			getServiceTaskFeedback().send(getId(), handler);
 
-			TrickLogManager.Persist(LogLevel.INFO, LogType.ANALYSIS, "log.import.measure.data",
+			TrickLogManager.persist(LogLevel.INFO, LogType.ANALYSIS, "log.import.measure.data",
 					String.format("Analysis: %s, version: %s, Type: Measure data", analysis.getIdentifier(),
 							analysis.getVersion()),
 					username, LogAction.IMPORT,
@@ -167,14 +167,14 @@ public class WorkerImportMeasureData extends WorkerImpl {
 					if (session.getTransaction().getStatus().canRollback())
 						session.getTransaction().rollback();
 				} catch (Exception e1) {
-					TrickLogManager.Persist(e1);
+					TrickLogManager.persist(e1);
 				}
 			}
 			if (e instanceof TrickException) {
 				getServiceTaskFeedback().send(getId(), new MessageHandler(((TrickException) e).getCode(),
 						((TrickException) e).getParameters(), e.getMessage(), e));
 			} else {
-				TrickLogManager.Persist(e);
+				TrickLogManager.persist(e);
 				getServiceTaskFeedback().send(getId(),
 						new MessageHandler("error.500.message", "Internal error occurred", e));
 			}
@@ -183,7 +183,7 @@ public class WorkerImportMeasureData extends WorkerImpl {
 				if (session != null && session.isOpen())
 					session.close();
 			} catch (Exception e) {
-				TrickLogManager.Persist(e);
+				TrickLogManager.persist(e);
 			}
 			cleanUp();
 		}

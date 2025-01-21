@@ -126,7 +126,7 @@ public class WorkerComputeActionPlan extends WorkerImpl {
 				}
 			}
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			setError(e);
 		} finally {
 			if (isWorking()) {
@@ -250,34 +250,34 @@ public class WorkerComputeActionPlan extends WorkerImpl {
 				if (session != null && session.getTransaction().getStatus().canRollback())
 					session.getTransaction().rollback();
 			} catch (HibernateException e1) {
-				TrickLogManager.Persist(e1);
+				TrickLogManager.persist(e1);
 			}
 		} catch (TrickException e) {
 			try {
 				getServiceTaskFeedback().send(getId(),
 						new MessageHandler(e.getCode(), e.getParameters(), e.getCode(), e));
-				TrickLogManager.Persist(e);
+				TrickLogManager.persist(e);
 				if (session != null && session.getTransaction().getStatus().canRollback())
 					session.getTransaction().rollback();
 			} catch (Exception e1) {
-				TrickLogManager.Persist(e);
+				TrickLogManager.persist(e);
 			}
 		} catch (Exception e) {
 			try {
 				getServiceTaskFeedback().send(getId(), new MessageHandler("error.analysis.compute.actionPlan",
 						"Action Plan computation was failed", e));
-				TrickLogManager.Persist(e);
+				TrickLogManager.persist(e);
 				if (session != null && session.getTransaction().getStatus().canRollback())
 					session.getTransaction().rollback();
 			} catch (Exception e1) {
-				TrickLogManager.Persist(e);
+				TrickLogManager.persist(e);
 			}
 		} finally {
 			try {
 				if (session != null && session.isOpen())
 					session.close();
 			} catch (HibernateException e) {
-				TrickLogManager.Persist(e);
+				TrickLogManager.persist(e);
 			}
 			if (isWorking()) {
 				synchronized (this) {

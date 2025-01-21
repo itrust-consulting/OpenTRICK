@@ -129,15 +129,15 @@ public class ControllerIDS {
 			serviceIDS.saveOrUpdate(ids);
 
 			if (ids.getSubscribers() == null)
-				TrickLogManager.Persist(LogLevel.WARNING, LogType.ADMINISTRATION, "log.add.ids", String.format("Prefix: %s", ids.getLogin()), principal.getName(), LogAction.CREATE,
+				TrickLogManager.persist(LogLevel.WARNING, LogType.ADMINISTRATION, "log.add.ids", String.format("Prefix: %s", ids.getLogin()), principal.getName(), LogAction.CREATE,
 						ids.getLogin());
 			else
-				TrickLogManager.Persist(LogLevel.WARNING, LogType.ADMINISTRATION, "log.update.ids", String.format("Prefix: %s", ids.getLogin()), principal.getName(),
+				TrickLogManager.persist(LogLevel.WARNING, LogType.ADMINISTRATION, "log.update.ids", String.format("Prefix: %s", ids.getLogin()), principal.getName(),
 						LogAction.UPDATE, ids.getLogin());
 
 			return JsonMessage.Success(messageSource.getMessage("success.save.ids", null, "IDS has been successfully saved", locale));
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			if (e instanceof TrickException)
 				return JsonMessage.Error(messageSource.getMessage(((TrickException) e).getCode(), ((TrickException) e).getParameters(), e.getMessage(), locale));
 			else
@@ -153,14 +153,14 @@ public class ControllerIDS {
 				IDS ids = serviceIDS.get(id);
 				if (ids != null) {
 					serviceIDS.delete(ids);
-					TrickLogManager.Persist(LogLevel.WARNING, LogType.ADMINISTRATION, "log.delete.ids", String.format("Prefix: %s", ids.getLogin()), principal.getName(),
+					TrickLogManager.persist(LogLevel.WARNING, LogType.ADMINISTRATION, "log.delete.ids", String.format("Prefix: %s", ids.getLogin()), principal.getName(),
 							LogAction.DELETE, ids.getLogin());
 				}
 			});
 			return JsonMessage.Success(IDs.size() > 1 ? messageSource.getMessage("success.delete.multi.ids", null, "IDSs have been successfully deleted", locale)
 					: messageSource.getMessage("success.delete.single.ids", null, "IDS has been successfully deleted", locale));
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			if (e instanceof TrickException)
 				return JsonMessage.Error(messageSource.getMessage(((TrickException) e).getCode(), ((TrickException) e).getParameters(), e.getMessage(), locale));
 			else
@@ -181,14 +181,14 @@ public class ControllerIDS {
 						ids.setToken(Sha512DigestUtils.shaHex(UUID.randomUUID().toString() + ids.getPrefix() + System.nanoTime()));
 					} while (serviceIDS.exists(ids.getToken()));
 					serviceIDS.saveOrUpdate(ids);
-					TrickLogManager.Persist(LogLevel.WARNING, LogType.ADMINISTRATION, "log.update.ids.token",
+					TrickLogManager.persist(LogLevel.WARNING, LogType.ADMINISTRATION, "log.update.ids.token",
 							String.format("IDS token has been renewed, Target: %s", ids.getLogin()), principal.getName(), LogAction.RENEW, ids.getLogin());
 					newToken.put(id, ids.getToken());
 				}
 			});
 			return newToken;
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			if (e instanceof TrickException)
 				return JsonMessage.Error(messageSource.getMessage(((TrickException) e).getCode(), ((TrickException) e).getParameters(), e.getMessage(), locale));
 			else
@@ -241,7 +241,7 @@ public class ControllerIDS {
 					if (ids != null) {
 						ids.getSubscribers().add(analysis);
 						serviceIDS.saveOrUpdate(ids);
-						TrickLogManager.Persist(LogType.ANALYSIS, "log.subscribe.analysis.ids",
+						TrickLogManager.persist(LogType.ANALYSIS, "log.subscribe.analysis.ids",
 								String.format("Subscription to IDS: analysis: %s, version: %s, target: %s", analysis.getIdentifier(), analysis.getVersion(), ids.getLogin()),
 								principal.getName(), LogAction.GIVE_ACCESS, analysis.getIdentifier(), analysis.getVersion(), ids.getLogin());
 					}
@@ -249,7 +249,7 @@ public class ControllerIDS {
 			} else if (!status) {
 				ids.getSubscribers().remove(analysis);
 				serviceIDS.saveOrUpdate(ids);
-				TrickLogManager.Persist(LogType.ANALYSIS, "log.unsubscribe.analysis.ids",
+				TrickLogManager.persist(LogType.ANALYSIS, "log.unsubscribe.analysis.ids",
 						String.format("Unsubscription from IDS: analysis: %s, version: %s, target: %s", analysis.getIdentifier(), analysis.getVersion(), ids.getLogin()),
 						principal.getName(), LogAction.REMOVE_ACCESS, analysis.getIdentifier(), analysis.getVersion(), ids.getLogin());
 			}

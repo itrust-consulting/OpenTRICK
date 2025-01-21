@@ -99,7 +99,7 @@ public class WorkerGenerateTickets extends WorkerImpl {
 			session = getSessionFactory().openSession();
 			executeTask(session);
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			if (e instanceof TrickException) {
 				TrickException e1 = (TrickException) e;
 				getServiceTaskFeedback().send(getId(),
@@ -337,7 +337,7 @@ public class WorkerGenerateTickets extends WorkerImpl {
 			try {
 				client.close();
 			} catch (IOException e) {
-				TrickLogManager.Persist(e);
+				TrickLogManager.persist(e);
 			} finally {
 				client = null;
 			}
@@ -370,7 +370,7 @@ public class WorkerGenerateTickets extends WorkerImpl {
 			}
 		} catch (Exception e) {
 			setError(e);
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 		} finally {
 			cleanUp();
 		}

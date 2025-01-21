@@ -337,7 +337,7 @@ public class ValueFactory {
 			}
 			return findByValue(doubleValue, parameters);
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return null;
 		}
 	}

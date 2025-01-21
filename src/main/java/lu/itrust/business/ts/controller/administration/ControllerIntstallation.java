@@ -116,7 +116,7 @@ public class ControllerIntstallation {
 			errors.put("installProfileCustomer", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 			return null;
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			errors.put("installProfileCustomer", e.getMessage());
 			return null;
 		}
@@ -165,7 +165,7 @@ public class ControllerIntstallation {
 			errors.put("error", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 			return false;
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			errors.put("error", messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 			return false;
 		}

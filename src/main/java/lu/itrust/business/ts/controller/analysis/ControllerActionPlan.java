@@ -122,7 +122,7 @@ public class ControllerActionPlan extends AbstractController {
 					.getAssetsByActionPlanType((List<ActionPlanEntry>) model.asMap().get("actionplans")));
 			return "jsp/analyses/single/components/actionPlan/assets";
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			throw e;
 		}
 	}

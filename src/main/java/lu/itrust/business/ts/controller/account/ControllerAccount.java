@@ -190,7 +190,7 @@ public class ControllerAccount {
 		} catch (TrickException e) {// already logged
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage
 					.Error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 		}
@@ -249,7 +249,7 @@ public class ControllerAccount {
 		/**
 		 * Log
 		 */
-		TrickLogManager.Persist(LogType.ANALYSIS,
+		TrickLogManager.persist(LogType.ANALYSIS,
 				"log.analysis.store." + ReportType.getCodeName(wordReport.getType()) + ".download",
 				String.format("Analysis: %s, version: %s, exported at: %s, type: %s", wordReport.getIdentifier(),
 						wordReport.getVersion(), wordReport.getCreated(),
@@ -306,7 +306,7 @@ public class ControllerAccount {
 		/**
 		 * Log
 		 */
-		TrickLogManager.Persist(LogType.ANALYSIS, "log.analysis.store.data.download",
+		TrickLogManager.persist(LogType.ANALYSIS, "log.analysis.store.data.download",
 				String.format("Analysis: %s, version: %s, exported at: %s, type: data", userSqLite.getIdentifier(),
 						userSqLite.getVersion(), userSqLite.getCreated()),
 				principal.getName(), LogAction.DOWNLOAD, userSqLite.getIdentifier(), userSqLite.getVersion(),
@@ -421,7 +421,7 @@ public class ControllerAccount {
 			return errors;
 		} catch (Exception e) {
 			errors.put("user", messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return errors;
 		}
 	}
@@ -638,7 +638,7 @@ public class ControllerAccount {
 			}
 		} catch (Exception e) {
 			errors.put("user", messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 		}
 
 		return errors.isEmpty();
@@ -657,7 +657,7 @@ public class ControllerAccount {
 							URLEncoder.encode(user.getEmail(), "UTF-8"), secret))
 					.withSize(131, 131).stream().toByteArray());
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return null;
 		}
 	}

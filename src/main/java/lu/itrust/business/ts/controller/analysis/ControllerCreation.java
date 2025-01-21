@@ -672,10 +672,10 @@ public class ControllerCreation {
 			return JsonMessage.Success(messageSource.getMessage("success.analysis_custom.create", null,
 					"Your analysis has been successfully created", locale));
 		} catch (TrickException e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage.Error(messageSource.getMessage("error.unknown.create.analysis", null,
 					"An unknown error occurred while saving analysis", locale));
 		}

@@ -309,7 +309,7 @@ public class ControllerDataManager {
 			updateTokenCookie(request, response);
 			spreadsheetMLPackage.save(response.getOutputStream());
 			// Log
-			TrickLogManager.Persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.export.raw.action_plan",
+			TrickLogManager.persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.export.raw.action_plan",
 					String.format("Analysis: %s, version: %s, type: Raw action plan", analysis.getIdentifier(),
 							analysis.getVersion()),
 					principal.getName(), LogAction.EXPORT,
@@ -352,7 +352,7 @@ public class ControllerDataManager {
 			updateTokenCookie(request, response);
 			spreadsheetMLPackage.save(response.getOutputStream());
 			// Log
-			TrickLogManager.Persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.export.asset",
+			TrickLogManager.persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.export.asset",
 					String.format("Analysis: %s, version: %s, type: Asset", analysis.getIdentifier(),
 							analysis.getVersion()),
 					principal.getName(), LogAction.EXPORT,
@@ -398,7 +398,7 @@ public class ControllerDataManager {
 			updateTokenCookie(request, response);
 			spreadsheetMLPackage.save(response.getOutputStream());
 			// Log
-			TrickLogManager.Persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.export.scope",
+			TrickLogManager.persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.export.scope",
 					String.format("Analysis: %s, version: %s, type: Scope", analysis.getIdentifier(),
 							analysis.getVersion()),
 					principal.getName(), LogAction.EXPORT,
@@ -570,7 +570,7 @@ public class ControllerDataManager {
 			Files.copy(data.toPath(), response.getOutputStream());
 
 			// Log
-			TrickLogManager.Persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.export.ilr",
+			TrickLogManager.persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.export.ilr",
 					String.format("Analysis: %s, version: %s, type: ILR", analysis.getIdentifier(),
 							analysis.getVersion()),
 					principal.getName(), LogAction.EXPORT,
@@ -685,7 +685,7 @@ public class ControllerDataManager {
 			mlPackage.save(response.getOutputStream());
 
 			// Log
-			TrickLogManager.Persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.export.risk.estimation",
+			TrickLogManager.persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.export.risk.estimation",
 					String.format("Analysis: %s, version: %s, type: Risk estimation", analysis.getIdentifier(),
 							analysis.getVersion()),
 					principal.getName(), LogAction.EXPORT,
@@ -739,7 +739,7 @@ public class ControllerDataManager {
 			updateTokenCookie(request, response);
 			mlPackage.save(response.getOutputStream());
 			// Log
-			TrickLogManager.Persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.export.measure",
+			TrickLogManager.persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.export.measure",
 					String.format("Analysis: %s, version: %s, type: Measure data", analysis.getIdentifier(),
 							analysis.getVersion()),
 					principal.getName(), LogAction.EXPORT,
@@ -869,10 +869,10 @@ public class ControllerDataManager {
 			return JsonMessage.Success(
 					messageSource.getMessage("success.analysis.report.exporting", null, "Exporting report", locale));
 		} catch (TrickException e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			if (e instanceof AccessDeniedException)
 				throw e;
 			return JsonMessage.Error(
@@ -995,7 +995,7 @@ public class ControllerDataManager {
 			/**
 			 * Log
 			 */
-			TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.export.risk.information",
+			TrickLogManager.persist(LogLevel.WARNING, LogType.ANALYSIS, "log.export.risk.information",
 					String.format("Analysis: %s, version: %s", analysis.getIdentifier(), analysis.getVersion()),
 					principal.getName(), LogAction.EXPORT, analysis.getIdentifier(),
 					analysis.getVersion());
@@ -1114,7 +1114,7 @@ public class ControllerDataManager {
 					updateTokenCookie(request, response);
 					m.save(response.getOutputStream());
 					// log
-					TrickLogManager.Persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.export.raw.rrf",
+					TrickLogManager.persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.export.raw.rrf",
 							String.format("Analysis: %s, version: %s, type: Raw RRF", analysis.getIdentifier(),
 									analysis.getVersion()),
 							principal.getName(), LogAction.EXPORT,
@@ -1153,7 +1153,7 @@ public class ControllerDataManager {
 			updateTokenCookie(request, response);
 			spreadsheetMLPackage.save(response.getOutputStream());
 			// Log
-			TrickLogManager.Persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.export.asset",
+			TrickLogManager.persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.export.asset",
 					String.format("Analysis: %s, version: %s, type: Asset", analysis.getIdentifier(),
 							analysis.getVersion()),
 					principal.getName(), LogAction.EXPORT,
@@ -1457,10 +1457,10 @@ public class ControllerDataManager {
 			return JsonMessage.Success(messageSource.getMessage("success.import_rrf", null,
 					"Measure characteristics has been successfully imported", locale));
 		} catch (TrickException e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage
 					.Error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 		}
@@ -1631,7 +1631,7 @@ public class ControllerDataManager {
 								LinkedHashMap::new));
 			}
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return Collections.emptyMap();
 		} finally {
 			serviceStorage.delete(file.getAbsolutePath());

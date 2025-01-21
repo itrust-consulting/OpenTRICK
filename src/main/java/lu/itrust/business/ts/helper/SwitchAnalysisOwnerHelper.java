@@ -63,26 +63,26 @@ public class SwitchAnalysisOwnerHelper {
 		/**
 		 * Log
 		 */
-		TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.analysis.switch.owner",
+		TrickLogManager.persist(LogLevel.WARNING, LogType.ANALYSIS, "log.analysis.switch.owner",
 				String.format("Analysis: %s, version: %s, old: %s, new: %s", analysis.getIdentifier(), analysis.getVersion(), previousOwner.getLogin(), owner.getLogin()),
 				principal.getName(), LogAction.SWITCH_OWNER, analysis.getIdentifier(), analysis.getVersion(), previousOwner.getLogin(), owner.getLogin());
 		if (!(previousOwner == owner || previousOwner.getLogin().equals(principal.getName())) && owner.getLogin().equals(principal.getName())) {
-			TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.claim.ownership.analysis",
+			TrickLogManager.persist(LogLevel.WARNING, LogType.ANALYSIS, "log.claim.ownership.analysis",
 					String.format("Claims ownership of Analysis: %s, version: %s", analysis.getIdentifier(), analysis.getVersion()), principal.getName(), LogAction.AUTO_GRANT,
 					analysis.getIdentifier(), analysis.getVersion());
 		} else {
 			if (right == null)
-				TrickLogManager.Persist(LogType.ANALYSIS, "log.give.analysis.access.right",
+				TrickLogManager.persist(LogType.ANALYSIS, "log.give.analysis.access.right",
 						String.format("Analysis: %s, version: %s, access: %s, target: %s", analysis.getIdentifier(), analysis.getVersion(), AnalysisRight.ALL.toLower(),
 								owner.getLogin()),
 						principal.getName(), LogAction.GIVE_ACCESS, analysis.getIdentifier(), analysis.getVersion(), AnalysisRight.ALL.toLower(), owner.getLogin());
 			else if (right != AnalysisRight.ALL)
-				TrickLogManager.Persist(LogType.ANALYSIS, "log.grant.analysis.access.right",
+				TrickLogManager.persist(LogType.ANALYSIS, "log.grant.analysis.access.right",
 						String.format("Analysis: %s, version: %s, access: %s, target: %s", analysis.getIdentifier(), analysis.getVersion(), AnalysisRight.ALL.toLower(),
 								owner.getLogin()),
 						principal.getName(), LogAction.GRANT_ACCESS, analysis.getIdentifier(), analysis.getVersion(), AnalysisRight.ALL.toLower(), owner.getLogin());
 			if (!hasAccess)
-				TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.give.access.to.customer",
+				TrickLogManager.persist(LogLevel.WARNING, LogType.ANALYSIS, "log.give.access.to.customer",
 						String.format("Customer: %s, target: %s", analysis.getCustomer().getOrganisation(), owner.getLogin()), principal.getName(), LogAction.GIVE_ACCESS,
 						analysis.getCustomer().getOrganisation(), owner.getLogin());
 		}

@@ -89,14 +89,14 @@ public class AccountLockerManagerImpl implements AccountLockerManager, Serializa
 			if (names.length == 2) {
 				if (names[0].startsWith("service-attempt")) {
 					final String serviceName = names[0].replace("service-attempt-", "");
-					TrickLogManager.Persist(LogLevel.WARNING, String.format("error.%s.ip.locked", serviceName),
+					TrickLogManager.persist(LogLevel.WARNING, String.format("error.%s.ip.locked", serviceName),
 							String.format(
 									"The following service `%s` will not reacheable from this IP address `%s` for %d minutes",
 									serviceName, names[1], lockMinute,
 									names[1]),
 							names[0], LogAction.DENY_ACCESS, serviceName, names[1], lockMinute + "");
 				} else {
-					TrickLogManager.Persist(LogLevel.WARNING, "error.user.account.ip.locked",
+					TrickLogManager.persist(LogLevel.WARNING, "error.user.account.ip.locked",
 							String.format("%s account is locked for %d minutes from %s", names[0], lockMinute,
 									names[1]),
 							names[0], LogAction.LOCK_ACCOUNT, names[0], lockMinute + "",
@@ -104,7 +104,7 @@ public class AccountLockerManagerImpl implements AccountLockerManager, Serializa
 					serviceEmailSender.sendAccountLocked(key, names[1], accountLocker.getLockTime(), names[0]);
 				}
 			} else {
-				TrickLogManager.Persist(LogLevel.WARNING, "error.user.account.locked",
+				TrickLogManager.persist(LogLevel.WARNING, "error.user.account.locked",
 						String.format("%s account is locked for %d minutes", username, lockMinute), username,
 						LogAction.LOCK_ACCOUNT, username, lockMinute + "");
 				serviceEmailSender.sendAccountLocked(key, null, accountLocker.getLockTime(), names[0]);

@@ -184,7 +184,7 @@ public class WorkerImportEstimation extends WorkerImpl {
 			}
 		} catch (Exception e) {
 			setError(e);
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 		} finally {
 			cleanUp();
 		}
@@ -286,7 +286,7 @@ public class WorkerImportEstimation extends WorkerImpl {
 			else
 				messageHandler = new MessageHandler("error.500.message", "Internal error", e);
 			getServiceTaskFeedback().send(getId(), messageHandler);
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 		} finally {
 			if (session != null) {
 				try {
@@ -566,7 +566,7 @@ public class WorkerImportEstimation extends WorkerImpl {
 		usedScales.stream().filter(e -> !analysis.getIlrImpactTypes().contains(e))
 				.forEach(e -> analysis.getIlrImpactTypes().add(e));
 
-		TrickLogManager.Persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.import.asset",
+		TrickLogManager.persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.import.asset",
 				String.format("Analysis: %s, version: %s, type: Asset", analysis.getIdentifier(),
 						analysis.getVersion()),
 				getUsername(), LogAction.IMPORT, analysis.getIdentifier(),
@@ -878,7 +878,7 @@ public class WorkerImportEstimation extends WorkerImpl {
 
 		valuesToDelete.forEach(v -> daoAssessment.delete(v));
 
-		TrickLogManager.Persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.import.risk.estimation",
+		TrickLogManager.persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.import.risk.estimation",
 				String.format("Analysis: %s, version: %s, type: Risk estimation", analysis.getIdentifier(),
 						analysis.getVersion()),
 				getUsername(), LogAction.IMPORT,
@@ -1057,7 +1057,7 @@ public class WorkerImportEstimation extends WorkerImpl {
 					}));
 		}
 
-		TrickLogManager.Persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.import.scenario",
+		TrickLogManager.persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.import.scenario",
 				String.format("Analysis: %s, version: %s, type: Scenario", analysis.getIdentifier(),
 						analysis.getVersion()),
 				getUsername(), LogAction.IMPORT,

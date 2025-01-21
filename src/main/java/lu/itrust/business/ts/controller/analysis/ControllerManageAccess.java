@@ -83,7 +83,7 @@ public class ControllerManageAccess {
 			attributes.addFlashAttribute("error", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			attributes.addFlashAttribute("error", messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 		}
 		return "redirect:/Analysis/All";
 	}
@@ -133,7 +133,7 @@ public class ControllerManageAccess {
 			manageAnalysisRight.updateAnalysisRights(principal, rightsForm);
 			return JsonMessage.Success(messageSource.getMessage("success.update.analysis.right", null, "Analysis access rights were successfully updated!", locale));
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			if (e instanceof TrickException)
 				return JsonMessage.Error(messageSource.getMessage(((TrickException) e).getCode(), ((TrickException) e).getParameters(), e.getMessage(), locale));
 			return JsonMessage.Error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));

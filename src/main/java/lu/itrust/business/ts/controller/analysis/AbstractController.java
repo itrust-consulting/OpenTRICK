@@ -103,7 +103,7 @@ public abstract class AbstractController {
 				}
 			}
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 		} finally {
 			if (model != null) {
 				model.addAttribute(ALLOWED_TICKETING, allowedTicketing);

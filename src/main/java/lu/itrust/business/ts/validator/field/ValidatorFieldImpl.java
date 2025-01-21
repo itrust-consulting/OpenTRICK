@@ -118,11 +118,11 @@ public abstract class ValidatorFieldImpl implements ValidatorField {
 				if (error != null)
 					errors.put(field.getName(), error);
 			} catch (SecurityException e) {
-				TrickLogManager.Persist(e);
+				TrickLogManager.persist(e);
 			} catch (IllegalArgumentException e) {
-				TrickLogManager.Persist(e);
+				TrickLogManager.persist(e);
 			} catch (IllegalAccessException e) {
-				TrickLogManager.Persist(e);
+				TrickLogManager.persist(e);
 			}
 		}
 		return errors;
@@ -146,11 +146,11 @@ public abstract class ValidatorFieldImpl implements ValidatorField {
 				if (error != null)
 					errors.put(field.getName(), error);
 			} catch (SecurityException e) {
-				TrickLogManager.Persist(e);
+				TrickLogManager.persist(e);
 			} catch (IllegalArgumentException e) {
-				TrickLogManager.Persist(e);
+				TrickLogManager.persist(e);
 			} catch (IllegalAccessException e) {
-				TrickLogManager.Persist(e);
+				TrickLogManager.persist(e);
 			}
 		}
 		return errors;

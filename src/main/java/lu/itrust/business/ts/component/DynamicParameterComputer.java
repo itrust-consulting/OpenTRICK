@@ -93,7 +93,7 @@ public class DynamicParameterComputer {
 		if (analysis.isArchived())
 			return;
 		// Log
-		TrickLogManager.Persist(LogType.ANALYSIS, "log.analysis.compute.dynamicparameters",
+		TrickLogManager.persist(LogType.ANALYSIS, "log.analysis.compute.dynamicparameters",
 				String.format("Updating dynamic parameters for analysis: %s, version: %s", analysis.getIdentifier(), analysis.getVersion()), userName, LogAction.UPDATE,
 				analysis.getIdentifier(), analysis.getVersion());
 

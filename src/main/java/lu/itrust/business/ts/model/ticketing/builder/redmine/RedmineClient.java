@@ -135,7 +135,7 @@ public class RedmineClient implements Client {
 			this.manager = RedmineManagerFactory.createWithUserAuth(getUrl(), username, password, client);
 			return this.manager.getUserManager().getCurrentUser() != null;
 		} catch (RedmineException e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return false;
 		}
 	}
@@ -670,7 +670,7 @@ public class RedmineClient implements Client {
 			this.manager = RedmineManagerFactory.createWithApiKey(getUrl(), token, client);
 			return this.manager.getUserManager().getCurrentUser() != null;
 		} catch (RedmineException e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return false;
 		}
 	}

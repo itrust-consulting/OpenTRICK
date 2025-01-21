@@ -344,11 +344,11 @@ public class ControllerAssessment {
 			return new String("{\"success\":\"" + messageSource.getMessage("success.assessment.refresh", null,
 					"Assessments were successfully refreshed", locale) + "\"}");
 		} catch (TrickException e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			// return error
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return new String(
 					"{\"error\":\"" + messageSource.getMessage("error.internal.message.assessment.generation", null,
 							"An error occurred during the generation", locale) + "\"}");
@@ -439,7 +439,7 @@ public class ControllerAssessment {
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			// return error
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return new String(
 					"{\"error\":\"" + messageSource.getMessage("error.internal.assessment.ale.update", null,
 							"Assessment ale update failed: an error occurred", locale) + "\"}");
@@ -470,11 +470,11 @@ public class ControllerAssessment {
 			return new String("{\"success\":\"" + messageSource.getMessage("success.assessment.update", null,
 					"Assessments were successfully updated", locale) + "\"}");
 		} catch (TrickException e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			// return error
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return new String(
 					"{\"error\":\"" + messageSource.getMessage("error.internal.message.assessment.generation", null,
 							"An error occurred during the generation", locale) + "\"}");

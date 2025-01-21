@@ -116,14 +116,14 @@ public class ControllerProfile {
 				errors.put("analysisprofile", messageSource.getMessage("failed.analysis.duplication.start", null, "Error starting profile creation task!", locale));
 			return errors;
 		} catch (TrickException e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			errors.put("analysisprofile", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (AccessDeniedException e) {
-			TrickLogManager.Persist(LogLevel.ERROR, LogType.ANALYSIS, "log.analysis_profile.access_deny", String.format("Analysis: %d", idAnalysis), principal.getName(),
+			TrickLogManager.persist(LogLevel.ERROR, LogType.ANALYSIS, "log.analysis_profile.access_deny", String.format("Analysis: %d", idAnalysis), principal.getName(),
 					LogAction.DENY_ACCESS, idAnalysis + "");
 			errors.put("analysisprofile", e.getMessage());
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			errors.put("analysisprofile", e.getMessage());
 		}
 		return errors;
@@ -181,7 +181,7 @@ public class ControllerProfile {
 			return JsonMessage.Success(messageSource.getMessage("success.analysis.delete.successfully", null, "Analysis was deleted successfully", locale));
 		} catch (Exception e) {
 			// return error message
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage.Error(messageSource.getMessage("failed.delete.analysis", null, "Analysis cannot be deleted!", locale));
 		}
 	}

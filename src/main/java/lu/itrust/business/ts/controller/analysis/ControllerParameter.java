@@ -133,7 +133,7 @@ public class ControllerParameter extends AbstractController {
 					: JsonMessage.Warning(messageSource.getMessage("warning.analysis.update.impact_scale", null,
 							"Your analysis has not be updated", locale));
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage
 					.Error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 		}
@@ -162,7 +162,7 @@ public class ControllerParameter extends AbstractController {
 			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null,
 					"Too many tasks running in background", locale));
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage
 					.Error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 		}
@@ -340,7 +340,7 @@ public class ControllerParameter extends AbstractController {
 					"Parameter cannot be deleted as it still in used", locale));
 
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage
 					.Error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 		}
@@ -371,7 +371,7 @@ public class ControllerParameter extends AbstractController {
 					"Acronym does not exist!", locale));
 
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage
 					.Error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 		}
@@ -418,7 +418,7 @@ public class ControllerParameter extends AbstractController {
 					"Risk acceptance has been successfully updated", locale));
 		} catch (Exception e) {
 			e.printStackTrace();
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			if (e instanceof TrickException e1)
 				return JsonMessage.Error(messageSource.getMessage(e1.getCode(),
 						e1.getParameters(), e.getMessage(), locale));
@@ -485,7 +485,7 @@ public class ControllerParameter extends AbstractController {
 					"ILR SOA Scales had been successfully updated", locale));
 		} catch (Exception e) {
 			e.printStackTrace();
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			if (e instanceof TrickException)
 				return JsonMessage.Error(messageSource.getMessage(((TrickException) e).getCode(),
 						((TrickException) e).getParameters(), e.getMessage(), locale));
@@ -574,7 +574,7 @@ public class ControllerParameter extends AbstractController {
 			return result;
 
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage
 					.Error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 		}

@@ -253,7 +253,7 @@ public class MeasureManager {
 			analysisStandard.getMeasures().add(measure);
 			daoAnalysisStandard.saveOrUpdate(analysisStandard);
 
-			TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.add.measure",
+			TrickLogManager.persist(LogLevel.WARNING, LogType.ANALYSIS, "log.add.measure",
 					String.format("Analysis: %s, version: %s, target: Measure (%s) from: %s", analysis.getIdentifier(),
 							analysis.getVersion(), measureDescription.getReference(),
 							measureDescription.getStandard().getName()),
@@ -499,7 +499,7 @@ public class MeasureManager {
 			measure.setPhase(phase);
 			measure.setImplementationRate(0);
 			normalStandard.getMeasures().add(measure);
-			TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.add.measure",
+			TrickLogManager.persist(LogLevel.WARNING, LogType.ANALYSIS, "log.add.measure",
 					String.format("Analysis: %s, version: %s, target: Measure (%s) from: %s", analysis.getIdentifier(),
 							analysis.getVersion(), measureDescription.getReference(),
 							measureDescription.getStandard().getName()),
@@ -532,7 +532,7 @@ public class MeasureManager {
 			measure.setImplementationRate(0);
 			assetStandard.getMeasures().add(measure);
 
-			TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.add.measure",
+			TrickLogManager.persist(LogLevel.WARNING, LogType.ANALYSIS, "log.add.measure",
 					String.format("Analysis: %s, version: %s, target: Measure (%s) from: %s", analysis.getIdentifier(),
 							analysis.getVersion(), measureDescription.getReference(),
 							measureDescription.getStandard().getName()),
@@ -570,7 +570,7 @@ public class MeasureManager {
 			measure.setImplementationRate(implementationRate);
 			maturityStandard.getMeasures().add(measure);
 
-			TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.add.measure",
+			TrickLogManager.persist(LogLevel.WARNING, LogType.ANALYSIS, "log.add.measure",
 					String.format("Analysis: %s, version: %s, target: Measure (%s) from: %s", analysis.getIdentifier(),
 							analysis.getVersion(), measureDescription.getReference(),
 							measureDescription.getStandard().getName()),

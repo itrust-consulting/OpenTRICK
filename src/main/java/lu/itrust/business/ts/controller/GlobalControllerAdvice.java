@@ -69,7 +69,7 @@ public class GlobalControllerAdvice {
 	public String defaultErrorHandler(HttpServletRequest request, Exception e) throws Exception {
 		if (!(e instanceof AccessDeniedException || e instanceof AuthenticationException
 				|| AnnotationUtils.findAnnotation(e.getClass(), ResponseStatus.class) != null))
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 		throw e;
 	}
 }

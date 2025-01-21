@@ -160,7 +160,7 @@ public class WorkerScaleLevelMigrator extends WorkerImpl {
 				if (session != null && session.isOpen())
 					session.close();
 			} catch (HibernateException e) {
-				TrickLogManager.Persist(e);
+				TrickLogManager.persist(e);
 			}
 			if (isWorking()) {
 				synchronized (this) {
@@ -311,7 +311,7 @@ public class WorkerScaleLevelMigrator extends WorkerImpl {
 	private void cancelProcessing(Session session, Exception e) {
 		setError(e);
 		rollback(session);
-		TrickLogManager.Persist(e);
+		TrickLogManager.persist(e);
 	}
 
 	/**
@@ -325,7 +325,7 @@ public class WorkerScaleLevelMigrator extends WorkerImpl {
 			if (session != null && session.isOpen() && session.getTransaction().getStatus().canRollback())
 				session.getTransaction().rollback();
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 		}
 	}
 

@@ -192,7 +192,7 @@ public class ControllerMeasureCollection {
 			/**
 			 * Log
 			 */
-			TrickLogManager.Persist(LogType.KNOWLEDGE_BASE, "log.standard.add",
+			TrickLogManager.persist(LogType.KNOWLEDGE_BASE, "log.standard.add",
 					String.format("Standard: %s, version: %d", standard.getLabel(), standard.getVersion()),
 					principal.getName(), LogAction.CREATE, standard.getLabel(), String.valueOf(standard.getVersion()));
 		} else {
@@ -232,7 +232,7 @@ public class ControllerMeasureCollection {
 							standards.forEach(s -> {
 								s.setLabel(standard.getLabel());
 								serviceStandard.saveOrUpdate(s);
-								TrickLogManager.Persist(LogType.KNOWLEDGE_BASE, "log.standard.rename.label",
+								TrickLogManager.persist(LogType.KNOWLEDGE_BASE, "log.standard.rename.label",
 										String.format("Standard, name: %s, version: %d, old name: %s, old version: %d",
 												s.getLabel(), s.getVersion(), oldName, s.getVersion()),
 										principal.getName(), LogAction.RENAME, s.getLabel(),
@@ -240,7 +240,7 @@ public class ControllerMeasureCollection {
 							});
 							final int oldVersion = standard.getVersion();
 							serviceStandard.saveOrUpdate(persited.update(standard));
-							TrickLogManager.Persist(LogType.KNOWLEDGE_BASE, "log.standard.rename.label",
+							TrickLogManager.persist(LogType.KNOWLEDGE_BASE, "log.standard.rename.label",
 									String.format("Standard, name: %s, version: %d, old name: %s, old version: %d",
 											persited.getLabel(), persited.getVersion(), oldName,
 											oldVersion),
@@ -253,7 +253,7 @@ public class ControllerMeasureCollection {
 					/**
 					 * Log
 					 */
-					TrickLogManager.Persist(LogType.KNOWLEDGE_BASE, "log.standard.update",
+					TrickLogManager.persist(LogType.KNOWLEDGE_BASE, "log.standard.update",
 							String.format("Standard: %s, version: %d", persited.getLabel(), persited.getVersion()),
 							principal.getName(), LogAction.UPDATE, persited.getLabel(),
 							String.valueOf(persited.getVersion()));
@@ -288,7 +288,7 @@ public class ControllerMeasureCollection {
 			/**
 			 * Log
 			 */
-			TrickLogManager.Persist(LogLevel.WARNING, LogType.KNOWLEDGE_BASE, "log.standard.delete",
+			TrickLogManager.persist(LogLevel.WARNING, LogType.KNOWLEDGE_BASE, "log.standard.delete",
 					String.format("Standard: %s, version: %d", standard.getName(), standard.getVersion()),
 					principal.getName(), LogAction.DELETE, standard.getName(),
 					String.valueOf(standard.getVersion()), principal.getName());
@@ -296,11 +296,11 @@ public class ControllerMeasureCollection {
 			return JsonMessage.Success(messageSource.getMessage("success.norm.delete.successfully", null,
 					"Standard was deleted successfully", locale));
 		} catch (TrickException e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			// return error message
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			String[] parts = e.getMessage().split(":");
 			String code = parts[0];
 			String defaultmessage = parts[1];
@@ -501,7 +501,7 @@ public class ControllerMeasureCollection {
 			/**
 			 * Log
 			 */
-			TrickLogManager.Persist(LogLevel.WARNING, LogType.KNOWLEDGE_BASE, "log.export.standard",
+			TrickLogManager.persist(LogLevel.WARNING, LogType.KNOWLEDGE_BASE, "log.export.standard",
 					String.format("Standard: %s, version: %d", standard.getLabel(), standard.getVersion()),
 					principal.getName(), LogAction.EXPORT, standard.getLabel(),
 					String.valueOf(standard.getVersion()));
@@ -748,7 +748,7 @@ public class ControllerMeasureCollection {
 			// return errors
 			errors.put("measuredescription",
 					messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return errors;
 		}
 
@@ -783,7 +783,7 @@ public class ControllerMeasureCollection {
 					"Measure was deleted successfully", locale));
 		} catch (Exception e) {
 			// return error
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage
 					.Error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 		}
@@ -813,7 +813,7 @@ public class ControllerMeasureCollection {
 					"Measure was deleted successfully", locale));
 		} catch (Exception e) {
 			// return error
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage.Error(messageSource.getMessage("error.measure.delete.failed", null,
 					"Measure deleting was failed: Standard might be in used", locale));
 		}
@@ -926,7 +926,7 @@ public class ControllerMeasureCollection {
 			// return error message
 			errors.put("measureDescription",
 					messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return false;
 		}
 	}
@@ -969,7 +969,7 @@ public class ControllerMeasureCollection {
 			try {
 				version = jsonNode.get("version").asInt();
 			} catch (NumberFormatException e) {
-				TrickLogManager.Persist(e);
+				TrickLogManager.persist(e);
 			}
 
 			// check if standard has to be updated
@@ -1024,7 +1024,7 @@ public class ControllerMeasureCollection {
 			// return error
 			errors.put("standard",
 					messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return false;
 		}
 	}
