@@ -21,6 +21,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.FileCopyUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.util.unit.DataSize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -174,6 +175,7 @@ public class ControllerApi {
 	public Object createAnalysisAsset(@PathVariable final Integer idAnalysis,
 			@RequestParam(name = "name") final String assetName,
 			@RequestParam(name = "type") final String assetTypeName,
+			@RequestParam(name = "comment", required = false) String comment,
 			@RequestParam(name = "selected", defaultValue = "false") final boolean selected, final Principal principal,
 			final Locale locale) {
 		try {
@@ -185,6 +187,8 @@ public class ControllerApi {
 			asset.setSelected(selected);
 
 			asset.setAssetType(serviceAssetType.getByName(assetTypeName));
+
+			asset.setComment(comment);
 
 			final Analysis analysis = serviceAnalysis.get(idAnalysis);
 
@@ -235,6 +239,7 @@ public class ControllerApi {
 			@PathVariable final Integer idAsset,
 			@RequestParam(name = "name") final String assetName,
 			@RequestParam(name = "type") final String assetTypeName,
+			@RequestParam(name = "comment", required = false) String comment,
 			@RequestParam(name = "selected", defaultValue = "true") final boolean selected, final Principal principal,
 			final Locale locale) {
 		try {
@@ -253,6 +258,9 @@ public class ControllerApi {
 				assessmentAndRiskProfileManager.selectAsset(asset);
 			else
 				assessmentAndRiskProfileManager.unSelectAsset(asset);
+
+			if (StringUtils.hasText(comment))
+				asset.setComment(comment.trim());
 
 			assessmentAndRiskProfileManager.build(asset, idAnalysis);
 
@@ -542,10 +550,7 @@ public class ControllerApi {
 		apiRRF.setScenario(new ApiScenario(assessment.getScenario().getId(), assessment.getScenario().getName(),
 				assessment.getScenario().getType().getValue(),
 				assessment.getScenario().getType().getName()));
-		apiRRF.setAsset(new ApiAsset(assessment.getAsset().getId(), assessment.getAsset().getName(),
-				assessment.getAsset().getAssetType().getId(),
-				assessment.getAsset().getAssetType().getName(), assessment.getAsset().getValue(),
-				assessment.getAsset().isSelected()));
+		apiRRF.setAsset(ApiAsset.create(assessment.getAsset()));
 		final IParameter rrfTuning = analysis.findParameter(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME,
 				Constant.PARAMETER_MAX_RRF);
 		final ValueFactory factory = new ValueFactory(analysis.getParameters());
@@ -574,7 +579,7 @@ public class ControllerApi {
 	public Object loadUserCustomer(final Principal principal, final Locale locale) {
 		return serviceCustomer.getAllNotProfileOfUser(principal.getName()).stream()
 				.map(customer -> new ApiNamable(customer.getId(), customer.getOrganisation()))
-				.collect(Collectors.toList());
+				.toList();
 	}
 
 	/**

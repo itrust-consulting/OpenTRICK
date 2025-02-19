@@ -14,6 +14,7 @@ public class ApiAsset extends ApiNamable {
 	private Integer assetTypeId;
 	private String assetTypeName;
 	private boolean selected;
+	private String comment;
 
 	/**
 	 * Default constructor for ApiAsset.
@@ -31,12 +32,15 @@ public class ApiAsset extends ApiNamable {
 	 * @param value         the value of the asset
 	 * @param selected      indicates if the asset is selected
 	 */
-	public ApiAsset(Integer id, String name, Integer assetTypeId, String assetTypeName, double value, boolean selected) {
+	public ApiAsset(Integer id, String name, Integer assetTypeId, String assetTypeName, String comment, double value,
+			boolean selected) {
 		super(id, name);
 		this.value = value;
 		this.assetTypeId = assetTypeId;
 		this.assetTypeName = assetTypeName;
+		this.comment = comment;
 		this.selected = selected;
+
 	}
 
 	/**
@@ -46,7 +50,8 @@ public class ApiAsset extends ApiNamable {
 	 * @return the created ApiAsset object
 	 */
 	public static ApiAsset create(Asset asset) {
-		return new ApiAsset(asset.getId(), asset.getName(), asset.getAssetType().getId(), asset.getAssetType().getName(), asset.getValue(), asset.isSelected());
+		return new ApiAsset(asset.getId(), asset.getName(), asset.getAssetType().getId(),
+				asset.getAssetType().getName(), asset.getComment(), asset.getValue(), asset.isSelected());
 	}
 
 	/**
@@ -119,6 +124,14 @@ public class ApiAsset extends ApiNamable {
 	 */
 	public void setSelected(boolean selected) {
 		this.selected = selected;
+	}
+
+	public String getComment() {
+		return comment;
+	}
+
+	public void setComment(String comment) {
+		this.comment = comment;
 	}
 
 }
