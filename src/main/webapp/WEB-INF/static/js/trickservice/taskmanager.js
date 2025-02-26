@@ -59,8 +59,8 @@ function TaskManager(title) {
 	TaskManager.prototype.__createStompClient = function () {
 
 		try {
-			var self = this;
-			var headers = {};
+			let self = this;
+			let headers = {};
 
 			if (!(self.csrfHeader && self.csrfToken))
 				self.__loadCSRF();
@@ -71,7 +71,9 @@ function TaskManager(title) {
 			self.reconnecting = true;
 			self.stomp = new StompJs.Client({
 				connectHeaders: headers,
-				reconnectDelay: 30000,
+				reconnectDelay: 5000,
+				heartbeatIncoming: 0, // Disable incoming heartbeats
+    			heartbeatOutgoing: 0, // Disable outgoing heartbeats
 				webSocketFactory: () => {
 					return new SockJS('/Messaging/');
 				}
