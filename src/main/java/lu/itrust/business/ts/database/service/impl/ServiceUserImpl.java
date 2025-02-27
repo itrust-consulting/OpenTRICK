@@ -290,4 +290,9 @@ public class ServiceUserImpl implements ServiceUser {
 	public boolean isUsing2FA(String username) {
 		return daoUser.isUsing2FA(username);
 	}
+
+	@Override
+	public String findUsernameByEmail(String email) {
+		return daoUser.findUsernameByEmail(email);
+	}
 }

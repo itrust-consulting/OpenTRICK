@@ -5,6 +5,7 @@ package lu.itrust.business.ts.usermanagement.helper;
 
 import java.util.Arrays;
 
+import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -20,13 +21,12 @@ import lu.itrust.business.ts.constants.Constant;
 import lu.itrust.business.ts.database.service.AccountLockerManager;
 import lu.itrust.business.ts.database.service.ServiceUser;
 
-
 /**
- * This class extends the Spring Security's `UsernamePasswordAuthenticationFilter` class
+ * This class extends the Spring Security's
+ * `UsernamePasswordAuthenticationFilter` class
  * to provide custom authentication behavior.
  */
 public class CustomUsernamePasswordAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
-
 
 	@Autowired
 	private AccountLockerManager accountLockerManager;
@@ -59,6 +59,11 @@ public class CustomUsernamePasswordAuthenticationFilter extends UsernamePassword
 	@Override
 	protected String obtainUsername(HttpServletRequest request) {
 		String username = super.obtainUsername(request);
+		if (EmailValidator.getInstance().isValid(username)) {
+			var myUsername = serviceUser.findUsernameByEmail(username);
+			if (myUsername != null)
+				username = myUsername;
+		}
 		if (accountLockerManager.isLocked(username, AccountLockerManager.getIP(request)))
 			throw new LockedException("User account is locked");
 		return username;

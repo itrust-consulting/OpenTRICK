@@ -289,4 +289,10 @@ public class DAOUserHBM extends DAOHibernate implements DAOUser {
 				Boolean.class).setParameter("username", username)
 				.setParameter("name", User.USER_USING_2_FACTOR_AUTHENTICATION).uniqueResult();
 	}
+
+	@Override
+	public String findUsernameByEmail(String email) {
+		return getSession().createQuery("Select login From User where email = :email", String.class).setParameter("email", email)
+				.uniqueResult();
+	}
 }

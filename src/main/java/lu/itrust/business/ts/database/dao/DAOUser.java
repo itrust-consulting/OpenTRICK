@@ -66,4 +66,6 @@ public interface DAOUser {
 	public List<User> findByTicketingSystem(TicketingSystem ticketingSystem);
 
     public boolean isUsing2FA(String username);
+
+    public String findUsernameByEmail(String email);
 }
