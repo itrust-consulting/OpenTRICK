@@ -79,6 +79,7 @@ import org.docx4j.wml.R;
 import org.docx4j.wml.R.Tab;
 import org.docx4j.wml.STBrType;
 import org.docx4j.wml.STFldCharType;
+import org.docx4j.wml.STShd;
 import org.docx4j.wml.STVerticalJc;
 import org.docx4j.wml.Style;
 import org.docx4j.wml.Tbl;
@@ -1620,6 +1621,8 @@ public class Docx4jReportImpl implements Docx4jReport {
 		if (tc.getTcPr().getShd() == null)
 			tc.getTcPr().setShd(Context.getWmlObjectFactory().createCTShd());
 		tc.getTcPr().getShd().setFill(color);
+		tc.getTcPr().getShd().setColor("auto");
+		tc.getTcPr().getShd().setVal(STShd.CLEAR);
 		return tc;
 	}
 
