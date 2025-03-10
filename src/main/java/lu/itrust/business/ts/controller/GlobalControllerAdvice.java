@@ -9,6 +9,7 @@ import java.util.Locale;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.ui.Model;
@@ -64,12 +65,13 @@ public class GlobalControllerAdvice {
 			model.addAttribute("customCSSs", new ArrayList<String>());
 		}
 	}
-
+	
 	@ExceptionHandler(value = Exception.class)
 	public String defaultErrorHandler(HttpServletRequest request, Exception e) throws Exception {
 		if (!(e instanceof AccessDeniedException || e instanceof AuthenticationException
 				|| AnnotationUtils.findAnnotation(e.getClass(), ResponseStatus.class) != null))
 			TrickLogManager.persist(e);
+		System.err.println(e.getMessage());
 		throw e;
 	}
 }

@@ -62,6 +62,9 @@ function TaskManager(title) {
 			let self = this;
 			let headers = {};
 
+			let url = new URL("/Messaging", window.location.href);
+			url.protocol = url.protocol.replace('http', 'ws');
+
 			if (!(self.csrfHeader && self.csrfToken))
 				self.__loadCSRF();
 
@@ -71,11 +74,11 @@ function TaskManager(title) {
 			self.reconnecting = true;
 			self.stomp = new StompJs.Client({
 				connectHeaders: headers,
-				reconnectDelay: 5000,
+				reconnectDelay: 3000,
 				heartbeatIncoming: 0, // Disable incoming heartbeats
-    			heartbeatOutgoing: 0, // Disable outgoing heartbeats
+				heartbeatOutgoing: 0, // Disable outgoing heartbeats
 				webSocketFactory: () => {
-					return new SockJS('/Messaging/');
+					return new WebSocket(url);
 				}
 			});
 
@@ -120,17 +123,34 @@ function TaskManager(title) {
 						self.__switchToLegacyClient();
 					else self.__createStompClient();
 				}
+
+				console.log("onStompError....")
 			};
 
 			self.stomp.onWebSocketError = (e) => {
-				if (!self.legacy && (self.disposing || self.reconnecting || self.subscribing)) {
+				console.log(e);
+				console.log(e.code);
+				if (!self.legacy && (e.code === 1006 || e.code == 1001 ||  self.disposing || self.reconnecting || self.subscribing)) {
+					self.__switchToLegacyClient();
+					self.stomp.deactivate();
+				}
+				console.log("onWebSocketError....")
+			}
+
+			self.stomp.onWebSocketClose = (e) => {
+				if (!self.legacy && (e.code === 1006 || e.code == 1001 || self.disposing || self.reconnecting || self.subscribing)) {
 					self.__switchToLegacyClient();
 					self.stomp.deactivate();
 				}
 			}
 
+			self.stomp.onDisconnect = (e) => {
+				if (!self.legacy && (e.code === 1006 || e.code == 1001 || self.disposing || self.reconnecting || self.subscribing)) {
+					self.__switchToLegacyClient();
+					self.stomp.deactivate();
+				}
+			}
 			self.stomp.activate();
-
 		} catch (e) {
 			self.__switchToLegacyClient();
 
@@ -147,9 +167,9 @@ function TaskManager(title) {
 	 * @private
 	 */
 	TaskManager.prototype.__processSystemMessage = function (data) {
-		var self = this, message = JSON.parse(data.body);
+		let self = this, message = JSON.parse(data.body);
 		if (message.type) {
-			var content = message.messages[self.getLangue()], notification = application.currentNotifications[message.id]
+			let content = message.messages[self.getLangue()], notification = application.currentNotifications[message.id]
 			if (!content)
 				content = MessageResolver(message.code, content, message.parameters);
 			if (content === null)
@@ -157,7 +177,7 @@ function TaskManager(title) {
 			if (notification)
 				notification.update("message", content);
 			else {
-				var callback = (e) => { self.Remove(message.id); }
+				let callback = (e) => { self.Remove(message.id); }
 				switch (message.type) {
 					case "ERROR":
 						notification = showStaticDialog("error", content, undefined, undefined, callback);
@@ -183,7 +203,7 @@ function TaskManager(title) {
 	 * @private
 	 */
 	TaskManager.prototype.__switchToLegacyClient = function () {
-		var self = this;
+		let self = this;
 		self.legacy = true;
 		if (!self.locker) {
 			self.locker = true;
@@ -199,7 +219,7 @@ function TaskManager(title) {
 	 * @private
 	 */
 	TaskManager.prototype.__stopLegacyClient = function () {
-		var self = this;
+		let self = this;
 		self.legacy = false;
 		if (!self.locker) {
 			self.locker = true;
@@ -253,17 +273,17 @@ function TaskManager(title) {
 	 * @returns {TaskManager} The Task Manager instance.
 	 */
 	TaskManager.prototype.UpdateTaskCount = function () {
-		var self = this;
+		let self = this;
 		if (self.legacy) {
 			$.ajax({
 				url: context + "/Task/In-progress?legacy=true",
 				contentType: "application/json;charset=UTF-8",
 				success: function (reponse) {
 					if (Array.isArray(reponse) && reponse.length) {
-						for (var i = 0; i < reponse.length; i++) {
-							if ($.isNumeric(reponse[i]) && !(reponse[i] in self.tasks)) {
-								self.tasks.push(reponse[i]);
-								self.UpdateStatus(reponse[i]);
+						for (let id of reponse) {
+							if ($.isNumeric(id) && !(self.tasks.includes(id))) {
+								self.tasks.push(id);
+								self.UpdateStatus(id);
 							}
 						}
 					}
@@ -282,7 +302,7 @@ function TaskManager(title) {
 	 * @returns {Object} The progress bar object.
 	 */
 	TaskManager.prototype.createProgressBar = function (taskId, title, message) {
-		var notificationType = NOTIFICATION_TYPE.INFO;
+		let notificationType = NOTIFICATION_TYPE.INFO;
 		return $.notify({
 			title: title,
 			icon: notificationType.icon,
@@ -317,8 +337,7 @@ function TaskManager(title) {
 	 */
 	TaskManager.prototype.__removeTask = function (id) {
 		try {
-
-			var index = this.tasks.indexOf(id);
+			let index = this.tasks.indexOf(id);
 			if (index > -1)
 				this.tasks.splice(index, 1);
 			if (this.progressBars[id] != undefined && this.progressBars[id] != null) {
@@ -346,7 +365,7 @@ function TaskManager(title) {
 	 * @private
 	 */
 	TaskManager.prototype.__process = function (reponse) {
-		var self = this, taskId = reponse.taskID, downloading = false;
+		let self = this, taskId = reponse.taskID, downloading = false;
 		if (reponse.flag == 3 && !self.progressBars[taskId])
 			self.progressBars[taskId] = self.createProgressBar(taskId, reponse.name ? MessageResolver(reponse.name) : undefined, reponse.message);
 
@@ -407,7 +426,7 @@ function TaskManager(title) {
 	TaskManager.prototype.UpdateStatus = function (taskId) {
 		if (!$.isNumeric(taskId))
 			return;
-		var self = this;
+		let self = this;
 		$.ajax({
 			url: context + "/Task/Status/" + taskId,
 			contentType: "application/json;charset=UTF-8",

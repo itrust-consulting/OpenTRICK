@@ -84,7 +84,7 @@ public class SessionFactoryConfig {
 		final JpaProperties properties = new JpaProperties();
 		final Resource resource = resourceLoader.getResource(path);
 		loadSpringJpaProperties(env, properties.getProperties());
-		properties.getProperties().put("hibernate.dialect", env.getProperty("jdbc.dialect"));
+		//properties.getProperties().put("hibernate.dialect", env.getProperty("jdbc.dialect"));
 		properties.getProperties().put("hibernate.show_sql", env.getProperty("jdbc.show_sql"));
 		properties.getProperties().put("hibernate.jdbc.time_zone", env.getProperty("jdbc.time_zone"));
 		properties.getProperties().put("hibernate.hbm2ddl.auto", env.getProperty("jdbc.hbm2ddl.auto"));

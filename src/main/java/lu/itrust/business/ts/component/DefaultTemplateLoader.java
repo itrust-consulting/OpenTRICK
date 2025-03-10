@@ -15,10 +15,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.apache.commons.compress.utils.FileNameUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
-import org.docx4j.com.google.common.base.Objects;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.docx4j.openpackaging.packages.SpreadsheetMLPackage;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
@@ -142,11 +140,12 @@ public class DefaultTemplateLoader {
 		List<TrickTemplate> templates = customer.getTemplates().stream()
 				.filter(e -> e.getType() == type && (e.getLanguage() == null || e.getLanguage().equals(language)))
 				.sorted((e1, e2) -> NaturalOrderComparator.compareTo(e2.getVersion(), e1.getVersion()))
-				.toList();
+				.collect(Collectors.toList());
 		if (templates.isEmpty()) {
 			templates = findByType(type).stream().filter(
 					e -> e.getType() == type && (e.getLanguage() == null || e.getLanguage().equals(language)))
-					.sorted((e1, e2) -> NaturalOrderComparator.compareTo(e2.getVersion(), e1.getVersion())).toList();
+					.sorted((e1, e2) -> NaturalOrderComparator.compareTo(e2.getVersion(), e1.getVersion()))
+					.collect(Collectors.toList());
 		}
 
 		return templates.stream().filter(e -> e.getLanguage() != null).findFirst()
@@ -191,7 +190,7 @@ public class DefaultTemplateLoader {
 				: findAll().stream()
 						.filter(p -> p.getType() == TrickTemplateType.REPORT && p.getAnalysisType() == type
 								&& isExpectedLanguage(langue, p)))
-				.toList();
+				.collect(Collectors.toList());
 	}
 
 	public boolean load() {
@@ -343,13 +342,9 @@ public class DefaultTemplateLoader {
 
 	public static boolean checkTemplate(InputStream stream, TrickTemplateType type) {
 		switch (type) {
-			case DEFAULT_EXCEL:
-			case RISK_INFORMATION:
+			case DEFAULT_EXCEL, RISK_INFORMATION:
 				return isExcel(stream);
-			case REPORT:
-			case RISK_REGISTER:
-			case RISK_SHEET:
-			case SOA:
+			case REPORT, RISK_REGISTER, RISK_SHEET, SOA:
 				return isDocx(stream);
 			default:
 				return false;

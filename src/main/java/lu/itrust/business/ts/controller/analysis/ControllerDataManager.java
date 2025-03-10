@@ -1681,10 +1681,10 @@ public class ControllerDataManager {
 						e -> messageSource.getMessage("label.asset_type." + e.getName().toLowerCase(), null,
 								e.getName(), locale)));
 
-		final Map<String, String> assetToTypes = new HashMap<>(analysis.getAssets().size());
+		final Map<String, Asset> assetMap = new HashMap<>(analysis.getAssets().size());
 
 		analysis.getAssets().forEach(asset -> {
-			assetToTypes.put(asset.getName(), asset.getAssetType().getName());
+			assetMap.put(asset.getName(), asset);
 			if (!rowNames.contains(asset.getName()))
 				rowNames.add(asset.getName());
 		});
@@ -1699,9 +1699,12 @@ public class ControllerDataManager {
 		final SheetData sheetData = worksheetPart.getContents().getSheetData();
 		final int startRwoIndex = 2;
 
-		columns.add(0, "AssetList");
+		columns.sort(NaturalOrderComparator::compareTo);
+		rowNames.sort(NaturalOrderComparator::compareTo);
 
+		columns.add(0, "AssetList");
 		columns.add(1, "AssetType");
+		columns.add(2, "AssetComment");
 
 		createHeader(worksheetPart, "Table_dep", defaultExcelTableStyle, columns.toArray(new String[columns.size()]),
 				startRwoIndex,
@@ -1716,7 +1719,10 @@ public class ControllerDataManager {
 						setValue(row, i, assetName);
 						break;
 					case 1:
-						setValue(row, i, assetTypes.get(assetToTypes.get(assetName)));
+						setValue(row, i, assetTypes.get(assetMap.get(assetName).getAssetType().getName()));
+						break;
+					case 2:
+						setValue(row, i, assetMap.get(assetName).getComment());
 						break;
 					default:
 						setValue(row, i, myDependancies.getOrDefault(columns.get(i), 0D));

@@ -293,7 +293,7 @@ public class DAOUserAnalysisRightHBM extends DAOHibernate implements DAOUserAnal
 
 	private Boolean canDeleteProfile(Integer idAnalysis, String username) {
 		return getSession().createQuery("select count(*) > 0 From User user inner join user.roles role where user.login = :username and role.type in (:roles)", Boolean.class)
-				.setParameter("username", username).setParameterList("roles", RoleType.GreaterRoles(RoleType.ROLE_CONSULTANT)).getSingleResult()
+				.setParameter("username", username).setParameterList("roles", RoleType.greaterRoles(RoleType.ROLE_CONSULTANT)).getSingleResult()
 				&& getSession()
 						.createQuery("select count(*) > 0 From Analysis analysis where analysis.id = :idAnalysis and analysis.profile = true and  analysis.defaultProfile = false",
 								Boolean.class)

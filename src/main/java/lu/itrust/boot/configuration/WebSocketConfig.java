@@ -5,9 +5,11 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.messaging.handler.invocation.HandlerMethodArgumentResolver;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.messaging.support.ChannelInterceptor;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.messaging.context.AuthenticationPrincipalArgumentResolver;
 import org.springframework.security.messaging.web.csrf.XorCsrfChannelInterceptor;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
@@ -47,7 +49,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/Messaging/", "/Messaging")
-                .setAllowedOriginPatterns(trustedProxies).withSockJS();
+                .setAllowedOriginPatterns(trustedProxies);
     }
 
     /**
@@ -74,13 +76,37 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     }
 
     /**
-     * A ChannelInterceptor is responsible for intercepting messages sent over a WebSocket channel.
-     * It can be used to perform additional processing or apply custom logic before or after a message is sent or received.
-     * Implementations of this interface should override the methods defined in the interface to provide the desired behavior.
+     * A ChannelInterceptor is responsible for intercepting messages sent over a
+     * WebSocket channel.
+     * It can be used to perform additional processing or apply custom logic before
+     * or after a message is sent or received.
+     * Implementations of this interface should override the methods defined in the
+     * interface to provide the desired behavior.
      */
     @Bean
     public ChannelInterceptor csrfChannelInterceptor() {
         return new XorCsrfChannelInterceptor();
     }
 
+    @Bean
+    public TaskExecutor clientInboundChannelExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(10);
+        executor.setMaxPoolSize(20);
+        executor.setQueueCapacity(50);
+        executor.setThreadNamePrefix("ClientInboundChannelExecutor-");
+        executor.initialize();
+        return executor;
+    }
+
+    @Bean
+    public TaskExecutor clientOutboundChannelExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(10);
+        executor.setMaxPoolSize(20);
+        executor.setQueueCapacity(50);
+        executor.setThreadNamePrefix("ClientOutboundChannelExecutor-");
+        executor.initialize();
+        return executor;
+    }
 }

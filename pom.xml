@@ -3,13 +3,13 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>lu.itrust</groupId>
 	<artifactId>opentrick</artifactId>
-	<version>2.18g</version>
+	<version>2.18i</version>
 	<packaging>war</packaging>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<org.apache.directory.server.version>2.0.0.AM26</org.apache.directory.server.version>
 		<module.image.name>opentrick.eu/docker</module.image.name>
-		<spring-boot.version>3.2.12</spring-boot.version>
+		<spring-boot.version>3.4.3</spring-boot.version>
 		<java.version>17</java.version>
 	</properties>
 
