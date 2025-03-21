@@ -39,12 +39,8 @@
 									text="Subject" />
 							</label>
 							<div class="col-sm-9">
-								<select id="email_template_title" name="title" class="form-control"required="required">
-									<option value="default" ${empty form.title or form.title eq 'default' ? 'selected' : ''}><spring:message code="label.standard" />: <spring:message code="label.measure.domain" /></option>
-									<option value="domain" ${form.title eq 'domain' ? 'selected' : ''}><spring:message code="label.measure.domain" /></option>
-									<option value="todo" ${form.title eq 'todo' ? 'selected' : ''}><spring:message code="label.measure.todo" /></option>
-									<option value="tocheck" ${form.title eq 'tocheck' ? 'selected' : ''}><spring:message code="label.measure.tocheck" /></option>
-								</select>
+								<input id="email_template_title_entry" list="dataListEmailSubject" class="form-control" data-value="<spring:message text="${form.title}" />"  required/>
+								<input id="email_template_title" name="title" class="form-control hidden" value='<spring:message text="${form.title}" />' required/>
 							</div>
 						</div>
 
@@ -78,7 +74,37 @@
 
 						<input name="submit" type="submit" hidden="hidden" /> 
 
-
+						<datalist id="dataListEmailSubject" hidden="hidden">
+							<option data-value="default"><spring:message code="label.standard" />: <spring:message code="label.measure.domain" /></option>
+							<option data-value="domain" ${form.title eq 'domain' ? 'selected' : ''}><spring:message code="label.measure.domain" /></option>
+							<option data-value="todo" ${form.title eq 'todo' ? 'selected' : ''}><spring:message code="label.measure.todo" /></option>
+							<option data-value="tocheck" ${form.title eq 'tocheck' ? 'selected' : ''}><spring:message code="label.measure.tocheck" /></option>
+						</datalist>
+						<div id="measureAvailableParameters" class="hidden">[
+							{"name": "Std", "title": "<spring:message code='label.standard' />"},
+							{"name":"Ref", "title": "<spring:message code='label.reference' />"},
+							{"name":"SecMeasure", "title": "<spring:message code='label.measure.domain' />"},
+							{"name":"Desc", "title": "<spring:message code='label.measure.description'/>"},
+							{"name":"ST", "title": "<spring:message code='label.title.measure.status' />"},
+							{"name":"IR", "title": "<spring:message code='label.title.measure.ir' />"},
+								{"name":"Owner", "title": "<spring:message code='label.title.measure.responsible' />"},
+							{"name":"IW", "title": "<spring:message code='label.title.measure.iw' />"},
+							{"name":"EW", "title": "<spring:message code='label.title.measure.ew' />"},
+							{"name":"INV", "title": "<spring:message code='label.title.measure.inv' />"},
+							{"name":"LT", "title": "<spring:message code='label.title.measure.lt' />"},
+							{"name":"IM", "title": "<spring:message code='label.title.measure.im' />"},
+							{"name":"EM", "title": "<spring:message code='label.title.measure.em' />"},
+							{"name":"RM", "title": "<spring:message code='label.title.measure.ri'/>'"},
+							{"name":"CS", "title": "<spring:message code='label.title.measure.cost' />"},
+							{"name":"PH", "title": "<spring:message code='label.title.measure.phase' />"},
+							{"name":"PHB", "title": "<spring:message code='label.title.measure.phase.begin' />"},
+							{"name":"PHE", "title": "<spring:message code='label.title.measure.phase.end' />"},
+							{"name":"Imp", "title": "<spring:message code='label.title.measure.importance' />"},
+							{"name":"ToDo", "title": "<spring:message code='label.measure.todo' />"},
+							{"name":"Comment", "title": "<spring:message code='label.comment' />"},
+							{"name":"ToCheck", "title": "<spring:message code='label.measure.tocheck' />"}
+						
+						]</div>
 				</form>
 			</div>
 			<div class="modal-footer">
@@ -91,4 +117,5 @@
 			</div>
 		</div>
 	</div>
+	
 </div>

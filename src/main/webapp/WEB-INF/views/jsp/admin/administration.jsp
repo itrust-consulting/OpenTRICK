@@ -10,6 +10,8 @@
 <!DOCTYPE html>
 <html>
 <!-- Include Header -->
+<!-- inject css -->
+<c:set var="DummTMP">${customCSSs.add("/css/bootstrap-suggest.css")}</c:set>
 <jsp:include page="../template/header.jsp" />
 <!-- ################################################################# Start Container ############################################################## -->
 <body>
@@ -50,6 +52,7 @@
 	<script type="text/javascript" src="<c:url value="js/trickservice/customer.js" />"></script>
 	<script type="text/javascript" src="<c:url value="js/trickservice/user.js" />"></script>
 	<script type="text/javascript" src="<c:url value="js/trickservice/ids.js" />"></script>
+	<script type="text/javascript" src="<c:url value="js/bootstrap/bootstrap-suggest.js" />"></script>
 	<script type="text/javascript">
 		resolveMessage("label.notification.date.until", "<spring:message code='label.notification.date.until' htmlEscape='false'/>");
 		resolveMessage("label.notification.date.from", "<spring:message code='label.notification.date.from' />");

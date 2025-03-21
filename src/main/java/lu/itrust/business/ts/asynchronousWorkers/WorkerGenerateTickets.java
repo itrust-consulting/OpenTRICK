@@ -41,17 +41,21 @@ import lu.itrust.business.ts.model.standard.measure.helper.MeasureComparator;
 import lu.itrust.business.ts.model.standard.measuredescription.MeasureDescriptionText;
 import lu.itrust.business.ts.model.ticketing.builder.Client;
 
-
 /**
  * This class represents a worker responsible for generating tickets.
  * It extends the `WorkerImpl` class.
  * 
- * The worker is initialized with an analysis ID, a client, and a ticketing form.
- * It executes the task of generating tickets by creating or updating issues based on the analysis and measures.
- * The generated tickets are associated with the analysis project and the customer's ticketing system.
+ * The worker is initialized with an analysis ID, a client, and a ticketing
+ * form.
+ * It executes the task of generating tickets by creating or updating issues
+ * based on the analysis and measures.
+ * The generated tickets are associated with the analysis project and the
+ * customer's ticketing system.
  * 
- * The worker starts the task by calling the `start()` method, which opens a session and executes the task.
- * If an exception occurs during the task execution, it is logged and appropriate error messages are sent.
+ * The worker starts the task by calling the `start()` method, which opens a
+ * session and executes the task.
+ * If an exception occurs during the task execution, it is logged and
+ * appropriate error messages are sent.
  * Finally, the session is closed and the worker is cleaned up.
  */
 public class WorkerGenerateTickets extends WorkerImpl {
@@ -207,14 +211,15 @@ public class WorkerGenerateTickets extends WorkerImpl {
 	}
 
 	/**
-	 * Creates issues for the given analysis using the provided measures and value factory.
+	 * Creates issues for the given analysis using the provided measures and value
+	 * factory.
 	 * 
-	 * @param analysis The analysis object.
-	 * @param newMeasures The list of new measures.
+	 * @param analysis       The analysis object.
+	 * @param newMeasures    The list of new measures.
 	 * @param updateMeasures The list of updated measures.
-	 * @param valueFactory The value factory.
-	 * @param handler The message handler.
-	 * @param maxProgess The maximum progress value.
+	 * @param valueFactory   The value factory.
+	 * @param handler        The message handler.
+	 * @param maxProgess     The maximum progress value.
 	 * @return True if the issues were created successfully, false otherwise.
 	 * @throws InterruptedException If the operation is interrupted.
 	 */
@@ -245,7 +250,6 @@ public class WorkerGenerateTickets extends WorkerImpl {
 		measures.sort(new MeasureComparator());
 
 		final String subject = template.getTitle().trim().toLowerCase();
-
 		final int min = handler.getProgress();
 		final int size = measures.size();
 		int current = 0;
@@ -257,23 +261,6 @@ public class WorkerGenerateTickets extends WorkerImpl {
 			final MeasureDescriptionText measureDescriptionText = measure.getMeasureDescription()
 					.getMeasureDescriptionTextByAlpha2(language);
 			final Email email = new Email();
-			switch (subject) {
-				case "securitymeasure":
-				case "domain":
-					email.setSubject(StringUtils.abbreviate(measureDescriptionText.getDomain(), 998));
-					break;
-				case "to do":
-				case "todo":
-					email.setSubject(StringUtils.abbreviate(measure.getToDo(), 998));
-					break;
-				case "to ckeck":
-				case "tocheck":
-					email.setSubject(StringUtils.abbreviate(measure.getToDo(), 998));
-					break;
-				default:
-					email.setSubject(StringUtils.abbreviate(measure.getMeasureDescription().getStandard().getName() + ": "
-							+ measureDescriptionText.getDomain(), 998));
-			}
 
 			email.getRecipients().add(new Recipient(template.getEmail(), RecipientType.TO));
 
@@ -294,13 +281,38 @@ public class WorkerGenerateTickets extends WorkerImpl {
 			model.put("PH", measure.getPhase().getNumber());
 			model.put("PHB", dateFormat.format(measure.getPhase().getBeginDate()));
 			model.put("PHE", dateFormat.format(measure.getPhase().getEndDate()));
+			model.put("Imp", getImportance(measure));
 			model.put("Comment", measure.getComment());
 			model.put("ToDo", measure.getToDo());
 			model.put("Owner", measure.getResponsible());
-			if (measure instanceof AbstractNormalMeasure)
-				model.put("ToCheck", ((AbstractNormalMeasure) measure).getToCheck());
+
+			if (measure instanceof AbstractNormalMeasure m)
+				model.put("ToCheck", m.getToCheck());
 			else
 				model.put("ToCheck", "N/A");
+
+			switch (subject) {
+				case "securitymeasure", "domain":
+					email.setSubject(StringUtils.abbreviate(measureDescriptionText.getDomain(), 998));
+					break;
+				case "to do", "todo":
+					email.setSubject(StringUtils.abbreviate(measure.getToDo(), 998));
+					break;
+				case "to ckeck", "tocheck":
+					email.setSubject(StringUtils.abbreviate(measure.getToDo(), 998));
+					break;
+				case "default":
+					email.setSubject(
+							StringUtils.abbreviate(measure.getMeasureDescription().getStandard().getName() + ": "
+									+ measureDescriptionText.getDomain(), 998));
+					break;
+				default:
+					email.setSubject(StringUtils.abbreviate(InstanceManager.getServiceEmailSender()
+							.processTemplateIntoString(template.getTitle().trim(), model), 998));
+
+			}
+
+			email.setHtml(template.isHtml());
 
 			email.setBody(
 					InstanceManager.getServiceEmailSender().processTemplateIntoString(template.getTemplate(), model));
@@ -318,9 +330,16 @@ public class WorkerGenerateTickets extends WorkerImpl {
 		return false;
 	}
 
+	private String getImportance(Measure measure) {
+		if (measure.getImportance() == 1)
+			return "Low";
+		return measure.getImportance() == 2 ? "Medium" : "High";
+	}
+
 	/**
 	 * Cleans up the resources used by the worker.
-	 * This method sets the worker's status to not working, closes the client connection,
+	 * This method sets the worker's status to not working, closes the client
+	 * connection,
 	 * clears the ticketing form, and sets the finished timestamp.
 	 */
 	private void cleanUp() {
