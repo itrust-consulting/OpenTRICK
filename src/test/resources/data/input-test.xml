@@ -1,0 +1,413 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE data>
+<data>
+	<tab id="tabParameterImpactProba">
+		<table id="Scale_Impact">
+			<row>
+				<value>a</value>
+				<value>aa</value>
+				<value>10</value>
+			</row>
+			<row>
+				<value>b</value>
+				<value>bb</value>
+			</row>
+			<row>
+				<value>c</value>
+				<value>cc</value>
+				<value>20</value>
+			</row>
+			<row>
+				<value>d</value>
+				<value>dd</value>
+			</row>
+			<row>
+				<value>e</value>
+				<value>ee</value>
+				<value>30</value>
+			</row>
+			<row>
+				<value>f</value>
+				<value>ff</value>
+			</row>
+			<row>
+				<value>g</value>
+				<value>gg</value>
+				<value>40</value>
+			</row>
+			<row>
+				<value>h</value>
+				<value>hh</value>
+			</row>
+			<row>
+				<value>i</value>
+				<value>ii</value>
+				<value>50</value>
+			</row>
+			<row>
+				<value>j</value>
+				<value>jj</value>
+			</row>
+			<row>
+				<value>k</value>
+				<value>kk</value>
+				<value>60</value>
+			</row>
+		</table>
+
+		<table id="Scale_Probability">
+			<row>
+				<value>l</value>
+				<value>ll</value>
+				<value>11,00</value>
+			</row>
+			<row>
+				<value>m</value>
+				<value>bb</value>
+			</row>
+			<row>
+				<value>n</value>
+				<value>nn</value>
+				<value>22,00</value>
+			</row>
+			<row>
+				<value>o</value>
+				<value>oo</value>
+			</row>
+			<row>
+				<value>p</value>
+				<value>pp</value>
+				<value>33,00</value>
+			</row>
+			<row>
+				<value>q</value>
+				<value>qq</value>
+			</row>
+			<row>
+				<value>r</value>
+				<value>rr</value>
+				<value>44,00</value>
+			</row>
+			<row>
+				<value>s</value>
+				<value>ss</value>
+			</row>
+			<row>
+				<value>t</value>
+				<value>tt</value>
+				<value>55,00</value>
+			</row>
+			<row>
+				<value>u</value>
+				<value>uu</value>
+			</row>
+			<row>
+				<value>v</value>
+				<value>vv</value>
+				<value>66,00</value>
+			</row>
+		</table>
+	</tab>
+
+	<tab id="tabParameterOther">
+		<table id="tableMaturityIlps">
+			<policies>
+				<row id="Pol1">
+					<value>0</value>
+					<value>20</value>
+					<value>40</value>
+					<value>70</value>
+					<value>80</value>
+					<value>100</value>
+				</row>
+				<row id="Pol2">
+					<value>0</value>
+					<value>0</value>
+					<value>0</value>
+					<value>0</value>
+					<value>0</value>
+					<value>99</value>
+				</row>
+				<row id="Pol3">
+					<value>0</value>
+					<value>0</value>
+					<value>0</value>
+					<value>0</value>
+					<value>0</value>
+					<value>98</value>
+				</row>
+				<row id="Pol4">
+					<value>0</value>
+					<value>0</value>
+					<value>0</value>
+					<value>0</value>
+					<value>0</value>
+					<value>97</value>
+				</row>
+				<row id="Pol5">
+					<value>0</value>
+					<value>0</value>
+					<value>0</value>
+					<value>0</value>
+					<value>0</value>
+					<value>96</value>
+				</row>
+				<row id="Pol6">
+					<value>0</value>
+					<value>0</value>
+					<value>0</value>
+					<value>0</value>
+					<value>0</value>
+					<value>95</value>
+				</row>
+			</policies>
+
+			<procedure>
+				<row id="Pro1">
+					<value>0</value>
+					<value>20</value>
+					<value>40</value>
+					<value>70</value>
+					<value>80</value>
+					<value>100</value>
+				</row>
+				<row id="Pro2">
+					<value>0</value>
+					<value>20</value>
+					<value>40</value>
+					<value>70</value>
+					<value>80</value>
+					<value>100</value>
+				</row>
+				<row id="Pro3">
+					<value>0</value>
+					<value>20</value>
+					<value>40</value>
+					<value>70</value>
+					<value>80</value>
+					<value>100</value>
+				</row>
+				<row id="Pro4">
+					<value>0</value>
+					<value>20</value>
+					<value>40</value>
+					<value>70</value>
+					<value>80</value>
+					<value>100</value>
+				</row>
+				<row id="Pro5">
+					<value>0</value>
+					<value>20</value>
+					<value>40</value>
+					<value>70</value>
+					<value>80</value>
+					<value>100</value>
+				</row>
+			</procedure>
+
+			<implementation>
+				<row id="Imp1">
+					<value>0</value>
+					<value>20</value>
+					<value>40</value>
+					<value>70</value>
+					<value>80</value>
+					<value>100</value>
+				</row>
+				<row id="Imp2">
+					<value>0</value>
+					<value>20</value>
+					<value>40</value>
+					<value>70</value>
+					<value>80</value>
+					<value>100</value>
+				</row>
+				<row id="Imp3">
+					<value>0</value>
+					<value>20</value>
+					<value>40</value>
+					<value>70</value>
+					<value>80</value>
+					<value>100</value>
+				</row>
+
+			</implementation>
+
+			<test>
+				<row id="tes1">
+					<value>0</value>
+					<value>20</value>
+					<value>40</value>
+					<value>70</value>
+					<value>80</value>
+					<value>100</value>
+				</row>
+				<row id="tes2">
+					<value>0</value>
+					<value>20</value>
+					<value>40</value>
+					<value>70</value>
+					<value>80</value>
+					<value>100</value>
+				</row>
+				<row id="tes3">
+					<value>0</value>
+					<value>20</value>
+					<value>40</value>
+					<value>70</value>
+					<value>80</value>
+					<value>100</value>
+				</row>
+				<row id="tes4">
+					<value>0</value>
+					<value>20</value>
+					<value>40</value>
+					<value>70</value>
+					<value>80</value>
+					<value>100</value>
+				</row>
+				<row id="tes5">
+					<value>0</value>
+					<value>20</value>
+					<value>40</value>
+					<value>70</value>
+					<value>80</value>
+					<value>100</value>
+				</row>
+				<row id="tes6">
+					<value>0</value>
+					<value>20</value>
+					<value>40</value>
+					<value>70</value>
+					<value>80</value>
+					<value>100</value>
+				</row>
+				<row id="tes7">
+					<value>0</value>
+					<value>20</value>
+					<value>40</value>
+					<value>70</value>
+					<value>80</value>
+					<value>100</value>
+				</row>
+				<row id="tes8">
+					<value>0</value>
+					<value>20</value>
+					<value>40</value>
+					<value>70</value>
+					<value>80</value>
+					<value>100</value>
+				</row>
+
+			</test>
+
+			<integration>
+				<row id="int1">
+					<value>0</value>
+					<value>20</value>
+					<value>40</value>
+					<value>70</value>
+					<value>80</value>
+					<value>100</value>
+				</row>
+			</integration>
+		</table>
+
+		<table id="variousParameters">
+			<row>
+				<value>100</value>
+				<value>200</value>
+				<value>10</value>
+				<value>12</value>
+				<value>50</value>
+				<value>1</value>
+			</row>
+		</table>
+		<table id="cssfParameters">
+			<row>
+				<value>5</value>
+				<value>4</value>
+				<value>10</value>
+				<value>2</value>
+				<value>100</value>
+			</row>
+		</table>
+		<table id="maximalEfficiencyRatePerSecurityMaturityLevel">
+			<row>
+				<value>5</value>
+				<value>4</value>
+				<value>10</value>
+				<value>2</value>
+				<value>100</value>
+				<value>100</value>
+			</row>
+		</table>
+		<table id="implementationRateSMT">
+			<row>
+				<value>5</value>
+			</row>
+			<row>
+				<value>5</value>
+			</row>
+			<row>
+				<value>5</value>
+			</row>
+			<row>
+				<value>5</value>
+			</row>
+			<row>
+				<value>5</value>
+			</row>
+		</table>
+	</tab>
+
+	<tab id="tabHistory">
+		<table id="section_history">
+			<row>
+				<value name="Author">tester</value>
+				<value name="Comment">comment</value>
+			</row>
+		</table>
+	</tab>
+
+	<tab id="tabScope">
+		<table id="scope">
+			<row>
+				<value name="Organisation type">tester</value>
+				<value name="Profit type">tester</value>
+				<value name="Name of organism">tester</value>
+				<value name="Organism presentation">tester</value>
+				<value name="Sector">tester</value>
+				<value name="Responsible">tester</value>
+				<value name="Manpower">tester</value>
+				<value name="Activities">tester</value>
+				<value name="Business processes">tester</value>
+				<value
+					name="Legal, regulatory and contractual requirements applicable to the organisation">tester</value>
+				<value name="The organisation's information security policy">tester</value>
+				<value name="The organisation’s overall approach to risk management">tester</value>
+				<value
+					name="Locations of the organisation and their geographical characteristics">tester</value>
+				<value name="Various obligations">tester</value>
+				<value name="Identification and analysis of the stakeholders">tester</value>
+				<value
+					name="Establishment of the required relationships between the organisation and stakeholders">tester</value>
+				<value name="Expectation of stakeholders">tester</value>
+				<value name="Socio-cultural environment">tester</value>
+				<value name="Interfaces (i.e. information exchange with the environment)">tester</value>
+				<value name="Definition of roles and responsibilities">tester</value>
+				<value name="Definition of decision escalation paths">tester</value>
+				<value
+					name="Development of the information security risk management process suitable for the organisation">tester</value>
+				<value name="Specification of records to be kept">tester</value>
+				<value name="Excluded assets">tester</value>
+				<value name="The organisation’s functions and structure">tester</value>
+				<value name="Strategic objectives, strategy and politics">tester</value>
+				<value name="Financial parameters to define risk criteria">tester</value>
+				<value name="Risk evaluation criteria">tester</value>
+				<value name="Impact criteria">tester</value>
+				<value name="Risk acceptance criteria">tester</value>
+			</row>
+		</table>
+	</tab>
+</data>

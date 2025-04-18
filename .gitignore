@@ -1,0 +1,11 @@
+/target
+/ts-upload/
+/node_modules/
+/trickservice*.tar
+/.factorypath
+/.settings
+/.vscode
+/.classpath
+/bin
+/ot-data
+/docs/installation/deployment/docker/.cache

@@ -1,0 +1,33 @@
+services:
+  db:
+    image: mysql:8
+    command: --max_allowed_packet=32505856 
+    environment:
+      MYSQL_DATABASE: trickservice
+      MYSQL_ROOT_PASSWORD: root
+
+    ports:
+      - 3306:3306
+
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    environment:
+      PMA_HOST: db
+      UPLOAD_LIMIT: 500M
+    links:
+      - db
+    ports:
+     - 8080:80
+
+  opentrick:
+    image: opentrick.eu/docker:latest
+    volumes:
+      - ./.cache:/workspace/ts-upload
+    links: 
+      - db
+    ports:
+     - 8443:8443
+    env_file:
+     - ./deployment-example.env
+     - ./deployment-ldap-example.env
