@@ -53,6 +53,9 @@ public class Email {
     @Column(name = "dtHtml", nullable = false)
     private boolean html;
 
+    /**
+     * List of recipients of the email.
+     **/
     @OneToMany
     @Cascade(CascadeType.ALL)
     @JoinColumn(name = "fiEmail", nullable = false)

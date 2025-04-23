@@ -13,7 +13,7 @@ public class EmailTemplateForm {
 
     private String template;
 
-    private boolean html;
+    private String format;
 
     private long internalTime;
 
@@ -89,24 +89,7 @@ public class EmailTemplateForm {
         this.template = template;
     }
 
-    /**
-     * Checks if the email template is in HTML format.
-     * 
-     * @return true if the email template is in HTML format, false otherwise
-     */
-    public boolean isHtml() {
-        return html;
-    }
-
-    /**
-     * Sets whether the email template is in HTML format.
-     * 
-     * @param html true if the email template is in HTML format, false otherwise
-     */
-    public void setHtml(boolean html) {
-        this.html = html;
-    }
-
+   
     /**
      * Gets the internal time of the email template.
      * 
@@ -124,4 +107,24 @@ public class EmailTemplateForm {
     public void setInternalTime(long internalTime) {
         this.internalTime = internalTime;
     }
+
+    /**
+     * Gets the format of the email template.
+     * 
+     * @return the format of the email template
+     */
+    public String getFormat() {
+        return format;
+    }
+
+    /**
+     * Sets the format of the email template.
+     * 
+     * @param format the format of the email template
+     */
+    public void setFormat(String format) {
+        this.format = format;
+    }
+
+    
 }

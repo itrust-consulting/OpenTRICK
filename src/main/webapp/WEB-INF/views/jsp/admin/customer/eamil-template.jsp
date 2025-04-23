@@ -53,14 +53,16 @@
 							</div>
 						</div>
 						<div class="form-group">
-							<label for="html" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.email.template.html" />'> <spring:message code="label.email.template.html" text="Html" />
+							<label for="format" class="col-sm-3 control-label" data-helper-content='<spring:message code="help.email.template.format" />'> <spring:message code="label.email.template.format" text="Format" />
 							</label>
 							<div class="col-sm-9" align="center">
 								<div class="btn-group" data-toggle="buttons">
-									<label class="btn btn-default ${empty(form) or form.html ? 'active' : ''}"><spring:message code="label.yes_no.yes" /><input
-										${empty(form) or form.html ? 'checked' : ''} name="html" type="radio" value="true"></label> <label
-										class="btn btn-default ${empty(form) or form.html ? '' : 'active'} "><spring:message code="label.yes_no.no" /><input
-										${empty(form) or form.html ? '' : 'checked'} name="html" type="radio" value="false"></label>
+									<label class="btn btn-default ${ form.format eq "HTML" ? 'active' : ''}"><spring:message code="label.email.template.format.html" /><input
+										${ form.format eq 'HTML' ? 'checked' : ''} name="format" type="radio" value="HTML"></label> <label
+										class="btn btn-default ${empty(form) or form.format eq 'TEXT' ? 'active' :  ''} "><spring:message code="label.email.template.format.text" /><input
+										${empty(form) or form.format eq 'HTML' ? 'checked' : ''} name="format" type="radio" value="TEXT"></label>
+									<label class="btn btn-default ${ form.format eq 'JSON' ? 'active' : ''}"><spring:message code="label.email.template.format.json" /><input 
+										${ form.format eq 'JSON' ? 'checked' : ''} name="format" type="radio" value="JSON"></label>
 								</div>
 							</div>
 						</div>
@@ -87,7 +89,7 @@
 							{"name":"Desc", "title": "<spring:message code='label.measure.description'/>"},
 							{"name":"ST", "title": "<spring:message code='label.title.measure.status' />"},
 							{"name":"IR", "title": "<spring:message code='label.title.measure.ir' />"},
-								{"name":"Owner", "title": "<spring:message code='label.title.measure.responsible' />"},
+							{"name":"Owner", "title": "<spring:message code='label.title.measure.responsible' />"},
 							{"name":"IW", "title": "<spring:message code='label.title.measure.iw' />"},
 							{"name":"EW", "title": "<spring:message code='label.title.measure.ew' />"},
 							{"name":"INV", "title": "<spring:message code='label.title.measure.inv' />"},
@@ -103,7 +105,6 @@
 							{"name":"ToDo", "title": "<spring:message code='label.measure.todo' />"},
 							{"name":"Comment", "title": "<spring:message code='label.comment' />"},
 							{"name":"ToCheck", "title": "<spring:message code='label.measure.tocheck' />"}
-						
 						]</div>
 				</form>
 			</div>
