@@ -1,0 +1,83 @@
+<div th:fragment="scripts">
+	<script th:if="${#locale == null}" th:inline="javascript">
+		/*<![CDATA[*/
+		var locale = /*[[${#httpServletRequest.getLocale()}]]*/ 'en';
+		/*]]>*/
+	</script>
+
+	<!-- Core Scripts -->
+	<script th:src="@{/js/jquery-3.5.1.min.js}"></script>
+	<script th:src="@{/js/jquery-migrate-3.3.0.min.js}"></script>
+	<script th:src="@{/js/bootstrap/bootstrap.min.js}"></script>
+	<!-- <script th:src="@{/js/underscore-min.js}"></script> -->
+
+	<!-- Dynamic custom JS scripts -->
+	<script th:each="customJS : ${customJSs}" th:src="@{${customJS}}"></script>
+
+	<!-- Authorized users scripts -->
+	<div sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_SUPERVISOR','ROLE_CONSULTANT','ROLE_USER')">
+		<script th:src="@{/js/he.js}"></script>
+		<script th:src="@{/js/jquery.serializeToJson.min.js}"></script>
+		<script th:src="@{/js/bootstrap/bootstrap-notify.min.js}"></script>
+		<script th:src="@{/js/dom-parser.js}"></script>
+		<script th:src="@{/js/natsort.min.js}"></script>
+		<script th:src="@{/js/bootstrap/stickyTableHeaders.js}"></script>
+		<script th:src="@{/js/jquery.idle.js}"></script>
+		<script th:src="@{/js/main.js}"></script>
+		<script th:src="@{/js/trickservice/reloadSection.js}"></script>
+		<script th:src="@{/js/trickservice/taskmanager.js}"></script>
+		<script th:src="@{/js/trickservice/progressbar.js}"></script>
+		<script th:src="@{/js/trickservice/modal.js}"></script>
+		<script th:src="@{/js/web-socket/sockjs.min.js}"></script>
+		<script th:src="@{/js/web-socket/stomp.umd.min.js}"></script>
+
+		<div sec:authorize="hasRole('ROLE_SUPERVISOR')">
+			<script th:src="@{/js/trickservice/patch.js}"></script>
+		</div>
+
+		<!-- i18n Messages -->
+		<script th:inline="javascript">
+			/*<![CDATA[*/
+			resolveMessage("error.504.message", [[#{ error.504.message }]]);
+			resolveMessage("error.503.message", [[#{ error.503.message }]]);
+			resolveMessage("error.403.message", [[#{ error.403.message }]]);
+			resolveMessage("label.action.remove", [[#{ label.action.remove }]]);
+			resolveMessage("label.action.add", [[#{ label.action.add }]]);
+			resolveMessage("error.not_authorized", [[#{ error.not_authorized }]]);
+			resolveMessage("error.forbidden", /*[[#{error.forbidden}]]*/);
+			resolveMessage("error.unknown.occurred", [[#{ error.unknown.occurred }]]);
+			resolveMessage("label.index.chapter", [[#{ label.index.chapter }]]);
+			resolveMessage("error.session.expired", [[#{ error.session.expired }]]);
+			resolveMessage("error.session.expire.monitor", [[#{ error.session.expire.monitor }]]);
+			resolveMessage("info.session.expire.in.x.seconds", [[#{ info.session.expire.in.x.seconds }]]);
+			resolveMessage("info.session.expire.in.x.minutes", [[#{ info.session.expire.in.x.minutes }]]);
+			resolveMessage("label.title.compute.action_plan", [[#{ label.title.compute.action_plan }]]);
+			resolveMessage("label.title.compute.risk_register", [[#{ label.title.compute.risk_register }]]);
+			resolveMessage("label.title.create.analysis.profile", [[#{ label.title.create.analysis.profile }]]);
+			resolveMessage("label.title.create.analysis.version", [[#{ label.title.create.analysis.version }]]);
+			resolveMessage("label.title.export.analysis", [[#{ label.title.export.analysis }]]);
+			resolveMessage("label.title.export.analysis.report", [[#{ label.title.export.analysis.report }]]);
+			resolveMessage("label.title.export.soa", [[#{ label.title.export.soa }]]);
+			resolveMessage("label.title.generate.ticket", [[#{ label.title.generate.ticket }]]);
+			resolveMessage("label.title.import.analysis", [[#{ label.title.import.analysis }]]);
+			resolveMessage("label.title.import.risk.information", [[#{ label.title.import.risk.information }]]);
+			resolveMessage("label.title.install.application", [[#{ label.title.install.application }]]);
+			resolveMessage("label.title.reset.analysis.right", [[#{ label.title.reset.analysis.right }]]);
+			resolveMessage("label.title.import.measure.collection", [[#{ label.title.import.measure.collection }]]);
+			resolveMessage("label.title.compute.dynamic.parameter", [[#{ label.title.compute.dynamic.parameter }]]);
+			resolveMessage("label.title.export.risk_register", [[#{ label.title.export.risk_register }]]);
+			resolveMessage("label.title.export.risk_sheet", [[#{ label.title.export.risk_sheet }]]);
+
+			application['language'] = [[${ #locale.language == 'en' ? 'en' : 'fr' }]];
+			application['isAdministration'] = [[${ isAdministration }]];
+			application['taskManager'] = new TaskManager().Start();
+			/*]]>*/
+		</script>
+	</div>
+
+	<!-- Pre-authenticated user scripts -->
+	<div sec:authorize="hasRole('ROLE_PRE_AUTHEN')">
+		<script th:src="@{/js/trickservice/otp.js}"></script>
+	</div>
+
+</div>

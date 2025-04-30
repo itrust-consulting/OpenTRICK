@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estimation UI</title>
+</head>
+<body>
+
+    <!-- Set Locale (in Thymeleaf, this is done via Spring's locale resolver in application.properties) -->
+
+    <div th:switch="${not #lists.isEmpty(assessments)}">
+        <div th:case="true">
+            <!-- Include 'assessments.jsp' equivalent logic (use Thymeleaf fragment or include) -->
+            <th:block th:include="fragments/assessments :: assessments"></th:block>
+        </div>
+        <div th:case="false">
+            <div id="estimation-ui" th:data-view-type="'single'"
+                 th:data-view-name="'estimation-ui'"
+                 class="col-lg-10 col-md-9 trick-ui"
+                 th:data-trick-asset-id="${asset.id}"
+                 th:data-trick-scenario-id="${scenario.id}"
+                 th:style="'padding-bottom: ' + (${show_cssf} ? '28' : '18') + 'px;'"
+                 th:data-trick-content="'scenario'">
+                <div th:switch="${type.qualitative}">
+                    <div th:case="true">
+                        <!-- Include 'qualitative.jsp' equivalent logic -->
+                        <th:block th:include="fragments/form/qualitative :: qualitative"></th:block>
+                    </div>
+                    <div th:case="false">
+                        <div th:set="rowLength=${showHiddenComment ? 14 : 30}">
+                            <!-- Include 'quantitative.jsp' equivalent logic -->
+                            <th:block th:include="fragments/form/quantitative :: quantitative"></th:block>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:switch="${not #lists.isEmpty(assessments)}">
+        <div th:case="false">
+            <div id="estimation-ui" th:data-view-type="'empty'"
+                 th:data-view-name="'estimation-ui'"
+                 class="col-lg-10 col-md-9 trick-ui"
+                 th:data-trick-content="'scenario'"></div>
+        </div>
+    </div>
+
+</body>
+</html>

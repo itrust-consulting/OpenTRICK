@@ -1,0 +1,43 @@
+<div class="col-md-9 col-lg-10" id="section_invitation">
+    <table class="table table-hover table-condensed">
+        <thead>
+            <tr>
+                <th width="10%"><span th:text="#{label.invitation.host}">Host</span></th>
+                <th width="8%"><span th:text="#{label.analysis.customer}">Customer</span></th>
+                <th width="15%"><span th:text="#{label.analysis.label}">Name</span></th>
+                <th width="5%"><span th:text="#{label.analysis.version}">Version</span></th>
+                <th><span th:text="#{label.analysis.description}">Description</span></th>
+                <th width="5%"><span th:text="#{label.analysis.right}">Access</span></th>
+                <th width="10%" style="min-width: 100px;"><span th:text="#{label.action}">Action</span></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="invitation : ${invitations}" th:data-trick-id="${invitation.id}">
+                <td><span th:text="${invitation.host.firstName} + ' ' + ${invitation.host.lastName}"></span></td>
+                <td><span th:text="${invitation.analysis.customer.organisation}"></span></td>
+                <td><span th:text="${invitation.analysis.label}"></span></td>
+                <td><span th:text="${invitation.analysis.version}"></span></td>
+                <td data-trick-content="text"><span th:text="${invitation.analysis.lastHistory.comment}"></span></td>
+                <td>
+                    <span th:text="#{label.analysis.right.${#strings.toLowerCase(invitation.right)}}"
+                          th:utext="${#strings.replace(invitation.right, '_', ' ')}"></span>
+                </td>
+                <td>
+                    <div class="btn-group" style="display: inline-block;">
+                        <a class="btn btn-primary" th:href="@{${pageContext.request.contextPath}/Account/Invitation/{id}/Accept(id=${invitation.id})}"
+                           onclick="return acceptInvitation('${invitation.id}')"
+                           th:title="#{label.action.accept}">
+                            <i class="fa fa-check-square-o"></i>
+                        </a>
+                        <a class="btn btn-danger"
+                           th:href="@{${pageContext.request.contextPath}/Account/Invitation/{id}/Reject(id=${invitation.id})}"
+                           onclick="return rejectInvitation('${invitation.id}')"
+                           th:title="#{label.action.reject}">
+                            <i class="fa fa-ban"></i>
+                        </a>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

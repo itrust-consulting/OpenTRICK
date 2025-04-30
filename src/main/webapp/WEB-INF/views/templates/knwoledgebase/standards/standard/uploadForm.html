@@ -1,0 +1,58 @@
+<!-- Thymeleaf template -->
+<div class="modal fade" id="uploadStandardModal" tabindex="-1" role="dialog" aria-labelledby="uploadStandard" aria-hidden="true" data-backdrop="static" data-keyboard="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+        
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="uploadStandard-title">
+                    <span th:text="#{label.title.import.norm}">Import a new standard</span>
+                </h4>
+            </div>
+            
+            <!-- Modal Body -->
+            <div class="modal-body">
+                <div th:replace="~{../../../template/successErrors :: successErrors}"></div>
+
+                <form name="importStandard" method="post" 
+                      th:action="@{/KnowledgeBase/Standard/Import}" 
+                      class="form-inline" id="uploadStandard_form" 
+                      enctype="multipart/form-data">
+                      
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+                    <div class="row">
+                        <label class="col-lg-12" for="name">
+                            <span th:text="#{label.norm.import.choose_file}">Choose the file containing new standard to import</span>
+                        </label>
+                        <div class="col-lg-12">
+                            <div class="input-group-btn">
+                                <input id="file" type="file" accept=".xls,.xlsx,.xlsm"
+                                       onchange="$('#upload-file-info').prop('value', $(this).prop('value')); checkExtention($('#upload-file-info').val(), 'xls,xlsx,xlsm', '#btnImportStandard');"
+                                       name="file" style="display: none;" />
+                                <input id="upload-file-info" class="form-control" readonly="readonly" required="required" style="width: 88%;" />
+                                <button class="btn btn-primary" type="button" id="browse-button" onclick="$('input[id=file]').click();" style="margin-left: -5px;">
+                                    <span th:text="#{label.action.browse}">Browse</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Modal Footer -->
+            <div class="modal-footer">
+                <div class="col-lg-8" style="color: #d9534f;" align="left" id="updateStandardNotification"></div>
+                <div class="col-lg-4">
+                    <button type="button" class="btn btn-primary" onclick="return importNewStandard()" id="btnImportStandard" disabled="disabled">
+                        <span th:text="#{label.action.import}">Import</span>
+                    </button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                        <span th:text="#{label.action.cancel}">Cancel</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

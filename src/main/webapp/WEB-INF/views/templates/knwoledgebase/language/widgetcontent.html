@@ -1,0 +1,71 @@
+<div class="modal fade" id="addLanguageModel" tabindex="-1" role="dialog" aria-labelledby="addNewLanguage" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="addLanguageModel-title">
+                    <span th:text="#{label.title.add.language}">Add new language</span>
+                </h4>
+            </div>
+            <div class="modal-body">
+                <form name="language" th:action="@{/Language/Save}" method="post" class="form-horizontal" id="language_form">
+                    <input type="hidden" name="id" value="0" id="language_id">
+                    <div class="form-group">
+                        <label for="alpha3" class="col-sm-3 control-label" th:data-helper-content="#{help.language.alpha3}">
+                            <span th:text="#{label.language.alpha3}">Alpha3 code</span>
+                        </label>
+                        <div class="col-sm-9">
+                            <input name="alpha3" id="language_alpha3" class="form-control" type="text" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="name" class="col-sm-3 control-label" th:data-helper-content="#{help.language.name}">
+                            <span th:text="#{label.language.name}">Name</span>
+                        </label>
+                        <div class="col-sm-9">
+                            <input name="name" id="language_name" class="form-control" type="text" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="altName" class="col-sm-3 control-label" th:data-helper-content="#{help.language.alt_name}">
+                            <span th:text="#{label.language.alt_name}">Alternative Name</span>
+                        </label>
+                        <div class="col-sm-9">
+                            <input name="altName" id="language_altName" class="form-control" type="text" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button id="addlanguagebutton" type="button" class="btn btn-primary" onclick="saveLanguage('language_form')">
+                    <span th:text="#{label.action.add}">Add</span>
+                </button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <span th:text="#{label.action.cancel}">Cancel</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteLanguageModel" tabindex="-1" aria-hidden="true" aria-labelledby="deleteLanguage" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="deleteLanguageModel-title">
+                    <span th:text="#{label.title.delete}">Delete</span>
+                </h4>
+            </div>
+            <div id="deleteLanguageBody" class="modal-body">Your question here...</div>
+            <div class="modal-footer">
+                <button id="deletelanguagebuttonYes" type="button" class="btn btn-danger" data-dismiss="modal">
+                    <span th:text="#{label.action.confirm.yes}">Yes</span>
+                </button>
+                <button id="deletelanguagebuttonCancel" type="button" class="btn btn-default" data-dismiss="modal">
+                    <span th:text="#{label.action.cancel}">Cancel</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

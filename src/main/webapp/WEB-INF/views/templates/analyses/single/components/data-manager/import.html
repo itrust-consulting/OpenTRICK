@@ -1,0 +1,126 @@
+<div class="modal fade" id="import-modal" tabindex="-1" role="dialog"
+     aria-labelledby="import-modal" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" th:text="#{label.title.data_manager.import}"></h4>
+            </div>
+            <div class="modal-body">
+                <div class="col-xs-3" data-view-part="nav">
+                    <ul class="nav nav-pills nav-stacked">
+                        <li th:each="item, status : ${items}"
+                            th:classappend="${status.index == 0} ? 'active'">
+                            <a th:href="'#import-' + ${item.name}" data-toggle="tab"
+                               th:text="#{${'label.menu.data_manager.import.' + ${#strings.replace(item.name, '-', '_')}}}">
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="clearfix"></div>
+                </div>
+
+                <div class="col-xs-9" data-view-part="content">
+                    <div id="import-view-container" class="tab-content" data-view-tab="main">
+
+                        <th:block th:with="maxSizeInfo=
+                            ${maxFileSize < 1024} ? #{label.max.unit.data.byte(${maxFileSize})} :
+                            (${maxFileSize < 1048576} ? #{label.max.unit.data.kilo.byte(${maxFileSize / 1024})} :
+                            #{label.max.unit.data.mega.byte(${maxFileSize / 1048576})})">
+
+                            <div th:each="item, status : ${items}"
+                                 th:with="viewName=${#strings.replace(item.name, '-', '_')}">
+                                <div class="tab-pane tab-pane-main"
+                                     th:classappend="${status.index == 0} ? 'active'"
+                                     th:id="'import-' + ${item.name}"
+                                     th:attr="data-view-name=${item.name},
+                                              data-view-url=${item.viewURL},
+                                              data-view-process-url=${item.processURL},
+                                              data-view-extentions=${item.extensions}">
+
+                                    <th:block th:if="${#strings.isEmpty(item.viewURL)}">
+                                        <fieldset>
+                                            <legend th:text="#{${'label.title.data_manager.import.' + viewName}}"></legend>
+                                            <div class="alert alert-sm alert-danger" style="margin-bottom: 15px"
+                                                 data-alert="danger"
+                                                 th:text="#{${(item.name == 'risk-information' or item.name == 'item-information') ? 'warning' : 'info'}.data_manager.import.${viewName}}">
+                                            </div>
+
+                                            <div class="alert alert-sm alert-warning" style="margin-bottom: 15px; display: none;"
+                                                 data-alert="warning"
+                                                 th:if="${item.name == 'risk-information' or item.name == 'item-information'}"
+                                                 th:text="#{info.data_manager.import.${viewName}}">
+                                            </div>
+
+                                            <form th:name="${item.name}" method="post"
+                                                  th:action="@{${item.processURL}(csrfParam=${_csrf.parameterName}, csrfToken=${_csrf.token})}"
+                                                  enctype="multipart/form-data"
+                                                  th:id="'form-' + ${item.name}"
+                                                  class="form-inline">
+
+                                                <div class="row">
+                                                    <div class="col-lg-12" th:if="${item.name == 'risk-information' or item.name == 'item-information'}">
+                                                        <label th:text="#{label.import.${viewName}.option}"></label>
+                                                        <div class="col-lg-12 text-right" style="margin-bottom: 15px;">
+                                                            <div class="btn-group btn-group-justified" data-toggle="buttons">
+                                                                <label class="btn btn-sm btn-danger active text-center">
+                                                                    <input checked name="overwrite" type="radio" value="true">
+                                                                    <span th:text="#{label.action.overwrite}"></span>
+                                                                </label>
+                                                                <label class="btn btn-sm btn-warning text-center">
+                                                                    <input name="overwrite" type="radio" value="false">
+                                                                    <span th:text="#{label.action.update}"></span>
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <label class="col-lg-12" for="name"
+                                                           th:text="#{label.import.${viewName}.choose_file}"></label>
+                                                    <div class="col-lg-12">
+                                                        <div class="input-group-btn">
+                                                            <input th:id="'file-' + ${item.name}"
+                                                                   type="file"
+                                                                   th:accept="${item.extensions}"
+                                                                   th:attr="maxlength=${maxFileSize}"
+                                                                   name="file"
+                                                                   style="display: none;"
+                                                                   th:onchange="'$(\'#upload-file-info-' + ${item.name} + '\').prop(\'value\',$(this).prop(\'value\')); checkExtention($(\'#upload-file-info-' + ${item.name} + '\').val(),\'' + ${#strings.replace(item.extensions,'.','')} + '\',\'#btn-import\');'" />
+
+                                                            <input th:id="'upload-file-info-' + ${item.name}"
+                                                                   class="form-control"
+                                                                   readonly="readonly"
+                                                                   required="required"
+                                                                   style="width: 88%;"
+                                                                   th:placeholder="${maxSizeInfo}" />
+
+                                                            <button class="btn btn-primary" type="button"
+                                                                    id="browse-button"
+                                                                    th:onclick="'$(\'input[id=file-' + ${item.name} + ']\').click();'"
+                                                                    style="margin-left: -5px;"
+                                                                    th:text="#{label.action.browse}">Browse</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </form>
+
+                                            <div class="col-lg-12" style="color: #d9534f;" align="left"
+                                                 th:attr="data-view-notification=${item.name}"></div>
+                                        </fieldset>
+                                    </th:block>
+                                </div>
+                            </div>
+                        </th:block>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btn-import" name="import" class="btn btn-primary" disabled="disabled"
+                        th:text="#{label.action.import}">Import</button>
+                <button type="button" name="cancel" class="btn btn-default" data-dismiss="modal"
+                        th:text="#{label.action.cancel}">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>

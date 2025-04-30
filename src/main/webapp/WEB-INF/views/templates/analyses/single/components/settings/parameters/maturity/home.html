@@ -1,0 +1,123 @@
+<div class="tab-pane" id="tab-parameter-maturity">
+	<div class="section row" id="section_parameter_maturity">
+		<div class="page-header tab-content-header">
+			<div class="container">
+				<div class="row-fluid">
+					<h3>
+						<span th:text="#{label.title.maturity.parameters}">Maturity parameters</span>
+					</h3>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-6">
+			<fieldset>
+				<legend>
+					<span th:text="#{label.title.parameter.maturity_ilps}">Maturity ILPS</span>
+				</legend>
+				<table class="table table-hover table-fixed-header-analysis table-condensed" id="tableMaturityIlps">
+					<thead>
+						<tr>
+							<th class="textaligncenter" th:text="#{label.parameter.maturity.category}">Category</th>
+							<th class="textaligncenter" th:text="#{label.parameter.maturity.task}">Task</th>
+							<th class="textaligncenter" th:text="#{label.parameter.maturity.sml0}">SML0 (%)</th>
+							<th class="textaligncenter" th:text="#{label.parameter.maturity.sml1}">SML1 (%)</th>
+							<th class="textaligncenter" th:text="#{label.parameter.maturity.sml2}">SML2 (%)</th>
+							<th class="textaligncenter" th:text="#{label.parameter.maturity.sml3}">SML3 (%)</th>
+							<th class="textaligncenter" th:text="#{label.parameter.maturity.sml4}">SML4 (%)</th>
+							<th class="textaligncenter" th:text="#{label.parameter.maturity.sml5}">SML5 (%)</th>
+						</tr>
+					</thead>
+					<tfoot></tfoot>
+					<tbody>
+						<tr th:each="parameter : ${mappedParameters['ILPS']}" 
+							data-trick-class="MaturityParameter" 
+							data-trick-id="${parameter.id}" 
+							data-trick-callback="updateMeasureEffience()">
+							<td class="textaligncenter" th:text="#{label.parameter.maturity.rsml.category.${parameter.category.toLowerCase()}}"></td>
+							<td class="textaligncenter" th:text="#{label.parameter.maturity.rsml.description.${parameter.description.replace(' ', '_').toLowerCase()}}"></td>
+							<td class="editable textaligncenter" data-trick-field="SMLLevel0" data-trick-max-value="100" data-trick-min-value="0" data-trick-field-type="double"
+								onclick="return editField(this);">
+								<span th:text="${#numbers.formatDecimal(parameter.SMLLevel0 * 100, 0)}"></span>
+							</td>
+							<td class="editable textaligncenter" data-trick-field="SMLLevel1" data-trick-max-value="100" data-trick-min-value="0" data-trick-field-type="double"
+								onclick="return editField(this);">
+								<span th:text="${#numbers.formatDecimal(parameter.SMLLevel1 * 100, 0)}"></span>
+							</td>
+							<td class="editable textaligncenter" data-trick-field="SMLLevel2" data-trick-max-value="100" data-trick-min-value="0" data-trick-field-type="double"
+								onclick="return editField(this);">
+								<span th:text="${#numbers.formatDecimal(parameter.SMLLevel2 * 100, 0)}"></span>
+							</td>
+							<td class="editable textaligncenter" data-trick-field="SMLLevel3" data-trick-max-value="100" data-trick-min-value="0" data-trick-field-type="double"
+								onclick="return editField(this);">
+								<span th:text="${#numbers.formatDecimal(parameter.SMLLevel3 * 100, 0)}"></span>
+							</td>
+							<td class="editable textaligncenter" data-trick-field="SMLLevel4" data-trick-max-value="100" data-trick-min-value="0" data-trick-field-type="double"
+								onclick="return editField(this);">
+								<span th:text="${#numbers.formatDecimal(parameter.SMLLevel4 * 100, 0)}"></span>
+							</td>
+							<td class="editable textaligncenter" data-trick-field="SMLLevel5" data-trick-max-value="100" data-trick-min-value="0" data-trick-field-type="double"
+								onclick="return editField(this);">
+								<span th:text="${#numbers.formatDecimal(parameter.SMLLevel5 * 100, 0)}"></span>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</fieldset>
+		</div>
+		<div class="col-md-6">
+			<fieldset>
+				<legend>
+					<span th:text="#{label.title.parameter.simple.maturity_level}">Simple Maturity Level</span>
+				</legend>
+
+				<table class="table table-hover table-condensed">
+					<thead>
+						<tr>
+							<th class="textaligncenter" th:text="#{label.parameter.simple.sml0}">SML0 (%)</th>
+							<th class="textaligncenter" th:text="#{label.parameter.simple.sml1}">SML1 (%)</th>
+							<th class="textaligncenter" th:text="#{label.parameter.simple.sml2}">SML2 (%)</th>
+							<th class="textaligncenter" th:text="#{label.parameter.simple.sml3}">SML3 (%)</th>
+							<th class="textaligncenter" th:text="#{label.parameter.simple.sml4}">SML4 (%)</th>
+							<th class="textaligncenter" th:text="#{label.parameter.simple.sml5}">SML5 (%)</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr data-trick-class="SimpleParameter" data-trick-min-value="0" data-trick-max-value="100" data-trick-callback="updateMeasureEffience()">
+							<th:block th:each="parameter : ${mappedParameters['MAXEFF']}">
+								<td data-trick-field="value" data-trick-field-type="double" data-trick-id="${parameter.id}" class="editable textaligncenter" onclick="return editField(this);">
+									<span th:text="${#numbers.formatDecimal(parameter.value, 0)}"></span>
+								</td>
+							</th:block>
+						</tr>
+					</tbody>
+				</table>
+			</fieldset>
+		</div>
+		<div class="col-md-6">
+			<fieldset id="Maturity_implementation_rate">
+				<legend>
+					<span th:text="#{label.title.parameter.simple.smt}">Implementation Rate</span>
+				</legend>
+				<table class="table table-hover table-condensed">
+					<thead>
+						<tr>
+							<th class="textaligncenter" th:text="#{label.parameter.level}">Level</th>
+							<th class="textaligncenter" th:text="#{label.parameter.implementation}">Implementation (%)</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:each="parameter : ${mappedParameters['IMPSCALE']}" 
+							data-trick-class="SimpleParameter" 
+							data-trick-id="${parameter.id}">
+							<td class="textaligncenter" th:text="#{label.parameter.simple.smt.level_${parameter.description}}">${parameter.description}</td>
+							<td data-trick-field="value" data-trick-field-type="double" data-trick-min-value="0" data-trick-max-value="100" class="editable textaligncenter"
+								onclick="return editField(this);">
+								<span th:text="${#numbers.formatDecimal(parameter.value, 0)}"></span>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</fieldset>
+		</div>
+	</div>
+</div>

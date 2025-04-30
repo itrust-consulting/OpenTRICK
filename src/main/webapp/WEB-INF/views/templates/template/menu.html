@@ -1,0 +1,146 @@
+<!-- fragments/menu.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security6">
+
+<body>
+    <div th:fragment="main-menu(menu, analysisSharedCount)" class="navbar navbar-inverse navbar-fixed-top"
+        role="main-menu" style="z-index: 1030;">
+        <div class="container">
+
+            <!-- Authenticated Users -->
+            <th:block sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_SUPERVISOR','ROLE_CONSULTANT', 'ROLE_USER')">
+                <div class="navbar-header">
+                    <a class="navbar-brand" id="main_menu_brand"
+                        th:href="@{${menu != null and menu != 'Home' ? '/Home' : '#'}}">
+                        <img class="brand-grey" th:alt="#{label.menu.home}" th:title="#{label.menu.home}"
+                            th:src="@{/images/brand-grey.png}" />
+                        <img class="brand-white" th:alt="#{label.menu.home}" th:title="#{label.menu.home}"
+                            th:src="@{/images/brand-white.png}" />
+                    </a>
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                        <span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span>
+                    </button>
+                </div>
+                <div class="collapse navbar-collapse">
+                    <ul class="nav navbar-nav">
+                        <li sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_SUPERVISOR','ROLE_CONSULTANT')"
+                            th:classappend="${menu != null and !menu.startsWith('KnowledgeBase')} ? '' : 'active'">
+                            <a th:href="@{${menu != null and !menu.startsWith('KnowledgeBase') ? '/KnowledgeBase' : '#'}}"
+                                id="main_menu_knowledgebase">
+                                <span th:text="#{label.menu.analysis.knowledgebase}">Knowledge base</span>
+                            </a>
+                        </li>
+                        <th:block th:switch="${menu}">
+                            <th:block th:case="'Analysis/Risk-evolution'">
+                                <li><a th:href="@{/Analysis}" id="main_menu_analysis"
+                                        th:text="#{label.menu.analysis.all}">Analysis</a></li>
+                                <li class="active"><a href="#" id="main_menu_risk_evelotion"
+                                        th:text="#{label.menu.analysis.risk_evolution}">Risk evolution</a></li>
+                            </th:block>
+                            <th:block th:case="'Analysis'">
+                                <li class="active"><a href="#" id="main_menu_analysis"
+                                        th:text="#{label.menu.analysis.all}">Analysis</a></li>
+                                <li><a th:href="@{/Analysis/Risk-evolution}" id="main_menu_risk_evelotion"
+                                        th:text="#{label.menu.analysis.risk_evolution}">Risk evolution</a></li>
+                            </th:block>
+                            <th:block th:case="*">
+                                <li><a th:href="@{/Analysis}" id="main_menu_analysis"
+                                        th:text="#{label.menu.analysis.all}">Analysis</a></li>
+                                <li><a th:href="@{/Analysis/Risk-evolution}" id="main_menu_risk_evelotion"
+                                        th:text="#{label.menu.analysis.risk_evolution}">Risk evolution</a></li>
+                            </th:block>
+                        </th:block>
+                    </ul>
+
+                    <ul class="nav navbar-nav navbar-right">
+                        <li th:classappend="${menu != 'Account'} ? '' : 'active'">
+                            <a th:href="@{${menu != 'Account' ? '/Account' : '#'}}" id="main_menu_profile"
+                                th:with="currentUsername=${#authentication.name}">
+                                <span
+                                    th:text="${#strings.isEmpty(currentUsername) ? '#{label.profile}' : currentUsername}">Profile</span>
+                                <span id="invitation-count" class="badge" style="padding-bottom: 4px; padding-top: 2px;"
+                                    th:title="#{label.info.analysis.invitation.count}"
+                                    th:text="${analysisSharedCount}">0</span>
+                            </a>
+                        </li>
+
+                        <th:block sec:authorize="hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERVISOR')">
+                            <li th:classappend="${menu != 'Admin'} ? '' : 'active'">
+                                <a th:href="@{${menu != 'Admin' ? '/Admin' : '#'}}" id="main_menu_admin"
+                                    th:text="#{label.administration}">Admin</a>
+                            </li>
+
+                            <!-- Runtime Menu -->
+                            <div sec:authorize="hasRole('ROLE_SUPERVISOR')">
+                                <li class="dropdown-submenu">
+                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" id="main_menu_runtime">
+                                        <span th:text="#{label.runtime}">Runtime</span><span class="caret"></span>
+                                    </a>
+                                    <ul class="dropdown-menu">
+                                        <li class="dropdown-header" th:text="#{label.runtime.dropdown_header.Anytime}">
+                                            Anytime patches</li>
+                                        <li><a href="#" onclick="return updateMeasureAssetTypeValue()"
+                                                th:text="#{label.measure.update.asset_type_value}">Create missing asset
+                                                type values</a></li>
+                                        <li><a href="#" onclick="return fixAllScenarioCategories()"
+                                                th:text="#{label.scenario.fix.categories}">Update scenario
+                                                categories</a></li>
+                                        <li><a href="#" onclick="return fixAllAssessments()"
+                                                th:text="#{label.scenario.fix.assessments}">Update assessments</a></li>
+                                        <li><a href="#" onclick="return addCSSFParameters()"
+                                                th:text="#{label.add.css_parameters}">Add CSSF Parameters</a></li>
+                                        <li><a href="#" onclick="return fixQualitativeImpactParameter()"
+                                                th:text="#{label.fix.qualitative_impact_parameter}">Fix qualitative
+                                                impact parameters</a></li>
+                                        <li class="divider"></li>
+                                        <li class="dropdown-header" th:text="#{label.runtime.dropdown_header.Major}">
+                                            Major patches</li>
+                                        <li><a href="#" onclick="return updateAnalysesRiskAndItemInformation()"
+                                                th:text="#{label.update.analyses.risk_item.information}">Copy risk/item
+                                                info</a></li>
+                                        <li><a href="#" onclick="return restoreAnalysisRights()"
+                                                th:text="#{label.restore.analysis.right}">Restore analysis rights</a>
+                                        </li>
+                                        <li><a href="#" onclick="return updateAnalysesScopes()"
+                                                th:text="#{label.update.analyses.scopes}">Update scopes</a></li>
+                                        <li><a href="#" onclick="return synchroniseAnalysesMeasureCollection()"
+                                                th:text="#{label.synchronise.analyses.measure.collection}">Sync measure
+                                                collections</a></li>
+                                    </ul>
+                                </li>
+                            </div>
+                        </th:block>
+
+                        <li>
+                            <a href="#" onclick="return document.getElementById('logoutFormSubmiter').click()"
+                                id="main_menu_logout" th:text="#{label.menu.logout}">Logout</a>
+                            <form id="logout-form" th:action="@{/Signout}" method="post" style="display: none">
+                                <input type="hidden" name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                <input type="submit" id="logoutFormSubmiter" />
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            </th:block>
+
+            <!-- Anonymous -->
+            <div sec:authorize="hasAnyRole('ROLE_ANONYMOUS', 'ROLE_PRE_AUTHEN')">
+                <div class="navbar-header">
+                    <a class="navbar-brand" id="main_menu_brand"
+                        th:href="@{${menu != null and menu != 'Home' ? '/Home' : '#'}}">
+                        <img class="brand-grey" th:alt="#{label.menu.home}" th:title="#{label.menu.home}"
+                            th:src="@{/images/brand-grey.png}" />
+                        <img class="brand-white" th:alt="#{label.menu.home}" th:title="#{label.menu.home}"
+                            th:src="@{/images/brand-white.png}" />
+                    </a>
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                        <span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</body>
+
+</html>

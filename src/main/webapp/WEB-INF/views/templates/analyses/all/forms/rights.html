@@ -1,0 +1,189 @@
+<div class="modal fade" 
+     id="manageAnalysisAccessModel" 
+     data-trick-id="${analysis.id}" 
+     data-trick-user-id="${myId}" 
+     tabindex="-1" 
+     role="dialog" 
+     aria-labelledby="manageAnalysisAccessModel" 
+     aria-hidden="true">
+    <div class="modal-dialog" style="width: 705px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="manageAnalysisAccessModel-title">
+                    <span th:text="#{label.title.analysis.manage.access}">Manage analysis access rights</span>
+                </h4>
+            </div>
+            <div class="modal-body" style="padding: 0;">
+                <div style="padding: 5px 20px;">
+                    <h5 style="font-weight: bold;">
+                        <span th:text="#{label.analysis.manage.access.info(${analysis.label}, ${analysis.version}, ${analysis.customer.organisation})}">
+                            Analysis: ${analysis.label}, Version: ${analysis.version}, Customer: ${analysis.customer.organisation}
+                        </span>
+                    </h5>
+                    <div>
+                        <h4 class="col-xs-5 bordered-bottom" style="padding-left: 0">
+                            <span th:text="#{label.name}">Name</span>
+                        </h4>
+                        <h4 class="col-xs-7 bordered-bottom text-center">
+                            <span th:text="#{label.analysis.rights}">Access Rights</span>
+                        </h4>
+                    </div>
+                </div>
+
+                <span th:text="#{label.analysis.right.all}" th:utext="${rightAll}"></span>
+                <span th:text="#{label.analysis.right.export}" th:utext="${rightExport}"></span>
+                <span th:text="#{label.analysis.right.modify}" th:utext="${rightModify}"></span>
+                <span th:text="#{label.analysis.right.read}" th:utext="${rightRead}"></span>
+                <span th:text="#{label.analysis.right.none}" th:utext="${rightNone}"></span>
+
+                <div class="form-horizontal" style="padding: 5px 20px; height: 500px; overflow-x: hidden; clear: both;">
+                    <th:block th:each="user : ${userrights}">
+                        <div th:data-default-value="${userRight}" 
+                             th:data-trick-email="${user.email}" 
+                             th:data-trick-id="${user.id}" 
+                             th:data-name="'right-' + ${user.id}">
+                            <div class="col-xs-5">
+                                <strong style="vertical-align: middle;">
+                                    <span th:text="${user.firstName} + ' ' + ${user.lastName}"></span>
+                                </strong>
+                            </div>
+                            <div class="col-xs-7 text-center">
+                                <div class="btn-group" data-toggle="buttons">
+                                    <label class="btn btn-sm btn-default" 
+                                           th:classappend="${userRight == 'ALL' ? 'active' : ''}">
+                                        <span th:text="${rightAll}">ALL</span>
+                                        <input th:checked="${userRight == 'ALL'}" name="'right-' + ${user.id}" type="radio" value="ALL">
+                                    </label>
+                                    <label class="btn btn-sm btn-default" 
+                                           th:classappend="${userRight == 'EXPORT' ? 'active' : ''}">
+                                        <span th:text="${rightExport}">EXPORT</span>
+                                        <input th:checked="${userRight == 'EXPORT'}" name="'right-' + ${user.id}" type="radio" value="EXPORT">
+                                    </label>
+                                    <label class="btn btn-sm btn-default" 
+                                           th:classappend="${userRight == 'MODIFY' ? 'active' : ''}">
+                                        <span th:text="${rightModify}">MODIFY</span>
+                                        <input th:checked="${userRight == 'MODIFY'}" name="'right-' + ${user.id}" type="radio" value="MODIFY">
+                                    </label>
+                                    <label class="btn btn-sm btn-default" 
+                                           th:classappend="${userRight == 'READ' ? 'active' : ''}">
+                                        <span th:text="${rightRead}">READ</span>
+                                        <input th:checked="${userRight == 'READ'}" name="'right-' + ${user.id}" type="radio" value="READ">
+                                    </label>
+                                    <label class="btn btn-sm btn-default" 
+                                           th:classappend="${userRight == '' ? 'active' : ''}">
+                                        <span th:text="${rightNone}">None</span>
+                                        <input th:checked="${userRight == ''}" name="'right-' + ${user.id}" type="radio" value="">
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </th:block>
+
+                    <th:block th:if="${not isAdmin}">
+                        <fieldset>
+                            <legend style="margin-bottom: 10px">
+                                <span th:text="#{label.title.analysis.invitation}">Invitation</span>
+                            </legend>
+                            <span th:text="#{label.action.cancel}" th:utext="${cancel}"></span>
+
+                            <th:block th:each="guest, status : ${invitations}">
+                                <div th:data-default-value="${guest.right}" 
+                                     th:data-trick-email="${guest.email}" 
+                                     th:data-name="'guest-' + ${guest.id}" 
+                                     th:data-index="${status.index + 1}" 
+                                     title="Host: ${guest.host.firstName} ${guest.host.lastName}">
+                                    <div class="col-xs-5">
+                                        <strong style="vertical-align: middle;">
+                                            <span th:text="${guest.email}">Email</span>
+                                        </strong>
+                                    </div>
+                                    <div class="col-xs-7 text-center">
+                                        <div class="btn-group" data-toggle="buttons">
+                                            <label class="btn btn-sm btn-default" 
+                                                   th:classappend="${guest.right == 'ALL' ? 'active' : ''}">
+                                                <span th:text="${rightAll}">ALL</span>
+                                                <input th:checked="${guest.right == 'ALL'}" name="'guest-' + ${guest.id}" type="radio" value="ALL">
+                                            </label>
+                                            <label class="btn btn-sm btn-default" 
+                                                   th:classappend="${guest.right == 'EXPORT' ? 'active' : ''}">
+                                                <span th:text="${rightExport}">EXPORT</span>
+                                                <input th:checked="${guest.right == 'EXPORT'}" name="'guest-' + ${guest.id}" type="radio" value="EXPORT">
+                                            </label>
+                                            <label class="btn btn-sm btn-default" 
+                                                   th:classappend="${guest.right == 'MODIFY' ? 'active' : ''}">
+                                                <span th:text="${rightModify}">MODIFY</span>
+                                                <input th:checked="${guest.right == 'MODIFY'}" name="'guest-' + ${guest.id}" type="radio" value="MODIFY">
+                                            </label>
+                                            <label class="btn btn-sm btn-default" 
+                                                   th:classappend="${guest.right == 'READ' ? 'active' : ''}">
+                                                <span th:text="${rightRead}">READ</span>
+                                                <input th:checked="${guest.right == 'READ'}" name="'guest-' + ${guest.id}" type="radio" value="READ">
+                                            </label>
+                                            <label class="btn btn-sm btn-warning" 
+                                                   th:classappend="${empty guest.right ? 'active' : ''}">
+                                                <i class="fa fa-ban"></i>
+                                                <span th:text="${cancel}">Cancel</span>
+                                                <input th:checked="${empty guest.right}" name="'guest-' + ${guest.id}" type="radio" value="">
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </th:block>
+
+                            <div class="form-group text-center" id="btn-container">
+                                <button style="padding: 0; margin: 0;" 
+                                        name="invite" 
+                                        class="btn btn-link" 
+                                        title="#{label.action.invite}">
+                                    <i class="fa fa-2x fa-plus-circle"></i>
+                                </button>
+                            </div>
+                        </fieldset>
+                    </th:block>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" name="save" data-dismiss="modal" class="btn btn-primary">
+                    <span th:text="#{label.action.save}">Save</span>
+                </button>
+                <button type="button" name="cancel" class="btn btn-default" data-dismiss="modal">
+                    <span th:text="#{label.action.cancel}">Cancel</span>
+                </button>
+            </div>
+
+            <div id="template-invitation" class="hidden">
+                <div class="form-group" data-default-value="" data-trick-email="" data-name="guest-0" data-status="new">
+                    <div class="col-xs-5">
+                        <input class="form-control" type="email" style="height: 29.133px;">
+                    </div>
+                    <div class="col-xs-7 text-center">
+                        <div class="btn-group" data-toggle="buttons">
+                            <label class="btn btn-sm btn-default active">
+                                <span th:text="${rightAll}">ALL</span>
+                                <input checked="checked" name="guest-0" type="radio" value="ALL">
+                            </label>
+                            <label class="btn btn-sm btn-default">
+                                <span th:text="${rightExport}">EXPORT</span>
+                                <input name="guest-0" type="radio" value="EXPORT">
+                            </label>
+                            <label class="btn btn-sm btn-default">
+                                <span th:text="${rightModify}">MODIFY</span>
+                                <input name="guest-0" type="radio" value="MODIFY">
+                            </label>
+                            <label class="btn btn-sm btn-default">
+                                <span th:text="${rightRead}">READ</span>
+                                <input name="guest-0" type="radio" value="READ">
+                            </label>
+                            <label class="btn btn-sm btn-danger">
+                                <i class="fa fa-trash-o"></i> 
+                                <span th:text="#{label.action.delete}">Delete</span>
+                                <input name="guest-0" type="radio" value="">
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

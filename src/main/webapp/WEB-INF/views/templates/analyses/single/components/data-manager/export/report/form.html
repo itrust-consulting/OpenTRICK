@@ -1,0 +1,53 @@
+<form th:action="@{/Analysis/Export/Report/{analysisId}(analysisId=${analysis.id})}" method="post" enctype="multipart/form-data"
+      th:data-type-control="${nameControl}">
+  
+  <input type="hidden" name="analysis" id="exportWord.analysis" th:value="${analysis.id}">
+  <input type="hidden" name="type" th:value="${item.name}">
+
+  <fieldset style="margin-bottom: 10px">
+    <legend style="font-size: 15px" th:data-helper-content="#{help.export.report.internal}">
+      <span th:text="#{label.internal.template}">Internal template</span>
+    </legend>
+
+    <div class="col-sm-12 text-center" th:data-trick-info="template">
+      <select name="template" class="form-control" id="exportWord.template.${nameControl}" required="required" style="width: 100%">
+        <option value="0" selected="selected" disabled="disabled" th:text="#{label.action.choose}">Choose...</option>
+        <th:block th:each="template : ${templates}">
+          <th:block th:if="${template.analysisType == item.name}">
+            <option th:value="${template.id}" th:classappend="${template.outToDate ? 'text-danger' : ''}" th:data-trick-type="${template.analysisType}">
+              <span th:text="${template.label}">Template Label</span> - V<span th:text="${template.version}">1.0</span>
+            </option>
+          </th:block>
+        </th:block>
+      </select>
+    </div>
+  </fieldset>
+
+  <fieldset th:data-trick-info="file">
+    <legend class="text-warning" style="font-size: 15px" th:data-helper-content="#{help.export.report.external}">
+      <span th:text="#{label.external.template}">External template</span>
+    </legend>
+
+    <th:block th:if="${maxFileSize < 1024}">
+      <span th:text="#{label.max.unit.data.byte(${maxFileSize})}">Max file size in bytes</span>
+    </th:block>
+    <th:block th:if="${maxFileSize < 1048576}">
+      <span th:text="#{label.max.unit.data.kilo.byte(${maxFileSize / 1024})}">Max file size in kilobytes</span>
+    </th:block>
+    <th:block th:unless="${maxFileSize < 1048576}">
+      <span th:text="#{label.max.unit.data.mega.byte(${maxFileSize / 1048576})}">Max file size in megabytes</span>
+    </th:block>
+
+    <div class="col-sm-12">
+      <div class="input-group-btn">
+        <input id="exportWord.file.${nameControl}" type="file" accept=".docx" name="file" style="display: none;" th:maxlength="${maxFileSize}" />
+        <input id="exportWord.file.info.${nameControl}" name="filename" placeholder="${maxSizeInfo}" class="form-control" readonly="readonly" required="required" style="width: 88%" />
+        <button class="btn btn-primary" type="button" id="exportWord.file.browse.button.${nameControl}" name="browse" style="margin-left: -5px;">
+          <span th:text="#{label.action.browse}">Browse</span>
+        </button>
+      </div>
+    </div>
+  </fieldset>
+
+  <button name="submit" type="submit" style="display: none"></button>
+</form>

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Scenario Table</title>
+</head>
+<body>
+    <div class="tab-pane" id="tab-scenario">
+        <div class="section" id="section_scenario">
+            <div class="page-header tab-content-header">
+                <div class="container">
+                    <div class="row-fluid">
+                        <h3>
+                            <span th:text="#{label.title.scenario}"></span>
+                        </h3>
+                    </div>
+                </div>
+            </div>
+
+            <div th:if="${isEditable}">
+                <ul class="nav nav-pills bordered-bottom" id="menu_scenario">
+                    <li data-trick-ignored="true">
+                        <a href="#" onclick="return editScenario(undefined,true);">
+                            <span class="glyphicon glyphicon-plus primary"></span> <span th:text="#{label.action.add}"></span>
+                        </a>
+                    </li>
+                    <li class="disabled" data-trick-selectable="true">
+                        <a href="#" onclick="return editScenario();">
+                            <span class="glyphicon glyphicon-edit danger"></span> <span th:text="#{label.action.edit}"></span>
+                        </a>
+                    </li>
+                    <li class="disabled" data-trick-single-check="!isSelected('scenario')" data-trick-check="hasSelectedState('scenario','false')" data-trick-selectable="multi">
+                        <a href="#" onclick="return selectScenario(undefined, 'true')">
+                            <span class="glyphicon glyphicon-plus-sign"></span> <span th:text="#{label.action.select}"></span>
+                        </a>
+                    </li>
+                    <li class="disabled" data-trick-single-check="isSelected('scenario')" data-trick-check="hasSelectedState('scenario','true')" data-trick-selectable="multi">
+                        <a href="#" onclick="return selectScenario(undefined, 'false')">
+                            <span class="glyphicon glyphicon-minus-sign "></span> <span th:text="#{label.action.unselect}"></span>
+                        </a>
+                    </li>
+                    <li style="display: none;" class="dropdown-header">
+                        <span th:text="#{label.menu.advanced}"></span>
+                    </li>
+                    <li data-trick-check="isEditable()" class="disabled pull-right" data-trick-selectable="multi">
+                        <a href="#" class="text-danger" onclick="return deleteScenario();">
+                            <span class="glyphicon glyphicon-remove"></span> <span th:text="#{label.action.delete}"></span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <table id="scenariotable" class="table table-hover table-fixed-header-analysis table-condensed">
+                <thead>
+                    <tr>
+                        <th th:if="${isEditable}" style="width: 2%">
+                            <input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'scenario')">
+                        </th>
+                        <th style="width: 3%">
+                            <a href="#" onclick="return sortTable('index',this,true)" data-order="0">
+                                <span th:text="#{label.row.index}"></span>
+                            </a>
+                        </th>
+                        <th style="width: 25%">
+                            <a href="#" onclick="return sortTable('name',this)" data-order="1">
+                                <span th:text="#{label.scenario.name}"></span>
+                            </a>
+                        </th>
+                        <th style="width: 5%">
+                            <a href="#" onclick="return sortTable('type',this)" data-order="1">
+                                <span th:text="#{label.scenario.type}"></span>
+                            </a>
+                        </th>
+                        <th th:if="${type.quantitative}">
+                            <span th:if="${show_uncertainty}">
+                                <a href="#" onclick="return sortTable('aleo',this,true)" data-order="1">
+                                    <span th:text="#{label.scenario.aleo}"></span>
+                                </a>
+                            </span>
+                            <span th:if="${not show_uncertainty}">
+                                <a href="#" onclick="return sortTable('ale',this,true)" data-order="1">
+                                    <span th:text="#{label.scenario.ale}"></span>
+                                </a>
+                            </span>
+                        </th>
+                        <th>
+                            <span th:text="#{label.scenario.description}"></span>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="scenario, status : ${scenarios}" th:data-trick-id="${scenario.id}" 
+                        th:classappend="${scenario.selected ? 'editable' : ''}" th:onclick="|selectElement(this)|" 
+                        th:data-trick-selected="${scenario.selected}" th:ondblclick="|return editScenario(${scenario.id})|">
+                        <td th:if="${isEditable}" th:class="${scenario.selected ? 'selected' : 'unselected'}">
+                            <input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_scenario','#menu_scenario');">
+                        </td>
+                        <td th:data-trick-field="index" th:text="${status.index + 1}"></td>
+                        <td th:data-trick-field="name">
+                            <span th:text="${scenario.name}"></span>
+                        </td>
+                        <td th:data-trick-field="type">
+                            <span th:text="#{label.scenario.type.${scenario.type.name.toLowerCase().replace('-', '_')}}"></span>
+                        </td>
+                        <td th:if="${type.quantitative}">
+                            <span th:if="${show_uncertainty}">
+                                <td th:data-trick-field="aleo" 
+                                    th:title="${#numbers.formatDecimal(ale[0].value, 0, 'EUR')}" 
+                                    th:text="${#numbers.formatDecimal(ale[0].value * 0.001, 1)}"></td>
+                                <td th:data-trick-field="ale" 
+                                    th:title="${#numbers.formatDecimal(ale[1].value, 0, 'EUR')}" 
+                                    th:text="${#numbers.formatDecimal(ale[1].value * 0.001, 1)}"></td>
+                                <td th:data-trick-field="alep" 
+                                    th:title="${#numbers.formatDecimal(ale[2].value, 0, 'EUR')}" 
+                                    th:text="${#numbers.formatDecimal(ale[2].value * 0.001, 1)}"></td>
+                            </span>
+                            <span th:if="${not show_uncertainty}">
+                                <td th:data-trick-field="ale" 
+                                    th:title="${#numbers.formatDecimal(ale[1].value, 0, 'EUR')}" 
+                                    th:text="${#numbers.formatDecimal(ale[1].value * 0.001, 1)}"></td>
+                            </span>
+                        </td>
+                        <td th:onclick="|editField(this);|" th:data-trick-field="description" th:data-trick-field-type="string" 
+                            th:data-trick-content="text">
+                            <span th:text="${scenario.description}"></span>
+                        </td>
+                    </tr>
+                </tbody>
+                <tfoot th:if="${not isProfile and type.quantitative}">
+                    <tr class="panel-footer" style="font-weight: bold;">
+                        <td colspan="4">
+                            <span th:text="#{label.total.ale}"></span>
+                        </td>
+                        <span th:if="${show_uncertainty}">
+                            <td th:title="${#numbers.formatDecimal(ale[0].value, 0, 'EUR')}" 
+                                th:text="${#numbers.formatDecimal(ale[0].value * 0.001, 1)}"></td>
+                            <td th:title="${#numbers.formatDecimal(ale[1].value, 0, 'EUR')}" 
+                                th:text="${#numbers.formatDecimal(ale[1].value * 0.001, 1)}"></td>
+                            <td th:title="${#numbers.formatDecimal(ale[2].value, 0, 'EUR')}" 
+                                th:text="${#numbers.formatDecimal(ale[2].value * 0.001, 1)}"></td>
+                        </span>
+                        <span th:if="${not show_uncertainty}">
+                            <td th:title="${#numbers.formatDecimal(ale[1].value, 0, 'EUR')}" 
+                                th:text="${#numbers.formatDecimal(ale[1].value * 0.001, 1)}"></td>
+                        </span>
+                        <td th:colspan="${isILR ? 2 : 1}"></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

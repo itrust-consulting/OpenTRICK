@@ -1,0 +1,52 @@
+<div class="col-md-9 col-lg-10" id="section_log">
+    <table class="table table-striped table-hover table-condensed table-fixed-header-analysis">
+        <thead>
+            <tr>
+                <th width="14%" th:text="#{label.log.date.created}">Created</th>
+                <th width="5%" th:text="#{label.log.level}">Level</th>
+                <th width="8%" th:text="#{label.log.type}">Type</th>
+                <th width="8%" th:text="#{label.log.action}">Action</th>
+                <th width="8%" th:text="#{label.log.author}">Author</th>
+                <th th:text="#{label.log.message}">Message</th>
+            </tr>
+        </thead>
+        <tbody>
+            <th:block th:each="trickLog : ${trickLogs}">
+                <!-- Set dynamic CSS class based on the level and type -->
+                <tr th:data-trick-id="${trickLog.id}" 
+                    th:classappend="${trickLog.level == 'INFO' and trickLog.type == 'AUTHENTICATION' ? 'info' : 
+                                    trickLog.level == 'ERROR' ? 'danger' : 
+                                    trickLog.level.toLowerCase()}">
+                    <td th:text="${#dates.format(trickLog.created, 'yyyy-MM-dd HH:mm:ss')}"></td>
+
+                    <!-- Display log level if available -->
+                    <td>
+                        <span th:if="${trickLog.level != null}" 
+                              th:text="#{label.log.level.${trickLog.level.toLowerCase()}}">Level</span>
+                    </td>
+
+                    <!-- Display log type if available -->
+                    <td>
+                        <span th:if="${trickLog.type != null}" 
+                              th:text="#{label.log.type.${trickLog.type.toLowerCase()}}">Type</span>
+                    </td>
+
+                    <!-- Display action if available -->
+                    <td>
+                        <span th:if="${trickLog.action == null}" th:text="-"></span>
+                        <span th:unless="${trickLog.action == null}" 
+                              th:text="#{label.action.${trickLog.action.toLowerCase()}}">Action</span>
+                    </td>
+
+                    <!-- Display author -->
+                    <td th:text="${trickLog.author}"></td>
+
+                    <!-- Display message with code and parameters -->
+                    <td>
+                        <span th:text="${#messages.getMessage(trickLog.code, trickLog.parameters)}"></span>
+                    </td>
+                </tr>
+            </th:block>
+        </tbody>
+    </table>
+</div>

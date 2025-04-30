@@ -1,0 +1,38 @@
+<div th:each="tsSetting : ${tsGenericSettings}">
+    <form action="#" th:id="${tsSetting.name}" class="form-horizontal col-lg-12">
+        <input type="hidden" name="name" th:value="${tsSetting.name}" />
+        <div class="form-group">
+            <label for="value" class="col-sm-3 control-label" th:text="#{label.${tsSetting.nameLower}}"></label>
+            
+            <!-- Check for 'SETTING_ALLOWED' or 'USER_GUIDE_URL_TYPE' prefix -->
+            <div th:switch="${tsSetting.name}">
+                <div th:case="'SETTING_ALLOWED' or 'USER_GUIDE_URL_TYPE'">
+                    <div class="col-sm-offset-5 col-sm-4">
+                        <div class="btn-group" data-toggle="buttons">
+                            <label class="btn btn-default" th:classappend="${tsSetting.booleanValue ? 'active' : ''}">
+                                <span th:text="#{label.yes_no.yes}"></span>
+                                <input name="value" type="radio" value="true"
+                                       th:checked="${tsSetting.booleanValue ? 'checked' : ''}" 
+                                       th:onchange="updateSetting('#${tsSetting.name}',this)" />
+                            </label>
+                            <label class="btn btn-default" th:classappend="${!tsSetting.booleanValue ? 'active' : ''}">
+                                <span th:text="#{label.yes_no.no}"></span>
+                                <input name="value" type="radio" value="false"
+                                       th:checked="${!tsSetting.booleanValue ? 'checked' : ''}" 
+                                       th:onchange="updateSetting('#${tsSetting.name}',this)" />
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <!-- Check for URL field -->
+                <div th:case="'_URL'">
+                    <div class="col-sm-offset-3 col-sm-4">
+                        <input name="value" type="url" th:value="${tsSetting.value}" class="form-control" 
+                               th:placeholder="#{label.${tsSetting.value}}" 
+                               th:onblur="updateSetting('#${tsSetting.name}',this)" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

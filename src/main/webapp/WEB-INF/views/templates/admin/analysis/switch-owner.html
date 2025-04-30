@@ -1,0 +1,56 @@
+<div class="modal fade" id="switchOwnerModal" tabindex="-1" role="dialog"
+     aria-labelledby="switchOwnerModal" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <!-- Modal Header -->
+            <div class="modal-header" style="margin-bottom: 0px">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" th:text="#{label.title.analysis.switch.owner}">Switch owner</h4>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="modal-body">
+                <form id="formSwitchOwner" class="form-horizontal">
+                    <input type="hidden" name="idAnalysis" th:value="${idAnalysis}" />
+
+                    <!-- Current Owner -->
+                    <div class="form-group">
+                        <label class="col-xs-4" th:text="#{label.current.owner}">Current owner</label>
+                        <div class="list-group col-xs-8">
+                            <label th:text="${analysis.owner.firstName + ' ' + analysis.owner.lastName}">
+                                Firstname Lastname
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- New Owner Dropdown -->
+                    <div class="form-group">
+                        <label class="col-xs-4" th:text="#{label.new.owner}">New owner</label>
+                        <div class="list-group col-xs-8">
+                            <select name="owner" class="form-control">
+                                <option th:each="user : ${userAnalysisRights.keySet()}"
+                                        th:value="${user.id}">
+                                    <span th:text="${user.firstName + ' ' + user.lastName}">User Name</span> -
+                                    <span th:if="${#maps.get(userAnalysisRights, user) == null}"
+                                          th:text="#{label.analysis.right.none}">None</span>
+                                    <span th:if="${#maps.get(userAnalysisRights, user) != null}"
+                                          th:text="#{ 'label.analysis.right.' + #strings.toLowerCase(#maps.get(userAnalysisRights, user)) }"
+                                          th:utext="${#strings.replace(#maps.get(userAnalysisRights, user), '_', ' ')}">
+                                        RIGHT_NAME
+                                    </span>
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="modal-footer" style="margin-top: 0px">
+                <button type="button" name="save" class="btn btn-primary" th:text="#{label.action.save}">Save</button>
+                <button type="button" name="cancel" class="btn btn-default" data-dismiss="modal" th:text="#{label.action.cancel}">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>

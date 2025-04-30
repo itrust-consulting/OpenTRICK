@@ -1,0 +1,39 @@
+<div class="col-md-9 col-lg-10" id="section_report">
+    <table class="table table-hover table-condensed">
+        <thead>
+            <tr>
+                <th th:text="#{label.analysis.identifier}">TRICK name</th>
+                <th th:text="#{label.type}">Type</th>
+                <th th:text="#{label.analysis.label}">Name</th>
+                <th th:text="#{label.analysis.version}">Version</th>
+                <th th:text="#{label.date.created}">Created date</th>
+                <th th:text="#{label.file.size}">Size</th>
+                <th th:text="#{label.action}">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="report : ${reports}" th:data-trick-id="${report.id}">
+                <td th:text="${report.identifier}"></td>
+                <td th:text="#{label.word_report.type.${#strings.toLowerCase(report.type)}}">Type</td>
+                <td th:text="${report.label}"></td>
+                <td th:text="${report.version}"></td>
+                <td th:text="${#dates.format(report.created, 'yyyy-MM-dd')}"></td>
+                <td th:text="${#numbers.formatDecimal(report.length / (1024 * 1024), 2, 'POINT')}">
+                    <span th:text="#{label.metric.megabit}">Mb</span>
+                </td>
+                <td>
+                    <a class="btn btn-primary" th:href="@{${pageContext.request.contextPath}/Account/Report/{id}/Download(id=${report.id})}"
+                       th:onclick="'return downloadWordReport(' + ${report.id} + ')'" 
+                       th:title="#{label.action.download}">
+                        <i class="fa fa-download"></i>
+                    </a>
+                    <a class="btn btn-danger" th:href="@{${pageContext.request.contextPath}/Account/Report/{id}/Delete(id=${report.id})}"
+                       th:onclick="'return deleteReport(' + ${report.id} + ')'" 
+                       th:title="#{label.action.delete}">
+                        <i class="fa fa-trash"></i>
+                    </a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

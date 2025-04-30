@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="${locale.language}">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="#{label.menu.analysis.list}">List of Analyses</title>
+    <link rel="stylesheet" th:href="@{/css/analysis.css}"/>
+</head>
+<body>
+
+<div th:with="user=${#authentication.principal}">
+    <ul>
+        <li th:if="${allowedTicketing} and ${ticketingURL != null}">
+            <a th:href="@{${ticketingURL}}">
+                <span th:text="#{label.menu.link.project(${ticketingName})}">Project Link</span>
+            </a>
+        </li>
+    </ul>
+
+    <select id="customer">
+        <option value="0" th:text="#{label.analysis.choice.customer}">Choose a customer</option>
+        <option th:each="icustomer : ${customers}"
+                th:value="${icustomer.id}"
+                th:selected="${customer != null} ? ${icustomer.id == customer} : false"
+                th:text="${icustomer.organisation}"></option>
+    </select>
+
+    <div>
+        <button th:onclick="|window.location='@{/analysis/add}'|">
+            <span th:text="#{label.analysis.create.new}">Create New Analysis</span>
+        </button>
+    </div>
+
+    <table>
+        <thead>
+        <tr>
+            <th th:text="#{label.analysis.label}">Label</th>
+            <th th:text="#{label.analysis.creation.date}">Creation Date</th>
+            <th th:text="#{label.analysis.owner}">Owner</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="analysis : ${analyses}"
+            th:classappend="${analysis.archived} ? 'text-muted'"
+            th:attr="data-trick-id=${analysis.id},
+                     data-trick-archived=${analysis.archived},
+                     data-is-linked=${analysis.project != null},
+                     data-trick-type=${analysis.type},
+                     data-trick-rights-id=${analysis.findRightsforUserString(login).right.ordinal()},
+                     data-analysis-owner=${user.username == analysis.owner.login}"
+            ondblclick="return editSingleAnalysis([[${analysis.id}]])">
+            <td>
+                <span th:if="${analysis.defaultProfile}" class="fa fa-file" th:title="#{label.analysis.default.profile}"></span>
+                <span th:text="${analysis.label}"></span>
+            </td>
+            <td th:text="${#dates.format(analysis.creationDate, 'yyyy-MM-dd HH:mm')}"></td>
+            <td th:text="${analysis.owner.login}"></td>
+        </tr>
+        </tbody>
+    </table>
+
+</div>
+
+<script th:src="@{/js/jquery-ui.min.js}"></script>
+<script th:src="@{/js/trickservice/analyses.js}"></script>
+<script th:src="@{/js/trickservice/analysisExport.js}"></script>
+<script th:if="${adminaAllowedTicketing}" th:src="@{/js/trickservice/ticketing-system.js}"></script>
+
+</body>
+</html>

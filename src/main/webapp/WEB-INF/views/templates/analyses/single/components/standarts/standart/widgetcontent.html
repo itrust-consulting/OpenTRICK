@@ -1,0 +1,70 @@
+<div class="modal fade" id="standardModal" tabindex="-1" role="dialog" aria-labelledby="standardmodal" aria-hidden="true" data-backdrop="static">
+	<div class="modal-dialog" style="width: 800px;">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<div class="modal-title">
+					<h4 class="col-xs-5" style="padding: 0; margin: 0">
+						<span th:text="#{label.title.measures_collections.management}"></span>
+					</h4>
+					<div class="col-xs-7" id="error-standard-modal" style="padding: 0"></div>
+				</div>
+			</div>
+			<div class="modal-body tab-content">
+				<div id="section_manage_standards" class="tab-pane active" style="height: 510px; overflow-y: auto; overflow-x: hidden; margin-top: -10px"></div>
+				<div id="importFromKb" class="tab-pane" style="height: 510px; overflow-y: auto; overflow-x: hidden; margin-top: -10px">
+					<!-- Using Thymeleaf to include other pages -->
+					<div th:replace="~{form/importFromKb :: content}"></div>
+				</div>
+				<div id="importFromFile" class="tab-pane" style="height: 510px; overflow-y: auto; overflow-x: hidden; margin-top: -10px">
+					<div th:replace="~{form/importFromFile :: content}"></div>
+				</div>
+				<div id="standard_form_container" class="tab-pane" style="overflow-y: auto; overflow-x: hidden; height: 500px;">
+					<div th:replace="~{form/add :: content}"></div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button class="btn btn-primary" style="display: none;" name="import" disable id="standardModalImportBtn">
+					<span th:text="#{label.action.import}"></span>
+				</button>
+				<button class="btn btn-primary" style="display: none;" name="save">
+					<span th:text="#{label.action.save}"></span>
+				</button>
+				<a class="btn btn-default" href="#section_manage_standards" data-toggle="tab" style="display: none;">
+					<span th:text="#{label.action.back}"></span>
+				</a>
+				<button class="btn btn-default" type="button" data-dismiss="modal" name="cancel">
+					<span th:text="#{label.action.close}"></span>
+				</button>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="modal fade" id="deleteStandardModal" tabindex="-1" aria-hidden="true" aria-labelledby="deleteStandard" role="dialog" data-backdrop="false">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<h4 class="modal-title">
+					<span th:text="#{label.title.analysis.manage_standard.delete}"></span>
+				</h4>
+			</div>
+			<div id="deleteStandardBody" class="modal-body">Your question here...</div>
+			<div class="modal-footer">
+				<div class="col-sm-8">
+					<div class="progress progress-striped active" style="display: none; width: 100%; margin-top: 8px; margin-bottom: 0;" id="delete_standard_progressbar">
+						<div class="progress-bar progress-striped" role="progressbar" style="width: 100%;"></div>
+					</div>
+				</div>
+				<div class="col-sm-4">
+					<button id="deletestandardbuttonYes" type="button" class="btn btn-danger" data-dismiss="modal">
+						<span th:text="#{label.yes}"></span>
+					</button>
+					<button id="deletestandardbuttonCancel" type="button" class="btn btn-default" data-dismiss="modal">
+						<span th:text="#{label.action.cancel}"></span>
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

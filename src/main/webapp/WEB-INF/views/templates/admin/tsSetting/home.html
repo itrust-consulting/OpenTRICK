@@ -1,0 +1,48 @@
+<div class="tab-pane" id="tab-ts-setting">
+    <div class="section" id="section_ts_setting">
+        <!-- Define Yes/No messages -->
+        <div th:with="yes=#{label.yes_no.yes}, no=#{label.yes_no.no}">
+            <fieldset>
+                <legend th:text="#{label.setting.static}"></legend>
+                <div class="form-horizontal col-lg-12">
+                    <div class="form-group">
+                        <label class="control-label col-sm-3" th:text="#{label.setting.static.allow.otp}"></label>
+                        <div class="col-sm-offset-5 col-sm-4">
+                            <div class="btn-group" data-toggle="buttons">
+                                <label class="btn btn-sm btn-default" th:classappend="${enabledOTP ? 'active' : ''} disabled" th:text="${yes}"></label>
+                                <label class="btn btn-sm btn-default" th:classappend="${enabledOTP ? '' : 'active'} disabled" th:text="${no}"></label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Only show if OTP is enabled -->
+                    <div th:if="${enabledOTP}">
+                        <div class="form-group">
+                            <label class="control-label col-md-3" th:text="#{label.setting.static.force.otp}"></label>
+                            <div class="col-sm-offset-5 col-sm-4">
+                                <div class="btn-group" data-toggle="buttons">
+                                    <label class="btn btn-sm btn-default" th:classappend="${forcedOTP ? 'active' : ''} disabled" th:text="${yes}"></label>
+                                    <label class="btn btn-sm btn-default" th:classappend="${forcedOTP ? '' : 'active'} disabled" th:text="${no}"></label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <legend th:text="#{label.setting.dynamic}"></legend>
+                <div th:with="tsGenericSettings=${tsSettings}">
+                    <div th:include="~{section :: sectionContent}"></div>
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <legend th:text="#{label.setting.dynamic.ticketing.system}"></legend>
+                <div th:with="tsGenericSettings=${ticketingSystems}">
+                    <div th:include="~{section :: sectionContent}"></div>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+</div>

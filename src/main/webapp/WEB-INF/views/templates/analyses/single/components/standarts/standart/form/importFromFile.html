@@ -1,0 +1,32 @@
+<form name="importStandardFromFile" method="post" action="/Import" class="form-inline" id="importStandardFromFile" enctype="multipart/form-data">
+    <input type="hidden" value="0" name="id" id="importStandardFromFileId">
+    <fieldset style="margin-bottom: 10px">
+        <legend th:attr="data-helper-content='@{${#messages.msg('help.norm.type')}}'" th:text="#{label.norm.standard_type}"></legend>
+        <div class="col-sm-12" data-trick-info="type">
+            <select name="type" class="form-control" style="width: 97%">
+                <option value="NORMAL" th:text="#{label.norm.standard_type.normal}"></option>
+                <option value="ASSET" th:text="#{label.norm.standard_type.asset}"></option>
+            </select>
+        </div>
+    </fieldset>
+    <fieldset style="margin-bottom: 10px">
+        <legend th:attr="data-helper-content='@{${#messages.msg('help.norm.name')}}'" th:text="#{label.norm.name}"></legend>
+        <div class="col-sm-12" data-trick-info="name">
+            <input name="name" id="import_standard_name" class="form-control" style="width: 97%" type="text"/>
+        </div>
+    </fieldset>
+    <fieldset>
+        <legend for="name" th:attr="data-helper-content='@{${#messages.msg('label.norm.import.choose_file')}}'" th:text="#{label.file.choose_the_file}"></legend>
+        <div class="col-lg-12">
+            <div class="input-group-btn">
+                <input id="importStandardFromFileInputFile" type="file" accept=".xls,.xlsx,.xlsm"
+                    onchange="$('#upload-file-info').prop('value', $(this).prop('value')); checkExtention($('#upload-file-info').val(),'xls,xlsx,xlsm','#standardModalImportBtn');"
+                    name="file" style="display: none;" />
+                <input id="upload-file-info" class="form-control" readonly="readonly" required="required" style="width: 88%;"/>
+                <button class="btn btn-primary" type="button" id="browse-button" onclick="$('input[id=importStandardFromFileInputFile]').click();" style="margin-left: -5px;">
+                    <span th:text="#{label.action.browse}">Browse</span>
+                </button>
+            </div>
+        </div>
+    </fieldset>
+</form>

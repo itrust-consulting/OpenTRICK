@@ -1,7 +1,5 @@
 package lu.itrust.business.ts.controller;
 
-import static lu.itrust.business.ts.constants.Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8;
-
 import java.security.Principal;
 import java.sql.Timestamp;
 import java.text.DateFormat;
@@ -39,6 +37,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lu.itrust.business.ts.component.TrickLogManager;
 import lu.itrust.business.ts.constants.Constant;
+import static lu.itrust.business.ts.constants.Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8;
 import lu.itrust.business.ts.database.service.AccountLockerManager;
 import lu.itrust.business.ts.database.service.ServiceDataValidation;
 import lu.itrust.business.ts.database.service.ServiceEmailSender;
@@ -125,7 +124,7 @@ public class ControllerRegister {
 		if (principal != null)
 			return "redirect:/";
 		model.put("user", new User());
-		return "jsp/default/register";
+		return "templates/default/register";
 	}
 
 	/**
@@ -222,7 +221,7 @@ public class ControllerRegister {
 	@PostAuthorize("@permissionEvaluator.isAllowed(T(lu.itrust.business.ts.model.general.TSSettingName).SETTING_ALLOWED_RESET_PASSWORD,true)")
 	public String resetPassword(Principal principal, Model model, HttpServletRequest request) {
 		model.addAttribute("resetPassword", new ResetPasswordHelper());
-		return "jsp/default/recovery/reset-password";
+		return "templates/default/recovery/reset-password";
 	}
 
 	public static String generateURL(HttpServletRequest request) {
@@ -242,7 +241,7 @@ public class ControllerRegister {
 		try {
 			if (resetPassword.isEmpty()) {
 				result.reject("error.reset.password.field.empty", "Please enter your username or your eamil address");
-				return "jsp/default/recovery/reset-password";
+				return "templates/default/recovery/reset-password";
 			}
 			checkAttempt("service-attempt-reset-password", request, principal);
 			String ipAdress = request.getHeader("X-FORWARDED-FOR");
@@ -314,7 +313,7 @@ public class ControllerRegister {
 			}
 
 			model.addAttribute("changePassword", new ChangePasswordhelper(keyControl));
-			return "jsp/default/recovery/change-password";
+			return "templates/default/recovery/change-password";
 		} catch (TrickException e) {
 			TrickLogManager.persist(e);
 			attributes.addFlashAttribute("error",
@@ -358,7 +357,7 @@ public class ControllerRegister {
 				result.rejectValue("repeatPassword", "error.user.repeatPassword.not_same",
 						"Passwords are not the same");
 			if (result.hasErrors())
-				return "jsp/default/recovery/change-password";
+				return "templates/default/recovery/change-password";
 
 			checkAttempt("service-attempt-change-password", request, principal);
 			ResetPassword resetPassword = serviceResetPassword.get(changePassword.getRequestId());

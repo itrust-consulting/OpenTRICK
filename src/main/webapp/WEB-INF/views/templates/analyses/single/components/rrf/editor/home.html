@@ -1,0 +1,131 @@
+<div class="modal fade" id="rrfEditor" tabindex="-1" role="dialog" aria-labelledby="rrfEditor" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog" style="width: 98.0%;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <div class="modal-title">
+                    <h4 class="col-lg-2" th:text="#{label.title.editor.rrf}"></h4>
+                    <div class="col-lg-9" id="rrf-error" style="padding: 5px; font-size: 14px"></div>
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+            <div class="modal-body" style="height: 750px">
+                <div th:if="${!notenoughdata}">
+                    <div class="section" id="section_rrf">
+                        <div class="row" style="margin: 0;">
+                            <div class="col-md-4">
+                                <!-- Scenario Panel -->
+                                <div class="panel panel-primary" style="height: 343px;">
+                                    <div class="panel-body">
+                                        <div class="list-group" style="min-height: 252px; max-height: 252px; overflow: auto;" id="selectable_rrf_scenario_controls">
+                                            <div th:each="scenarioType, status : ${scenarios.keySet()}">
+                                                <div class="list-group" th:attr="data-trick-id=${scenarioType.value}">
+                                                    <h4 class="list-group-item-heading">
+                                                        <a href="#" th:attr="data-trick-id=${scenarioType.value}, data-trick-value=#{${scenarioType.name}}, data-trick-class='ScenarioType'"
+                                                           th:class="'list-group-item' + (${status.index} == 0 ? ' active' : '')" onclick="return false;">
+                                                            <span th:text="#{${scenarioType.name}}"></span>
+                                                        </a>
+                                                    </h4>
+                                                    <div class="list-group" th:attr="data-trick-id=${scenarioType.value}, data-trick-value=#{${scenarioType.name}}">
+                                                        <div th:each="scenario : ${scenarios.get(scenarioType)}">
+                                                            <a href="#" onclick="return false;"
+                                                               th:title="#{${scenario.name}}"
+                                                               th:attr="data-trick-class='Scenario', data-trick-id=${scenario.id}"
+                                                               class="list-group-item"
+                                                               style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;">
+                                                                <span th:text="#{${scenario.name}}"></span>
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="panel-footer">
+                                        <span th:text="#{label.rrf.scenario}"></span>
+                                    </div>
+                                </div>
+
+                                <!-- Measures Panel -->
+                                <div class="panel panel-primary">
+                                    <div class="panel-body">
+                                        <select name="chapterselection" class="form-control" style="width: 50%; margin-left: auto; margin-right: auto; margin-bottom: 10px;">
+                                            <option th:each="chapter, status : ${measures.keySet()}"
+                                                    th:value="${status.index}"
+                                                    th:text="${chapter.standard.name + ' - ' + #{label.measure.chapter(${chapter.reference})}}">
+                                            </option>
+                                        </select>
+                                        <div class="list-group" style="height: 240px; overflow: auto; margin-bottom: 0;" id="selectable_rrf_measures_chapter_controls">
+                                            <div th:each="chapter, status : ${measures.keySet()}"
+                                                 th:attr="data-trick-id=${chapter.standard.id}, data-trick-filter-value=${status.index}"
+                                                 th:style="${status.index == 0} ? 'display:block' : 'display:none'">
+                                                <h4 class="list-group-item-heading">
+                                                    <a href="#" onclick="return false;"
+                                                       th:class="'list-group-item ' + (${status.index} == 0 ? 'active' : '')"
+                                                       th:attr="data-trick-class='Standard', title=#{${chapter.reference}}, data-trick-id=${chapter.standard.id}, data-trick-value=#{${chapter.reference}}">
+                                                        <span th:text="${chapter.standard.name} + ' - ' + #{label.measure.chapter(${chapter.reference})}"></span>
+                                                    </a>
+                                                </h4>
+                                                <div class="list-group" th:attr="data-trick-id=${chapter.standard.id}, data-trick-value=#{${chapter.reference}}">
+                                                    <div th:each="currentMeasure : ${measures.get(chapter)}">
+                                                        <a href="#" onclick="return false;"
+                                                           th:attr="data-trick-class='Measure', data-trick-id=${currentMeasure.id}, data-trick-value=${currentMeasure.measureDescription.reference}"
+                                                           th:class="'list-group-item ' + ((standardid == chapter.standard.id and currentMeasure.id == measureid) ? 'active' : '')"
+                                                           style="text-overflow: ellipsis; white-space: nowrap; overflow: hidden;">
+                                                            <span th:text="${currentMeasure.measureDescription.reference + ' - ' + currentMeasure.measureDescription.getMeasureDescriptionTextByAlpha3(language).domain}"></span>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="panel-footer">
+                                        <span th:text="#{label.rrf.standard}"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Charts and Controls -->
+                            <div class="col-md-8">
+                                <div class="col-md-12" id="chart_rrf">
+                                    <div id="chart-container" class="rrfCharts panel panel-primary" style="height: 343px; width: 100%; padding-right: 5px; padding-left: 5px;">
+                                        <canvas id="chart_rrf_canvas"></canvas>
+                                    </div>
+                                </div>
+                                <div class="col-md-12" id="control_rrf">
+                                    <div class="panel panel-primary" id="control_rrf_scenario" style="display: none;">
+                                        <div class="panel-body">
+                                            <div style="overflow-x: auto;">
+                                                <label data-trick-controller-name="scenario" class="label label-danger" th:text="#{error.rrf.no_scenrario}"></label>
+                                            </div>
+                                        </div>
+                                        <div class="panel-footer">
+                                            <span th:text="#{label.rrf.control.scenario}"></span>
+                                        </div>
+                                    </div>
+                                    <div class="panel panel-primary" id="control_rrf_measure">
+                                        <div class="panel-body">
+                                            <div style="overflow-x: auto;">
+                                                <div th:replace="fragments/measure :: measure"></div>
+                                            </div>
+                                        </div>
+                                        <div class="panel-footer" style="padding: 0px">
+                                            <ul class="nav nav-pills">
+                                                <li class="disabled text"><a style="cursor: default; color: inherit;" th:text="#{label.rrf.control.measure}"></a></li>
+                                                <li id="measure-control-apply-sub-chapter" class="pull-right text-danger"><a href="#" th:text="#{label.rrf.control.measure.apply.sub.chapter}"></a></li>
+                                                <li id="measure-control-apply-selective-sub-chapter" class="pull-right text-danger"><a href="#" th:text="#{label.rrf.control.measure.apply.selective.sub.chapter}"></a></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div th:if="${notenoughdata}">
+                    <span th:text="#{error.label.rrf.not_enough_data}"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

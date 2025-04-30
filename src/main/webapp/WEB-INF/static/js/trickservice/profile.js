@@ -421,7 +421,6 @@ function updateUserOtp(){
 		}).complete(()=> $progress.hide());
 	return false;
 }
-
 /**
  * Adds a credential.
  * @returns {boolean} Returns false.

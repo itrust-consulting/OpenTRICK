@@ -1,0 +1,200 @@
+<div class="tab-pane" id="tab-phase">
+    <div class="section" id="section_phase">
+        <div class="page-header tab-content-header">
+            <div class="container">
+                <div class="row-fluid">
+                    <h3>
+                        <span th:text="#{label.title.phase}"></span>
+                    </h3>
+                </div>
+            </div>
+        </div>
+
+        <div th:if="${isEditable}">
+            <ul class="nav nav-pills bordered-bottom" id="menu_phase">
+                <li data-trick-ignored="true">
+                    <a href="#" th:onclick="|return addPhase();|">
+                        <span class="glyphicon glyphicon-plus primary"></span>
+                        <span th:text="#{label.action.add}"></span>
+                    </a>
+                </li>
+                <li data-trick-check="isEditable()" class="disabled" data-trick-selectable="true">
+                    <a href="#" th:onclick="|return editPhase(null);|">
+                        <span class="glyphicon glyphicon-edit danger"></span>
+                        <span th:text="#{label.action.edit}"></span>
+                    </a>
+                </li>
+                <li style="display: none;" class="dropdown-header">
+                    <span th:text="#{label.menu.advanced}"></span>
+                </li>
+                <li data-trick-check="isEditable()" class="disabled pull-right" data-trick-selectable="true">
+                    <a href="#" class="text-danger" th:onclick="|return deletePhase();|">
+                        <span class="glyphicon glyphicon-remove"></span>
+                        <span th:text="#{label.action.delete}"></span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <table class="table table-hover table-fixed-header-analysis table-condensed">
+            <thead>
+                <tr>
+                    <th style="width: 1%">&nbsp;</th>
+                    <th style="width: 0.5%">
+                        <span th:text="#{label.table.index}"></span>
+                    </th>
+                    <th>
+                        <span th:text="#{label.phase.begin_date}"></span>
+                    </th>
+                    <th>
+                        <span th:text="#{label.phase.end_date}"></span>
+                    </th>
+                    <th data-helper-content="<span th:text='#'>{help.phase.statistical.data.duration}</span>">
+                        <span th:text="#{label.phase.duration}"></span>
+                    </th>
+                    <th data-helper-content="<span th:text='#'>{help.phase.statistical.data.measure.count}</span>">
+                        <span th:text="#{label.phase.measure.count}"></span>
+                    </th>
+                    <th data-helper-content="<span th:text='#'>{help.phase.statistical.data.internal.workload}</span>">
+                        <span th:text="#{label.phase.internal.workload}"></span>
+                    </th>
+                    <th data-helper-content="<span th:text='#'>{help.phase.statistical.data.external.workload}</span>">
+                        <span th:text="#{label.phase.external.workload}"></span>
+                    </th>
+                    <th style="text-align: right;" data-helper-content="<span th:text='#'>{help.phase.statistical.data.measure.count}</span>">
+                        <span th:text="#{label.phase.measure.investment}"></span>
+                    </th>
+                    <th style="text-align: center;" data-helper-content="<span th:text='#'>{help.phase.statistical.data.compliance.rate}</span>">
+                        <span th:text="#{label.phase.compliance.rate}"></span>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <th:block th:each="phase : ${phases}">
+                    <th:block th:if="${phase.number > 0}">
+                        <th:block th:with="phaseDlc=${isEditable} ? 'ondblclick=\"editPhase(' + ${phase.id} + ')\"' : ''">
+                            <span th:text="#{label.title.phase.compliance.data}" th:utext="|<span th:if=\"${phase.outToDate}\">0</span><span th:unless=\"${phase.outToDate}\">1</span>|">
+                            </span>
+
+                            <tr th:attr="data-trick-id=${phase.id}, data-trick-index=${phase.number}, onclick='selectElement(this)'"
+                                th:classappend="${not empty previousEndDate and phase.beginDate < previousEndDate ? 'warning' : 'editable'}"
+                                th:attrappend="${phaseDlc}">
+                                <th:block th:if="${isEditable}">
+                                    <td><input type="checkbox" class="checkbox" th:change="|return updateMenu(this,'#section_phase','#menu_phase');|"></td>
+                                </th:block>
+                                <th:block th:unless="${isEditable}">
+                                    <td></td>
+                                </th:block>
+                                <td th:text="${phase.number}"></td>
+                                <td th:text="${#dates.format(phase.beginDate, 'yyyy-MM-dd')}"></td>
+                                <td th:text="${#dates.format(phase.endDate, 'yyyy-MM-dd')}"></td>
+                                <td class="statistic">
+                                    <span th:text="#{label.phase.period.format}">
+                                        <span th:text="${phase.formatCode}"></span>
+                                        <span th:text="${phase.period.years}"></span>
+                                        <span th:text="${phase.period.months}"></span>
+                                        <span th:text="${phase.period.days}"></span>
+                                    </span>
+                                </td>
+                                <td class="statistic">
+                                    <span th:text="#{label.phase.measure.count.implemented}">
+                                        <span th:text="${phase.countFormatCode}"></span>
+                                        <span th:text="${phase.measureCount}"></span>
+                                        <span th:text="${phase.implementedMeasureCount}"></span>
+                                        <span th:text="${#numbers.formatDecimal(phase.measureCount, 2)}"></span>
+                                        <span th:text="${#numbers.formatDecimal(phase.implementedMeasureCount, 2)}"></span>
+                                    </span>
+                                </td>
+                                <td>
+                                    <span th:text="#{label.phase.measure.workload}">
+                                        <span th:text="${phase.internalWorkloadFormatCode}"></span>
+                                        <span th:text="${phase.internalWorkload}"></span>
+                                        <span th:text="${phase.implementedInternalWorkload}"></span>
+                                        <span th:text="${#numbers.formatDecimal(phase.internalWorkload, 2)}"></span>
+                                        <span th:text="${#numbers.formatDecimal(phase.implementedInternalWorkload, 2)}"></span>
+                                    </span>
+                                </td>
+                                <td>
+                                    <span th:text="#{label.phase.measure.workload}">
+                                        <span th:text="${phase.externalWorkloadFormatCode}"></span>
+                                        <span th:text="${phase.externalWorkload}"></span>
+                                        <span th:text="${phase.implementedExternalWorkload}"></span>
+                                        <span th:text="${#numbers.formatDecimal(phase.externalWorkload, 2)}"></span>
+                                        <span th:text="${#numbers.formatDecimal(phase.implementedExternalWorkload, 2)}"></span>
+                                    </span>
+                                </td>
+                                <td class="statistic" align="right">
+                                    <span th:text="${#numbers.formatDecimal(phase.investment * 0.001, 2)}"></span> k€
+                                </td>
+                                <td class="statistic" align="center">
+                                    <span th:text="${#numbers.formatDecimal(phase.complianceRate * 100, 0)}"></span>%
+                                    <div class="progress" th:classappend="'progress-' + ${phase.outToDate ? 'danger' : 'success'}" style="margin-bottom: 0">
+                                        <div class="progress-bar" role="progressbar" aria-valuenow="${phase.complianceRate * 100}"
+                                            aria-valuemin="0" aria-valuemax="100" th:style="|width: ${phase.complianceRate * 100}%;|">
+                                            <span th:text="${#numbers.formatDecimal(phase.complianceRate * 100, 0)}"></span>%
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </th:block>
+                    </th:block>
+                </th:block>
+            </tbody>
+            <tfoot>
+                <tr class="panel-footer" style="font-weight: bold;">
+                    <td><span th:text="#{label.total}"></span></td>
+                    <td th:text="${totalPhase.number}"></td>
+                    <td th:text="${#dates.format(totalPhase.beginDate, 'yyyy-MM-dd')}"></td>
+                    <td th:text="${#dates.format(totalPhase.endDate, 'yyyy-MM-dd')}"></td>
+                    <td class="statistic">
+                        <span th:text="#{label.phase.period.format}">
+                            <span th:text="${totalPhase.formatCode}"></span>
+                            <span th:text="${totalPhase.period.years}"></span>
+                            <span th:text="${totalPhase.period.months}"></span>
+                            <span th:text="${totalPhase.period.days}"></span>
+                        </span>
+                    </td>
+                    <td class="statistic">
+                        <span th:text="#{label.phase.measure.count.implemented}">
+                            <span th:text="${totalPhase.countFormatCode}"></span>
+                            <span th:text="${totalPhase.measureCount}"></span>
+                            <span th:text="${totalPhase.implementedMeasureCount}"></span>
+                            <span th:text="${#numbers.formatDecimal(totalPhase.measureCount, 2)}"></span>
+                            <span th:text="${#numbers.formatDecimal(totalPhase.implementedMeasureCount, 2)}"></span>
+                        </span>
+                    </td>
+                    <td class="statistic">
+                        <span th:text="#{label.phase.measure.workload}">
+                            <span th:text="${totalPhase.internalWorkloadFormatCode}"></span>
+                            <span th:text="${totalPhase.internalWorkload}"></span>
+                            <span th:text="${totalPhase.implementedInternalWorkload}"></span>
+                            <span th:text="${#numbers.formatDecimal(totalPhase.internalWorkload, 2)}"></span>
+                            <span th:text="${#numbers.formatDecimal(totalPhase.implementedInternalWorkload, 2)}"></span>
+                        </span>
+                    </td>
+                    <td class="statistic">
+                        <span th:text="#{label.phase.measure.workload}">
+                            <span th:text="${totalPhase.externalWorkloadFormatCode}"></span>
+                            <span th:text="${totalPhase.externalWorkload}"></span>
+                            <span th:text="${totalPhase.implementedExternalWorkload}"></span>
+                            <span th:text="${#numbers.formatDecimal(totalPhase.externalWorkload, 2)}"></span>
+                            <span th:text="${#numbers.formatDecimal(totalPhase.implementedExternalWorkload, 2)}"></span>
+                        </span>
+                    </td>
+                    <td class="statistic" align="right">
+                        <span th:text="${#numbers.formatDecimal(totalPhase.investment * 0.001, 2)}"></span> k€
+                    </td>
+                    <td class="statistic" align="center">
+                        <span th:text="${#numbers.formatDecimal(totalPhase.complianceRate * 100, 0)}"></span>%
+                        <div class="progress" th:classappend="'progress-' + ${totalPhase.outToDate ? 'danger' : 'success'}" style="margin-bottom: 0">
+                            <div class="progress-bar" role="progressbar" aria-valuenow="${totalPhase.complianceRate * 100}"
+                                aria-valuemin="0" aria-valuemax="100" th:style="|width: ${totalPhase.complianceRate * 100}%;|">
+                                <span th:text="${#numbers.formatDecimal(totalPhase.complianceRate * 100, 0)}"></span>%
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>

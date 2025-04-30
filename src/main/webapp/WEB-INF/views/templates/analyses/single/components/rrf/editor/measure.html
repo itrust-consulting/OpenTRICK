@@ -1,0 +1,115 @@
+<table data-trick-controller-name="measure" class="table table-condensed rrf-values" style="margin-bottom: 0;">
+    <thead>
+        <tr>
+            <th class="warning text-center" th:text="#{label.rrf.measure.strength_measure}"></th>
+            <th class="warning text-center" th:text="#{label.rrf.measure.strength_sectoral}"></th>
+
+            <th class="info text-center"
+                th:each="category : ${categories.keySet()}"
+                data-trick-class="Category"
+                th:attr="data-trick-value=${category}">
+                <span th:text="#{${'label.rrf.category.' + ${#strings.replace(category, '_', '.').toLowerCase()}}}"></span>
+            </th>
+
+            <th class="success text-center" th:text="#{label.rrf.measure.preventive}"></th>
+            <th class="success text-center" th:text="#{label.rrf.measure.detective}"></th>
+            <th class="success text-center" th:text="#{label.rrf.measure.limitative}"></th>
+            <th class="success text-center" th:text="#{label.rrf.measure.corrective}"></th>
+            <th class="warning text-center" th:text="#{label.rrf.measure.intentional}"></th>
+            <th class="warning text-center" th:text="#{label.rrf.measure.accidental}"></th>
+            <th class="warning text-center" th:text="#{label.rrf.measure.environmental}"></th>
+            <th class="warning text-center" th:text="#{label.rrf.measure.internal_threat}"></th>
+            <th class="warning text-center" th:text="#{label.rrf.measure.external_threat}"></th>
+
+            <th class="text-center" th:each="assetTypeValue : ${assetTypeValues}"
+                th:text="#{${'label.asset_type.' + assetTypeValue.assetType.name.toLowerCase()}}"></th>
+
+            <th class="text-center" th:each="asset : ${assets}" th:text="${asset.asset.name}"></th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <!-- Inputs for Strength Measures -->
+            <td class="text-center warning">
+                <input type="range" id="measure_fmeasure" name="fmeasure" min="0" max="10" step="1"
+                       th:value="${strength_measure}" orient="vertical" />
+            </td>
+            <td class="text-center warning">
+                <input type="range" id="measure_fsectoral" name="fsectoral" min="0" max="4" step="1"
+                       th:value="${strength_sectorial}" orient="vertical" />
+            </td>
+
+            <!-- Category Inputs -->
+            <td class="text-center info"
+                th:each="category : ${categories.keySet()}"
+                th:attr="data-trick-class='Category', data-trick-value=${category}">
+                <input type="range"
+                       th:id="'measure_' + ${#strings.replace(category, '.', '_')}"
+                       th:value="${categories[category]}" min="0" max="4" step="1"
+                       th:name="${category}" orient="vertical" />
+            </td>
+
+            <!-- Other Inputs -->
+            <td class="text-center success"><input type="range" id="measure_preventive" name="preventive" th:value="${preventive}" min="0" max="4" step="1" orient="vertical" /></td>
+            <td class="text-center success"><input type="range" id="measure_detective" name="detective" th:value="${detective}" min="0" max="4" step="1" orient="vertical" /></td>
+            <td class="text-center success"><input type="range" id="measure_limitative" name="limitative" th:value="${limitative}" min="0" max="4" step="1" orient="vertical" /></td>
+            <td class="text-center success"><input type="range" id="measure_corrective" name="corrective" th:value="${corrective}" min="0" max="4" step="1" orient="vertical" /></td>
+            <td class="text-center warning"><input type="range" id="measure_intentional" name="intentional" th:value="${intentional}" min="0" max="4" step="1" orient="vertical" /></td>
+            <td class="text-center warning"><input type="range" id="measure_accidental" name="accidental" th:value="${accidental}" min="0" max="4" step="1" orient="vertical" /></td>
+            <td class="text-center warning"><input type="range" id="measure_environmental" name="environmental" th:value="${environmental}" min="0" max="4" step="1" orient="vertical" /></td>
+            <td class="text-center warning"><input type="range" id="measure_internalThreat" name="internalThreat" th:value="${internalThreat}" min="0" max="4" step="1" orient="vertical" /></td>
+            <td class="text-center warning"><input type="range" id="measure_externalThreat" name="externalThreat" th:value="${externalThreat}" min="0" max="4" step="1" orient="vertical" /></td>
+
+            <!-- Asset Type Values -->
+            <td class="text-center" data-trick-class="AssetType" th:each="assetTypeValue : ${assetTypeValues}">
+                <input type="range" th:id="'measure_' + ${assetTypeValue.assetType.name}" th:value="${assetTypeValue.value}"
+                       min="0" max="100" step="1" th:name="${assetTypeValue.assetType.name}" orient="vertical" />
+            </td>
+
+            <!-- Assets -->
+            <td class="text-center" data-trick-class="MeasureAssetValue" th:each="asset : ${assets}">
+                <input type="range" th:id="'measure_' + ${asset.asset.name}" th:value="${asset.value}"
+                       min="0" max="100" step="1" th:name="${asset.asset.name}" orient="vertical" />
+            </td>
+        </tr>
+
+        <!-- Readonly Value Row -->
+        <tr>
+            <td class="text-center warning"><input type="text" readonly class="text-center form-control" id="measure_fmeasure_value" th:value="${strength_measure}" name="fmeasure" /></td>
+            <td class="text-center warning"><input type="text" readonly class="text-center form-control" id="measure_fsectoral_value" th:value="${strength_sectorial}" name="fsectoral" /></td>
+
+            <td class="text-center info"
+                th:each="category : ${categories.keySet()}"
+                th:attr="data-trick-class='Category', data-trick-value=${category}">
+                <input type="text" readonly class="text-center form-control"
+                       th:id="'measure_' + ${#strings.replace(category, '.', '_')} + '_value'"
+                       th:value="${categories[category]}"
+                       th:name="${category}" />
+            </td>
+
+            <td class="text-center success"><input type="text" readonly class="text-center form-control" id="measure_preventive_value" th:value="${preventive}" name="preventive" /></td>
+            <td class="text-center success"><input type="text" readonly class="text-center form-control" id="measure_detective_value" th:value="${detective}" name="detective" /></td>
+            <td class="text-center success"><input type="text" readonly class="text-center form-control" id="measure_limitative_value" th:value="${limitative}" name="limitative" /></td>
+            <td class="text-center success"><input type="text" readonly class="text-center form-control" id="measure_corrective_value" th:value="${corrective}" name="corrective" /></td>
+            <td class="text-center warning"><input type="text" readonly class="text-center form-control" id="measure_intentional_value" th:value="${intentional}" name="intentional" /></td>
+            <td class="text-center warning"><input type="text" readonly class="text-center form-control" id="measure_accidental_value" th:value="${accidental}" name="accidental" /></td>
+            <td class="text-center warning"><input type="text" readonly class="text-center form-control" id="measure_environmental_value" th:value="${environmental}" name="environmental" /></td>
+            <td class="text-center warning"><input type="text" readonly class="text-center form-control" id="measure_internalThreat_value" th:value="${internalThreat}" name="internalThreat" /></td>
+            <td class="text-center warning"><input type="text" readonly class="text-center form-control" id="measure_externalThreat_value" th:value="${externalThreat}" name="externalThreat" /></td>
+
+            <td data-trick-class="AssetType" class="text-center" th:each="assetTypeValue : ${assetTypeValues}">
+                <input type="text" readonly class="text-center form-control"
+                       th:id="'measure_' + ${assetTypeValue.assetType.name} + '_value'"
+                       th:value="${assetTypeValue.value}"
+                       th:name="${assetTypeValue.assetType.name}" />
+            </td>
+
+            <td data-trick-class="AssetType" class="text-center" th:each="asset : ${assets}">
+                <input type="text" readonly class="text-center form-control"
+                       th:id="'measure_' + ${asset.asset.name} + '_value'"
+                       th:value="${asset.value}"
+                       th:name="${asset.asset.name}" />
+            </td>
+        </tr>
+    </tbody>
+</table>

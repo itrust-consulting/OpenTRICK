@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+<!-- ################################################################ Include Header ################################################################ -->
+<div th:replace="../../template/header :: header"></div>
+
+<!-- ############################################################### Start Container ################################################################ -->
+<body>
+    <div id="wrap">
+        <!-- ################################################################### Nav Menu ################################################################### -->
+        <div th:replace="../../template/menu :: menu"></div>
+        
+        <!-- ################################################################### Content #################################################################### -->
+        <div class="container trick-container max-height" data-ug-root="risk-evolution">
+            <fieldset class="col-md-3 col-lg-2 max-height affixNav nav-left-affix" style="overflow-x: hidden; padding-right: 16px;" role="left-menu">
+                <legend th:text="${title}"></legend>
+                <div class='form form-horizontal'>
+                    <div class="form-group">
+                        <label for="type" class="col-sm-4 label-control" th:data-helper-content="#{help.analysis.type}">
+                            <span th:text="#{label.analysis.type}">Type</span>
+                        </label>
+                        <div class="col-sm-8" align="center">
+                            <select class='form-control' name='type' id='type-selector'>
+                                <option th:each="type : ${types}" th:value="${type}" 
+                                        th:text="#{label.analysis.type.${type.toLowerCase()}}"></option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class='form-group'>
+                        <label class='label-control col-sm-4' th:data-helper-content="#{help.analysis.customer}">
+                            <span th:text="#{label.customer}">Customer</span>
+                        </label>
+                        <div class='col-sm-8'>
+                            <select class='form-control' name='customer' id='customer-selector'>
+                                <option value="-">
+                                    <span th:text="#{label.action.choose}">Choose...</span>
+                                </option>
+                                <option th:each="currentCustomer : ${customers}" 
+                                        th:value="${currentCustomer.id}" 
+                                        th:text="${currentCustomer.organisation}"></option>
+                            </select>
+                        </div>
+                    </div>
+                    <hr>
+                    <div th:each="index : ${#numbers.sequence(1, 10)}">
+                        <div th:attr="data-role='form-container', class=${index > 1 ? 'panel panel-analysis-slave' : 'panel panel-analysis-main'}">
+                            <div class='panel-heading' style="padding-top: 20px;">
+                                <button th:attr="data-control=${index}, title=#{label.action.remove}" class="pull-right btn btn-xs" 
+                                        disabled="disabled" style="margin-top: -19px; margin-right: -14px; margin-bottom: 5px;">
+                                    <i class="fa fa-times" aria-hidden="true"></i>
+                                </button>
+                                <div class='form-group' th:id="'analysis_' + ${index}">
+                                    <label class='label-control col-sm-4'>
+                                        <span th:text="#{label.analysis}">Analysis</span>
+                                    </label>
+                                    <div class='col-sm-8'>
+                                        <select class='form-control' name='analysis' 
+                                                th:id="'analysis-selector-' + ${index}" 
+                                                data-parent='#customer-selector' 
+                                                data-target="'#analysis-version-selector-' + ${index}"
+                                                th:data-index="${index}">
+                                            <option value="-">
+                                                <span th:text="#{label.action.choose}">Choose...</span>
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class='form-group' th:id="'analysis_' + ${index}">
+                                    <label class='label-control col-sm-4'>
+                                        <span th:text="#{label.analysis.version}">Version</span>
+                                    </label>
+                                    <div class='col-sm-8'>
+                                        <select class='form-control' name='version' 
+                                                th:data-parent="'#analysis-selector-' + ${index}" 
+                                                th:id="'analysis-version-selector-' + ${index}" 
+                                                th:data-index="${index}">
+                                            <option value="-">
+                                                <span th:text="#{label.action.choose}">Choose...</span>
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class='clearfix'></div>
+            </fieldset>
+            
+            <div class="col-md-9 col-lg-10 wrap">
+                <ul class="nav nav-tabs nav-tab risk-evolution col-xs-12" role="nav-tabs">
+                    <li class="active" data-type="QUANTITATIVE">
+                        <a id="heading-total-aLE" role="tab" role="button" data-toggle="tab" href="#tab-total-ale">
+                            <span th:text="#{label.title.total_ale}">Total ALE</span>
+                        </a>
+                    </li>
+                    <li data-type="QUANTITATIVE">
+                        <a id="heading-ale-scenario-type" role="tab" role="button" data-toggle="tab" href="#tab-ale-scenario-type">
+                            <span th:text="#{label.title.ale_by.scenario_type}">ALE by scenario type</span>
+                        </a>
+                    </li>
+                    <li data-type="QUANTITATIVE">
+                        <a id="heading-ale-asset-type" role="tab" role="button" data-toggle="tab" href="#tab-ale-asset-type">
+                            <span th:text="#{label.title.ale_by.asset_type}">ALE by asset type</span>
+                        </a>
+                    </li>
+                    <li data-type="QUANTITATIVE">
+                        <a id="heading-ale-scenario" role="tab" role="button" data-toggle="tab" href="#tab-ale-scenario">
+                            <span th:text="#{label.title.ale_by.scenario}">ALE By Scenario</span>
+                        </a>
+                    </li>
+                    <li data-type="QUANTITATIVE">
+                        <a id="heading-ale-Asset" role="tab" role="button" data-toggle="tab" href="#tab-ale-asset">
+                            <span th:text="#{label.title.ale_by.asset}">ALE by asset</span>
+                        </a>
+                    </li>
+
+                    <li class="hidden" data-type="QUALITATIVE">
+                        <a id="heading-total-risk" role="tab" role="button" data-toggle="tab" href="#tab-total-risk">
+                            <span th:text="#{label.title.total_risk}">Total risk</span>
+                        </a>
+                    </li>
+                    <li class="hidden" data-type="QUALITATIVE">
+                        <a id="heading-risk-scenario-type" role="tab" role="button" data-toggle="tab" href="#tab-risk-scenario-type">
+                            <span th:text="#{label.title.risk_by.scenario_type}">Risk by scenario type</span>
+                        </a>
+                    </li>
+                    <li class="hidden" data-type="QUALITATIVE">
+                        <a id="heading-risk-asset-type" role="tab" role="button" data-toggle="tab" href="#tab-risk-asset-type">
+                            <span th:text="#{label.title.risk_by.asset_type}">Risk by asset type</span>
+                        </a>
+                    </li>
+                    <li class="hidden" data-type="QUALITATIVE">
+                        <a id="heading-risk-scenario" role="tab" role="button" data-toggle="tab" href="#tab-risk-scenario">
+                            <span th:text="#{label.title.risk_by.scenario}">Risk By Scenario</span>
+                        </a>
+                    </li>
+                    <li class="hidden" data-type="QUALITATIVE">
+                        <a id="heading-risk-asset" role="tab" role="button" data-toggle="tab" href="#tab-risk-asset">
+                            <span th:text="#{label.title.risk_by.asset}">Risk by asset</span>
+                        </a>
+                    </li>
+
+                    <li data-type="QUANTITATIVE QUALITATIVE">
+                        <a id="heading-compliance" role="tab" role="button" data-toggle="tab" href="#tab-compliance">
+                            <span th:text="#{label.title.compliance}">Compliance</span>
+                        </a>
+                    </li>
+                </ul>
+
+                <div class="tab-content" style="padding-top: 50px">
+                    <div id="tab-total-ale" class="tab-pane active"></div>
+                    <div id="tab-ale-scenario-type" class="tab-pane"></div>
+                    <div id="tab-ale-asset-type" class="tab-pane"></div>
+                    <div id="tab-ale-scenario" class="tab-pane"></div>
+                    <div id="tab-ale-asset" class="tab-pane"></div>
+                    <div id="tab-total-risk" class="tab-pane"></div>
+                    <div id="tab-risk-scenario-type" class="tab-pane"></div>
+                    <div id="tab-risk-asset-type" class="tab-pane"></div>
+                    <div id="tab-risk-scenario" class="tab-pane"></div>
+                    <div id="tab-risk-asset" class="tab-pane"></div>
+                    <div id="tab-compliance" class="tab-pane"></div>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+
+            <!-- ################################################################ Include Footer ################################################################ -->
+        </div>
+
+        <div th:replace="../../template/footer :: footer"></div>
+
+        <!-- ################################################################ End Container ################################################################# -->
+        <div th:replace="../../template/scripts :: scripts"></div>
+
+        <script th:src="@{/js/chartjs/Chart.bundle.min.js}"></script>
+        <script th:src="@{/js/chartjs/plugins.js}"></script>
+        <script th:src="@{/js/trickservice/risk-evolution.js}"></script>
+
+        <script type="text/javascript">
+            <!--
+            application["settings"] = [[${riskEvolutionSettings != null ? riskEvolutionSettings : '{}'}]];
+            -->
+        </script>
+
+        <div id="view-helper" class="hidden">
+            <div th:replace="../single/components/parameters/risk-acceptance :: risk-acceptance"></div>
+        </div>
+    </div>
+</body>
+</html>

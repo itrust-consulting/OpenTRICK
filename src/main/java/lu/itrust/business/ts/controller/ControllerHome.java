@@ -73,14 +73,14 @@ public class ControllerHome {
 	public String home(HttpServletRequest request) {
 		if (request.isUserInRole(Constant.ROLE_OTP_NAME))
 			return "redirect:/OTP";
-		return "jsp/default/home";
+		return "templates/default/home";
 	}
 
-	/*@RequestMapping("/sm/{id}.map")
+	@RequestMapping("/sm/{id}.map")
 	public @ResponseBody String ignoredURL(@PathVariable String id) {
-		System.out.println("Firefox issue....: ID:" + id);
+		//System.out.println("Firefox issue....: ID:" + id);
 		return id;// firefox ghost request.
-	}*/
+	}
 
 	@RequestMapping(value = "/MessageResolver", method = RequestMethod.POST, headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody String resolveMessage(@RequestBody MessageHandler message, Locale locale) {
@@ -106,7 +106,7 @@ public class ControllerHome {
 			model.addAttribute("username",
 					request.getParameter("username") == null ? "" : request.getParameter("username"));
 		}
-		return "jsp/default/login";
+		return "templates/default/login";
 	}
 
 	private void loadSettings(Model model, Locale locale) {

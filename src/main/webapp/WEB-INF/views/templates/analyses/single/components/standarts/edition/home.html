@@ -1,0 +1,62 @@
+<div id="tab-measure-edition" class="tab-pane trick-container max-height" data-update-required="true" data-trigger="updateMeasureView">
+    <div class="max-height">
+        <div class="col-md-2 max-height" style="z-index: 1" role="left-menu">
+            <div class="page-header tab-content-header">
+                <div class="container">
+                    <div class="row-fluid">
+                        <h3>
+                            <span th:text="#{label.title.analysis.measures_by_chapter}"></span>
+                        </h3>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <select name="standard" class="form-control">
+                    <th:block th:each="standard : ${standards}">
+                        <option th:value="${standard.id}" 
+                                th:data-trick-name="#{${standard.name}}" 
+                                th:text="#{label.index.standard(${standard.name})}"></option>
+                    </th:block>
+                </select>
+            </div>
+            <th:block th:each="standard, status : ${standards}">
+                <div th:if="${status.index == 0}" th:data-trick-standard-name="#{${standard.name}}"
+                     th:data-trick-id="${standard.id}" th:data-trick-content="'chapter'">
+                    <div class="form-group">
+                        <select name="chapter" class="form-control">
+                            <th:block th:each="chapter : ${standardChapters[standard.name].keySet()}">
+                                <span th:text="#{${chapter}}" th:utext="*{chapter}" var="chapterText"></span>
+                                <option th:value="${chapterText}" th:text="#{label.index.chapter(${chapterText})}"></option>
+                            </th:block>
+                        </select>
+                    </div>
+                </div>
+            </th:block>
+
+            <th:block th:each="standard, status : ${standards}">
+                <div class="form-group nav-chapter" th:if="${status.index == 0}" 
+                     th:data-trick-standard-name="#{${standard.name}}" 
+                     th:data-trick-id="${standard.id}" th:data-trick-content="'measure'">
+                    <th:block th:set="measureChapters = ${standardChapters[standard.name]}" />
+                    <th:block th:each="chapter, chapterStatus : ${measureChapters.keySet()}">
+                        <span th:text="#{${chapter}}" th:utext="*{chapter}" var="chapterText"></span>
+                        <div th:if="${chapterStatus.index == 0}" class="list-group" th:data-trick-chapter-name="${chapterText}">
+                            <th:block th:each="measure, measureStatus : ${measureChapters[chapter]}">
+                                <th:block th:set="measureDescriptionText = ${measure.measureDescription.getMeasureDescriptionTextByAlpha2(language)}" />
+                                <span th:text="#{${measureDescriptionText.domain}}" var="domain"></span>
+                                <span th:text="#{${measure.measureDescription.reference}}" var="reference"></span>
+                                <a href="#" th:title="${domain}" th:data-trick-reference="${reference}" 
+                                   style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" 
+                                   class="list-group-item" th:classappend="${measureStatus.index == 0 ? 'active' : ''}" 
+                                   th:data-trick-id="${measure.id}"> 
+                                    <span th:text="${reference}"> </span> - <span th:text="${domain}"> </span>
+                                </a>
+                            </th:block>
+                        </div>
+                    </th:block>
+                </div>
+            </th:block>
+        </div>
+        <div th:replace="measure :: measure" />
+    </div>
+</div>

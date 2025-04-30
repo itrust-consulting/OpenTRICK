@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="${locale.language}">
+<head>
+    <!-- Include Header -->
+    <th:block th:replace="~{../template/header :: header}"></th:block>
+</head>
+<body>
+    <div id="wrap">
+        <!-- ################################################################### Nav Menu ################################################################### -->
+        <th:block th:replace="~{../template/menu :: menu}"></th:block>
+        <div class="container">
+            <!-- Include Success/Errors -->
+            <th:block th:replace="~{../template/successErrors :: successErrors}"></th:block>
+            <!-- #################################################################### Content ################################################################### -->
+            <div class="page-header">
+                <h1>
+                    <span th:text="#{title.error.405}">405: Method not allowed</span>
+                </h1>
+            </div>
+            <div class="content" id="content" data-spy="scroll">
+                <span th:text="#{error.405.message}">The method used for this request is not allowed!</span>
+            </div>
+            <!-- ################################################################ End Container ################################################################# -->
+        </div>
+        <!-- ################################################################ Include Footer ################################################################ -->
+        <th:block th:replace="~{../template/footer :: footer}"></th:block>
+    </div>
+    <th:block th:replace="~{../template/scripts :: scripts}"></th:block>
+</body>
+</html>

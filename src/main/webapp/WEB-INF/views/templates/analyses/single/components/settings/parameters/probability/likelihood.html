@@ -1,0 +1,57 @@
+<div class="col-md-6 probability-likelihood">
+	<fieldset id="Scale_Probability">
+		<legend>
+			<span th:if="${type == 'QUALITATIVE'}" th:text="#{label.title.probability}"></span>
+			<span th:if="${type != 'QUALITATIVE'}" th:text="#{label.parameter.extended.probability}"></span>
+		</legend>
+		<table class="table table-hover table-fixed-header-analysis table-condensed">
+			<thead>
+				<tr>
+					<th width="1%" class="textaligncenter" th:text="#{label.parameter.level}"></th>
+					<th th:if="${type.quantitative}" class="textaligncenter" width="1%" th:text="#{label.parameter.acronym}"></th>
+					<th th:if="${type.qualitative}" class="textaligncenter" th:attr="width=${type.quantitative ? '10' : '20'}%" th:text="#{label.parameter.label}"></th>
+					<th data-th-name="qualification" th:text="#{label.parameter.qualification}"></th>
+					<th th:if="${type.quantitative}" class="textaligncenter" width="8%" th:text="#{label.parameter.value} + ' ' + #{label.assessment.likelihood.unit}"></th>
+					<th th:if="${type.quantitative}" class="textaligncenter" width="8%" th:text="#{label.parameter.range.min}"></th>
+					<th th:if="${type.quantitative}" class="textaligncenter" width="8%" th:text="#{label.parameter.range.max}"></th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:if="${type.quantitative}" data-trick-class="LikelihoodParameter" hidden="true">
+					<td data-trick-field="acronym" colspan="3" th:text="#{label.status.na}"></td>
+					<td data-trick-field="value" colspan="3">0</td>
+				</tr>
+				<th:block th:with="length=${mappedParameters['PROBA'].size() - 1}">
+					<th:block th:each="parameter, status : ${mappedParameters['PROBA']}">
+						<tr data-trick-class="LikelihoodParameter" data-trick-id="${parameter.id}">
+							<td data-trick-field="level" class="textaligncenter" th:text="${parameter.level}"></td>
+							<th th:if="${type.quantitative}">
+								<td data-trick-field="acronym" class="textaligncenter" th:text="${parameter.acronym}"></td>
+							</th>
+							<th th:if="${type.qualitative}">
+								<td data-trick-field="label" class="textaligncenter" th:attr="data-trick-acronym-value=${parameter.acronym}">
+									<span th:text="${parameter.label}"></span>
+								</td>
+							</th>
+							<td data-trick-field="description" data-trick-content="text" data-trick-field-type="string" class="editable" onclick="return editField(this);" th:text="${parameter.description}"></td>
+							<th th:if="${type.quantitative}">
+								<td data-trick-field="value" data-trick-field-type="double" onclick="return editField(this);" class="editable textaligncenter" title="${parameter.value}" data-real-value="${parameter.value}">
+									<span th:text="${#numbers.formatDecimal(parameter.value, 0, 2)}"></span>
+								</td>
+								<td class="textaligncenter">
+									<span th:text="${#numbers.formatDecimal(parameter.bounds.from, 0, 2)}"></span>
+								</td>
+								<td class="textaligncenter">
+									<span th:if="${status.index != length}">
+										<span th:text="${#numbers.formatDecimal(parameter.bounds.to, 0, 2)}"></span>
+									</span>
+									<span th:if="${status.index == length}" style="font-size: 17px;">+&#8734;</span>
+								</td>
+							</th>
+						</tr>
+					</th:block>
+				</th:block>
+			</tbody>
+		</table>
+	</fieldset>
+</div>

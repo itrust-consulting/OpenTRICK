@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<div th:with="title=label.title.profile" th:replace="~{templates/template/header :: header('label.title.profile')}"></div>
+<body>
+    <div id="wrap" class="wrap">
+        
+        <div th:replace="~{templates/template/menu :: main-menu(${menu}, ${analysisSharedCount})}"></div>
+        <div class="container" data-ug-root="account">
+            <ul class="nav nav-tabs affix affix-top col-xs-12 nav-tab">
+                <li class="active">
+                    <a href="#tab-profile" data-toggle="tab" th:text="#{label.menu.profile}">My Profile</a>
+                </li>
+               <th:block th:if="${adminaAllowedTicketing}">
+                    <li>
+                        <a href="#tab-credential" data-toggle="tab" th:text="#{label.menu.credential}">My Credentials</a>
+                    </li>
+                </th:block>
+                <li>
+                    <a href="#tab-invitation" data-toggle="tab" th:text="#{label.menu.invitation}">My Invitations</a>
+                </li>
+                <li>
+                    <a href="#tab-sqlite" data-toggle="tab" th:text="#{label.menu.sqlite}">My Sqlites</a>
+                </li>
+                <li>
+                    <a href="#tab-report" data-toggle="tab" th:text="#{label.menu.report}">My Reports</a>
+                </li>
+                <th:block th:if="${enabledOTP}">
+                    <li>
+                        <a href="#tab-otp" data-toggle="tab" th:text="#{label.menu.otp.options}">My Sign-In Settings</a>
+                    </li> 
+                </th:block>
+            </ul>
+
+            <div class="tab-content" id="tab-container">
+                <div th:replace="~{templates/user/profile/section :: section}"></div>
+                
+               <th:block th:if="${adminaAllowedTicketing}">
+                    <div th:replace="~{templates/user/credential/home :: home}"></div>
+                </th:block>
+
+                <div th:replace="~{templates/user/invitation/home :: home}"></div>
+                <div th:replace="~{templates/user/sqlite/home :: home}"></div>
+                <div th:replace="~{templates/user/report/home :: home}"></div>
+
+                <th:block th:if="${enabledOTP}">
+                    <div th:replace="~{templates/user/otp/section :: section}"></div>
+                </th:block>
+
+                <div th:replace="~{templates/template/tab-option :: tab-option}"></div>
+            </div>
+        </div>
+
+        <div th:replace="~{templates/template/footer :: footer}"></div>
+    </div>
+
+    <div th:replace="~{templates/template/scripts :: scripts}"></div>
+    <script th:src="@{/js/trickservice/profile.js}"></script>
+</body>
+</html>

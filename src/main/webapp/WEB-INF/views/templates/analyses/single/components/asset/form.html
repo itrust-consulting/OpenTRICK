@@ -1,0 +1,130 @@
+<!-- Set the locale (usually configured in Spring config, not needed here in template) -->
+<div class="modal fade" id="addAssetModal" tabindex="-1" role="dialog" aria-labelledby="addNewAsset" aria-hidden="true" data-backdrop="static" data-keyboard="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="addAssetModel-title">
+                    <span th:text="#{label.title.asset.__${asset == null}__ ? 'add' : 'edit'}"></span>
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div th:if="${asset != null and asset.id > 0}" class="alert alert-sm alert-danger">
+                    <span th:text="#{info.asset.type.change}"></span>
+                </div>
+
+                <form th:action="@{/Asset/Save}" name="asset" class="form-horizontal" id="asset_form" method="post">
+                    <input type="hidden" name="id" th:value="${asset != null} ? ${asset.id} : 0" />
+
+                    <!-- Asset Name -->
+                    <div class="form-group">
+                        <label for="name" class="col-sm-3 control-label" th:attr="data-helper-content=#{help.asset.name}">
+                            <span th:text="#{label.asset.name}"></span>
+                        </label>
+                        <div class="col-sm-9">
+                            <input name="name" id="asset_name" class="form-control"
+                                   th:value="${asset != null} ? ${asset.name} : ''" />
+                        </div>
+                    </div>
+
+                    <!-- Asset Type -->
+                    <div class="form-group">
+                        <label for="assetType.id" class="col-sm-3 control-label" th:attr="data-helper-content=#{help.asset.type}">
+                            <span th:text="#{label.asset.type}"></span>
+                        </label>
+                        <div class="col-sm-9">
+                            <select name="assetType" class="form-control" id="asset_assettype_id">
+                                <option value="0" th:text="#{label.asset.type.select}" 
+                                    th:if="${assettypes != null}"></option>
+                                <option th:each="type : ${assettypes}" 
+                                        th:value="${type.id}"
+                                        th:selected="${asset != null and asset.assetType?.id == type.id}"
+                                        th:text="#{label.asset_type.${#strings.toLowerCase(type.name)}}"></option>
+                                <option value="0" th:if="${assettypes == null}" th:text="#{label.asset.type.loading}"></option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Asset Value -->
+                    <div class="form-group">
+                        <label for="value" class="col-sm-3 control-label" th:attr="data-helper-content=#{help.asset.value}">
+                            <span th:text="#{label.form.asset.value}"></span>
+                        </label>
+                        <div class="col-sm-9">
+                            <div class="input-group">
+                                <input name="value" id="asset_value" class="form-control"
+                                       th:value="${asset == null} ? 0 : ${#numbers.formatDecimal(asset.value * 0.001, 1, 'COMMA', 'POINT')}" />
+                                <span class="input-group-addon">k&euro;</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Asset Selected Status -->
+                    <div class="form-group">
+                        <label for="selected" class="col-sm-3 control-label" th:attr="data-helper-content=#{help.asset.status}">
+                            <span th:text="#{label.status}"></span>
+                        </label>
+                        <div class="col-sm-9" align="center">
+                            <div class="btn-group" data-toggle="buttons">
+                                <label class="btn btn-default" 
+                                       th:classappend="${asset == null or asset.selected} ? ' active' : ''">
+                                    <span th:text="#{label.action.select}"></span>
+                                    <input type="radio" name="selected" value="true"
+                                           th:checked="${asset == null or asset.selected}" />
+                                </label>
+                                <label class="btn btn-default" 
+                                       th:classappend="${asset != null and !asset.selected} ? ' active' : ''">
+                                    <span th:text="#{label.action.unselect}"></span>
+                                    <input type="radio" name="selected" value="false"
+                                           th:checked="${asset != null and !asset.selected}" />
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Asset Comment -->
+                    <div class="form-group">
+                        <label for="comment" class="col-sm-3 control-label" th:attr="data-helper-content=#{help.asset.comment}">
+                            <span th:text="#{label.asset.comment}"></span>
+                        </label>
+                        <div class="col-sm-9">
+                            <textarea name="comment" id="asset_comment" class="form-control resize_vectical_only" rows="9"
+                                      th:text="${asset != null} ? ${asset.comment} : ''"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Hidden Comment -->
+                    <div class="form-group">
+                        <label for="hiddenComment" class="col-sm-3 control-label" th:attr="data-helper-content=#{help.asset.comment_hidden}">
+                            <span th:text="#{label.asset.comment_hidden}"></span>
+                        </label>
+                        <div class="col-sm-9">
+                            <textarea name="hiddenComment" id="asset_hiddenComment" class="form-control resize_vectical_only" rows="7"
+                                      th:text="${asset != null} ? ${asset.hiddenComment} : ''"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Related Name -->
+                    <div class="form-group">
+                        <label for="relatedName" class="col-sm-3 control-label" th:attr="data-helper-content=#{help.asset.related_name}">
+                            <span th:text="#{label.asset.related_name}"></span>
+                        </label>
+                        <div class="col-sm-9">
+                            <input name="relatedName" id="asset_relatedName" class="form-control"
+                                   th:value="${asset != null} ? ${asset.relatedName} : ''" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" th:onclick="'saveAsset(\'asset_form\')'"
+                        name="save" th:attr="data-loading-text=#{label.action.save}"
+                        th:text="#{label.action.save}"></button>
+                <button type="button" class="btn btn-default" data-dismiss="modal"
+                        th:text="#{label.action.cancel}">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>

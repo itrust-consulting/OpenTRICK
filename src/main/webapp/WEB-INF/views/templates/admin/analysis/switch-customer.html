@@ -1,0 +1,63 @@
+<div class="modal fade" id="switchCustomerModal" tabindex="-1" role="dialog"
+     aria-labelledby="switchCustomerModal" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" th:text="#{label.title.analysis.switch.customer}">
+                    Switch customer
+                </h4>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="modal-body">
+                <p th:text="#{info.analysis.switch.customer}">
+                    All analyses with the same identifier will be switched to the new customer.
+                </p>
+
+                <form id="formSwitchCustomer" class="form-horizontal">
+                    <input type="hidden" name="idAnalysis" th:value="${idAnalysis}" />
+
+                    <!-- Current Customers -->
+                    <div class="form-group">
+                        <label class="col-xs-4" th:text="#{label.current.customers}">Current customers</label>
+                        <ul class="list-group col-xs-8">
+                            <li class="list-group-item"
+                                th:each="customer : ${currentCustomers}"
+                                th:text="${customer.organisation + ' - ' + customer.country}">
+                                Organisation - Country
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- New Customer Dropdown -->
+                    <div class="form-group">
+                        <label class="col-xs-4" th:text="#{label.new.customer}">New customer</label>
+                        <div class="list-group col-xs-8">
+                            <select name="customer" class="form-control">
+                                <option th:each="customer : ${customers}"
+                                        th:value="${customer.id}"
+                                        th:selected="${currentCustomers.size() == 1 and currentCustomers[0].id == customer.id}"
+                                        th:text="${customer.organisation + ' - ' + customer.country}">
+                                    Customer Option
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="modal-footer">
+                <button type="button" name="save" class="btn btn-primary"
+                        th:text="#{label.action.save}">Save</button>
+                <button type="button" name="cancel" class="btn btn-default" data-dismiss="modal"
+                        th:text="#{label.action.cancel}">Cancel</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+

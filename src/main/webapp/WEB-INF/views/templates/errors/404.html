@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="[[${locale.language}]]">
+<!-- Include Header -->
+<th:block th:if="${locale == null}">
+    <th:block th:utext="${#locale}" th:with="locale=${T(org.springframework.web.servlet.support.RequestContextUtils).getLocale(request)}" />
+</th:block>
+<th:block th:replace="~{../template/header :: header}" />
+
+<!-- ################################################################# Start Container ############################################################## -->
+<body>
+    <div id="wrap">
+        <!-- ################################################################### Nav Menu ################################################################### -->
+        <th:block th:replace="~{../template/menu :: menu}" />
+
+        <div class="container">
+            <th:block th:replace="~{../template/successErrors :: successErrors}" />
+            
+            <!-- #################################################################### Content ################################################################### -->
+            <div class="page-header">
+                <h1>
+                    <span th:text="#{title.error.404}">404: Page not found</span>
+                </h1>
+            </div>
+            <div class="content" id="content" data-spy="scroll">
+                <span th:text="#{error.404.message}">The page you are trying to access could not be found!</span>
+            </div>
+        </div>
+        <!-- ################################################################ End Container ################################################################# -->
+    </div>
+    <!-- ################################################################ Include Footer ################################################################ -->
+    <th:block th:replace="~{../template/footer :: footer}" />
+</body>
+<!-- ################################################################### End HTML ################################################################### -->
+
+<!-- Include Scripts -->
+<th:block th:replace="~{../template/scripts :: scripts}" />
+</html>

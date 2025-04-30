@@ -1,0 +1,48 @@
+<div data-view-content-name="word-report">
+    <div th:if="${not #lists.isEmpty(items)}">
+        <ul class="nav nav-tabs nav-justified">
+            <li th:each="item, status : ${items}" 
+                th:classappend="${#strings.toLowerCase(item.name) == 'hybrid' ? ' active' : ''}">
+                <a th:href="'#export-word-report-' + ${#strings.toLowerCase(item.name)}" data-toggle="tab">
+                    <span th:text="#{label.analysis.type.${#strings.toLowerCase(item.name)}}"></span>
+                </a>
+            </li>
+        </ul>
+        <div class="tab-content" data-view-tab="secondary">
+            <div th:each="currentItem, status : ${items}">
+                <div th:with="item=${currentItem}">
+                    <span th:text="#{${#strings.toLowerCase(item.name)}}"></span>
+                    <span th:text="#{word-report-${#strings.toLowerCase(item.name)}}"></span>
+                    <div class="tab-pane" th:classappend="${#strings.toLowerCase(item.name) == 'hybrid' ? ' active' : ''}" 
+                         th:id="'export-' + ${#strings.toLowerCase(item.name)}"
+                         data-view-name="word-report"
+                         data-view-process-url="${item.processURL}"
+                         data-view-extentions="${item.extensions}">
+                        <fieldset>
+                            <legend>
+                                <span th:text="#{label.title.data_manager.export.word_report_${#strings.toLowerCase(item.name)}}"></span>
+                            </legend>
+                            <div class="alert alert-sm alert-info" style="margin-bottom: 15px">
+                                <span th:text="#{info.data_manager.export.${#strings.replace(#strings.toLowerCase(item.name), '-', '_')}}"></span>
+                            </div>
+                            <!-- Include the form here -->
+                            <div th:replace="~{form :: form}"></div>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div th:unless="${not #lists.isEmpty(items)}">
+        <fieldset>
+            <legend>
+                <span th:text="#{label.title.data_manager.export.word_report}"></span>
+            </legend>
+            <div class="alert alert-sm alert-info" style="margin-bottom: 15px">
+                <span th:text="#{info.data_manager.export.word_report}"></span>
+            </div>
+            <!-- Include the form here -->
+            <div th:replace="~{form :: form}"></div>
+        </fieldset>
+    </div>
+</div>

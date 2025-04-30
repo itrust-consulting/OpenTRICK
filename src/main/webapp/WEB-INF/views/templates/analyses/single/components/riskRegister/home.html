@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Risk Register</title>
+</head>
+<body>
+
+<div class="tab-pane" id="tab-risk-register">
+    <div class="section" id="section_riskregister">
+        <div class="page-header tab-content-header">
+            <div class="container">
+                <div class="row-fluid">
+                    <h3>
+                        <span th:text="#{label.title.risk_register}"></span>
+                    </h3>
+                </div>
+            </div>
+        </div>
+
+        <span th:text="#{label.risk_register.strategy.accept}" th:id="accept"></span>
+        <span th:text="#{label.risk_register.strategy.reduce}" th:id="reduce"></span>
+        <span th:text="#{label.risk_register.strategy.transfer}" th:id="transfer"></span>
+        <span th:text="#{label.risk_register.strategy.avoid}" th:id="avoid"></span>
+
+        <table class="table table-hover table-condensed table-fixed-header-analysis">
+            <thead>
+                <tr>
+                    <th style="width: 1.8%" rowspan="2">
+                        <a href="#" onclick="return sortTable('index',this,true)" data-order="0">
+                            <span th:text="#{label.row.index}"></span>
+                        </a>
+                    </th>
+                    <th style="width: 4.5%" rowspan="2" th:title="#{label.title.id}">
+                        <a href="#" onclick="return sortTable('.identifier',this)" data-order="1">
+                            <span th:text="#{label.risk_register.id}"></span>
+                        </a>
+                    </th>
+                    <th style="width: 5%" rowspan="2" th:title="#{label.risk_register.category}">
+                        <a href="#" onclick="return sortTable('category',this)" data-order="1">
+                            <span th:text="#{label.risk_register.category}"></span>
+                        </a>
+                    </th>
+                    <th rowspan="2" th:title="#{label.risk_register.risk_title}">
+                        <a href="#" onclick="return sortTable('scenario',this)" data-order="1">
+                            <span th:text="#{label.risk_register.risk_title}"></span>
+                        </a>
+                    </th>
+                    <th style="width: 8%" rowspan="2" th:title="#{label.risk_register.asset}">
+                        <a href="#" onclick="return sortTable('asset',this)" data-order="1">
+                            <span th:text="#{label.risk_register.asset}"></span>
+                        </a>
+                    </th>
+
+                    <span th:if="${showRawColumn}">
+                        <th colspan="3" class="text-center" th:title="#{label.title.risk_register.raw_eval}">
+                            <span th:text="#{label.risk_register.raw_eval}"></span>
+                        </th>
+                    </span>
+
+                    <th colspan="3" class="text-center" th:title="#{label.title.risk_register.net_eval}">
+                        <span th:text="#{label.risk_register.net_eval}"></span>
+                    </th>
+
+                    <th colspan="3" class="text-center" th:title="#{label.title.risk_register.exp_eval}">
+                        <span th:text="#{label.risk_register.exp_eval}"></span>
+                    </th>
+
+                    <th rowspan="2" style="width: 5%" th:title="#{label.risk_register.strategy}">
+                        <a href="#" onclick="return sortTable('.riskStrategy',this)" data-order="1">
+                            <span th:text="#{label.risk_register.strategy}"></span>
+                        </a>
+                    </th>
+                    <th style="width: 5%" rowspan="2" th:title="#{label.risk_register.owner}">
+                        <a href="#" onclick="return sortTable('owner',this)" data-order="1">
+                            <span th:text="#{label.risk_register.owner}"></span>
+                        </a>
+                    </th>
+                </tr>
+                <tr>
+                    <span th:if="${showRawColumn}">
+                        <th class="text-center" th:title="#{label.risk_register.probability}">
+                            <a href="#" onclick="return sortTable('raw.probability',this,true)" data-order="1">
+                                <span th:text="#{label.risk_register.acro.probability}"></span>
+                            </a>
+                        </th>
+                        <th class="text-center" th:title="#{label.risk_register.impact}">
+                            <a href="#" onclick="return sortTable('raw.impact',this,true)" data-order="1">
+                                <span th:text="#{label.risk_register.acro.impact}"></span>
+                            </a>
+                        </th>
+                        <th class="text-center" th:title="#{label.risk_register.importance}">
+                            <a href="#" onclick="return sortTable('raw.importance',this,true)" data-order="1">
+                                <span th:text="#{label.risk_register.acro.importance}"></span>
+                            </a>
+                        </th>
+                    </span>
+
+                    <th class="text-center" th:title="#{label.risk_register.probability}">
+                        <a href="#" onclick="return sortTable('net.probability',this,true)" data-order="1">
+                            <span th:text="#{label.risk_register.acro.probability}"></span>
+                        </a>
+                    </th>
+                    <th class="text-center" th:title="#{label.risk_register.impact}">
+                        <a href="#" onclick="return sortTable('net.impact',this,true)" data-order="1">
+                            <span th:text="#{label.risk_register.acro.impact}"></span>
+                        </a>
+                    </th>
+                    <th class="text-center" th:title="#{label.risk_register.importance}">
+                        <a href="#" onclick="return sortTable('net.importance',this,true)" data-order="1">
+                            <span th:text="#{label.risk_register.acro.importance}"></span>
+                        </a>
+                    </th>
+
+                    <th class="text-center" th:title="#{label.risk_register.probability}">
+                        <a href="#" onclick="return sortTable('exp.probability',this,true)" data-order="1">
+                            <span th:text="#{label.risk_register.acro.probability}"></span>
+                        </a>
+                    </th>
+                    <th class="text-center" th:title="#{label.risk_register.impact}">
+                        <a href="#" onclick="return sortTable('exp.impact',this,true)" data-order="1">
+                            <span th:text="#{label.risk_register.acro.impact}"></span>
+                        </a>
+                    </th>
+                    <th class="text-center" th:title="#{label.risk_register.importance}">
+                        <a href="#" onclick="return sortTable('exp.importance',this,true)" data-order="1">
+                            <span th:text="#{label.risk_register.acro.importance}"></span>
+                        </a>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <span th:text="#{label.metric.euro_by_year}" th:id="euro_by_year"></span>
+                <span th:text="#{label.assessment.likelihood.unit}" th:id="by_year"></span>
+
+                <th:block th:each="estimation, status : ${estimations}">
+                    <th:block th:var="riskProfile" th:with="riskProfile=${estimation.riskProfile}">
+                        <tr th:data-trick-id="${riskProfile.id}" th:data-trick-callback="riskEstimationUpdate(true)">
+                            <td th:data-trick-field="index" th:text="${status.index + 1}"></td>
+                            <td class="editable" th:data-trick-id="${riskProfile.id}" th:data-trick-field=".identifier"
+                                th:onclick="|return editField(this);|" th:data-trick-class="RiskProfile"
+                                th:data-trick-field-type="string" th:text="${riskProfile.identifier}"></td>
+                            <td th:data-trick-field="category" th:text="#{label.scenario.type.${riskProfile.scenario.type.name.toLowerCase().replace('-', '_')}}"></td>
+                            <td th:data-trick-field="scenario" th:text="${riskProfile.scenario.name}"></td>
+                            <td th:data-trick-field="asset" th:text="${riskProfile.asset.name}"></td>
+
+                            <span th:if="${showRawColumn}">
+                                <td th:data-trick-field="raw.probability" class="text-center"
+                                    th:text="${#numbers.formatDecimal(estimation.rawProbaImpact.probabilityLevel, 0, '###')}"></td>
+                                <td th:data-trick-field="raw.impact" class="text-center"
+                                    th:text="${#numbers.formatDecimal(estimation.rawProbaImpact.impactLevel, 0, '###')}"></td>
+                                <td th:data-trick-field="raw.importance" class="text-center">
+                                    <span th:style="'color: ' + ${colorManager.getColor(estimation.rawProbaImpact.importance)}">
+                                        <i class="fa fa-flag" aria-hidden="true"></i>
+                                    </span>
+                                    <span th:text="${#numbers.formatDecimal(estimation.rawProbaImpact.importance, 0, '###')}"></span>
+                                </td>
+                            </span>
+
+                            <td th:data-trick-field="net.probability" class="text-center"
+                                th:text="${#numbers.formatDecimal(estimation.netEvaluation.probabilityLevel, 0, '###')}"></td>
+                            <td th:data-trick-field="net.impact" class="text-center"
+                                th:text="${#numbers.formatDecimal(estimation.netEvaluation.impactLevel, 0, '###')}"></td>
+                            <td th:data-trick-field="net.importance" class="text-center">
+                                <span th:style="'color: ' + ${colorManager.getColor(estimation.netEvaluation.importance)}">
+                                    <i class="fa fa-flag" aria-hidden="true"></i>
+                                </span>
+                                <span th:text="${#numbers.formatDecimal(estimation.netEvaluation.importance, 0, '###')}"></span>
+                            </td>
+
+                            <td th:data-trick-field="exp.probability" class="text-center"
+                                th:text="${#numbers.formatDecimal(estimation.expProbaImpact.probabilityLevel, 0, '###')}"></td>
+                            <td th:data-trick-field="exp.impact" class="text-center"
+                                th:text="${#numbers.formatDecimal(estimation.expProbaImpact.impactLevel, 0, '###')}"></td>
+                            <td th:data-trick-field="exp.importance" class="text-center">
+                                <span th:style="'color: ' + ${colorManager.getColor(estimation.expProbaImpact.importance)}">
+                                    <i class="fa fa-flag" aria-hidden="true"></i>
+                                </span>
+                                <span th:text="${#numbers.formatDecimal(estimation.expProbaImpact.importance, 0, '###')}"></span>
+                            </td>
+
+                            <td class="editable" th:data-trick-id="${riskProfile.id}" th:data-trick-field=".riskStrategy"
+                                th:onclick="|return editField(this);|" th:data-trick-class="RiskProfile"
+                                th:data-trick-choose="ACCEPT,REDUCE,TRANSFER,AVOID"
+                                th:data-trick-choose-translate="${accept},${reduce},${transfer},${avoid}"
+                                th:data-trick-field-type="string">
+                                <span th:text="#{label.risk_register.strategy.${riskProfile.riskStrategy.nameToLower}}"></span>
+                            </td>
+                            <td class="editable" th:data-trick-id="${estimation.assessmentId}" th:data-trick-field="owner"
+                                th:onclick="|return editField(this);|" th:data-trick-class="Assessment"
+                                th:data-trick-field-type="string" th:text="${estimation.owner}"></td>
+                        </tr>
+                    </th:block>
+                </th:block>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+</body>
+</html>

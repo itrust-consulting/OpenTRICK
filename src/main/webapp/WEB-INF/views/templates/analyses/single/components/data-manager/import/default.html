@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thymeleaf Version</title>
+</head>
+<body>
+    <div th:if="${#strings.isEmpty(item.viewURL)}">
+        <fieldset>
+            <!-- Replace spring:message with Thymeleaf i18n -->
+            <span th:text="#{label.title.data_manager.import.{#strings.replace(item.name, '-', '_')}}"></span>
+            <legend>
+                <span th:text="#{label.title.data_manager.import.{#strings.replace(item.name, '-', '_')}}"></span>
+            </legend>
+            <div class="alert alert-sm alert-danger" style="margin-bottom: 15px">
+                <span th:text="#{info.data_manager.import.{#strings.replace(item.name, '-', '_')}}"></span>
+            </div>
+            <form th:name="${item.name}" method="post" th:action="@{${pageContext.request.contextPath}${item.processURL}?${_csrf.parameterName}=${_csrf.token}}"
+                  class="form-inline" th:id="'form-' + ${item.name}" enctype="multipart/form-data">
+                <div class="row">
+                    <label class="col-lg-12" for="name">
+                        <span th:text="#{label.import.{#strings.replace(item.name, '-', '_')}}.choose_file"></span>
+                    </label>
+                    <div class="col-lg-12">
+                        <div class="input-group-btn">
+                            <span th:text="${#strings.replace(item.extensions,'.','')}"></span>
+                            <input th:id="'file-' + ${item.name}" type="file" th:accept="${item.extensions}" th:maxlength="${maxFileSize}"
+                                   th:onclick="'checkExtention($(this).val(),\"' + ${extension} + '\",\"#btn-import\");'"
+                                   name="file" style="display: none;" />
+                            <input th:id="'upload-file-info-' + ${item.name}" class="form-control" readonly="readonly" required="required" 
+                                   style="width: 88%;" placeholder="${maxSizeInfo}" />
+                            <button class="btn btn-primary" type="button" th:id="'browse-button'" 
+                                    th:onclick="'$(\'input[id=file-\' + ${item.name} + \']\').click();'" 
+                                    style="margin-left: -5px;">
+                                <span th:text="#{label.action.browse}">Browse</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <div class="col-lg-12" style="color: #d9534f;" align="left" th:data-view-notification="${item.name}"></div>
+        </fieldset>
+    </div>
+</body>
+</html>

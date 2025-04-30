@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="${#locale.language}">
+<head th:replace="~{../template/header :: header('title.401')}"></head>
+
+<body>
+<div id="wrap">
+    <!-- ############################ Nav Menu ############################ -->
+    <div th:replace="~{../template/menu :: menu}"></div>
+
+    <div class="container">
+        <div th:replace="~{../template/successErrors :: messages}"></div>
+
+        <!-- ############################ Content ############################ -->
+        <div class="page-header">
+            <h1 th:text="#{title.error.401}">Error 401: Unauthorized</h1>
+        </div>
+
+        <div class="content" id="content" th:text="#{error.401.message}">
+            Unauthorised
+        </div>
+    </div>
+
+    <!-- ############################ Footer ############################ -->
+    <div th:replace="~{../template/footer :: footer}"></div>
+</div>
+
+<!-- ############################ Scripts ############################ -->
+<div th:replace="~{../template/scripts :: scripts}"></div>
+
+</body>
+</html>

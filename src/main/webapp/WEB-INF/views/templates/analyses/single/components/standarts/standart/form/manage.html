@@ -1,0 +1,94 @@
+<div id="section_manage_standards" class="tab-pane active" style="height: 510px; overflow-y: auto; overflow-x: hidden; margin-top: -10px">
+    <ul id="menu_manage_standards" class="nav nav-pills bordered-bottom">
+        <li data-trick-ignored="true">
+            <a href="#importFromKb" data-toggle="tab" role="import-kb">
+                <span class="glyphicon glyphicon-import"></span> 
+                <span th:text="#{label.action.import.knowledge_base}"></span>
+            </a>
+        </li>
+        <li data-trick-ignored="true">
+            <a href="#importFromFile" data-toggle="tab" role="import-file">
+                <span class="glyphicon glyphicon-file"></span>
+                <span th:text="#{label.action.import.file}"></span>
+            </a>
+        </li>
+        <li data-trick-ignored="true">
+            <a href="#standard_form_container" data-toggle="tab" role="add">
+                <span class="glyphicon glyphicon-plus primary"></span>
+                <span th:text="#{label.action.add}"></span>
+            </a>
+        </li>
+        <li data-trick-selectable="true" data-trick-check="isAnalysisOnlyStandard('#section_manage_standards')" class="disabled">
+            <a href="#standard_form_container" data-toggle="tab" role="edit">
+                <span class="glyphicon glyphicon-edit primary"></span>
+                <span th:text="#{label.action.edit}"></span>
+            </a>
+        </li>
+        <li data-trick-selectable="true" data-trick-check="isAnalysisOnlyStandard('#section_manage_standards')" class="disabled">
+            <a href="#importFromFile" data-toggle="tab" role="import-file-update">
+                <span class="glyphicon glyphicon-refresh primary"></span>
+                <span th:text="#{label.action.update}"></span>
+            </a>
+        </li>
+        <li data-trick-selectable="true" class="disabled pull-right">
+            <a href="#" class="text-danger" onclick="return removeStandard();">
+                <span class="glyphicon glyphicon-remove"></span>&nbsp;
+                <span th:text="#{label.action.remove}"></span>
+            </a>
+        </li>
+    </ul>
+
+    <table class="table table-hover" id="table_current_standard">
+        <thead>
+            <tr>
+                <th>&nbsp;</th>
+                <th><span th:text="#{label.norm.name}"></span></th>
+                <th><span th:text="#{label.norm.label}"></span></th>
+                <th><span th:text="#{label.norm.version}"></span></th>
+                <th width="30%"><span th:text="#{label.norm.description}"></span></th>
+                <th class="text-center"><span th:text="#{label.norm.computable}"></span></th>
+                <th class="text-center"><span th:text="#{label.norm.type}"></span></th>
+                <th class="text-center"><span th:text="#{label.norm.analysisOnly}"></span></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="standard : ${currentStandards}" 
+                th:ondblclick="|return editStandard(this);|"
+                th:onclick="|selectElement(this);|"
+                th:data-trick-id="${standard.id}"
+                th:data-trick-analysisOnly="${standard.analysisOnly}"
+                th:data-trick-type="${standard.type}"
+                th:data-trick-computable="${standard.computable}">
+                <td>
+                    <input type="checkbox" class="checkbox" th:change="|return updateMenu(this, '#section_manage_standards', '#menu_manage_standards');|">
+                </td>
+                <td data-name="name">
+                    <span th:text="${standard.name}"></span>
+                </td>
+                <td data-name="label">
+                    <span th:text="${standard.label}"></span>
+                </td>
+                <td data-name="version">
+                    <span th:text="${standard.version}"></span>
+                </td>
+                <td data-name="description">
+                    <span th:text="${standard.description}"></span>
+                </td>
+                <td data-name="computable" data-real-value="${standard.computable}" class="text-center">
+                    <span th:text="#{label.${standard.computable ? 'yes' : 'no'}}"></span>
+                </td>
+                <td data-name="type" data-real-value="${standard.type}" class="text-center">
+                    <span th:text="#{label.norm.standard_type.${standard.type.toLowerCase()}}"></span>
+                </td>
+                <td class="text-center">
+                    <span th:text="#{label.${standard.analysisOnly ? 'yes' : 'no'}}"></span>
+                </td>
+            </tr>
+            <tr th:if="${empty currentStandards}">
+                <td colspan="9">
+                    <span th:text="#{label.no_standards}"></span>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

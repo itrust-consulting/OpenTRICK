@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<th:block th:fragment="header(title)">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="_csrf" th:content="${_csrf.token}" />
+		<meta name="_csrf_header" th:content="${_csrf.headerName}" />
+		<meta content="itrust consulting s.a.r.l - itrust.lu" name="author" />
+		<meta th:content="#{label.risk_analysis}" name="description" />
+		<meta content="width=device-width" name="viewport" />
+		<link th:href="@{/images/favicon.png}" rel="shortcut icon" type="image/png" />
+		<title th:text="#{${title} ?: 'TRICK Service'}">TRICK Service</title>
+
+		<link rel="stylesheet" type="text/css" th:href="@{/css/bootstrap.min.css}" />
+		<link rel="stylesheet" type="text/css" th:href="@{/css/jquery-ui.min.css}" />
+		<link rel="stylesheet" type="text/css" th:href="@{/css/font-awesome.min.css}" />
+		<link rel="stylesheet" type="text/css" th:href="@{/css/bootstrap.vertical-tabs.min.css}" />
+
+		<th:block th:each="customCSS : ${customCSSs}">
+			<link rel="stylesheet" type="text/css" th:href="@{${customCSS}}" />
+		</th:block>
+
+		<link rel="stylesheet" type="text/css" th:href="@{/css/main.css}" />
+
+		<script type="text/javascript">
+			var context = /*[[@{/}]]*/ '';
+		</script>
+
+		<!-- It will be updated in menu -->
+		<th:block th:with="isAdministration=${false}"></th:block>
+	</head>
+</th:block>
+</html>

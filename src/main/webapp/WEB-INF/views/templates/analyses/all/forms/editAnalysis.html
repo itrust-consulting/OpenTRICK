@@ -1,0 +1,168 @@
+<!-- Replace this with a fragment or include mechanism for success/error messages -->
+<div th:replace="~{template/successErrors :: successErrorsFragment}"></div>
+
+<div class="modal fade" id="editAnalysisModel" tabindex="-1" role="dialog" aria-labelledby="editAnalysis" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">
+                    <span th:text="#{label.title.properties}">Properties</span>
+                </h4>
+            </div>
+            <div class="modal-body">
+                <form name="analysis"
+                      th:action="@{/Analysis/Save(__${_csrf.parameterName}__=${_csrf.token})}"
+                      class="form-horizontal"
+                      id="analysis_form"
+                      method="post">
+                    <fieldset>
+                        <legend style="font-size: 15px">
+                            <span th:text="#{label.property.analysis}">Analysis Properties</span>
+                        </legend>
+                        <input type="hidden" name="id" th:value="${analysis.id}" id="analysis_id"/>
+
+                        <div class="form-group" th:if="${!analysis.profile}">
+                            <label for="type" class="col-sm-3 control-label"
+                                   th:attr="data-helper-content=#{help.analysis.info.type}">
+                                <span th:text="#{label.analysis.type}">Type</span>
+                            </label>
+                            <div class="col-sm-9" align="center">
+                                <div class="btn-group" data-toggle="buttons">
+                                    <div th:each="type : ${types}">
+                                        <label class="btn btn-default" th:classappend="${type == analysis.type} ? 'active'">
+                                            <span th:text="#{label.analysis.type.${#strings.toLowerCase(type)}}" />
+                                            <input type="radio" th:name="'type'" th:value="${type}" th:checked="${type == analysis.type}"/>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="identifier" class="col-sm-3 control-label"
+                                   th:attr="data-helper-content=#{help.analysis.info.identifier}">
+                                <span th:text="#{label.analysis.identifier}">Identifier</span>
+                            </label>
+                            <div class="col-sm-9">
+                                <input name="identifier" id="analysis_identifier" class="form-control" type="text" th:value="${analysis.identifier}" readonly/>
+                            </div>
+                        </div>
+
+                        <div class="form-group" th:if="${!analysis.profile}">
+                            <label for="customer" class="col-sm-3 control-label"
+                                   th:attr="data-helper-content=#{help.analysis.info.customer}">
+                                <span th:text="#{label.customer.organisation}">Customer</span>
+                            </label>
+                            <div class="col-sm-9" id="customercontainer">
+                                <select name="customer" class="form-control">
+                                    <option th:each="customer : ${customers}"
+                                            th:value="${customer.id}"
+                                            th:selected="${customer == analysis.customer}"
+                                            th:text="${customer.organisation}">
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="label" class="col-sm-3 control-label"
+                                   th:attr="data-helper-content=#{help.analysis.info.label}">
+                                <span th:text="#{label.analysis.label}">Label</span>
+                            </label>
+                            <div class="col-sm-9">
+                                <input name="label" class="form-control resize_vectical_only" required="required"
+                                       th:value="#{${analysis.label}}"/>
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <fieldset>
+                        <legend style="font-size: 15px">
+                            <span th:text="#{label.property.version}">Version</span>
+                        </legend>
+
+                        <div class="form-group">
+                            <label for="creationDate" class="col-sm-3 control-label"
+                                   th:attr="data-helper-content=#{help.analysis.info.creation_date}">
+                                <span th:text="#{label.analysis.creation_date}">Creation Date</span>
+                            </label>
+                            <div class="col-sm-9">
+                                <input name="creationDate" id="analysis_creationDate" class="form-control" type="text" th:value="${analysis.creationDate}" readonly/>
+                            </div>
+                        </div>
+
+                        <div class="form-group" th:if="${!analysis.profile}">
+                            <label for="version" class="col-sm-3 control-label"
+                                   th:attr="data-helper-content=#{help.analysis.info.version}">
+                                <span th:text="#{label.analysis.version}">Version</span>
+                            </label>
+                            <div class="col-sm-9">
+                                <input name="version" id="analysis_version" class="form-control" type="text" th:value="${analysis.version}" readonly/>
+                            </div>
+                        </div>
+
+                        <div class="form-group" th:if="${!analysis.profile and analysis.basedOnAnalysis != null}">
+                            <label for="basedOnAnalysis" class="col-sm-3 control-label"
+                                   th:attr="data-helper-content=#{help.analysis.info.parent}">
+                                <span th:text="#{label.analysis.based_on_analysis}">Based on</span>
+                            </label>
+                            <div class="col-sm-9">
+                                <input name="basedOnAnalysis" id="analysis_basedOnAnalysis" class="form-control" type="text"
+                                       th:value="${analysis.basedOnAnalysis.version}" readonly/>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="owner" class="col-sm-3 control-label"
+                                   th:attr="data-helper-content=#{help.analysis.info.author}">
+                                <span th:text="#{label.analysis.owner}">Owner</span>
+                            </label>
+                            <div class="col-sm-9">
+                                <input name="owner" id="analysis_owner" class="form-control" type="text"
+                                       th:value="${analysis.owner.firstName + ' ' + analysis.owner.lastName}" readonly/>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="language" class="col-sm-3 control-label"
+                                   th:attr="data-helper-content=#{help.analysis.info.language}">
+                                <span th:text="#{label.analysis.language}">Language</span>
+                            </label>
+                            <div class="col-sm-9" id="languagecontainer">
+                                <select name="language" class="form-control">
+                                    <option th:each="language : ${languages}"
+                                            th:value="${language.id}"
+                                            th:selected="${language == analysis.language}"
+                                            th:text="${language.name}">
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group" th:if="${!analysis.profile}">
+                            <label for="uncertainty" class="col-sm-3 control-label"
+                                   th:attr="data-helper-content=#{help.analysis.info.uncertainty}">
+                                <span th:text="#{label.analysis.uncertainty}">Uncertainty</span>
+                            </label>
+                            <div class="col-sm-9" align="center">
+                                <input type="checkbox" name="uncertainty" class="checkbox"
+                                       th:disabled="${analysis.type == 'QUALITATIVE'}"
+                                       th:checked="${analysis.uncertainty and analysis.type != 'QUALITATIVE'}"/>
+                            </div>
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <button name='save' type="button" class="btn btn-primary">
+                    <span th:text="#{label.action.save}">Save</span>
+                </button>
+                <button type="button" class="btn btn-default" data-dismiss="modal" name="cancel">
+                    <span th:text="#{label.action.cancel}">Cancel</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

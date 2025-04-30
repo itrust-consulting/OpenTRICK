@@ -1,0 +1,141 @@
+<div class="modal fade" id="user-modal-form" tabindex="-1" role="dialog" aria-labelledby="user-modal-form" aria-hidden="true">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">
+                    <span th:switch="${user.id}">
+                        <span th:case="${user.id > 0}" th:text="#{label.title.edit.user}">Edit user</span>
+                        <span th:case="${user.id <= 0}" th:text="#{label.title.add.user}">Add new user</span>
+                    </span>
+                </h4>
+            </div>
+            <div class="modal-body">
+                <span id="success" hidden="hidden"></span>
+                <form name="user" th:action="@{/User/Save(_csrf.parameterName=${_csrf.parameterName}, _csrf.token=${_csrf.token})}" class="form-horizontal" id="user_form">
+                    <input type="hidden" th:name="id" th:value="${user.id}" id="user_id" th:readonly="${user.id > 0}">
+                    <fieldset>
+                        <legend style="font-size: 15px">
+                            <span th:text="#{label.user.title.login_information}">Login Information</span>
+                        </legend>
+                        <div class="form-group">
+                            <label for="login" class="col-sm-4 control-label" th:data-helper-content="#{help.user.admin.login}">
+                                <span th:text="#{label.user.login}">Username</span>
+                            </label>
+                            <div class="col-sm-8">
+                                <input id="user_login" name="login" class="form-control" type="text" th:value="${user.login}" th:pattern="${usernameRegex}" required="required" th:readonly="${user.id > 0}" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="password" class="col-sm-4 control-label" th:data-helper-content="#{help.user.admin.password}">
+                                <span th:text="#{label.user.password}">Password</span>
+                            </label>
+                            <div class="col-sm-8">
+                                <input id="user_password" name="password" class="form-control" type="password" th:required="${user.id <= 0}" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="roles" class="col-sm-4 control-label" th:data-helper-content="#{help.user.admin.role}">
+                                <span th:text="#{label.user.account.access.level}">Access level</span>
+                            </label>
+                            <div class="col-sm-8">
+                                <div class="btn-group" data-toggle="buttons">
+                                    <div th:each="role : ${roles}">
+                                        <div th:set="role_value=${#strings.replace(role, 'ROLE_', '')}">
+                                            <label class="btn btn-default" th:classappend="${user.hasRole(role) ? ' active' : ''}">
+                                                <span th:text="#{label.role.${role_value.toLowerCase()}}">${role_value}</span>
+                                                <input th:name="${role}" type="checkbox" th:checked="${user.hasRole(role)}" />
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset>
+                        <legend style="font-size: 15px">
+                            <span th:text="#{label.user.title.personal_information}">Personal Information</span>
+                        </legend>
+                        <div class="form-group">
+                            <label for="firstName" class="col-sm-4 control-label" th:data-helper-content="#{help.user.admin.first_name}">
+                                <span th:text="#{label.user.first_name}">Firstname</span>
+                            </label>
+                            <div class="col-sm-8">
+                                <input id="user_firstName" name="firstName" class="form-control" type="text" th:value="${user.firstName}" required="required" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="lastName" class="col-sm-4 control-label" th:data-helper-content="#{help.user.admin.last_name}">
+                                <span th:text="#{label.user.last_name}">Lastname</span>
+                            </label>
+                            <div class="col-sm-8">
+                                <input id="user_lastName" name="lastName" class="form-control" type="text" th:value="${user.lastName}" required="required" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="email" class="col-sm-4 control-label" th:data-helper-content="#{help.user.admin.email}">
+                                <span th:text="#{label.user.email}">Email address</span>
+                            </label>
+                            <div class="col-sm-8">
+                                <input id="user_email" name="email" class="form-control" type="text" th:value="${user.email}" required="required" />
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset>
+                        <legend style="font-size: 15px">
+                            <span th:text="#{label.user.title.account.authentication}">Authentication information</span>
+                        </legend>
+                        <div class="form-group">
+                            <label for="connexionType" class="col-sm-4 control-label" th:data-helper-content="#{help.user.admin.connexion.type}">
+                                <span th:text="#{label.user.connexion.type}">Authentication type</span>
+                            </label>
+                            <div class="col-sm-8">
+                                <div class="btn-group" data-toggle="buttons" id="radioConnexionType">
+                                    <label class="btn btn-default" th:classappend="${user.connexionType == -1 ? ' active' : ''}">
+                                        <span th:text="#{label.user.connexion.standard}">Standard</span>
+                                        <input th:name="connexionType" type="radio" value="-1" th:checked="${user.connexionType == -1}" />
+                                    </label>
+                                    <label class="btn btn-default" th:classappend="${user.connexionType == 0 ? ' active' : ''}">
+                                        <span th:text="#{label.user.connexion.both}">Both</span>
+                                        <input th:name="connexionType" type="radio" value="0" th:checked="${user.connexionType == 0}" />
+                                    </label>
+                                    <label class="btn btn-default" th:classappend="${user.connexionType == 1 ? ' active' : ''}">
+                                        <span th:text="#{label.user.connexion.ldap}">LDAP</span>
+                                        <input th:name="connexionType" type="radio" value="1" th:checked="${user.connexionType == 1}" />
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div th:if="${enabledOTP}">
+                            <div th:set="using2FA=${user.using2FA}">
+                                <span th:text="#{label.action.enable}">Enable</span>
+                                <span th:text="#{label.action.disable}">Disable</span>
+                                <div class="form-group" data-index="0">
+                                    <label class="control-label col-sm-4" th:data-helper-content="#{help.user.admin.otp}">
+                                        <span th:text="#{label.user.account.otp}">OTP</span>
+                                    </label>
+                                    <div class="col-sm-8">
+                                        <div class="btn-group" data-toggle="buttons">
+                                            <label class="btn btn-default" th:classappend="${using2FA ? ' active' : ''}">
+                                                <span th:text="#{label.action.enable}">Enable</span>
+                                                <input th:name="using2FA" type="radio" value="true" th:checked="${using2FA}" />
+                                            </label>
+                                            <label class="btn btn-default" th:classappend="${!using2FA ? ' active' : ''}">
+                                                <span th:text="#{label.action.disable}">Disable</span>
+                                                <input th:name="using2FA" type="radio" value="false" th:checked="${!using2FA}" />
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button name="save" type="button" class="btn btn-primary" th:text="#{label.action.save}">Save</button>
+                <button type="button" name="cancel" class="btn btn-default" data-dismiss="modal" th:text="#{label.action.cancel}">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>

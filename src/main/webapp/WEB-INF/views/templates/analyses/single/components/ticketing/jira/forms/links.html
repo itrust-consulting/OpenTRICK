@@ -1,0 +1,120 @@
+<div th:if="${locale == null}">
+    <span th:utext="${T(org.springframework.web.servlet.support.RequestContextUtils).getLocale(request)}" th:with="locale=${locale}"></span>
+</div>
+<div th:replace="fragments/locale::setLocale" th:with="locale=${locale.language}" />
+
+<div class="modal fade" id="modal-ticketing-linker" tabindex="-1" role="dialog" data-aria-labelledby="modalTicketingLinker" data-aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog modal-lgx">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" data-aria-hidden="false">&times;</button>
+                <h3 class="modal-title" th:text="#{label.link.measures.to.project}">Link measures to project</h3>
+            </div>
+            <div class="modal-body" style="height: 700px;">
+                <div class="col-xs-3" style="height: 94.5%">
+                    <div class="list-group" style="height: 100%">
+                        <span class="list-group-item list-group-item-warning" th:text="#{label.measures}">Measures</span>
+                        <div class="scrollable" style="height: 100%" id="measure-container">
+                            <div th:each="measure : ${measures}">
+                                <span th:with="description=${measure.measureDescription.getMeasureDescriptionTextByAlpha2(language)}">
+                                    <span th:text="#{${measure.measureDescription.standard.label} + ' - ' + ${measure.measureDescription.reference} + ' - ' + ${description.domain}}"
+                                          th:id="'measure-controller-' + ${measure.id}" th:title="${measureTitle}" class="list-group-item"
+                                          style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                        <span th:text="${measureTitle}"></span>
+                                    </span>
+                                    <fieldset th:id="'measure-view-' + ${measure.id}" th:aria-controls="'measure-controller-' + ${measure.id}" style="display: none" 
+                                             th:data-trick-id="${measure.id}" th:data-trick-parent-id="${measure.measureDescription.standard.id}">
+                                        <legend th:text="${measureTitle}"></legend>
+                                        <h4 th:text="#{label.to_do}">Todo</h4>
+                                        <div class="well well-sm re-pre" th:text="${measure.toDo}"></div>
+                                        <h4 th:text="#{label.description}">Description</h4>
+                                        <div class="well well-sm re-pre" th:text="${description.description}"></div>
+                                    </fieldset>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-6" style="height: 94.5%">
+                    <div class="panel panel-warning" style="height: 40%;">
+                        <div id="measure-viewer" class='panel-body' style="height: 100%; overflow-x: auto;">
+                        </div>
+                    </div>
+                    <div class="text-center" style="height: 3%; margin-bottom: 16px; margin-top: -20px;">
+                        <a href="#" id="measure-task-linker" title="#{label.action.link}" class="btn btn-link">
+                            <i class="fa fa-unlink fa-2x" style="transform: rotate(45deg)" aria-hidden="true"></i>
+                        </a>
+                    </div>
+                    <div class='panel panel-info' style="height: 60%">
+                        <div class='panel-body' id='task-viewer' style="height: 100%; overflow-x: auto;">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-3" style="height: 94.5%">
+                    <div class="list-group" style="height: 100%">
+                        <span class="list-group-item list-group-item-info" th:text="#{label.tickets}">Tickets</span>
+                        <div class="scrollable" style="height: 100%;" id="task-container" th:data-offset="${tasks.offset}" th:data-max-size="${tasks.maxSize}">
+                            <div th:each="task : ${tasks}">
+                                <span th:with="taskId=${task.id}">
+                                    <a th:id="'task-controller-' + ${taskId}" class="list-group-item" href="#task-view-${taskId}" title="#{${task.name}}" 
+                                       th:aria-labelledby="'task-view-' + ${taskId}" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                        <span class="list-group-item-heading" th:text="#{${task.type} + ' #' + ${task.id} + ' - ' + ${task.name}}"></span>
+                                    </a>
+                                    <fieldset th:id="'task-view-' + ${taskId}" th:aria-controls="'task-controller-' + ${taskId}" style="display: none" 
+                                             th:data-trick-id="${task.id}" th:data-title="#{${task.type} + ' #' + ${task.id}}">
+                                        <legend th:text="#{${task.type} + ' #' + ${task.id}}"></legend>
+                                        <h4 th:text="${task.name}"></h4>
+                                        <p class="text-muted">
+                                            <span th:with="created=${#dates.format(task.created, 'yyyy-MM-dd HH:mm:ss')}">
+                                                <span th:text="#{label.add.by} + ${task.reporter} + ', ' + ${created}">Added by: ${task.reporter}, ${created}</span>
+                                            </span>
+                                        </p>
+                                        <span th:set="resolution=${task.customFields.remove('Resolution')}" />
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                    <th th:text="#{label.status}">Status</th>
+                                                    <th th:text="#{label.priority}">Priority</th>
+                                                    <th th:text="#{label.assignee}">Assignee</th>
+                                                    <th th:text="#{label.created_date}">Created</th>
+                                                    <th th:text="#{label.due.date}">Due date</th>
+                                                    <th th:text="#{label.resolution}">Resolution</th>
+                                                    <th th:text="#{label.progress}">Progress</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td th:text="${task.status}"></td>
+                                                    <td th:text="${task.priority}"></td>
+                                                    <td th:text="${task.assignee}"></td>
+                                                    <td th:text="${#dates.format(task.created, 'yyyy-MM-dd')}"></td>
+                                                    <td th:text="${#dates.format(task.due, 'yyyy-MM-dd')}"></td>
+                                                    <td th:text="${resolution.value}"></td>
+                                                    <td>
+                                                        <div class="progress" th:title="${task.progress + '%'}">
+                                                            <div class="progress-bar progress-bar-success" role="progressbar" th:aria-valuenow="${task.progress}" th:aria-valuemin="0" th:aria-valuemax="100"
+                                                                th:style="'width: ' + ${task.progress} + '%;'">
+                                                                <span style="color: #333;" th:text="${task.progress + '%'}"></span>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                        <h4 th:text="#{label.description}">Description</h4>
+                                        <div class="well well-sm re-pre" th:text="${task.description}"></div>
+                                    </fieldset>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" data-dismiss="modal" data-aria-hidden="false">
+                    <span th:text="#{label.action.close}">Close</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

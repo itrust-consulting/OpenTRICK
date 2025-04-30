@@ -1,0 +1,117 @@
+<div class="modal fade" id="riskProfileMeasureManager" tabindex="-1" aria-hidden="true" aria-labelledby="probaScaleModal" data-keyboard="false">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<div id="risk-profile-measure-manager-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					<h4 class="modal-title" th:text="#{label.risk_profile.management.measure}">Measure management</h4>
+				</div>
+				<div id="measure-form-header" style="display: none;">
+					<button type="button" name="back" class="close" aria-hidden="true">&times;</button>
+					<h4 class="modal-title" th:text="#{label.tile.add.measure}"></h4>
+				</div>
+			</div>
+			<div class="modal-body">
+				<div id="risk-profile-measure-manager-container">
+					<div style="height: 580px; overflow-y: auto; overflow-x: hidden">
+						<div id="riskProfileMessageContainer"></div>
+						<div class="form-horizontal">
+							<div class="form-group">
+								<label class="control-label text-right col-sm-4" th:text="#{label.analysis.standards}"></label>
+								<div class="col-sm-5">
+									<select name="standard" id="riskProfileStandardSelector" class="form-control">
+										<option disabled selected="selected" value="0" data-trick-custom="false" th:text="#{label.action.choose}"></option>
+										<option th:each="standard : ${standards}"
+												th:value="${standard.id}"
+												th:attr="data-trick-custom=${standard.analysisOnly}"
+												th:text="${standard.name}">
+										</option>
+									</select>
+								</div>
+								<div class="col-sm-3">
+									<button class="btn btn-link" name="add-measure" style="display: none;">
+										<i class="fa fa-plus" aria-hidden="true"></i>
+										<span th:text="#{label.action.add.measure}"></span>
+									</button>
+								</div>
+							</div>
+						</div>
+						<table class="table table-hover" id="riskProfileStandardMeasureContainer">
+							<thead>
+								<tr>
+									<th style="width: 5%;" th:title="#{label.action}" th:text="#{label.action}"></th>
+									<th style="width: 2%;" th:title="#{label.measure.norm}" th:text="#{label.measure.norm}"></th>
+									<th style="width: 3%;" th:title="#{label.reference}" th:text="#{label.measure.ref}"></th>
+									<th th:title="#{label.measure.domain}" th:text="#{label.measure.domain}"></th>
+									<th style="width: 2%;" th:title="#{label.title.measure.status}" th:text="#{label.measure.status}"></th>
+									<th style="width: 2%;" th:title="#{label.title.measure.ir}" th:text="#{label.measure.ir_no_unit}"></th>
+									<th style="width: 2%;" th:title="#{label.title.measure.phase}" th:text="#{label.measure.phase}"></th>
+									<th style="width: 2%;" th:title="#{label.title.measure.responsible}" th:text="#{label.measure.responsible}"></th>
+								</tr>
+							</thead>
+							<tbody></tbody>
+						</table>
+					</div>
+
+					<table style="display: none;" id="riskProfileSelectedMeasureContainer">
+						<thead>... (Same structure as above) ...</thead>
+						<tbody>
+							<tr th:each="measure : ${riskProfile.measures}"
+								th:classappend="${measure.getImplementationRateValue(valueFactory)} == 100 ? 'warning' : measure.status == 'NA' ? 'danger' : ''"
+								th:attr="data-trick-class='Measure', data-trick-id=${measure.id}">
+								<td>
+									<button class="btn btn-xs btn-danger" th:title="#{label.action.remove}">
+										<i class="fa fa-times" aria-hidden="true"></i>
+									</button>
+								</td>
+								<td th:attr="data-real-value=${measure.measureDescription.standard.id}"
+									th:text="${measure.measureDescription.standard.name}"></td>
+
+								<!-- Description with tooltip -->
+								<td th:if="${#strings.isEmpty(measure.measureDescription.getMeasureDescriptionTextByAlpha2(langue)?.description)}"
+									th:text="${measure.measureDescription.reference}"></td>
+								<td th:unless="${#strings.isEmpty(measure.measureDescription.getMeasureDescriptionTextByAlpha2(langue)?.description)}"
+									data-toggle="tooltip"
+									data-container="body"
+									data-trigger="click"
+									data-placement="right"
+									style="cursor: pointer;"
+									th:title="${measure.measureDescription.getMeasureDescriptionTextByAlpha2(langue).description}"
+									th:text="${measure.measureDescription.reference}">
+								</td>
+
+								<td th:text="${measure.measureDescription.getMeasureDescriptionTextByAlpha2(langue)?.domain}"></td>
+
+								<!-- Status switch -->
+								<td th:switch="${measure.status}">
+									<span th:case="'NA'" th:title="#{label.title.measure.status.na}" data-real-value="NA" th:text="#{label.measure.status.na}"></span>
+									<span th:case="'AP'" th:title="#{label.title.measure.status.ap}" data-real-value="AP" th:text="#{label.measure.status.ap}"></span>
+									<span th:case="'EX'" th:title="#{label.title.measure.status.ex}" data-real-value="EX" th:text="#{label.measure.status.ex}"></span>
+									<span th:case="*"
+										  th:title="#{label.title.measure.status.m}"
+										  data-real-value="M"
+										  th:text="#{label.measure.status.m}"></span>
+								</td>
+
+								<td th:text="${#numbers.formatDecimal(measure.getImplementationRateValue(valueFactory), 0, 0)}"></td>
+								<td th:title="${#temporals.format(measure.phase.endDate, 'yyyy-MM-dd')}" th:text="${measure.phase.number}"></td>
+								<td th:text="${measure.responsible}"></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<div id="measure-form-container" style="display: none"></div>
+			</div>
+			<div class="modal-footer">
+				<div id="risk-profile-measure-manager-buttons">
+					<button type="button" name="save" class="btn btn-primary" th:text="#{label.action.save}"></button>
+					<button type="button" name="cancel" class="btn btn-default" data-dismiss="modal" th:text="#{label.action.close}"></button>
+				</div>
+				<div id="measure-form-buttons" style="display: none">
+					<button type="button" name="save-measure" class="btn btn-primary" th:text="#{label.action.save}"></button>
+					<button type="button" name="back" class="btn btn-default" th:text="#{label.action.back}"></button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

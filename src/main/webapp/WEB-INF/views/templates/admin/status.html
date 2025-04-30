@@ -1,0 +1,28 @@
+<div class="tab-pane active" id="tab-status">
+    <div class="section" id="section_status">
+        <table class="table table-condensed">
+            <thead>
+                <tr>
+                    <th style="text-align: center;" th:text="#{label.installation.status.version}">Version</th>
+                    <th style="text-align: center;" th:text="#{label.installation.status.installed}">Installed</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="text-align: center;" th:text="${status.version}">1.0</td>
+                    <td style="text-align: center;">
+                        <span th:if="${status.installed}" th:text="#{label.installation.status.installed.yes}">Installed</span>
+                        <span th:unless="${status.installed}" th:text="#{label.installation.status.installed.no}">Not installed</span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="center-block" style="width: 200px;">
+            <a href="#" class="btn btn-primary" onclick="return installTrickService();">
+                <span th:if="${status.installed}" th:text="#{label.installation.re_install}">Reinstall OpenTRICK</span>
+                <span th:unless="${status.installed}" th:text="#{label.installation.install}">Install OpenTRICK</span>
+            </a>
+        </div>
+    </div>
+</div>

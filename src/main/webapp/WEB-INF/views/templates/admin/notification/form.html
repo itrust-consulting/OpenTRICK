@@ -1,0 +1,67 @@
+<div class="modal fade" id="modal-add-notification" tabindex="-1" role="dialog" data-aria-labelledby="modal-add-notification" data-aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">
+                    <span th:if="${#objects.isEmpty(form.data)}" th:text="#{label.title.notification.add}">Add new message</span>
+                    <span th:unless="${#objects.isEmpty(form.data)}" th:text="#{label.title.notification.edit}">Edit new message</span>
+                </h4>
+            </div>
+            <div class="modal-body">
+                <form name="notificationForm" action="" class="form-horizontal" id="notification-form" th:object="${form}">
+                    <input type="hidden" th:field="*{data.id}">
+                    <input type="hidden" th:field="*{data.code}">
+                    
+                    <!-- Type selection -->
+                    <div class='form-group'>
+                        <label class='control-label col-md-3' th:text="#{label.type}">Type</label>
+                        <div class="col-md-9">
+                            <select name="type" class="form-control" th:disabled="${not #objects.isEmpty(form.data)}">
+                                <option th:each="type : ${types}" th:value="${type}" 
+                                        th:text="#{label.log.level.${type.toLowerCase()}}" 
+                                        th:selected="${type == form.data.type}"></option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- From date and time -->
+                    <div class='form-group'>
+                        <label class='control-label col-md-3' th:text="#{label.date.from}">From</label>
+                        <div class="col-md-6">
+                            <input class='form-control' type="date" th:field="*{data.startDate}" placeholder="dd-mm-yyyy">
+                        </div>
+                        <div class="col-md-3">
+                            <input class='form-control' type="time" th:field="*{data.startDateTime}" placeholder="hh:mm">
+                        </div>
+                    </div>
+
+                    <!-- Until date and time -->
+                    <div class='form-group'>
+                        <label class='control-label col-md-3' th:text="#{label.date.until}">Until</label>
+                        <div class="col-md-6">
+                            <input class='form-control' type="date" th:field="*{data.endDate}" placeholder="mm-dd-yyyy">
+                        </div>
+                        <div class="col-md-3">
+                            <input class='form-control' type="time" th:field="*{data.endDateTime}" placeholder="hh:mm">
+                        </div>
+                    </div>
+
+                    <!-- Language-specific messages -->
+                    <div th:each="langue : ${langues}">
+                        <div class='form-group'>
+                            <label class='control-label col-md-3' style="text-transform: capitalize;" th:text="${langue.displayLanguage}"></label>
+                            <div class='col-md-9'>
+                                <textarea class='form-control' th:field="*{data.messages[${langue.language}]}"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" name="save" class="btn btn-primary" th:text="#{label.action.save}">Save</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal" th:text="#{label.action.cancel}">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>

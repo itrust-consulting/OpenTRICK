@@ -1,0 +1,96 @@
+<div class="tab-pane" id="tab-standard">
+    <div class="section" id="section_kb_standard">
+        <ul class="nav nav-pills bordered-bottom" id="menu_standard">
+            <li class="disabled" data-trick-selectable="true">
+                <a href="#" onclick="return switchTab('tab-measure')">
+                    <span class="glyphicon glyphicon-new-window"></span>&nbsp;
+                    <span th:text="#{label.action.show_measures}">Show measures</span>
+                </a>
+            </li>
+            <li data-trick-ignored="true">
+                <a href="#" onclick="return newStandard();">
+                    <span class="glyphicon glyphicon-plus primary"></span>&nbsp;
+                    <span th:text="#{label.action.add}">Add</span>
+                </a>
+            </li>
+            <li class="disabled" data-trick-selectable="true">
+                <a href="#" onclick="return editSingleStandard();">
+                    <span class="glyphicon glyphicon-edit"></span>&nbsp;
+                    <span th:text="#{label.menu.edit.norm}">Edit</span>
+                </a>
+            </li>
+            <li data-trick-ignored="true">
+                <a href="#" onclick="return uploadImportStandardFile();">
+                    <span class="glyphicon glyphicon-import"></span>&nbsp;
+                    <span th:text="#{label.action.import}">Import</span>
+                </a>
+            </li>
+            <li class="disabled" data-trick-selectable="true">
+                <a href="#" onclick="return exportSingleStandard();">
+                    <span class="glyphicon glyphicon-export"></span>&nbsp;
+                    <span th:text="#{label.menu.export.norm}">Export</span>
+                </a>
+            </li>
+            <li data-trick-ignored="true">
+                <a href="#" onclick="return getImportStandardTemplate();">
+                    <span class="glyphicon glyphicon-file"></span>&nbsp;
+                    <span th:text="#{label.menu.norm.download.import_norm_template}">Get Import Template</span>
+                </a>
+            </li>
+            <li class="disabled pull-right" data-trick-selectable="true">
+                <a href="#" class="text-danger" onclick="return deleteStandard();">
+                    <span class="glyphicon glyphicon-remove"></span>&nbsp;
+                    <span th:text="#{label.action.delete.norm}">Delete</span>
+                </a>
+            </li>
+        </ul>
+
+        <div th:if="${#lists.isEmpty(standards) == false}">
+            <table class="table table-striped table-hover text-left">
+                <thead>
+                    <tr>
+                        <th width="1%"></th>
+                        <th>
+                            <a href="#" onclick="return sortTable('name',this)" data-order='0' 
+                               th:text="#{label.norm.name}">Display name</a>
+                        </th>
+                        <th>
+                            <a href="#" onclick="return sortTable('label',this)" data-order='1'
+                               th:text="#{label.norm.label}">Name</a>
+                        </th>
+                        <th>
+                            <a href="#" onclick="return sortTable('version',this,true)" data-order='1'
+                               th:text="#{label.norm.version}">Version</a>
+                        </th>
+                        <th width="50%" th:text="#{label.norm.description}">Description</th>
+                        <th th:text="#{label.norm.type}">Type</th>
+                        <th th:text="#{label.norm.computable}">Computable</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="standard : ${standards}" 
+                        th:attr="data-trick-id=${standard.id}" 
+                        th:onclick="|selectElement(this)|" 
+                        th:ondblclick="|return editSingleStandard('${standard.id}');|">
+                        <td>
+                            <input type="checkbox" class="checkbox" 
+                                   th:onchange="|return updateMenu(this,'#section_kb_standard','#menu_standard',null,'showTabMeasure(${standard.id})');|">
+                        </td>
+                        <td data-trick-field="name" th:text="${standard.name}"></td>
+                        <td data-trick-field="label" th:text="${standard.label}"></td>
+                        <td data-trick-field="version" th:text="${standard.version}"></td>
+                        <td class="pre" th:text="${standard.description}"></td>
+                        <td data-trick-type="${standard.type}" 
+                            th:text="#{${'label.norm.type_' + standard.type.toLowerCase()}}"></td>
+                        <td th:attr="data-trick-computable=${standard.computable ? 'Yes' : 'No'}"
+                            th:text="#{${'label.yes_no.' + standard.computable}}"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div th:if="${#lists.isEmpty(standards)}">
+            <h4 th:text="#{label.norm.empty}">No standard</h4>
+        </div>
+    </div>
+</div>

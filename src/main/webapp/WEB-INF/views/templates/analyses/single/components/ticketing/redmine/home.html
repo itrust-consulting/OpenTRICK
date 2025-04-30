@@ -1,0 +1,176 @@
+<div class="modal fade" id="modal-ticketing-view" tabindex="-1" role="dialog"
+     aria-labelledby="modalTicketingView" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog" style="width: 800px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="false">&times;</button>
+                <h3 class="modal-title">
+                    <span th:text="${first.type + ' #' + first.id}">Ticket #123</span>
+                </h3>
+            </div>
+            <div class="modal-body scrollable" style="height: 700px;">
+                <div th:each="task : ${tasks}">
+                    <fieldset th:attr="data-trick-id=${task.id}" 
+                              th:style="${first != task} ? 'display:none' : ''"
+                              th:attrappend="data-title=${task.type + ' #' + task.id}">
+                        <h4 th:text="${task.name}">Task Title</h4>
+                        <p class="text-muted">
+                            <span th:text="#dates.format(task.created, 'yyyy-MM-dd')">2025-04-23</span>
+                            <span th:text="#{label.add.by(${task.reporter}, ${#dates.format(task.created, 'yyyy-MM-dd')})}">Added by...</span>
+                        </p>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th th:text="#{label.status}">Status</th>
+                                    <th th:text="#{label.priority}">Priority</th>
+                                    <th th:text="#{label.assignee}">Assignee</th>
+                                    <th th:text="#{label.created_date}">Created</th>
+                                    <th th:text="#{label.due.date}">Due date</th>
+                                    <th th:text="#{label.progress}">Progress</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td th:text="${task.status}">Open</td>
+                                    <td th:text="${task.priority}">High</td>
+                                    <td th:text="${task.assignee}">User A</td>
+                                    <td th:text="${#dates.format(task.created, 'yyyy-MM-dd')}">2025-04-23</td>
+                                    <td th:text="${#dates.format(task.due, 'yyyy-MM-dd')}">2025-04-30</td>
+                                    <td>
+                                        <div class="progress" th:title="${task.progress + '%'}">
+                                            <div class="progress-bar progress-bar-success" role="progressbar"
+                                                 th:attr="aria-valuenow=${task.progress}"
+                                                 aria-valuemin="0" aria-valuemax="100"
+                                                 th:style="'width:' + task.progress + '%'">
+                                                <span style="color: #333;" th:text="${task.progress + '%'}">80%</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <h4 th:text="#{label.description}">Description</h4>
+                        <div class="well well-sm re-pre scrollable" th:text="${task.description}">Task Description</div>
+
+                        <div th:each="customField : ${task.customFields.values()}">
+                            <h4 th:text="${customField.name}">Field Name</h4>
+                            <p class="well well-sm re-pre scrollable" th:text="${customField.value}">Field Value</p>
+                        </div>
+
+                        <div class="panel-group" th:attr="id='sub-item-' + ${task.id}" role="tablist" aria-multiselectable="true">
+
+                            <div class="panel panel-info" th:if="${task.comments}">
+                                <div class="panel-heading" th:attr="id='heading-task-comment-' + ${task.id}" role="tab">
+                                    <h4 class="panel-title">
+                                        <a role="button" data-toggle="collapse"
+                                           th:attr="data-parent='#sub-item-' + ${task.id}"
+                                           th:href="'#task-comment-' + ${task.id}"
+                                           aria-expanded="true"
+                                           th:attrappend="aria-controls='task-comment-' + ${task.id}">
+                                            <span th:text="#{label.comments}">Comments</span>
+                                        </a>
+                                    </h4>
+                                </div>
+                                <div class="panel-collapse collapse in"
+                                     th:attr="id='task-comment-' + ${task.id}"
+                                     role="tabpanel"
+                                     th:attrappend="aria-labelledby='heading-task-comment-' + ${task.id}">
+                                    <div class="panel-body">
+                                        <blockquote th:each="comment : ${task.comments}">
+                                            <p th:text="${comment.description}">Comment text</p>
+                                            <footer th:text="${comment.author + ', ' + #dates.format(comment.created, 'yyyy-MM-dd')}">Author, Date</footer>
+                                        </blockquote>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="panel panel-info" th:if="${task.subTasks}">
+                                <div class="panel-heading" th:attr="id='heading-sub-task-' + ${task.id}" role="tab">
+                                    <h4 class="panel-title">
+                                        <a role="button" data-toggle="collapse"
+                                           th:attr="data-parent='#sub-item-' + ${task.id}"
+                                           th:href="'#sub-task-' + ${task.id}"
+                                           aria-expanded="true"
+                                           th:attrappend="aria-controls='sub-task-' + ${task.id}">
+                                            <span th:text="#{label.sub_tasks}">Sub Tasks</span>
+                                        </a>
+                                    </h4>
+                                </div>
+                                <div class="panel-collapse collapse"
+                                     th:attr="id='sub-task-' + ${task.id}"
+                                     role="tabpanel"
+                                     th:attrappend="aria-labelledby='heading-sub-task-' + ${task.id}">
+                                    <div class="panel-body">
+                                        <table class="table">
+                                            <thead>
+                                                <tr>
+                                                    <th>#</th>
+                                                    <th th:text="#{label.name}">Name</th>
+                                                    <th th:text="#{label.status}">Status</th>
+                                                    <th th:text="#{label.assignee}">Assignee</th>
+                                                    <th th:text="#{label.progress}">Progress</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr th:each="subTask : ${task.subTasks}">
+                                                    <td><a th:href="'#' + ${subTask.id}" th:text="${subTask.type + ' #' + subTask.id}">Sub #1</a></td>
+                                                    <td th:text="${subTask.name}">Sub Name</td>
+                                                    <td th:text="${subTask.status}">Sub Status</td>
+                                                    <td th:text="${subTask.assignee}">Sub Assignee</td>
+                                                    <td>
+                                                        <div class="progress" th:title="${subTask.progress + '%'}">
+                                                            <div class="progress-bar progress-bar-success" role="progressbar"
+                                                                 th:attr="aria-valuenow=${subTask.progress}"
+                                                                 aria-valuemin="0" aria-valuemax="100"
+                                                                 th:style="'width:' + subTask.progress + '%'">
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="panel panel-info" th:if="${task.issueLinks}">
+                                <div class="panel-heading" th:attr="id='heading-issue-link-' + ${task.id}" role="tab">
+                                    <h4 class="panel-title">
+                                        <a role="button" data-toggle="collapse"
+                                           th:attr="data-parent='#sub-item-' + ${task.id}"
+                                           th:href="'#issue-link-' + ${task.id}"
+                                           aria-expanded="true"
+                                           th:attrappend="aria-controls='issue-link-' + ${task.id}">
+                                            <span th:text="#{label.issue_links}">Issue Links</span>
+                                        </a>
+                                    </h4>
+                                </div>
+                                <div class="panel-collapse collapse"
+                                     th:attr="id='issue-link-' + ${task.id}"
+                                     role="tabpanel"
+                                     th:attrappend="aria-labelledby='heading-issue-link-' + ${task.id}">
+                                    <div class="panel-body">
+                                        <a th:each="issueLink : ${task.issueLinks}" th:href="${issueLink.link}" target="_blank" class="btn btn-link">
+                                            <i class="fa fa-external-link" aria-hidden="true"></i>
+                                            <span th:text="${issueLink.name}">Issue Name</span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <nav class="col-lg-10" th:if="${#lists.size(tasks) > 1}">
+                    <ul class="pager" style="margin: 0px;">
+                        <li class="previous disabled"><a href="#"><span aria-hidden="true">&larr;</span> <span th:text="#{label.action.previous}">Previous</span></a></li>
+                        <li class="next"><a href="#"><span th:text="#{label.action.next}">Next</span> <span aria-hidden="true">&rarr;</span></a></li>
+                    </ul>
+                </nav>
+                <button class="btn btn-default" data-dismiss="modal" aria-hidden="false" th:text="#{label.action.close}">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

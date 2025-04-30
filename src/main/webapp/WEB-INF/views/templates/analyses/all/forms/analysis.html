@@ -1,0 +1,23 @@
+<!-- Thymeleaf modal for deleting analysis -->
+<div class="modal fade" id="deleteAnalysisModel" tabindex="-1" aria-hidden="true" aria-labelledby="deleteAnalysis" role="dialog" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="deleteAnalysisModel-title">
+                    <span th:text="#{label.title.delete.analysis}">Delete an analysis</span>
+                </h4>
+            </div>
+            <div class="modal-body">
+                <!-- Modal body content goes here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" name="delete" class="btn btn-danger">
+                    <span th:text="#{label.yes_no.true}">Yes</span>
+                </button>
+                <button type="button" class="btn btn-default" data-dismiss="modal" name="cancel">
+                    <span th:text="#{label.yes_no.false}">No</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

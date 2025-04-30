@@ -1,0 +1,177 @@
+<div class="modal fade" id="modal-ticketing-view" tabindex="-1" role="dialog" data-aria-labelledby="modalTicketingView" data-aria-hidden="true" data-backdrop="static">
+    <div th:if="${#objects.isEmpty(locale)}">
+        <span th:replace="fragments/locale :: evalLocale"></span>
+    </div>
+    <div th:if="${#objects.isEmpty(tasks)}">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <span th:text="#{info.no.data.to.display}">Measure are still linked to another project, please unlink all selected measures</span>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">
+                        <span th:text="#{label.action.ok}">OK</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div th:unless="${#objects.isEmpty(tasks)}">
+        <div class="modal-dialog" style="width: 800px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" data-aria-hidden="false">&times;</button>
+                    <h3 class="modal-title">
+                        <span th:text="${first.type} + ' #' + ${first.id}"></span>
+                    </h3>
+                </div>
+                <div class="modal-body" style="height: 700px;">
+                    <div th:each="task : ${tasks}">
+                        <fieldset th:data-trick-id="${task.id}" th:style="'display: ' + ${first != task} ? 'none' : ''" th:data-title="${task.type} + ' #' + ${task.id}">
+                            <h4>
+                                <span th:text="${task.name}"></span>
+                            </h4>
+                            <p class="text-muted">
+                                <span th:text="${#dates.format(task.created, 'yyyy-MM-dd HH:mm:ss')}"></span>
+                                <span th:text="#{label.add.by} + ${task.reporter} + ', ' + ${#dates.format(task.created, 'yyyy-MM-dd HH:mm:ss')}">Add by ${task.reporter}, ${created}</span>
+                            </p>
+                            <div th:set="resolution = task.customFields.remove('Resolution')">
+                            </div>
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th><span th:text="#{label.status}">Status</span></th>
+                                        <th><span th:text="#{label.priority}">Priority</span></th>
+                                        <th><span th:text="#{label.assignee}">Assignee</span></th>
+                                        <th><span th:text="#{label.created_date}">Created</span></th>
+                                        <th><span th:text="#{label.due.date}">Due date</span></th>
+                                        <th><span th:text="#{label.resolution}">Resolution</span></th>
+                                        <th><span th:text="#{label.progress}">Progress</span></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><span th:text="${task.status}"></span></td>
+                                        <td><span th:text="${task.priority}"></span></td>
+                                        <td><span th:text="${task.assignee}"></span></td>
+                                        <td><span th:text="${#dates.format(task.created, 'yyyy-MM-dd')}"></span></td>
+                                        <td><span th:text="${#dates.format(task.due, 'yyyy-MM-dd')}"></span></td>
+                                        <td><span th:text="${resolution.value}"></span></td>
+                                        <td>
+                                            <div class="progress" th:title="${task.progress} + '%'">
+                                                <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="${task.progress}" aria-valuemin="0" aria-valuemax="100" th:style="'width: ' + ${task.progress} + '%'">
+                                                    <span style="color: #333;" th:text="${task.progress} + '%'"></span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <h4>
+                                <span th:text="#{label.description}">Description</span>
+                            </h4>
+                            <div class="well well-sm re-pre" th:text="${task.description}"></div>
+                            <div th:each="customField : ${task.customFields.values()}">
+                                <h4><span th:text="${customField.name}"></span></h4>
+                                <p class="well well-sm re-pre" th:text="${customField.value}"></p>
+                            </div>
+                            <div class="panel-group" th:id="'view-sub-item-' + ${task.id}" role="tablist" aria-multiselectable="true">
+                                <div th:if="${not #objects.isEmpty(task.comments)}" class="panel panel-info">
+                                    <div class="panel-heading" role="tab" th:id="'heading-view-task-comment-' + ${task.id}">
+                                        <h4 class="panel-title">
+                                            <a role="button" data-toggle="collapse" data-parent="#view-sub-item-${task.id}" th:href="'#view-task-comment-' + ${task.id}" aria-expanded="true" aria-controls="'view-task-comment-' + ${task.id}">
+                                                <span th:text="#{label.comments}">Comments</span>
+                                            </a>
+                                        </h4>
+                                    </div>
+                                    <div th:id="'view-task-comment-' + ${task.id}" class="panel-collapse collapse in" role="tabpanel" th:aria-labelledby="'heading-view-task-comment-' + ${task.id}">
+                                        <div class="panel-body">
+                                            <div th:each="comment : ${task.comments}">
+                                                <blockquote>
+                                                    <p th:text="${comment.description}"></p>
+                                                    <footer>
+                                                        <span th:text="${comment.author} + ', ' + ${#dates.format(comment.created, 'yyyy-MM-dd HH:mm:ss')}"></span>
+                                                    </footer>
+                                                </blockquote>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div th:if="${not #objects.isEmpty(task.subTasks)}" class="panel panel-info">
+                                    <div class="panel-heading" role="tab" th:id="'heading-view-sub-task-' + ${task.id}">
+                                        <h4 class="panel-title">
+                                            <a role="button" data-toggle="collapse" data-parent="#view-sub-item-${task.id}" th:href="'#view-sub-task-' + ${task.id}" aria-expanded="true" aria-controls="'view-sub-task-' + ${task.id}">
+                                                <span th:text="#{label.sub_tasks}">Sub tasks</span>
+                                            </a>
+                                        </h4>
+                                    </div>
+                                    <div th:id="'view-sub-task-' + ${task.id}" class="panel-collapse collapse" role="tabpanel" th:aria-labelledby="'heading-view-sub-task-' + ${task.id}">
+                                        <div class="panel-body">
+                                            <table class="table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>#</th>
+                                                        <th><span th:text="#{label.name}">Name</span></th>
+                                                        <th><span th:text="#{label.status}">Status</span></th>
+                                                        <th><span th:text="#{label.assignee}">Assignee</span></th>
+                                                        <th><span th:text="#{label.progress}">Progress</span></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr th:each="subTask : ${task.subTasks}">
+                                                        <td><span th:text="${subTask.type} + ' #' + ${subTask.id}"></span></td>
+                                                        <td><span th:text="${subTask.name}"></span></td>
+                                                        <td><span th:text="${subTask.status}"></span></td>
+                                                        <td><span th:text="${subTask.assignee}"></span></td>
+                                                        <td>
+                                                            <div class="progress" th:title="${subTask.progress} + '%'">
+                                                                <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="${subTask.progress}" aria-valuemin="0" aria-valuemax="100" th:style="'width: ' + ${subTask.progress} + '%'">
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div th:if="${not #objects.isEmpty(task.issueLinks)}" class="panel panel-info">
+                                    <div class="panel-heading" role="tab" th:id="'heading-view-issue-link-' + ${task.id}">
+                                        <h4 class="panel-title">
+                                            <a role="button" data-toggle="collapse" data-parent="#view-sub-item-${task.id}" th:href="'#view-issue-link-' + ${task.id}" aria-expanded="true" aria-controls="'view-issue-link-' + ${task.id}">
+                                                <span th:text="#{label.issue_links}">Issues links</span>
+                                            </a>
+                                        </h4>
+                                    </div>
+                                    <div th:id="'view-issue-link-' + ${task.id}" class="panel-collapse collapse" role="tabpanel" th:aria-labelledby="'heading-view-issue-link-' + ${task.id}">
+                                        <div class="panel-body">
+                                            <div th:each="issueLink : ${task.issueLinks}">
+                                                <a th:href="${issueLink.link}" target="_blank" class="btn btn-link">
+                                                    <i class="fa fa-external-link" aria-hidden="true"></i>
+                                                    <span th:text="${issueLink.name}"></span>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div th:if="${tasks.size() > 1}">
+                        <nav class="col-lg-10">
+                            <ul class="pager" style="margin: 0px;">
+                                <li class="previous disabled"><a href="#"><span aria-hidden="true">&larr;</span> <span th:text="#{label.action.previous}">Previous</span></a></li>
+                                <li class="next"><a href="#"><span th:text="#{label.action.next}">Next</span> <span aria-hidden="true">&rarr;</span></a></li>
+                            </ul>
+                        </nav>
+                    </div>
+                    <button class="btn btn-default" data-dismiss="modal" data-aria-hidden="false">
+                        <span th:text="#{label.action.close}">Close</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

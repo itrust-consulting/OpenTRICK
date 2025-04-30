@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="${#locale.language}">
+<head>
+    <title th:text="#{title.400}">Error 400</title>
+    <th:block th:replace="~{../template/header :: header}"></th:block>
+</head>
+<body>
+    <div id="wrap">
+        <!-- Include Nav Menu -->
+        <th:block th:replace="~{../template/menu :: menu}"></th:block>
+
+        <div class="container">
+            <!-- Include Success / Error Messages -->
+            <th:block th:replace="~{../template/successErrors :: messages}"></th:block>
+
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1 th:text="#{title.error.400}">Error 400: Bad request</h1>
+            </div>
+
+            <!-- Page Content -->
+            <div class="content" id="content" data-spy="scroll">
+                <p th:text="#{error.400.message}">The request could not be understood by the server!</p>
+            </div>
+        </div>
+
+        <!-- Include Footer -->
+        <th:block th:replace="~{../template/footer :: footer}"></th:block>
+    </div>
+
+    <!-- Include Scripts -->
+    <th:block th:replace="~{../template/scripts :: scripts}"></th:block>
+</body>
+</html>

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="${#locale.language}">
+    <!-- Include Header -->
+    <div th:replace="~{../template/header}"></div>
+    
+    <!-- ################################################################# Start Container ############################################################## -->
+    <body>
+        <div id="wrap">
+            <!-- ################################################################### Nav Menu ################################################################### -->
+            <div th:replace="~{../template/menu}"></div>
+            <div class="container">
+                <div th:replace="~{../template/successErrors}"></div>
+                <!-- #################################################################### Content ################################################################### -->
+                <div class="page-header">
+                    <h1>
+                        <span th:text="#{title.error.403}">403: Permission denied</span>
+                    </h1>
+                </div>
+                <div class="content" id="content" role="main" data-spy="scroll">
+                    <span th:text="#{error.403.message}">You do not have the necessary permissions to perform this action!</span>
+                </div>
+            </div>
+            <!-- ################################################################ End Container ################################################################# -->
+        </div>
+        <!-- ################################################################ Include Footer ################################################################ -->
+        <div th:replace="~{../template/footer}"></div>
+    </body>
+    <div th:replace="~{../template/scripts}"></div>
+</html>

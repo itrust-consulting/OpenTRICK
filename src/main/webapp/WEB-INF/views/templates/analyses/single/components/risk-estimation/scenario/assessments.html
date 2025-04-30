@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Thymeleaf Example</title>
+</head>
+<body>
+
+    <!-- Spring message translations -->
+    <span th:text="#{label.menu.show.impact_scale}" th:utext="${impactScaleMenu}"></span>
+    <span th:text="#{label.menu.show.probability_scale}" th:utext="${probabilityScaleMenu}"></span>
+    <span th:text="#{label.title.impact_scale}" th:utext="${impactScaleTitle}"></span>
+    <span th:text="#{label.title.probability_scale}" th:utext="${probabilityScaleTitle}"></span>
+    <span th:text="#{label.action.next}" th:utext="${nextSelected}"></span>
+    <span th:text="#{label.action.previous}" th:utext="${prevSelected}"></span>
+    <span th:text="#{label.menu.show.dynamic_parameters_list}" th:utext="${dynamicParametersTitle}"></span>
+    <span th:text="#{label.menu.show.dynamic_parameters_list}" th:utext="${dynamicParametersMenu}"></span>
+    <span th:text="#{label.menu.analysis.parameter.probability}" th:utext="${probablityMenu}"></span>
+
+    <!-- Locale handling -->
+    <th:block th:if="${locale == null}">
+        <th:block th:with="locale=${#localeContext.getLocale()}"></th:block>
+    </th:block>
+
+    <th:block th:if="${langue == null}">
+        <th:block th:with="langue=${locale.language.toUpperCase()}"></th:block>
+    </th:block>
+
+    <!-- Replace single quote in titles -->
+    <th:block th:with="impactScaleTitle=${impactScaleTitle.replace('\'', '\\\'')}"></th:block>
+    <th:block th:with="probabilityScaleTitle=${probabilityScaleTitle.replace('\'', '\\\'')}"></th:block>
+
+    <!-- Loop through impactTypes -->
+    <th:block th:each="impactType : ${impactTypes}">
+        <th:block th:if="${impactType.name != 'IMPACT'}">
+            <th:block th:with="qualitativeImpactCount=${qualitativeImpactCount + 1}"></th:block>
+        </th:block>
+    </th:block>
+
+    <!-- Set Locale to French -->
+    <th:block th:with="locale='fr'">
+        <th:block th:with="session.setAttribute('locale', locale)"></th:block>
+    </th:block>
+    <div class="col-lg-10 col-md-9 trick-ui" id="section_scenario_assessment" 
+     data-view-type="table" data-view-name="estimation-ui" data-trick-asset-id="0"
+     data-trick-scenario-id="${scenario.id}" data-trick-content="scenario">
+        <div class="page-header tab-content-header">
+            <div class="container">
+                <div class="row-fluid">
+                    <h3 role="title">
+                        <span th:text="#{label.assessment.for.scenario(${scenario.name})}"></span>
+                    </h3>
+                </div>
+            </div>
+        </div>
+        <ul class="nav nav-pills bordered-bottom" id="menu_scenario_assessment">
+            <li><a href="#" onclick="return switchTab('tab-scenario')"><span class="fa fa-home"></span> 
+                <span th:text="#{label.menu.analysis.scenario}"></span></a></li>
+            <div th:switch="${type.qualitative}">
+                <div th:case="true">
+                    <li class="dropdown-submenu">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            <span th:text="${impactScaleMenu}"></span> <span class="caret"></span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <div th:switch="${type.quantitative}">
+                                <div th:case="true">
+                                    <li class="dropdown-header">
+                                        <span th:text="#{label.analysis.type.quantitative}"></span>
+                                    </li>
+                                    <li><a href="#" onclick="return displayParameters('#Scale_Impact', 
+                                        '#{label.title.parameter.quantitative.impact}')">
+                                        <span th:text="#{label.title.impact}"></span></a></li>
+                                    <li class="dropdown-header">
+                                        <span th:text="#{label.analysis.type.qualitative}"></span>
+                                    </li>
+                                </div>
+                            </div>
+                            <div th:each="impactType : ${impactTypes}">
+                                <span th:with="impactName=${impactType.name}"></span>
+                                <div th:if="${impactName != 'IMPACT'}">
+                                    <li>
+                                        <a href="#" onclick="return displayParameters('#Scale_Impact_' + ${impactName})">
+                                            <span th:text="#{label.title.parameter.extended.impact.${impactName.toLowerCase()}}"></span>
+                                            <span th:text="${empty impactType.translations[language] ? impactType.displayName : impactType.translations[language].name}"></span>
+                                        </a>
+                                    </li>
+                                </div>
+                            </div>
+                        </ul>
+                    </li>
+                    <div th:switch="${type.quantitative}">
+                        <div th:case="true">
+                            <div th:switch="${showDynamicAnalysis}">
+                                <div th:case="true">
+                                    <li class="dropdown-submenu">
+                                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                            <span th:text="${probabilityScaleMenu}"></span> <span class="caret"></span>
+                                        </a>
+                                        <ul class="dropdown-menu">
+                                            <li>
+                                                <a href="#" onclick="return displayParameters('#Scale_Probability', 
+                                                    '${probabilityScaleTitle}')">
+                                                    <span th:text="${probabilityScaleTitle}"></span>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a href="#" onclick="return displayParameters('#DynamicParameters', 
+                                                    '${dynamicParametersTitle}')">
+                                                    <span th:text="${dynamicParametersTitle}"></span>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                </div>
+                                <div th:case="false">
+                                    <li>
+                                        <a href="#" onclick="return displayParameters('#Scale_Probability', 
+                                            '${probabilityScaleTitle}')">
+                                            <span th:text="${probabilityScaleMenu}"></span>
+                                        </a>
+                                    </li>
+                                </div>
+                            </div>
+                        </div>
+                        <div th:case="false">
+                            <li>
+                                <a href="#" onclick="return displayParameters('#Scale_Probability', 
+                                    '${probabilityScaleTitle}')">
+                                    <span th:text="${probabilityScaleMenu}"></span>
+                                </a>
+                            </li>
+                        </div>
+                    </div>
+                </div>
+                <div th:case="false">
+                    <li>
+                        <a href="#" onclick="return displayParameters('#Scale_Impact', '${impactScaleTitle}')">
+                            <span th:text="${impactScaleMenu}"></span>
+                        </a>
+                    </li>
+                    <div th:switch="${showDynamicAnalysis}">
+                        <div th:case="true">
+                            <li class="dropdown-submenu">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                    <span th:text="${probabilityScaleMenu}"></span> <span class="caret"></span>
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a href="#" onclick="return displayParameters('#Scale_Probability', 
+                                            '${probabilityScaleTitle}')">
+                                            <span th:text="${probabilityScaleTitle}"></span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#" onclick="return displayParameters('#DynamicParameters', 
+                                            '${dynamicParametersTitle}')">
+                                            <span th:text="${dynamicParametersTitle}"></span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                        </div>
+                        <div th:case="false">
+                            <li>
+                                <a href="#" onclick="return displayParameters('#Scale_Probability', 
+                                    '${probabilityScaleTitle}')">
+                                    <span th:text="${probabilityScaleMenu}"></span>
+                                </a>
+                            </li>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </ul>
+        <table class="table table-hover table-condensed table-fixed-header-analysis">
+            <thead>
+                <tr th:if="${type.qualitative}">
+                    <th rowspan="2" style="width: 10%" th:title="#{label.assessment.asset}">#{label.assessment.asset}</th>
+                    <th rowspan="2" style="width: 2%" th:title="#{label.assessment.asset.value}">#{label.assessment.asset.value}</th>
+                    <th rowspan="2" style="width: 2%" th:title="#{label.title.likelihood}">#{label.assessment.likelihood}</th>
+                    <th style="text-align: center;" 
+                        th:colspan="${not type.quantitative ? qualitativeImpactCount : impactTypes.size()}">#{label.title.impact}</th>
+            
+                    <th th:if="${type.quantitative}">
+                        <th rowspan="2" style="width: 2%" th:title="#{label.title.uncertainty}">#{label.assessment.uncertainty}</th>
+                        <th rowspan="2" style="width: 2%" th:title="#{label.title.aleo}">#{label.assessment.aleo}</th>
+                        <th rowspan="2" style="width: 2%" th:title="#{label.title.ale}">#{label.assessment.ale}</th>
+                        <th rowspan="2" style="width: 2%" th:title="#{label.title.alep}">#{label.assessment.alep}</th>
+                    </th>
+            
+                    <th rowspan="2" width="2%">{#label.title.owner}">#{label.title.owner}</th>
+                    <th rowspan="2" style="width: 29%" th:title="#{label.assessment.comment}">#{label.assessment.comment}</th>
+                    
+                    <th th:if="${showHiddenComment}">
+                        <th rowspan="2" style="width: 29%" th:title="#{label.assessment.hidden_comment}">#{label.assessment.hidden_comment}</th>
+                    </th>
+                </tr>
+            
+                <tr th:if="${type.qualitative}">
+                    <th th:if="${type.quantitative}" style="width: 2%" th:title="#{label.analysis.type.quantitative}">#{label.assessment.impact}</th>
+            
+                    <th th:each="impactType : ${impactTypes}" th:if="${impactType.name != 'IMPACT'}">
+                        <span th:text="#{label.title.assessment.impact_{#strings.toLowerCase(impactType.name)}}">#{impactType.translations[langue]?.name ?: impactType.displayName}</span>
+                        <th style="width: 2%" th:title="${impactTitle}">
+                            <span th:text="#{label.assessment.impact_{#strings.toLowerCase(impactType.name)}}">#{impactType.getShortName(langue)}</span>
+                        </th>
+                    </th>
+                </tr>
+                
+                <tr th:unless="${type.qualitative}">
+                    <th style="width: 10%" th:title="#{label.assessment.asset}">#{label.assessment.asset}</th>
+                    <th style="width: 2%" th:title="#{label.assessment.asset.value}">#{label.assessment.asset.value}</th>
+                    <th style="width: 5%" th:title="#{label.title.impact}">#{label.assessment.impact}</th>
+                    <th style="width: 5%" th:title="#{label.title.likelihood}">#{label.assessment.likelihood}</th>
+            
+                    <th th:if="${show_uncertainty}">
+                        <th style="width: 2%" th:title="#{label.title.uncertainty}">#{label.assessment.uncertainty}</th>
+                        <th style="width: 2%" th:title="#{label.title.aleo}">#{label.assessment.aleo}</th>
+                        <th style="width: 2%" th:title="#{label.title.ale}">#{label.assessment.ale}</th>
+                        <th style="width: 2%" th:title="#{label.title.alep}">#{label.assessment.alep}</th>
+                    </th>
+                    <th th:unless="${show_uncertainty}">
+                        <th style="width: 2%" th:title="#{label.title.ale}">#{label.assessment.ale}</th>
+                    </th>
+            
+                    <th width="2%" th:text="#{label.title.owner}">Owner</th>
+                    <th style="width: 29%" th:title="#{label.assessment.comment}">#{label.assessment.comment}</th>
+                    
+                    <th th:if="${showHiddenComment}">
+                        <th style="width: 29%" th:title="#{label.assessment.hidden_comment}">#{label.assessment.hidden_comment}</th>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Setting naParameterLabel variable -->
+                <th:block th:with="naParameterLabel='0-' + ${#messages.msg('label.parameter.label.na')}" />
+            
+                <tr th:each="assessment : ${assessments}" th:data-trick-class="'Assessment'" th:data-trick-id="${assessment.id}">
+                    <td style="height: 32px;" th:title="${#messages.msg('label.status.na')}">
+                        <span th:text="${assessment.asset.name}"></span>
+                    </td>
+                    <td th:title="${#numbers.formatDecimal(assessment.asset.value, 2, 'COMMA') + ' €'}">
+                        <span th:text="${#numbers.formatDecimal(assessment.asset.value * 0.001, 0)}"></span>
+                    </td>
+            
+                    <!-- Conditional rendering of likelihood -->
+                    <th:block th:with="likelihood=${assessment.likelihood}" />
+                    <th:block th:if="${type.qualitative}">
+                        <th:block th:if="${type.quantitative}">
+                            <th:block th:if="${likelihood == null}">
+                                <td th:data-trick-field="likelihood" th:data-trick-field-type="'string'" class="editable"
+                                    th:title="${naParameterLabel}" th:onclick="|return editField(this);|">
+                                    <span th:text="${#messages.msg('label.status.na')}"></span>
+                                </td>
+                            </th:block>
+                            <th:block th:if="${likelihood.raw == likelihood.real}">
+                                <th:block th:if="${likelihood.real == 0}">
+                                    <td th:data-trick-field="likelihood" th:data-trick-field-type="'string'" class="editable"
+                                        th:onclick="|return editField(this);|" th:title="'0'" th:data-real-value="0">
+                                        <span th:text="${#messages.msg('label.status.na')}"></span>
+                                    </td>
+                                </th:block>
+                                <th:block th:unless="${likelihood.real == 0}">
+                                    <td th:data-trick-field="likelihood" th:data-trick-field-type="'string'" class="editable"
+                                        th:onclick="|return editField(this);|" th:title="${#numbers.formatDecimal(likelihood.real, 3)}"
+                                        th:data-real-value="${likelihood.real}">
+                                        <span th:text="${likelihood.variable}"></span>
+                                    </td>
+                                </th:block>
+                            </th:block>
+                            <th:block th:unless="${likelihood.raw == likelihood.real}">
+                                <td th:data-trick-field="likelihood" th:data-trick-field-type="'string'" class="editable"
+                                    th:onclick="|return editField(this);|" th:data-real-value="${likelihood.raw}"
+                                    th:title="${#numbers.formatDecimal(likelihood.real, 3)}">
+                                    <span th:text="${likelihood.variable}"></span>
+                                </td>
+                            </th:block>
+                        </th:block>
+            
+                        <!-- Impact Types -->
+                        <th:block th:each="impactType : ${impactTypes}">
+                            <th:block th:if="${impactType.name != 'IMPACT'}">
+                                <th:block th:with="impact=${assessment.getImpact(impactType.name)}" />
+                                <th:block th:if="${impact == null}">
+                                    <td th:data-trick-field="${impactType.name}" th:data-trick-field-type="'string'" class="editable"
+                                        th:title="${naParameterLabel}" th:onclick="|return editField(this);">
+                                        <span th:text="${#messages.msg('label.status.na')}"></span>
+                                    </td>
+                                </th:block>
+                                <th:block th:unless="${impact == null}">
+                                    <th:block th:if="${impact.level == 0}">
+                                        <td th:data-trick-field="${impactType.name}" th:data-trick-field-type="'string'" class="editable"
+                                            th:title="${naParameterLabel}" th:onclick="|return editField(this);">
+                                            <span th:text="${#messages.msg('label.status.na')}"></span>
+                                        </td>
+                                    </th:block>
+                                    <th:block th:unless="${impact.level == 0}">
+                                        <td th:data-trick-field="${impactType.name}" th:data-trick-field-type="'string'" class="editable"
+                                            th:title="${#messages.msg(impact.level + '-' + impact.parameter.label)}"
+                                            th:onclick="|return editField(this);">
+                                            <span th:text="${impact.level}"></span>
+                                        </td>
+                                    </th:block>
+                                </th:block>
+                            </th:block>
+                        </th:block>
+            
+                        <!-- ALE / ALEP / Uncertainty -->
+                        <th:block th:if="${type.quantitative}">
+                            <th:block th:if="${show_uncertainty}">
+                                <td th:data-trick-field="uncertainty" th:data-trick-field-type="'double'" class="editable"
+                                    th:data-trick-min-value="1.0000000000001" th:data-real-value="${#numbers.formatDecimal(assessment.uncertainty, 2)}"
+                                    th:onclick="|return editField(this);|">
+                                    <span th:text="${#numbers.formatDecimal(assessment.uncertainty, 2)}"></span>
+                                </td>
+                                <td th:title="${#numbers.formatDecimal(assessment.ALEO, 2)} €">
+                                    <span th:text="${#numbers.formatDecimal(assessment.ALEO * 0.001, 1)}"></span>
+                                </td>
+                            </th:block>
+                            <td th:title="${#numbers.formatDecimal(assessment.ALE, 2)} €">
+                                <span th:text="${#numbers.formatDecimal(assessment.ALE * 0.001, 1)}"></span>
+                            </td>
+                            <th:block th:if="${show_uncertainty}">
+                                <td th:title="${#numbers.formatDecimal(assessment.ALEP, 2)} €">
+                                    <span th:text="${#numbers.formatDecimal(assessment.ALEP * 0.001, 1)}"></span>
+                                </td>
+                            </th:block>
+                        </th:block>
+                    </th:block>
+            
+                    <!-- Owner and Comment fields -->
+                    <td class="editable" th:onclick="|return editField(this);|" th:data-trick-field="owner" th:data-trick-field-type="'string'">
+                        <span th:text="${assessment.owner}"></span>
+                    </td>
+                    <td class="editable" th:onclick="|return editField(this);|" th:data-trick-field="comment" th:data-trick-field-type="'string'"
+                        th:data-trick-content="'text'">
+                        <span th:text="${assessment.comment}"></span>
+                    </td>
+            
+                    <!-- Optional Hidden Comment field -->
+                    <th:block th:if="${showHiddenComment}">
+                        <td class="editable" th:onclick="|return editField(this);|" th:data-trick-field="hiddenComment" th:data-trick-field-type="'string'"
+                            th:data-trick-content="'text'">
+                            <span th:text="${assessment.hiddenComment}"></span>
+                        </td>
+                    </th:block>
+                </tr>
+            
+                <!-- Total ALE / ALEP footer -->
+                <th:block th:if="${type.quantitative}">
+                    <tr class="panel-footer" style="font-weight: bold;">
+                        <th:block th:if="${show_uncertainty}">
+                            <td colspan="${impactTypes.size() + 4}">
+                                <span th:text="${#messages.msg('label.total.ale')}"></span>
+                            </td>
+                            <td th:title="${#numbers.formatDecimal(aleo.value, 2)} €">
+                                <span th:text="${#numbers.formatDecimal(aleo.value * 0.001, 1)}"></span>
+                            </td>
+                            <td th:title="${#numbers.formatDecimal(ale.value, 2)} €">
+                                <span th:text="${#numbers.formatDecimal(ale.value * 0.001, 1)}"></span>
+                            </td>
+                            <td th:title="${#numbers.formatDecimal(alep.value, 2)} €">
+                                <span th:text="${#numbers.formatDecimal(alep.value * 0.001, 1)}"></span>
+                            </td>
+                        </th:block>
+                        <th:block th:unless="${show_uncertainty}">
+                            <td colspan="${impactTypes.size() + 3}">
+                                <span th:text="${#messages.msg('label.total.ale')}"></span>
+                            </td>
+                            <td th:title="${#numbers.formatDecimal(ale.value, 2)} €">
+                                <span th:text="${#numbers.formatDecimal(ale.value * 0.001, 1)}"></span>
+                            </td>
+                        </th:block>
+                        <td colspan="3" />
+                    </tr>
+                </th:block>
+            </tbody>                       
+        </table>     
+    </div>
+</body>
+</html>

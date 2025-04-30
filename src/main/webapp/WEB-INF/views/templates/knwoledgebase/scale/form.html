@@ -1,0 +1,64 @@
+<div class="modal fade" id="formScaleTypeModal" tabindex="-1" role="dialog" aria-labelledby="formTypeScaleModal" aria-hidden="true" data-backdrop="static" data-keyboard="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">
+                    <span th:text="#{label.title.scale_type.${scaleType == null ? 'add' : 'edit'}}">Edit impact type</span>
+                </h4>
+            </div>
+            <div class="modal-body">
+                <form name="scale" th:action="@{/KnowledgeBase/ScaleType/Save}" class="form-horizontal" id="scale_type_form" style="height: 400px;">
+                    <input name="id" th:value="${scaleType != null ? scaleType.id : 0}" type="hidden">
+
+                    <div class="form-group">
+                        <label for="name" class="col-sm-3 control-label" th:data-helper-content="#{help.scale_type.name}">
+                            <span th:text="#{label.scale.name}">Name</span>
+                        </label>
+                        <div class="col-sm-9">
+                            <input name="name" id="scale_type_name" style="text-transform:uppercase" class="form-control" th:value="${scaleType != null ? scaleType.name : ''}" required="required" th:readonly="${scaleType != null}" />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="acronym" class="col-sm-3 control-label" th:data-helper-content="#{help.scale_type.acronym}">
+                            <span th:text="#{label.scale.acronym}">Acronym</span>
+                        </label>
+                        <div class="col-sm-9">
+                            <input name="acronym" id="scale_type_acronym" class="form-control" th:value="${scaleType != null ? scaleType.acronym : ''}" required="required" th:readonly="${scaleType != null}" />
+                        </div>
+                    </div>
+
+                    <fieldset style="height: 330px; overflow-y: auto; overflow-x: hidden;">
+                        <legend th:data-helper-content="#{help.scale_type.translations}">
+                            <span th:text="#{label.scale.translations}">Translations</span>
+                        </legend>
+                        <div th:each="language : ${languages}">
+                            <div class="form-group">
+                                <label th:for="'translations[' + ${language.alpha2} + ']'">
+                                    <span th:text="${locale == language.alpha2.toLowerCase() ? language.name : language.altName}"></span>
+                                </label>
+                                <div class="col-sm-5">
+                                    <input name="translations[${language.alpha2}].name" id="scale_type_translations_${language.alpha2}_name" class="form-control" th:value="${scaleType != null ? scaleType.translations[language.alpha2]?.name : ''}" required="required" th:placeholder="#{label.translation}" />
+                                </div>
+                                <div class="col-sm-4">
+                                    <input name="translations[${language.alpha2}].shortName" id="scale_type_translations_${language.alpha2}_shortName" class="form-control" th:value="${scaleType != null ? scaleType.translations[language.alpha2]?.shortName : ''}" th:placeholder="#{label.translation.short}" required="required" />
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <button type="submit" hidden="hidden" id="scale_type_form_submit_button"></button>
+                </form>
+                <div id="scale-type-error-container"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="scale_type_submit_button">
+                    <span th:text="#{label.action.save}">Save</span>
+                </button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <span th:text="#{label.action.cancel}">Cancel</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,133 @@
+<div class="tab-pane" id="tab-summary">
+    <div class="section" id="section_summary">
+        <div th:with="summariesStages=${T(lu.itrust.business.ts.model.actionplan.summary.helper.ActionPlanSummaryManager).getRows(summaries,phases)}">
+            <div class="page-header tab-content-header">
+                <div class="container">
+                    <div class="row-fluid">
+                        <h3>
+                            <span th:text="#{label.title.action_plan.summary}"></span>
+                        </h3>
+                    </div>
+                </div>
+            </div>
+            <ul id="menu_summary" class="nav nav-pills bordered-bottom">
+                <div th:switch="${type.quantitative}">
+                    <div th:case="true">
+                        <ul>
+                            <li th:each="actionPlanType, status : ${summariesStages.keySet()}" 
+                                th:classappend="${status.index == 0 ? 'disabled' : ''}" 
+                                th:data-trick-nav-control="${actionPlanType.name}">
+                                <a href="#" th:onclick="'return navToogled('#section_summary','#menu_summary','#tabOption','${actionPlanType.name}', true);'">
+                                    <span th:text="#{label.title.plan_type.${actionPlanType.name.toLowerCase()}}"></span>
+                                </a>
+                            </li>
+                        </ul>
+                        <li class="pull-right">
+                            <a href="#" th:onclick="'return displayActionPlanOptions(${analysisId == null ? analysis.id : analysisId});'">
+                                <i class="glyphicon glyphicon-expand"></i>
+                                <span th:text="#{label.action.compute}"></span>
+                            </a>
+                        </li>
+                    </div>
+                    <div th:case="false">
+                        <li>
+                            <a href="#" th:onclick="'return calculateAction()'">
+                                <i class="glyphicon glyphicon-expand"></i> 
+                                <span th:text="#{label.action.compute}"></span>
+                            </a>
+                        </li>
+                    </div>
+                </div>
+            </ul>
+
+            <div th:each="actionPlanType, status : ${summariesStages.keySet()}">
+                <div th:with="summaryStages=${summariesStages[actionPlanType]}" th:classappend="${status.index != 0 ? 'hidden' : ''}">
+                    <table class="table table-hover table-condensed table-fixed-header-analysis" 
+                           th:id="'summarytable_' + ${#messages.msg(actionPlanType.name)}">
+                        <thead>
+                            <tr>
+                                <th style="width: 30%;">
+                                    <span th:text="#{label.characteristic}"></span>
+                                </th>
+                                <div th:with="stages=${summaryStages['label.characteristic']}">
+                                    <div th:with="columncount=${stages.size()}">
+                                        <th th:each="i : ${#numbers.sequence(0, columncount-1)}" 
+                                            class="text-right" 
+                                            th:text="${stages[i]}"></th>
+                                    </div>
+                                </div>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <div th:with="begindates=${summaryStages['label.phase.begin.date']}, 
+                                          enddates=${summaryStages['label.phase.end.date']}, 
+                                          measurecounts=${summaryStages['label.characteristic.count.measure.phase']}, 
+                                          implementedcounts=${summaryStages['label.characteristic.count.measure.implemented']}, 
+                                          nonCompliantMeasure27001=${summaryStages['label.characteristic.count.not_compliant_measure_27001']}, 
+                                          nonCompliantMeasure27002=${summaryStages['label.characteristic.count.not_compliant_measure_27002']}">
+
+                                <tr>
+                                    <td><span th:text="#{label.phase.begin.date}"></span></td>
+                                    <td th:each="i : ${#numbers.sequence(0, columncount-1)}" 
+                                        class="text-right">
+                                        <span th:text="${#dates.format(begindates[i], 'yyyy-MM-dd')}"></span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><span th:text="#{label.phase.end.date}"></span></td>
+                                    <td th:each="i : ${#numbers.sequence(0, columncount-1)}" 
+                                        class="text-right">
+                                        <span th:text="${#dates.format(enddates[i], 'yyyy-MM-dd')}"></span>
+                                    </td>
+                                </tr>
+
+                                <div th:each="key : ${summaryStages.keySet()}">
+                                    <div th:if="${key.startsWith('label.characteristic.compliance')}">
+                                        <div th:with="standardLabel=${key.substring(31)}">
+                                            <tr>
+                                                <td>
+                                                    <span th:text="#{label.characteristic.compliance}"></span> 
+                                                    <span th:text="${standardLabel}"></span> (%) 
+                                                </td>
+                                                <td th:each="i : ${#numbers.sequence(0, columncount-1)}" 
+                                                    class="text-right">
+                                                    <span th:text="${#numbers.formatDecimal(summaryStages[key][i]*100, 0)}"></span>
+                                                </td>
+                                            </tr>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <tr>
+                                    <td><span th:text="#{label.characteristic.count.measure.phase}"></span></td>
+                                    <td th:each="i : ${#numbers.sequence(0, columncount-1)}" 
+                                        class="text-right">
+                                        <span th:text="${#numbers.formatDecimal(measurecounts[i], 0)}"></span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><span th:text="#{label.characteristic.count.measure.implemented}"></span></td>
+                                    <td th:each="i : ${#numbers.sequence(0, columncount-1)}" 
+                                        class="text-right">
+                                        <span th:text="${#numbers.formatDecimal(implementedcounts[i], 0)}"></span>
+                                    </td>
+                                </tr>
+                            </div>
+
+                            <!-- Repeat similar blocks for other data sections (profitability, resources, etc.) -->
+                        </tbody>
+                        <tfoot style="font-weight: bold; border-top: #dddddd solid;">
+                            <tr class="active">
+                                <td><span th:text="#{label.resource.planning.total.phase.cost}"></span></td>
+                                <td th:each="i : ${#numbers.sequence(0, columncount-1)}" 
+                                    class="text-right">
+                                    <span th:text="${#numbers.formatDecimal(totalcosts[i]*0.001, 0)}"></span>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

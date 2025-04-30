@@ -3,9 +3,6 @@
  */
 package lu.itrust.business.ts.controller.account;
 
-import static lu.itrust.business.ts.constants.Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8;
-import static lu.itrust.business.ts.constants.Constant.ACCEPT_TEXT_PLAIN_CHARSET_UTF_8;
-
 import java.io.IOException;
 import java.security.Principal;
 import java.util.HashMap;
@@ -34,6 +31,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import jakarta.servlet.http.HttpSession;
 import lu.itrust.business.ts.component.TrickLogManager;
 import lu.itrust.business.ts.constants.Constant;
+import static lu.itrust.business.ts.constants.Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8;
+import static lu.itrust.business.ts.constants.Constant.ACCEPT_TEXT_PLAIN_CHARSET_UTF_8;
 import lu.itrust.business.ts.database.service.ServiceCustomer;
 import lu.itrust.business.ts.database.service.ServiceUser;
 import lu.itrust.business.ts.database.service.ServiceUserCredential;
@@ -151,7 +150,7 @@ public class ControlerCredential {
 						.collect(Collectors.toList()));
 		model.addAttribute("types", CredentialType.values());
 		model.addAttribute("form", form);
-		return "jsp/user/credential/form";
+		return "templates/user/credential/form";
 	}
 
 	/**
@@ -228,12 +227,12 @@ public class ControlerCredential {
 	 * @param session   the HttpSession object
 	 * @param principal the Principal object representing the currently authenticated user
 	 * @param model     the Model object used to pass data to the view
-	 * @return the name of the view to render, in this case "jsp/user/credential/section"
+	 * @return the name of the view to render, in this case "templates/user/credential/section"
 	 */
 	@RequestMapping(value = "/Section", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public String sectionCredential(HttpSession session, Principal principal, Model model) {
 		model.addAttribute("credentials", serviceUserCredential.findByUsername(principal.getName()));
-		return "jsp/user/credential/section";
+		return "templates/user/credential/section";
 	}
 
 	/**

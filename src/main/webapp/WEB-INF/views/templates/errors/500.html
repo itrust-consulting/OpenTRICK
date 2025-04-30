@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="${locale.language}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="#{title.error.500}">500: Internal Server Error</title>
+</head>
+<body>
+    <div id="wrap">
+        <!-- ################################################################### Nav Menu ################################################################### -->
+        <th:block th:replace="../template/menu :: menu"></th:block>
+        <div class="container">
+            <th:block th:replace="../template/successErrors :: successErrors"></th:block>
+            
+            <!-- #################################################################### Content ################################################################### -->
+            <div class="page-header">
+                <h1>
+                    <span th:text="#{title.error.500}">500: Internal Server Error</span>
+                </h1>
+            </div>
+            <div class="content" id="content" data-spy="scroll">
+                <span th:text="#{error.500.message}"></span>
+            </div>
+        </div>
+        
+        <!-- ################################################################ Include Footer ################################################################ -->
+        <th:block th:replace="../template/footer :: footer"></th:block>
+    </div>
+    <th:block th:replace="../template/scripts :: scripts"></th:block>
+</body>
+</html>

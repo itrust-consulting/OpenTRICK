@@ -1,0 +1,48 @@
+<div th:if="${languages != null and not #lists.isEmpty(languages)}">
+    <div class="form-group">
+        <label for="measurelanguageselect" class="col-sm-3 control-label" th:data-helper-content="#{help.measure.language}">
+            <span th:text="#{label.language}">Language</span>
+        </label>
+        <div class="col-sm-9 text-center">
+            <select id="measurelanguageselect" class="form-control">
+                <th:block th:each="language : ${languages}">
+                    <option th:selected="${language.id == selectedLanguage.id}" th:value="${language.id}">
+                        <span th:text="#{${language.name}}">Language Name</span>
+                    </option>
+                </th:block>
+            </select>
+        </div>
+    </div>
+
+    <th:block th:each="measureDescriptionText : ${measuredescriptionTexts}">
+        <div th:data-trick-id="${measureDescriptionText.language.id}" 
+             th:attr="hidden=${measureDescriptionText.language.id != selectedLanguage.id}">
+            <div class="form-group">
+                <label for="domain_${measureDescriptionText.language.id}" class="col-sm-3 control-label" 
+                       th:data-helper-content="#{help.measure.domain}">
+                    <span th:text="#{label.measure.domain}">Domain</span>
+                </label>
+                <div class="col-sm-9">
+                    <input name="domain_${measureDescriptionText.language.id}" 
+                           id="measure_domain_${measureDescriptionText.language.id}" 
+                           class="form-control" type="text" 
+                           th:value="${measureDescriptionText.domain}" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="description_${measureDescriptionText.language.id}" class="col-sm-3 control-label" 
+                       th:data-helper-content="#{help.measure.description}">
+                    <span th:text="#{label.measure.description}">Description</span>
+                </label>
+                <div class="col-sm-9">
+                    <textarea name="description_${measureDescriptionText.language.id}" rows="15" 
+                              id="measure_description_${measureDescriptionText.language.id}" 
+                              class="form-control">
+                        <span th:text="${measureDescriptionText.description}"></span>
+                    </textarea>
+                </div>
+            </div>
+        </div>
+    </th:block>
+</div>

@@ -1,0 +1,176 @@
+<div th:fragment="section" id="tab-profile" class="tab-pane active">
+	<div class="section" id="section_profile">
+		<div class="page-header tab-content-header">
+			<h3 th:text="#{label.user.title.profile}">User profile</h3>
+		</div>
+		<div style="margin: 0 auto; max-width: 800px;">
+			<form id="updateprofileform" name="updateprofileform"
+				th:onsubmit="return updateProfile('updateprofileform');" class="form-horizontal" method="post"
+				th:action="@{/Account/Update}">
+				<fieldset>
+					<legend th:text="#{label.user.title.login_information}">Login Information</legend>
+					<div class="form-group">
+						<label for="login" class="col-sm-3 control-label" th:text="#{label.user.login}">Username</label>
+						<div class="col-sm-9">
+							<input class="form-control" disabled="disabled" readonly="readonly"
+								th:value="${user.login}" />
+						</div>
+					</div>
+					<div th:if="${user.connexionType != 1}">
+						<div class="form-group">
+							<label for="oldPassword" class="col-sm-3 control-label"
+								th:text="#{label.user.current_password}">Current Password</label>
+							<div class="col-sm-9">
+								<input type="password" id="currentPassword" name="currentPassword" class="form-control"
+									required />
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="password" class="col-sm-3 control-label"
+								th:text="#{label.user.password}">Password</label>
+							<div class="col-sm-9">
+								<input type="password" id="password" name="password" class="form-control" />
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="repeatPassword" class="col-sm-3 control-label"
+								th:text="#{label.user.repeat_password}">Repeat password</label>
+							<div class="col-sm-9">
+								<input type="password" id="repeatPassword" name="repeatPassword" class="form-control" />
+							</div>
+						</div>
+					</div>
+				</fieldset>
+
+				<div th:if="${allowedTicketing}">
+					<fieldset>
+						<legend th:text="#{label.user.title.ticketing.system.credential}">Ticketing system credential
+						</legend>
+						<div class="form-group">
+							<label for="ticketingUsername" class="col-sm-3 control-label"
+								th:text="#{label.user.login}">Username</label>
+							<div class="col-sm-9">
+								<input class="form-control" id='ticketingUsername' name="ticketingUsername"
+									th:value="${user.userSettings['user-titcketing-credential-username']}" />
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="ticketingPassword" class="col-sm-3 control-label"
+								th:text="${isTokenAuthentication} ? #{label.user.api.token} : #{label.user.password}">Password
+								or Token</label>
+							<div class="col-sm-9">
+								<input type="password" id="ticketingPassword" name="ticketingPassword"
+									class="form-control" />
+							</div>
+						</div>
+					</fieldset>
+				</div>
+
+				<fieldset>
+					<legend th:text="#{label.user.title.personal_information}">Personal Information</legend>
+					<div class="form-group">
+						<label for="firstName" class="col-sm-3 control-label"
+							th:text="#{label.user.first_name}">Firstname</label>
+						<div class="col-sm-9">
+							<input type="text" id="firstName" name="firstName" class="form-control" required
+								th:value="${user.firstName}" />
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="lastName" class="col-sm-3 control-label"
+							th:text="#{label.user.last_name}">Lastname</label>
+						<div class="col-sm-9">
+							<input type="text" id="lastName" name="lastName" class="form-control" required
+								th:value="${user.lastName}" />
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="email" class="col-sm-3 control-label" th:text="#{label.user.email}">Email
+							address</label>
+						<span class="visible-xs clearfix"></span>
+						<div th:class="${user.emailValidated} ? 'col-sm-9' : 'col-xs-10 col-sm-7'">
+							<input type="email" id="email" name="email" class="form-control"
+								th:attr="readonly=${user.connexionType == 1}, disabled=${user.connexionType == 1}"
+								required th:value="${user.email}" />
+						</div>
+						<div class='col-xs-2 col-sm-2 text-right' th:if="${!user.emailValidated}">
+							<button type="button" class='btn btn-primary' onclick="validateUserEmail()"
+								th:text="#{label.action.check}">Check</button>
+						</div>
+					</div>
+				</fieldset>
+
+				<fieldset>
+					<legend th:text="#{label.user.title.account.access.info}">Account access information</legend>
+					<div class="form-group">
+						<label for="connexionType" class="col-sm-3 control-label"
+							th:text="#{label.user.connexion.type}">Authentication type</label>
+						<div class="col-sm-9 text-center">
+							<div class="btn-group" data-toggle="buttons" id="radioConnexionType">
+								<label class="btn"
+									th:classappend="${user.connexionType == -1} ? ' btn-primary disabled' : ' btn-default disabled'">
+									<input name="connexionType" type="radio" readonly value="-1">
+									<span th:text="#{label.user.connexion.standard}">Standard</span>
+								</label>
+								<label class="btn"
+									th:classappend="${user.connexionType == 0} ? ' btn-primary disabled' : ' btn-default disabled'">
+									<input name="connexionType" type="radio" readonly value="0">
+									<span th:text="#{label.user.connexion.both}">Both</span>
+								</label>
+								<label class="btn"
+									th:classappend="${user.connexionType == 1} ? ' btn-primary disabled' : ' btn-default disabled'">
+									<input name="connexionType" type="radio" readonly value="1">
+									<span th:text="#{label.user.connexion.ldap}">LDAP</span>
+								</label>
+							</div>
+						</div>
+					</div>
+
+					<div class="form-group">
+						<label for="roles" class="col-sm-3 control-label"
+							th:text="#{label.user.account.access.level}">Access level</label>
+						<div class="col-sm-9 text-center">
+							<div class="btn-group" data-toggle="buttons">
+								<th:block th:each="role : ${roles}">
+									<label class="btn disabled"
+										th:classappend="${user.isAutorised(role)} ? ' btn-primary' : ' btn-default'">
+										<span th:text="#{${'label.role.' + #strings.toLowerCase(#strings.replace(role.name(), 'ROLE_', ''))}}">Role</span>
+									</label>
+								</th:block>
+							</div>
+						</div>
+					</div>
+				</fieldset>
+
+				<fieldset>
+					<legend th:text="#{label.user.title.application_settings}">Application Settings</legend>
+					<div class="form-group">
+						<label for="locale" class="col-sm-3 control-label"
+							th:text="#{label.user.default_ui_language}">Default UI Language</label>
+						<div class="col-sm-9">
+							<select class="form-control" name="locale" id="locale">
+								<option value="en" th:selected="${user.locale == 'en'}"
+									class="list-group-item pull-left"
+									th:style="'background: white url(' + @{/images/flags/en.png} + ') no-repeat 1%;border:1px solid white;padding:0px;padding-top:3px;padding-bottom:3px;padding-left: 25px;'">
+									English
+								</option>
+								<option value="fr" th:selected="${user.locale == 'fr'}"
+									class="list-group-item pull-left"
+									th:style="'background: white url(' + @{/images/flags/fr.png} + ') no-repeat 1%;border:1px solid white;padding:0px;padding-top:3px;padding-bottom:3px;padding-left: 25px;'">
+									Français
+								</option>
+							</select>
+						</div>
+						<input type="hidden" th:value="${user.locale}" id="perviouslanguage" />
+					</div>
+
+					<div class="form-group">
+						<div class="col-sm-offset-3 col-sm-9 text-center">
+							<button class="btn btn-primary" type="submit" th:text="#{label.action.save}">Save</button>
+						</div>
+					</div>
+				</fieldset>
+			</form>
+		</div>
+	</div>
+</div>

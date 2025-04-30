@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="${language}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="#{label.title.analysis}">Analysis</title>
+
+    <!-- inject css -->
+    <link rel="stylesheet" href="/css/autoComplete.min.css">
+
+</head>
+<body>
+    <div id="wrap" class="wrap">
+        <th:block th:replace="~{../../template/header :: header}"></th:block>
+
+        <div class="container" data-ug-root="analysis">
+            <th:block th:replace="~{menu :: menu}"></th:block>
+
+            <div class="tab-content" id="nav-container" 
+                th:data-trick-id="${analysis.id}" 
+                th:data-trick-class="'Analysis'" 
+                th:data-trick-rights-id="${analysis.profile ? 0 : analysis.findRightsforUserString(login).right.ordinal()}"
+                th:data-trick-language="${locale.language}">
+
+                <!-- History -->
+                <th:block th:if="${not isProfile}">
+                    <th:block th:with="histories=${analysis.histories}">
+                        <th:block th:replace="~{./components/history :: history}"></th:block>
+                    </th:block>
+                </th:block>
+
+                <!-- Item Information -->
+                <th:block th:if="${not isProfile}">
+                    <th:block th:with="itemInformations=${analysis.itemInformations}">
+                        <th:block th:replace="~{./components/itemInformation :: itemInformation}"></th:block>
+                    </th:block>
+                </th:block>
+
+                <!-- Qualitative Impact Types -->
+                <th:block th:if="${type.qualitative}">
+                    <th:block th:with="impactTypes=${analysis.findImpacts()}"></th:block>
+                </th:block>
+
+                <!-- Parameters -->
+                <th:block th:with="parameters=${analysis.parameters}">
+                    <th:block th:replace="~{./components/parameters/home :: home}"></th:block>
+                </th:block>
+
+                <!-- Scenarios -->
+                <th:block th:with="scenarios=${analysis.scenarios}">
+                    <th:block th:replace="~{./components/scenario/scenario :: scenario}"></th:block>
+                </th:block>
+
+                <!-- Phases -->
+                <th:block th:with="phases=${analysis.phases}">
+                    <th:block th:replace="~{./components/phase/home :: home}"></th:block>
+                </th:block>
+
+                <!-- Standards -->
+                <th:block th:replace="~{./components/standards/standard/standards :: standards}"></th:block>
+                <th:block th:replace="~{./components/standards/edition/home :: home}"></th:block>
+
+                <!-- Action Plans, Summaries -->
+                <th:block th:if="${not isProfile}">
+                    <th:block th:with="actionplans=${analysis.actionPlans}">
+                        <th:block th:replace="~{./components/actionPlan/section :: section}"></th:block>
+                    </th:block>
+                    <th:block th:with="summaries=${analysis.summaries}">
+                        <th:block th:replace="~{./components/summary :: summary}"></th:block>
+                    </th:block>
+                </th:block>
+
+                <!-- Risk Register (for Qualitative Types) -->
+                <th:block th:if="${type.qualitative}">
+                    <th:block th:with="riskregister=${analysis.riskRegisters}">
+                        <th:block th:replace="~{./components/riskRegister/home :: home}"></th:block>
+                    </th:block>
+                </th:block>
+
+                <!-- Charts -->
+                <th:block th:replace="~{./components/charts :: charts}"></th:block>
+
+                <th:block th:replace="~{../../template/tab-option :: tab-option}"></th:block>
+            </div>
+        </div>
+
+        <th:block th:replace="~{../../template/footer :: footer}"></th:block>
+        <th:block th:replace="~{./components/widgets :: widgets}"></th:block>
+
+    </div>
+
+    <th:block th:replace="~{../../template/scripts :: scripts}"></th:block>
+    
+    <script src="/js/chartjs/Chart.bundle.min.js"></script>
+    <script src="/js/chartjs/plugins.js"></script>
+    <script src="/js/chartjs/Chart.HeatMap.js"></script>
+    <script src="/js/trickservice/analysis.js"></script>
+    <script type="text/javascript" src="/js/trickservice/fieldeditor.js"></script>
+    <script type="text/javascript" src="/js/trickservice/scenario.js"></script>
+    <script type="text/javascript" src="/js/trickservice/phase.js"></script>
+    <script type="text/javascript" src="/js/trickservice/rrfManager.js"></script>
+    <script type="text/javascript" src="/js/trickservice/analysisStandard.js"></script>
+    <script type="text/javascript" src="/js/trickservice/analysis-measure.js"></script>
+
+    <th:block th:if="${isEditable}">
+        <script type="text/javascript" src="/js/trickservice/analysisImport.js"></script>
+    </th:block>
+
+    <th:block th:if="${not isProfile}">
+        <th:block th:if="${allowedTicketing}">
+            <script type="text/javascript" src="/js/trickservice/ticketing-system.js"></script>
+        </th:block>
+        <script type="text/javascript" src="/js/trickservice/actionplan.js"></script>
+        <script type="text/javascript" src="/js/trickservice/asset.js"></script>
+        <th:block th:if="${canExport}">
+            <script type="text/javascript" src="/js/trickservice/analysisExport.js"></script>
+        </th:block>
+        <script type="text/javascript" src="/js/trickservice/risk-estimation.js"></script>
+        <th:block th:if="${type.qualitative}">
+            <script type="text/javascript" src="/js/trickservice/riskregister.js"></script>
+            <script type="text/javascript">
+                application['measureStatus'] = {
+                    'M' : {title : /*#{label.title.measure.status.m}*/, value : /*#{label.measure.status.m}*/},
+                    'AP' : {title : /*#{label.title.measure.status.ap}*/, value : /*#{label.measure.status.ap}*/},
+                    'OP' : {title : /*#{label.title.measure.status.op}*/, value : /*#{label.measure.status.op}*/},
+                    'EX' : {title : /*#{label.title.measure.status.ex}*/, value : /*#{label.measure.status.ex}*/},
+                    'NA' : {title : /*#{label.title.measure.status.na}*/, value : /*#{label.measure.status.na}*/}
+                };
+                resolveMessage("label.title.impact", /*#{label.title.impact}*/);
+                resolveMessage("label.title.likelihood", /*#{label.title.likelihood}*/);
+                resolveMessage("label.status.na", /*#{label.status.na}*/);
+            </script>
+        </th:block>
+    </th:block>
+
+    <script type="text/javascript">
+        application['analysisType'] = ANALYSIS_TYPE.valueOf('${type}');
+        application['isProfile'] = ${isProfile};
+        application['isILR'] = ${isILR};
+        application['openMode'] = OPEN_MODE.valueOf('${open}');
+        application['isLinkedToProject'] = ${isLinkedToProject};
+        application['hasMaturity'] = ${hasMaturity == true};
+        application['isDynamic'] = ${type.quantitative && showDynamicAnalysis};
+        application['actionPlanType'] = "${type=='QUALITATIVE'? 'APQ' : type == 'QUANTITATIVE'? show_uncertainty? 'APPO,APPN,APPP' : 'APPN' : show_uncertainty? 'APPO,APPN,APPP,APQ' : 'APPN,APQ'}".split(',');
+        application['complianceType'] = "${type=='QUALITATIVE'? 'APQ' : type == 'QUANTITATIVE'? 'APPN' : 'APPN,APQ'}".split(',');
+        resolveMessage("label.index.chapter", /*#{label.index.chapter}*/);
+        resolveMessage("label.metric.man_day", /*#{label.metric.man_day}*/);
+        resolveMessage("info.leave.page.in_mode_editing", /*#{info.leave.page.in_mode_editing}*/);
+        resolveMessage("label.dynamicparameter.evolution", /*#{label.dynamicparameter.evolution}*/);
+    </script>
+</body>
+</html>

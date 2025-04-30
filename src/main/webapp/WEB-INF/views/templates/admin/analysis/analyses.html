@@ -1,0 +1,80 @@
+<div class="tab-pane" id="tab-analyses">
+    <div class="section" id="section_admin_analysis">
+        <ul class="nav nav-pills bordered-bottom" id="menu_admin_analysis">
+            <li class="disabled" data-trick-selectable="true" data-trick-check="!isProfile('#section_admin_analysis')">
+                <a href="#" onclick="return manageAnalysisAccess(null, 'section_admin_analysis');">
+                    <span class="fa fa-users"></span>
+                    <span th:text="#{label.menu.manage.access.analysis}">Manage access rights</span>
+                </a>
+            </li>
+            <li class="disabled" data-trick-selectable="true" data-trick-check="!isProfile('#section_admin_analysis') && isAnalysisType('QUANTITATIVE','#section_admin_analysis')">
+                <a href="#" onclick="return manageAnalysisIDSAccess('section_admin_analysis');">
+                    <span class="fa fa-rss-square"></span>
+                    <span th:text="#{label.menu.manage.ids.access.analysis}">Manage IDS</span>
+                </a>
+            </li>
+            <li class="disabled" data-trick-selectable="true" data-trick-check="!isProfile('#section_admin_analysis')">
+                <a href="#" onclick="return switchCustomer('section_admin_analysis');">
+                    <span class="glyphicon glyphicon-transfer"></span>
+                    <span th:text="#{label.menu.switch.customer}">Switch customer</span>
+                </a>
+            </li>
+            <li class="disabled" data-trick-selectable="true" data-trick-check="!isProfile('#section_admin_analysis')">
+                <a href="#" onclick="return switchOwner('section_admin_analysis');">
+                    <span class="fa fa-exchange fa-sw"></span>
+                    <span th:text="#{label.menu.switch.owner}">Switch owner</span>
+                </a>
+            </li>
+            <li class="disabled pull-right" data-trick-selectable="multi" data-trick-check="!hasDefaultProfile('#section_admin_analysis')">
+                <a href="#" onclick="return deleteAdminAnalysis(undefined,'section_admin_analysis');" class="text-danger">
+                    <span class="glyphicon glyphicon-remove"></span>
+                    <span th:text="#{label.menu.delete.analysis}">Delete</span>
+                </a>
+            </li>
+        </ul>
+
+        <div class="center-block">
+            <p class="text-center" style="margin-bottom: 0; margin-top: 10px;">
+                <label th:text="#{label.filter.analysis.customer}">Analyses filtered by customer</label>
+            </p>
+            <form class="col-md-offset-5 col-md-2">
+                <select class="form-control" onchange="return adminCustomerChange(this)" style="margin-bottom: 15px">
+                    <option th:each="icustomer : ${customers}"
+                            th:value="${icustomer.id}"
+                            th:selected="${customer != null and icustomer.id == customer}"
+                            th:text="${icustomer.organisation}">
+                    </option>
+                </select>
+            </form>
+        </div>
+
+        <table class="table table-striped table-hover" style="border-top: 1px solid #dddddd;" data-fh-scroll-multi="0.995">
+            <thead>
+                <tr>
+                    <th width="1%"><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'admin_analysis')"></th>
+                    <th><span th:text="#{label.analysis.identifier}">Identifier</span></th>
+                    <th width="5%"><span th:text="#{label.analysis.type}">Type</span></th>
+                    <th width="20%"><span th:text="#{label.analysis.label}">Name</span></th>
+                    <th width="40%"><span th:text="#{label.analysis.comment}">Comment</span></th>
+                    <th><span th:text="#{label.analysis.version}">Version</span></th>
+                    <th><span th:text="#{label.analysis.creation_date}">Create date</span></th>
+                    <th><span th:text="#{label.analysis.owner}">Owner</span></th>
+                    <th><span th:text="#{label.analysis.language}">Language</span></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="analysis : ${analyses}"
+                    th:classappend="${analysis.archived} ? 'text-muted'"
+                    th:attr="data-trick-archived=${analysis.archived},
+                             data-trick-id=${analysis.id},
+                             data-trick-rights-id=0,
+                             data-trick-is-profile=${analysis.profile},
+                             data-trick-is-default=${analysis.defaultProfile},
+                             data-trick-type=${analysis.type}"
+                    onclick="selectElement(this)">
+                    <td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_admin_analysis','#menu_admin_analysis');"></td>
+                    <td>
+                        <span th:if="${analysis.defaultProfile}">
+                            <i class="fa fa-file" aria-hidden="true" th:title="#{label.analysis.default.profile}"></i>
+                        </span>
+                        <span th

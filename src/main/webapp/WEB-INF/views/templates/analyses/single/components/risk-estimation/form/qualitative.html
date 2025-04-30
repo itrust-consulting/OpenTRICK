@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Risk Profile Form</title>
+</head>
+<body>
+
+<div class="page-header tab-content-header hidden-xs">
+    <div class="container">
+        <div class="row-fluid">
+            <h3 th:text="${asset.name} + ' - ' + ${scenario.name}"></h3>
+        </div>
+    </div>
+</div>
+
+<div class='form-horizontal form-group-fill' style="margin-bottom: 4px;">
+
+    <div th:class="${type.quantitative} && ${show_uncertainty} ? 'col-sm-4' : 'col-sm-3'">
+        <div class="form-group">
+            <label class="control-label col-xs-6" th:text="#{label.title.risk_identifier}"></label>
+            <div class='col-xs-6'>
+                <input name="riskProfile.identifier" class="form-control"
+                       th:value="${riskProfile.identifier}"
+                       th:placeholder="${riskProfile.identifier}"
+                       data-trick-type='string'>
+            </div>
+        </div>
+    </div>
+
+    <div th:class="${type.quantitative} && ${show_uncertainty} ? 'col-sm-4' : 'col-sm-3'">
+        <div class="form-group">
+            <label class='control-label col-xs-6' th:text="#{label.risk_register.category}"></label>
+            <div class='col-xs-6'>
+                <strong class='form-control form-control-static'
+                        th:text="#{label.scenario.type.${#strings.replace(scenario.type.name.toLowerCase(), '-', '_')}}"></strong>
+            </div>
+        </div>
+    </div>
+
+    <div th:class="${type.quantitative} && ${show_uncertainty} ? 'col-sm-4' : 'col-sm-3'">
+        <div class="form-group">
+            <label class="control-label col-xs-6" th:text="#{label.title.owner}">Owner</label>
+            <div class='col-xs-6'>
+                <input name="owner" class="form-control"
+                       th:value="${assessment.owner}"
+                       th:placeholder="${assessment.owner}"
+                       data-trick-type='string'>
+            </div>
+        </div>
+    </div>
+
+    <div th:class="${type.quantitative} && ${show_uncertainty} ? 'col-sm-4' : 'col-sm-3'">
+        <div class='form-group'>
+            <span class="control-label col-xs-6" th:text="#{label.risk_register.strategy}"></span>
+            <div class='col-xs-6'>
+                <select name="riskProfile.riskStrategy" class="form-control">
+                    <option th:each="strategy : ${strategies}"
+                            th:value="${strategy}"
+                            th:selected="${riskProfile.riskStrategy == strategy}"
+                            th:text="#{label.risk_register.strategy.${strategy.nameToLower}}">
+                    </option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div th:if="${type.quantitative} and ${show_uncertainty}"
+         th:class="${type.quantitative} && ${show_uncertainty} ? 'col-sm-4' : 'col-sm-3'">
+        <div class="form-group">
+            <label class="control-label col-xs-6" th:text="#{label.title.uncertainty}"></label>
+            <div class='col-xs-6'>
+                <input name="uncertainty" class="form-control numeric"
+                       data-trick-type='double'
+                       th:value="${#numbers.formatDecimal(assessment.uncertainty, 1, 2)}"
+                       th:placeholder="${#numbers.formatDecimal(assessment.uncertainty, 1, 2)}">
+            </div>
+        </div>
+    </div>
+
+    <div class="clearfix"></div>
+</div>
+
+<!-- Count qualitative impacts except 'IMPACT' -->
+<div th:with="qualitativeImpactCount=${#lists.size(impactTypes.?[name != 'IMPACT'])}">
+    <!-- This block is just setting the count, handle it as needed -->
+</div>
+
+<table class='table form-no-fill'>
+    <thead>
+        <tr class='form-group-fill'>
+            <th width="15px" rowspan="2"></th>
+            <th rowspan="2" style="text-align: center; vertical-align: middle; min-width: 90px;">
+                <span th:text="#{label.title.likelihood}"></span>
+            </th>
+            <th th:if="${type.quantitative}" 
+                th:width="${ ((qualitativeImpactCount + qualitativeImpactCount / 2) / ((show_uncertainty ? 6 : 4) + qualitativeImpactCount + (isILR ? 2 : 0))) * 100 } + '%'" 
+                th:colspan="${qualitativeImpactCount}" 
+                style="text-align: center;">
+                <span th:text="#{label.title.impact}"></span>
+            </th>
+            <th th:unless="${type.quantitative}" 
+                th:colspan="${qualitativeImpactCount}" 
+                style="text-align: center;">
+                <span th:text="#{label.title.impact}"></span>
+            </th>
+            <th th:if="${isILR}" class="form-estimation form-estimation-left" colspan="3"
+                style="min-width: 75px; text-align: center; vertical-align: middle;">
+                <span th:text="#{label.title.ilr}">ILR</span>
+            </th>
+            <th class="form-estimation form-estimation-left" rowspan="2" 
+                style="width: 80px; text-align: center; vertical-align: middle;">
+                <span th:text="#{label.title.importance}">Importance</span>
+            </th>
+    
+            <th th:if="${type.quantitative}" 
+                class="form-estimation form-estimation-left form-estimation-right" 
+                rowspan="2" 
+                style="text-align: center; vertical-align: middle; min-width: 90px;">
+                <span th:text="#{label.analysis.quantitative.impact}"></span>
+            </th>
+    
+            <th th:if="${type.quantitative and show_uncertainty}" 
+                colspan="3" 
+                style="text-align: center; vertical-align: middle; min-width: 270px;">
+                <span th:text="#{label.title.ale}"></span>
+            </th>
+            <th th:if="${type.quantitative and !show_uncertainty}" 
+                rowspan="2" 
+                style="text-align: center; vertical-align: middle; min-width: 90px;">
+                <span th:text="#{label.title.ale}"></span>
+            </th>
+        </tr>
+    
+        <tr class='form-group-fill'>
+            <th th:each="impactType : ${impactTypes}" 
+                th:if="${impactType.name != 'IMPACT'}" 
+                th:title="#{label.title.assessment.impact_${#strings.toLowerCase(impactType.name)}(${impactType.translations[langue]?.name ?: impactType.displayName})}" 
+                style="text-align: center; min-width: 90px;">
+                <span th:text="#{label.impact.${#strings.toLowerCase(impactType.name)}(${impactType.translations[langue]?.name ?: impactType.displayName})}"></span>
+            </th>
+    
+            <th th:if="${isILR}" 
+                class="form-estimation form-estimation-left" 
+                colspan="2" 
+                style="min-width: 65px; text-align: center; vertical-align: middle;">
+                <span th:text="#{label.title.ilr.input}">Input</span>
+            </th>
+            <th th:if="${isILR}" 
+                class="form-estimation form-estimation-left" 
+                style="text-align: center; vertical-align: middle;">
+                <span th:text="#{label.title.ilr.result}">Result</span>
+            </th>
+    
+            <th th:if="${type.quantitative and show_uncertainty}" class="text-center" 
+                th:title="#{label.title.aleo}">
+                <span th:text="#{label.optimistic}">Optimistic</span>
+            </th>
+            <th th:if="${type.quantitative and show_uncertainty}" class="text-center" 
+                th:title="#{label.title.ale}">
+                <span th:text="#{label.normal.ale}">Normal ALE</span>
+            </th>
+            <th th:if="${type.quantitative and show_uncertainty}" class="text-center" 
+                th:title="#{label.title.alep}">
+                <span th:text="#{label.pessimistic}">Pessimistic</span>
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:if="${showRawColumn}" class="form-group-raw">
+            <!-- RAW -->
+            <td style="transform: rotate(270deg);" th:text="${raw}"></td>
+            <td class="form-estimation form-estimation-right">
+                <div class="input-group" align="right">
+                    <span class="input-group-addon" style="padding: 1px;">
+                        <button class="btn btn-default" style="padding: 0px" data-scale-modal="#Scale_Probability">
+                            <span class="fa-stack">
+                                <i class="fa fa-arrows-v" aria-hidden="true"></i>
+                                <i class="fa fa-list-ol" aria-hidden="true"></i>
+                            </span>
+                        </button>
+                    </span>
+                    <div th:if="${#strings.isEmpty(riskProfile.rawProbaImpact.probability)}">
+                        <span th:text="${#strings.isEmpty(probabilities) ? 'Not Applicable' : probabilities[0].label}" th:id="rawProTitle"></span>
+                        <select class="form-control" th:title="${rawProTitle}" name="riskProfile.rawProbaImpact.probability" data-trick-value="0" data-trick-type="integer">
+                            <option th:each="parameter : ${probabilities}" th:value="${parameter.id}" th:title="${parameter.label}"
+                                    th:text="${parameter.level == 0 ? naValue : parameter.level}"></option>
+                        </select>
+                    </div>
+                    <div th:unless="${#strings.isEmpty(riskProfile.rawProbaImpact.probability)}">
+                        <span th:text="${riskProfile.rawProbaImpact.probability.label}" th:id="rawProTitle"></span>
+                        <select class="form-control" th:title="${rawProTitle}" name="riskProfile.rawProbaImpact.probability" th:data-trick-value="${riskProfile.rawProbaImpact.probability.id}" data-trick-type="integer">
+                            <option th:each="parameter : ${probabilities}" th:value="${parameter.id}" th:selected="${parameter == riskProfile.rawProbaImpact.probability}" th:title="${parameter.label}"
+                                    th:text="${parameter.level == 0 ? naValue : parameter.level}"></option>
+                        </select>
+                    </div>
+                </div>
+            </td>
+            <th:block th:each="impactType : ${impactTypes}">
+                <th:block th:if="${impactType.name != 'IMPACT'}">
+                    <td>
+                        <div class="input-group">
+                            <span th:text="${impactType.name}" th:id="impactName"></span>
+                            <span class="input-group-addon" style="padding: 1px;">
+                                <button class="btn btn-default" style="padding: 0px" th:data-scale-modal="'#Scale_Impact_' + ${impactName}">
+                                    <span class="fa-stack">
+                                        <i class="fa fa-arrows-v" aria-hidden="true"></i>
+                                        <i class="fa fa-list-ol" aria-hidden="true"></i>
+                                    </span>
+                                </button>
+                            </span>
+                            <div th:set="impact = riskProfile.rawProbaImpact[impactType.name]">
+                                <div th:if="${#strings.isEmpty(impact)}">
+                                    <span th:text="${#strings.isEmpty(impacts[impactType.name]) ? '' : impacts[impactType.name][0].label}" th:id="rawTitle"></span>
+                                    <select class="form-control" th:title="${rawTitle}" name="riskProfile.rawProbaImpact.${impactName}" data-trick-value="0" data-trick-type="integer">
+                                        <option th:each="parameter : ${impacts[impactType.name]}" th:value="${parameter.id}" th:title="${parameter.label}"
+                                                th:text="${parameter.level == 0 ? naValue : parameter.level}"></option>
+                                    </select>
+                                </div>
+                                <div th:unless="${#strings.isEmpty(impact)}">
+                                    <span th:text="${impact.label}" th:id="rawTitle"></span>
+                                    <select class="form-control" th:title="${rawTitle}" name="riskProfile.rawProbaImpact.${impactName}" th:data-trick-value="${impact.id}" data-trick-type="integer">
+                                        <option th:each="parameter : ${impacts[impactType.name]}" th:value="${parameter.id}" th:selected="${parameter == impact}" th:title="${parameter.label}"
+                                                th:text="${parameter.level == 0 ? naValue : parameter.level}"></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </th:block>
+            </th:block>
+            <div th:if="${isILR}">
+                <td class="form-estimation form-estimation-left">
+                    <span style="transform: rotate(-90deg); display: inline-block; width: 52px; margin-left: -22px; margin-right: -30px;" th:title="${'label.title.ilr.probability.threat'}">
+                        <span th:text="'label.short.ilr.probability.threat'"></span>
+                    </span>
+                </td>
+                <td>
+                    <label class="form-control form-control-static text-right disabled" th:text="${threatProbability}" th:data-trick-type="integer" th:title="${threatProbability}"></label>
+                </td>
+                <td class="text-center">-</td>
+            </div>
+            <td class="form-estimation form-estimation-left">
+                <span th:text="${computedRawImportance.color}" th:id="rawImpColor"></span>
+                <input name="computedRawImportance" disabled="disabled" class="form-control numeric" th:title="${computedRawImportance.title}" th:value="${computedRawImportance.value}"
+                       th:style="'border: solid 2px ' + (rawImpColor.isEmpty() ? '#eee' : rawImpColor)"/>
+            </td>
+            <div th:if="${type.quantitative}">
+                <td class="form-estimation form-estimation-left form-estimation-right">
+                    <div th:choose>
+                        <div th:when="${#strings.isEmpty(riskRegister)}">
+                            <div th:set="impact = valueFactory.findValue(0.0, 'IMPACT')" th:set="aleRaw = 0"></div>
+                        </div>
+                        <div th:otherwise>
+                            <div th:set="impact = valueFactory.findValue(riskRegister.rawEvaluation.impact, 'IMPACT')" th:set="aleRaw = riskRegister.rawEvaluation.importance"></div>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-addon" style="padding: 1px;">k&euro;</span>
+                        <div th:choose>
+                            <div th:when="${#strings.isEmpty(impact)}">
+                                <label class="form-control form-control-static text-right disabled" th:data-name="IMPACT-RAW" th:data-trick-type="string" th:title="i0" th:text="${naValue}"></label>
+                            </div>
+                            <div th:otherwise>
+                                <label class="form-control form-control-static text-right disabled" th:data-name="IMPACT" th:data-trick-type="string" th:title="${impact.variable}"
+                                       th:text="${impact.real < 100 ? impact.real * 0.001 | round(3) : impact.real < 1000 ? impact.real * 0.001 | round(2) : impact.real < 10000 ? impact.real * 0.001 | round(1) : impact.real * 0.001 | round(0)}"></label>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+                <div th:if="${show_uncertainty}">
+                    <div th:set="aleoRaw = aleRaw / assessment.uncertainty">
+                        <td>
+                            <div class="input-group">
+                                <span class="input-group-addon" style="padding: 1px;">k&euro;</span>
+                                <label class="form-control form-control-static numeric disabled" th:data-name="ALEO-RAW" th:title="${#numbers.formatDecimal(aleoRaw, 0, 2)} &euro;">
+                                    <span th:text="${aleoRaw * 0.001 | round(1)}"></span>
+                                </label>
+                            </div>
+                        </td>
+                    </div>
+                </div>
+                <td>
+                    <div class="input-group">
+                        <span class="input-group-addon" style="padding: 1px;">k&euro;</span>
+                        <label class="form-control form-control-static numeric disabled" th:data-name="ALE-RAW" th:title="${#numbers.formatDecimal(aleRaw, 0, 2)} &euro;">
+                            <span th:text="${aleRaw * 0.001 | round(1)}"></span>
+                        </label>
+                    </div>
+                </td>
+                <div th:if="${show_uncertainty}">
+                    <div th:set="alepRaw = aleRaw * assessment.uncertainty">
+                        <td>
+                            <div class="input-group">
+                                <span class="input-group-addon" style="padding: 1px;">k&euro;</span>
+                                <label class="form-control form-control-static numeric disabled" th:data-name="ALEP-RAW" th:title="${#numbers.formatDecimal(alepRaw, 0, 2)} &euro;">
+                                    <span th:text="${alepRaw * 0.001 | round(1)}"></span>
+                                </label>
+                            </div>
+                        </td>
+                    </div>
+                </div>
+            </div>
+        </tr>
+        <!-- NET -->
+        <tr class="form-group-net">
+            <td style="transform: rotate(270deg);" th:text="${net}"></td>
+            <td class="form-estimation form-estimation-right">
+                <div class="input-group" align="right">
+                    <span th:text="#{label.status.na}" var="na"></span>
+                    <span th:set="likelihood=${assessment.likelihood}"></span>
+                    <span th:text="#{label.parameter.label.na}" th:with="labelNA=${parameter.label}"></span>
+                    <span class="input-group-addon" style="padding: 1px;">
+                        <button class="btn btn-default" style="padding: 0px" data-scale-modal="#Scale_Probability">
+                            <span class="fa-stack">
+                                <i class="fa fa-arrows-v" aria-hidden="true"></i>
+                                <i class="fa fa-list-ol" aria-hidden="true"></i>
+                            </span>
+                        </button>
+                    </span>
+                    <th:block th:if="${type.quantitative}">
+                        <span th:set="likelihood=${assessment.likelihood}">
+                            <th:block th:if="${likelihood == null}">
+                                <input name="likelihood" class="form-control" th:value="${na}" list="dataList-parameter-probability" 
+                                       th:title="${labelNA}" placeholder="${na}" data-trick-type="string"/>
+                            </th:block>
+                            <th:block th:if="${likelihood != null}">
+                                <th:block th:if="${likelihood['class'].simpleName == 'RealValue' and likelihood.real == 0}">
+                                    <input name="likelihood" class="form-control" th:value="${naValue}" list="dataList-parameter-probability"
+                                           th:title="0" placeholder="${naValue}" data-trick-type="string"/>
+                                </th:block>
+                                <th:block th:unless="${likelihood['class'].simpleName == 'RealValue' and likelihood.real == 0}">
+                                    <span th:utext="${fct.round(likelihood.real, 3)}" var="probaValue"/>
+                                    <input name="likelihood" class="form-control" th:value="${likelihood.variable}" 
+                                           list="dataList-parameter-probability" th:title="${probaValue}" placeholder="${likelihood.variable}"
+                                           data-trick-type="string"/>
+                                </th:block>
+                            </th:block>
+                        </span>
+                    </th:block>
+                    <th:block th:unless="${type.quantitative}">
+                        <span th:text="#{label.parameter.label.na}" th:with="labelNA=${parameter.label}"></span>
+                        <select class="form-control" th:title="${netProTitle}" name="likelihood" data-trick-type="string" 
+                                data-trick-value="${likelihood == null ? 'na' : 1}">
+                            <option th:each="parameter : ${probabilities}" th:value="${parameter.acronym}" 
+                                    th:selected="${likelihood.level == parameter.level}" th:title="#{parameter.label}">
+                                <span th:if="${parameter.level == 0}">
+                                    <span th:text="#{label.status.na}"></span>
+                                </span>
+                                <span th:unless="${parameter.level == 0}">
+                                    <span th:text="${parameter.level}"></span>
+                                </span>
+                            </option>
+                        </select>
+                    </th:block>
+                </div>
+            </td>
+            
+            <th:block th:each="impactType : ${impactTypes}">
+                <th:block th:if="${impactType.name != 'IMPACT'}">
+                    <td>
+                        <span th:text="#{impactType.name}" th:var="impactName"></span>
+                        <span th:set="impact=${assessment.getImpact(impactType.name)}"></span>
+                        <div class="input-group">
+                            <span class="input-group-addon" style="padding: 1px;">
+                                <button class="btn btn-default" style="padding: 0px" th:data-scale-modal="'#Scale_Impact_' + ${impactName}">
+                                    <span class="fa-stack">
+                                        <i class="fa fa-arrows-v" aria-hidden="true"></i>
+                                        <i class="fa fa-list-ol" aria-hidden="true"></i>
+                                    </span>
+                                </button>
+                            </span>
+                            <th:block th:if="${impact == null}">
+                                <span th:text="#{impact.parameter.label}" th:var="netTitle"></span>
+                                <select class="form-control" th:title="${netTitle}" name="${impactName}" data-trick-value="0" data-trick-type="integer">
+                                    <option th:each="parameter : ${impacts[impactType.name]}" th:value="${parameter.acronym}" 
+                                            th:title="${#numbers.formatDecimal(parameter.value, 0, 'euro')}" 
+                                            th:selected="${impact.parameter == parameter}">
+                                        <span th:if="${parameter.level == 0}">
+                                            <span th:text="#{label.status.na}"></span>
+                                        </span>
+                                        <span th:unless="${parameter.level == 0}">
+                                            <span th:text="${parameter.level}"></span>
+                                        </span>
+                                    </option>
+                                </select>
+                            </th:block>
+                            <th:block th:unless="${impact == null}">
+                                <span th:text="#{impact.parameter.label}" th:var="netTitle"></span>
+                                <select class="form-control" th:title="${netTitle}" name="${impactName}" data-trick-value="${impact.id}" data-trick-type="integer">
+                                    <option th:each="parameter : ${impacts[impactType.name]}" th:value="${parameter.acronym}" 
+                                            th:selected="${impact.parameter == parameter}" th:title="#{parameter.label}">
+                                        <span th:if="${parameter.level == 0}">
+                                            <span th:text="#{label.status.na}"></span>
+                                        </span>
+                                        <span th:unless="${parameter.level == 0}">
+                                            <span th:text="${parameter.level}"></span>
+                                        </span>
+                                    </option>
+                                </select>
+                            </th:block>
+                        </div>
+                    </td>
+                </th:block>
+            </th:block>
+            
+            <th:block th:if="${isILR}">
+                <td class="form-estimation form-estimation-left">
+                    <span style="transform: rotate(-90deg); display: inline-block;width: 52px;margin-left: -22px;margin-right: -30px;"
+                          th:title="#{label.title.ilr.net.vulnerability}">#{label.short.ilr.net.vulnerability}</span>
+                </td>
+                <th:block th:if="${empty ilrVulnerabilityScales or assessment.vulnerability > ilrVulnerabilityScales.size()}">
+                    <td class="has-error" th:title="#{error.update.ilr.vulnerability.scale}">
+                        <label data-name="vulnerability" class="form-control form-control-static text-right disabled" data-trick-type="integer">
+                            <span th:text="${assessment.vulnerability}"></span>
+                        </label>
+                    </td>
+                </th:block>
+                <th:block th:unless="${empty ilrVulnerabilityScales or assessment.vulnerability > ilrVulnerabilityScales.size()}">
+                    <td>
+                        <div>
+                            <select name="vulnerability" class="form-control" data-trick-type="integer">
+                                <option th:each="vulnerability : ${ilrVulnerabilityScales}" th:value="${vulnerability.value}" 
+                                        th:selected="${vulnerability.value == assessment.vulnerability}">
+                                    <span th:text="${#numbers.formatDecimal(vulnerability.value, 0)}"></span> - 
+                                    <span th:text="#{vulnerability.description}"></span>
+                                </option>
+                            </select>
+                        </div>
+                    </td>
+                </th:block>
+                <td>
+                    <th:block th:if="${empty ilrMaxRisk or ilrMaxRisk < 0}">
+                        <label data-name="ILR-VALUE-MAX-RISK" class="form-control form-control-static text-right disabled" 
+                               data-trick-type="integer">-</label>
+                    </th:block>
+                    <th:block th:unless="${empty ilrMaxRisk or ilrMaxRisk < 0}">
+                        <label data-name="ILR-VALUE-MAX-RISK" class="form-control form-control-static text-right disabled" 
+                               data-trick-type="integer">
+                            <span th:text="#{ilrMaxRisk}"></span>
+                        </label>
+                    </th:block>
+                </td>
+            </th:block>
+            
+            <td class="form-estimation form-estimation-left">
+                <span th:text="#{computedNetImportance.color}" th:var="netImpColor"></span>
+                <input name="computedNetImportance" disabled="disabled" class="form-control numeric" 
+                       th:title="#{computedNetImportance.title}" th:value="${computedNetImportance.value}" 
+                       th:style="'border: solid 2px ' + (empty netImpColor ? '#eee' : netImpColor)"/>
+            </td>
+            
+            <th:block th:if="${type.quantitative}">
+                <td class="form-estimation form-estimation-left form-estimation-right">
+                    <span th:set="impact=${assessment.getImpact('IMPACT')}"></span>
+                    <div class="input-group">
+                        <span class="input-group-addon" style="padding: 1px;">
+                            <button class="btn btn-default" style="padding: 3px" data-scale-modal="#Scale_Impact">k&euro;</button>
+                        </span>
+                        <th:block th:if="${impact == null}">
+                            <input name="IMPACT" class="form-control text-right" value="0" list="dataList-parameter-impact" 
+                                   placeholder="0" data-trick-type="string" th:title="${impactTypes[0].acronym}0"/>
+                        </th:block>
+                        <th:block th:unless="${impact == null}">
+                            <th:block th:if="${impact.real < 100}">
+                                <span th:text="${#numbers.formatDecimal(impact.real * 0.001, 3)}" var="impactValue"/>
+                            </th:block>
+                            <th:block th:if="${impact.real >= 100 and impact.real < 1000}">
+                                <span th:text="${#numbers.formatDecimal(impact.real * 0.001, 2)}" var="impactValue"/>
+                            </th:block>
+                            <th:block th:if="${impact.real >= 1000 and impact.real < 10000}">
+                                <span th:text="${#numbers.formatDecimal(impact.real * 0.001, 1)}" var="impactValue"/>
+                            </th:block>
+                            <th:block th:if="${impact.real >= 10000}">
+                                <span th:text="${#numbers.formatDecimal(impact.real * 0.001, 0)}" var="impactValue"/>
+                            </th:block>
+                            <th:block th:if="${impact.raw == impact.real}">
+                                <input name="IMPACT" class="form-control text-right" th:value="${impactValue}" list="dataList-parameter-impact"
+                                       placeholder="${impactValue}" data-trick-type="string" th:title="${impact.variable}"/>
+                            </th:block>
+                            <th:block th:unless="${impact.raw == impact.real}">
+                                <span th:text="#{impact.raw}" th:var="impactVariable"></span>
+                                <input name="IMPACT" class="form-control text-right" th:value="${impactVariable}" 
+                                       list="dataList-parameter-impact" placeholder="${impactVariable}" data-trick-type="string" 
+                                       th:title="${impactValue}"/>
+                            </th:block>
+                        </th:block>
+                    </div>
+                </td>
+                
+                <th:block th:if="${show_uncertainty}">
+                    <td>
+                        <div class="input-group">
+                            <span class="input-group-addon" style="padding: 1px;">k&euro;</span> 
+                            <label data-name="ALEO" class="form-control form-control-static numeric disabled"
+                                   th:title="${#numbers.formatDecimal(assessment.ALEO, 2)} &euro;">
+                                <span th:text="${#numbers.formatDecimal(assessment.ALEO * 0.001, 1)}"></span>
+                            </label>
+                        </div>
+                    </td>
+                </th:block>
+                
+                <td>
+                    <div class="input-group">
+                        <span class="input-group-addon" style="padding: 1px;">k&euro;</span> 
+                        <label data-name="ALE" class="form-control form-control-static numeric disabled"
+                               th:title="${#numbers.formatDecimal(assessment.ALE, 2)} &euro;">
+                            <span th:text="${#numbers.formatDecimal(assessment.ALE * 0.001, 1)}"></span>
+                        </label>
+                    </div>
+                </td>
+                
+                <th:block th:if="${show_uncertainty}">
+                    <td>
+                        <div class="input-group">
+                            <span class="input-group-addon" style="padding: 1px;">k&euro;</span> 
+                            <label data-name="ALEP" class="form-control form-control-static numeric disabled"
+                                   th:title="${#numbers.formatDecimal(assessment.ALEP, 2)} &euro;">
+                                <span th:text="${#numbers.formatDecimal(assessment.ALEP * 0.001, 1)}"></span>
+                            </label>
+                        </div>
+                    </td>
+                </th:block>
+            </th:block>
+        </tr>        
+        <!-- EXP --> 
+        <tr class="form-group-exp">
+            <td style="transform: rotate(270deg);">{{exp}}</td>
+            <td class="form-estimation form-estimation-right">
+                <div class="input-group" align="right">
+                    <span class="input-group-addon" style="padding: 1px;">
+                        <button class="btn btn-default" style="padding: 0px" data-scale-modal="#Scale_Probability">
+                            <span class="fa-stack">
+                                <i class="fa fa-arrows-v" aria-hidden="true"></i>
+                                <i class="fa fa-list-ol" aria-hidden="true"></i>
+                            </span>
+                        </button>
+                    </span>
+                    <th:block th:if="${#strings.isEmpty(riskProfile.expProbaImpact.probability)}">
+                        <span th:text="#{label.title.status.na}"></span>
+                        <select class="form-control" th:title="${riskProfile.expProbaImpact.probability == null ? 'Not Applicable' : probabilities[0].label}"
+                                name="riskProfile.expProbaImpact.probability" data-trick-value="0" data-trick-type="integer">
+                            <th:block th:each="parameter : ${probabilities}">
+                                <option th:value="${parameter.id}" th:title="${parameter.label}">
+                                    <span th:if="${parameter.level == 0}" th:text="#{label.status.na}"></span>
+                                    <span th:unless="${parameter.level == 0}" th:text="${parameter.level}"></span>
+                                </option>
+                            </th:block>
+                        </select>
+                    </th:block>
+                    <th:block th:unless="${#strings.isEmpty(riskProfile.expProbaImpact.probability)}">
+                        <span th:text="${riskProfile.expProbaImpact.probability.label}"></span>
+                        <select class="form-control" th:title="${riskProfile.expProbaImpact.probability.label}"
+                                name="riskProfile.expProbaImpact.probability" th:data-trick-value="${riskProfile.expProbaImpact.probability.id}"
+                                data-trick-type="integer">
+                            <th:block th:each="parameter : ${probabilities}">
+                                <option th:value="${parameter.id}" th:selected="${parameter == riskProfile.expProbaImpact.probability}" th:title="${parameter.label}">
+                                    <span th:if="${parameter.level == 0}" th:text="#{label.status.na}"></span>
+                                    <span th:unless="${parameter.level == 0}" th:text="${parameter.level}"></span>
+                                </option>
+                            </th:block>
+                        </select>
+                    </th:block>
+                </div>
+            </td>
+            
+            <th:block th:each="impactType : ${impactTypes}">
+                <th:block th:if="${impactType.name != 'IMPACT'}">
+                    <td>
+                        <div class="input-group">
+                            <span th:text="${impactType.name}" th:var="impactName"></span>
+                            <span class="input-group-addon" style="padding: 1px;">
+                                <button class="btn btn-default" style="padding: 0px" th:data-scale-modal="'#Scale_Impact_' + ${impactName}">
+                                    <span class="fa-stack">
+                                        <i class="fa fa-arrows-v" aria-hidden="true"></i>
+                                        <i class="fa fa-list-ol" aria-hidden="true"></i>
+                                    </span>
+                                </button>
+                            </span>
+                            <th:block th:set="impact = ${riskProfile.expProbaImpact.get(impactType.name)}"></th:block>
+                            <th:block th:if="${#strings.isEmpty(impact)}">
+                                <span th:text="${impacts[impactType.name] != null ? impacts[impactType.name][0].label : ''}"></span>
+                                <select class="form-control" th:title="${impacts[impactType.name] != null ? impacts[impactType.name][0].label : ''}"
+                                        name="riskProfile.expProbaImpact.${impactName}" data-trick-value="0" data-trick-type="integer">
+                                    <th:block th:each="parameter : ${impacts[impactType.name]}">
+                                        <option th:value="${parameter.id}" th:title="${parameter.label}">
+                                            <span th:if="${parameter.level == 0}" th:text="#{label.status.na}"></span>
+                                            <span th:unless="${parameter.level == 0}" th:text="${parameter.level}"></span>
+                                        </option>
+                                    </th:block>
+                                </select>
+                            </th:block>
+                            <th:block th:unless="${#strings.isEmpty(impact)}">
+                                <span th:text="${impact.label}"></span>
+                                <select class="form-control" th:title="${impact.label}" name="riskProfile.expProbaImpact.${impactName}" 
+                                        th:data-trick-value="${impact.id}" data-trick-type="integer">
+                                    <th:block th:each="parameter : ${impacts[impactType.name]}">
+                                        <option th:value="${parameter.id}" th:selected="${parameter == impact}" th:title="${parameter.label}">
+                                            <span th:if="${parameter.level == 0}" th:text="#{label.status.na}"></span>
+                                            <span th:unless="${parameter.level == 0}" th:text="${parameter.level}"></span>
+                                        </option>
+                                    </th:block>
+                                </select>
+                            </th:block>
+                        </div>
+                    </td>
+                </th:block>
+            </th:block>
+            
+            <th:block th:if="${isILR}">
+                <td class="form-estimation form-estimation-left">
+                    <span style="transform: rotate(-90deg);display: inline-block;width: 52px;margin-left: -22px;margin-right: -30px;"
+                          th:title="#{label.title.ilr.exp.vulnerability}">
+                        <span th:text="#{label.short.ilr.exp.vulnerability}"></span>
+                    </span>
+                </td>
+                <th:block th:choose>
+                    <th:block th:when="${#strings.isEmpty(riskProfile) or #strings.isEmpty(riskProfile.expProbaImpact)}">
+                        <td>-</td>
+                    </th:block>
+                    <th:block th:when="${#strings.isEmpty(ilrVulnerabilityScales) or riskProfile.expProbaImpact.vulnerability > ilrVulnerabilityScales.size()}">
+                        <td class="has-error" th:title="#{error.update.ilr.vulnerability.scale}">
+                            <label data-name="riskProfile.expProbaImpact.vulnerability" class="form-control form-control-static text-right disabled" data-trick-type="integer">
+                                <span th:text="${riskProfile.expProbaImpact.vulnerability}"></span>
+                            </label>
+                        </td>
+                    </th:block>
+                    <th:block th:otherwise>
+                        <td>
+                            <select name="riskProfile.expProbaImpact.vulnerability" 
+                                    th:disabled="${riskProfile.riskStrategy == 'ACCEPT'}" 
+                                    class="form-control" data-trick-type="integer"
+                                    th:title="${riskProfile.expProbaImpact.vulnerability}">
+                                <th:block th:each="vulnerability : ${ilrVulnerabilityScales}">
+                                    <option th:value="${vulnerability.value}" 
+                                            th:disabled="${vulnerability.value > assessment.vulnerability}" 
+                                            th:selected="${vulnerability.value == riskProfile.expProbaImpact.vulnerability}">
+                                        <fmt:formatNumber th:value="${vulnerability.value}" maxFractionDigits="0"/>
+                                        <span th:text="${vulnerability.description}"></span>
+                                    </option>
+                                </th:block>
+                            </select>
+                        </td>
+                    </th:block>
+                </th:block>
+                
+                <td>
+                    <th:block th:choose>
+                        <th:block th:when="${#strings.isEmpty(ilrTargetedRisk) or ilrTargetedRisk < 0}">
+                            <label data-name="ILR-VALUE-TARGET-RISK" class="form-control form-control-static text-right disabled" data-trick-type="integer">-</label>
+                        </th:block>
+                        <th:block th:otherwise>
+                            <label data-name="ILR-VALUE-TARGET-RISK" class="form-control form-control-static text-right disabled" data-trick-type="integer">
+                                <span th:text="${ilrTargetedRisk}"></span>
+                            </label>
+                        </th:block>
+                    </th:block>
+                </td>
+            </th:block>
+        
+            <td class="form-estimation form-estimation-left">
+                <span th:text="${computedExpImportance.color}" th:var="expImpColor"></span>
+                <input name="computedExpImportance" disabled="disabled" class="form-control numeric"
+                       th:title="${computedExpImportance.title}" th:value="${computedExpImportance.value}"
+                       th:style="'border: solid 2px ' + (#strings.isEmpty(expImpColor) ? '#eee' : expImpColor)" />
+            </td>
+        
+            <th:block th:if="${type.quantitative}">
+                <th:block th:choose>
+                    <th:block th:when="${#strings.isEmpty(riskRegister)}">
+                        <th:block th:set="impact = ${valueFactory.findValue(0.0, 'IMPACT')}"></th:block>
+                        <th:block th:set="aleExp = ${0}"></th:block>
+                    </th:block>
+                    <th:block th:otherwise>
+                        <th:block th:set="impact = ${valueFactory.findValue(riskRegister.expectedEvaluation.impact, 'IMPACT')}"></th:block>
+                        <th:block th:set="aleExp = ${riskRegister.expectedEvaluation.importance}"></th:block>
+                    </th:block>
+                </th:block>
+                <td class="form-estimation form-estimation-left form-estimation-right">
+                    <div class="input-group">
+                        <span class="input-group-addon" style="padding: 1px;">k&euro;</span>
+                        <th:block th:choose>
+                            <th:block th:when="${#strings.isEmpty(impact)}">
+                                <label data-name="IMPACT-EXP" class="form-control form-control-static disabled text-right" title="i0">0</label>
+                            </th:block>
+                            <th:block th:otherwise>
+                                <th:block th:choose>
+                                    <th:block th:when="${impact.real < 100}">
+                                        <fmt:formatNumber th:value="${fct.round(impact.real * 0.001, 3)}" th:var="impactValue" />
+                                    </th:block>
+                                    <th:block th:when="${impact.real < 1000}">
+                                        <fmt:formatNumber th:value="${fct.round(impact.real * 0.001, 2)}" th:var="impactValue" />
+                                    </th:block>
+                                    <th:block th:when="${impact.real < 10000}">
+                                        <fmt:formatNumber th:value="${fct.round(impact.real * 0.001, 1)}" th:var="impactValue" />
+                                    </th:block>
+                                    <th:block th:otherwise>
+                                        <fmt:formatNumber th:value="${fct.round(impact.real * 0.001, 0)}" th:var="impactValue" />
+                                    </th:block>
+                                </th:block>
+                                <label data-name="IMPACT-EXP" class="form-control form-control-static disabled text-right"
+                                       th:title="${impact.variable}" th:text="${impactValue}"></label>
+                            </th:block>
+                        </th:block>
+                    </div>
+                </td>
+                <th:block th:if="${show_uncertainty}">
+                    <th:block th:set="aleoExp = ${aleExp / assessment.uncertainty}"></th:block>
+                    <td>
+                        <div class="input-group">
+                            <span class="input-group-addon" style="padding: 1px;">k&euro;</span>
+                            <label data-name="ALEO-EXP" class="form-control form-control-static numeric disabled"
+                                   th:title="${#numbers.formatDecimal(aleoExp, 2)} &euro;">
+                                <fmt:formatNumber th:value="${fct.round(aleoExp * 0.001, 1)}" />
+                            </label>
+                        </div>
+                    </td>
+                </th:block>
+                <td>
+                    <div class="input-group">
+                        <span class="input-group-addon" style="padding: 1px;">k&euro;</span>
+                        <label data-name="ALE-EXP" class="form-control form-control-static numeric disabled"
+                               th:title="${#numbers.formatDecimal(aleExp, 2)} &euro;">
+                            <fmt:formatNumber th:value="${fct.round(aleExp * 0.001, 1)}" />
+                        </label>
+                    </div>
+                </td>
+                <th:block th:if="${show_uncertainty}">
+                    <th:block th:set="alepExp = ${aleExp * assessment.uncertainty}"></th:block>
+                    <td>
+                        <div class="input-group">
+                            <span class="input-group-addon" style="padding: 1px;">k&euro;</span>
+                            <label data-name="ALEP-EXP" class="form-control form-control-static numeric disabled"
+                                   th:title="${#numbers.formatDecimal(alepExp, 2)} &euro;">
+                                <fmt:formatNumber th:value="${fct.round(alepExp * 0.001, 1)}" />
+                            </label>
+                        </div>
+                    </td>
+                </th:block>
+            </th:block>
+        </tr>               
+    </tbody>    
+</table>
+<div class="form-group form-group-fill">
+    <label class="label-control" th:text="#{label.comment_argumentation}">Comment / Argumentation</label>
+    <label class="label-control" th:text="${assessment.comment}"></label>
+    <textarea id="assessment-comment" class="form-control" name="comment" title="${#messages.msg('label.comment_argumentation')}" style="resize: vertical;" placeholder="${assessment.comment}" data-trick-type="string">${assessment.comment}</textarea>
+</div>
+
+<div class="form-group form-group-fill">
+    <label class="label-control" th:text="#{label.risk_treatment}">Risk treatment</label>
+    <label class="label-control" th:text="${riskProfile.riskTreatment}"></label>
+    <textarea id="assessment-riskTreatment" class="form-control" name="riskProfile.riskTreatment" title="${#messages.msg('label.risk_treatment')}" style="resize: vertical;" placeholder="${riskProfile.riskTreatment}" data-trick-type="string">${riskProfile.riskTreatment}</textarea>
+</div>
+
+<div class="form-group form-group-fill">
+    <label class="label-control" th:text="#{label.cockpit}">Cockpit</label>
+    <label class="label-control" th:text="${assessment.cockpit}"></label>
+    <textarea id="assessment-cockpit" class="form-control" name="cockpit" title="${#messages.msg('label.cockpit')}" style="resize: vertical;" placeholder="${assessment.cockpit}" data-trick-type="string">${assessment.cockpit}</textarea>
+</div>
+
+<div class="form-group" id="section_estimation_action_plan">
+    <label class="label-control" th:text="#{label.action_paln.including.deadlines}">Action plan (including deadlines)</label>
+    <ul class="nav nav-pills" id="menu_estimation_action_plan">
+        <li style="padding-left: 0; margin-right: 15px; padding-top: 6px;" th:text="${#messages.msg('label.action_paln.including.deadlines')}"></li>
+        <div th:if="${isEditable}">
+            <li><a href="#" data-action="manage" onclick="return false" style="padding: 6px 10px;"><i class="fa fa-plus" aria-hidden="true"></i> <span th:text="#{label.action.add}"></span></a></li>
+            <li data-trick-selectable="multi"><a href="#" data-action="delete" class="text text-danger" onclick="return false" style="padding: 6px 10px;"><i class="fa fa-remove" aria-hidden="true"></i> <span th:text="#{label.action.delete}"></span></a></li>
+        </div>
+        <li data-trick-ignored="true" class="pull-right" th:style="'display: ' + (riskProfile.actionPlan == '' ? 'none' : 'inline-block');">
+            <a href="#" data-action="show" style="padding: 6px 10px;" onclick="return false">
+                <i class="fa fa-plus-square-o" aria-hidden="true"></i> <span th:text="#{label.action.show.additional.field}"></span>
+            </a>
+        </li>
+        <li data-trick-ignored="true" class="pull-right" th:style="'display: ' + (riskProfile.actionPlan == '' ? 'none' : 'inline-block');">
+            <a href="#" data-action="hide" style="padding: 6px 10px;" onclick="return false">
+                <i class="fa fa-minus-square-o" aria-hidden="true"></i> <span th:text="#{label.action.hide.additional.field}"></span>
+            </a>
+        </li>
+    </ul>
+    <label class="label-control" th:text="${riskProfile.actionPlan}"></label>
+    <label class="label-control" th:text="${#messages.msg('info.analysis.estimation.action_plan.addition.field')}"></label>
+    <textarea id="assessment-actionPlan" class="form-control" name="riskProfile.actionPlan" title="${#messages.msg('info.analysis.estimation.action_plan.addition.field')}" style="resize: vertical; margin-top: 5px; display: ${(riskProfile.actionPlan == '') ? 'none' : 'inline-block'};" placeholder="${riskProfile.actionPlan == '' ? #messages.msg('info.analysis.estimation.action_plan.addition.field') : riskProfile.actionPlan}" data-trick-type="string">${riskProfile.actionPlan}</textarea>
+    <table id="riskProfileMeasure" class="table table-hover form-no-fill">
+        <thead>
+            <tr class="form-group-fill">
+                <div th:if="${isEditable}">
+                    <th style="width: 2%; padding-bottom: 5px;" th:title="#{label.measure.norm}">
+                        <input type="checkbox" data-menu-controller="menu_estimation_action_plan" onchange="return checkControlChange(this,'estimation_action_plan')">
+                    </th>
+                </div>
+                <th style="width: 2%;" th:title="#{label.measure.norm}"><span th:text="#{label.measure.norm}"></span></th>
+                <th style="width: 3%;" th:title="#{label.reference}"><span th:text="#{label.measure.ref}"></span></th>
+                <th th:title="#{label.measure.domain}"><span th:text="#{label.measure.domain}"></span></th>
+                <th style="width: 2%;" th:title="#{label.title.measure.status}"><span th:text="#{label.measure.status}"></span></th>
+                <th style="width: 2%;" th:title="#{label.title.measure.ir}"><span th:text="#{label.measure.ir_no_unit}"></span></th>
+                <th style="width: 2%;" th:title="#{label.title.measure.phase}"><span th:text="#{label.measure.phase}"></span></th>
+                <th style="width: 2%;" th:title="#{label.title.measure.responsible}"><span th:text="#{label.measure.responsible}"></span></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="measure : ${riskProfile.measures}" th:data-trick-class="Measure" th:onclick="${isEditable ? 'selectElement(this)' : ''}" th:data-trick-id="${measure.id}" th:classappend="${measure.implementationRateValue == 100 ? 'warning' : (measure.status == 'NA' ? 'danger' : '')}">
+                <div th:if="${isEditable}">
+                    <td><input type="checkbox" class="checkbox" data-menu-controller="menu_estimation_action_plan" onchange="return updateMenu(this, '#section_estimation_action_plan', '#menu_estimation_action_plan');"></td>
+                </div>
+                <td th:text="${measure.measureDescription.standard.name}"></td>
+                <td>
+                    <span th:if="${measure.measureDescription.getMeasureDescriptionTextByAlpha2(langue) == null or measure.measureDescription.getMeasureDescriptionTextByAlpha2(langue).description == null}">
+                        <span th:text="${measure.measureDescription.reference}"></span>
+                    </span>
+                    <span th:if="${measure.measureDescription.getMeasureDescriptionTextByAlpha2(langue) != null and measure.measureDescription.getMeasureDescriptionTextByAlpha2(langue).description != null}" data-toggle="tooltip" data-container="body" data-trigger="click" data-placement="right" style="cursor: pointer;" th:title="${measure.measureDescription.getMeasureDescriptionTextByAlpha2(langue).description}">
+                        <span th:text="${measure.measureDescription.reference}"></span>
+                    </span>
+                </td>
+                <td th:text="${measure.measureDescription.getMeasureDescriptionTextByAlpha2(langue).domain != null ? measure.measureDescription.getMeasureDescriptionTextByAlpha2(langue).domain : ''}"></td>
+                <td th:if="${measure.status == 'NA'}" th:title="${titleStatusNA}"><span th:text="${statusNA}"></span></td>
+                <td th:if="${measure.status == 'AP'}" th:title="${titleStatusAP}"><span th:text="${statusAP}"></span></td>
+                <td th:if="${measure.status != 'NA' and measure.status != 'AP'}" th:title="${titleStatusM}"><span th:text="${statusM}"></span></td>
+                <td><span th:text="${#numbers.formatDecimal(measure.implementationRateValue, 0, '###')}"></span></td>
+                <td th:title="${#dates.format(measure.phase.endDate, 'yyyy-MM-dd')}"><span th:text="${measure.phase.number}"></span></td>
+                <td th:text="${measure.responsible}"></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<div th:if="${showHiddenComment}">
+    <div class="form-group form-group-fill">
+        <label class="label-control" th:text="#{label.assessment.hidden_comment}">Hidden Comment</label>
+        <label class="label-control" th:text="${assessment.hiddenComment}"></label>
+        <textarea id="assessment-hiddenComment" class="form-control" name="hiddenComment" title="${#messages.msg('label.assessment.hidden_comment')}" style="resize: vertical;" placeholder="${assessment.hiddenComment}" data-trick-type="string">${assessment.hiddenComment}</textarea>
+    </div>
+</div>
+</body>
+</html>

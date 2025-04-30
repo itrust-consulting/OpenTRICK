@@ -1,0 +1,203 @@
+<div class="modal fade" id="modal-ticketing-synchronise" tabindex="-1" role="dialog"
+     data-aria-labelledby="modalTicketingSynchronise" data-aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog" style="width: 800px;">
+        <div class="modal-content">
+            <div class="modal-body" style="height: 730px;">
+                <th:block th:each="measure : ${measures}">
+                    <th:block th:with="task=${tasks[measure.ticket]}, description=${measure.measureDescription.getMeasureDescriptionTextByAlpha2(language)}">
+                        <th:block th:if="${task != null}">
+                            <fieldset th:attr="data-trick-id=${measure.id}, data-trick-parent-id=${measure.measureDescription.standard.id}"
+                                      th:style="${#lists.isEmpty(isFirst) ? '' : 'display: none'}">
+                                <th:block th:with="isFirst=${false}">
+                                    <div class="panel panel-success">
+                                        <div class="panel-heading">
+                                            <h4 class="panel-title">
+                                                <span th:text="#{${measure.measureDescription.standard.label}} + ' - ' + ${measure.measureDescription.reference} + ' - ' + ${description.domain}"></span>
+                                            </h4>
+                                        </div>
+                                        <div class="panel-body" style="height: 300px; margin-bottom: 10px; overflow-x: auto;">
+                                            <div class="form-group">
+                                                <label class="control-label col-xs-6" th:text="#{label.implementation_rate}">Implementation rate</label>
+                                                <div class="col-xs-6">
+                                                    <select class="form-control" name="implementationRate"
+                                                            th:attr="data-trick-class=${measure.measureDescription.standard.type.name == 'MATURITY' ? 'MaturityMeasure' : 'Measure'}">
+                                                        <th:block th:if="${measure.measureDescription.standard.type.name == 'MATURITY'}">
+                                                            <option th:each="implementationRate : ${parameters}"
+                                                                    th:value="${implementationRate.id}"
+                                                                    th:selected="${implementationRate.equals(measure.implementationRate)}"
+                                                                    th:text="${implementationRate.value + '%'}">
+                                                            </option>
+                                                        </th:block>
+                                                        <th:block th:unless="${measure.measureDescription.standard.type.name == 'MATURITY'}">
+                                                            <option th:each="i : ${#numbers.sequence(0,100)}"
+                                                                    th:value="${i}"
+                                                                    th:selected="${i == measure.implementationRateValue}"
+                                                                    th:text="${i + '%'}">
+                                                            </option>
+                                                        </th:block>
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div th:if="${description.description != null}">
+                                                <h4 th:text="#{label.description}">Description</h4>
+                                                <div class="well well-sm re-pre" th:text="#{${description.description}}"></div>
+                                            </div>
+
+                                            <div th:if="${measure.toDo != null}">
+                                                <h4 th:text="#{label.to_do}">Todo</h4>
+                                                <div class="well well-sm re-pre" th:text="#{${measure.toDo}}"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="panel panel-info">
+                                        <div class="panel-heading">
+                                            <h4 class="panel-title">
+                                                <a th:href="${task.url}" target="_blank"
+                                                   th:text="${task.type} + ' #' + ${task.id}"></a>
+                                            </h4>
+                                        </div>
+                                        <div class="panel-body" style="height: 300px; overflow-x: auto;">
+                                            <h4 th:text="${task.name}"></h4>
+                                            <p class="text-muted">
+                                                <span th:text="#{label.add.by(${task.reporter}, ${#dates.format(task.created, 'yyyy-MM-dd')})}">Add by...</span>
+                                            </p>
+                                            <table class="table">
+                                                <thead>
+                                                    <tr>
+                                                        <th th:text="#{label.status}">Status</th>
+                                                        <th th:text="#{label.priority}">Priority</th>
+                                                        <th th:text="#{label.assignee}">Assignee</th>
+                                                        <th th:text="#{label.created_date}">Created</th>
+                                                        <th th:text="#{label.due.date}">Due date</th>
+                                                        <th th:text="#{label.progress}">Progress</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td th:text="${task.status}"></td>
+                                                        <td th:text="${task.priority}"></td>
+                                                        <td th:text="${task.assignee}"></td>
+                                                        <td th:text="${#dates.format(task.created, 'yyyy-MM-dd')}"></td>
+                                                        <td th:text="${#dates.format(task.due, 'yyyy-MM-dd')}"></td>
+                                                        <td>
+                                                            <div class="progress" th:title="${task.progress + '%'}">
+                                                                <div class="progress-bar progress-bar-success" role="progressbar"
+                                                                     th:style="'width:' + ${task.progress} + '%'"
+                                                                     th:attr="aria-valuenow=${task.progress}">
+                                                                    <span style="color: #333;" th:text="${task.progress + '%'}"></span>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+
+                                            <div th:if="${task.description != null}">
+                                                <h4 th:text="#{label.description}">Description</h4>
+                                                <div class="well well-sm re-pre" th:text="${task.description}"></div>
+                                            </div>
+
+                                            <div th:each="customField : ${task.customFields.values()}">
+                                                <h4 th:text="${customField.name}"></h4>
+                                                <p class="well well-sm re-pre" th:text="${customField.value}"></p>
+                                            </div>
+
+                                            <div class="panel-group" th:attr="id='sub-item-' + ${task.id}" role="tablist" aria-multiselectable="true">
+                                                <div class="panel panel-info" th:if="${task.comments != null}">
+                                                    <div class="panel-heading" th:attr="id='heading-task-comment-' + ${task.id}">
+                                                        <h4 class="panel-title">
+                                                            <a role="button" data-toggle="collapse"
+                                                               th:attr="data-parent='#sub-item-' + ${task.id}, href='#task-comment-' + ${task.id}"
+                                                               aria-expanded="true"
+                                                               th:attr="aria-controls='task-comment-' + ${task.id}"
+                                                               th:text="#{label.comments}">Comments</a>
+                                                        </h4>
+                                                    </div>
+                                                    <div class="panel-collapse collapse in"
+                                                         th:attr="id='task-comment-' + ${task.id}, aria-labelledby='heading-task-comment-' + ${task.id}">
+                                                        <div class="panel-body">
+                                                            <blockquote th:each="comment : ${task.comments}">
+                                                                <p th:text="${comment.description}"></p>
+                                                                <footer th:text="${comment.author + ', ' + #dates.format(comment.created, 'yyyy-MM-dd')}"></footer>
+                                                            </blockquote>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="panel panel-info" th:if="${task.subTasks != null}">
+                                                    <div class="panel-heading" th:attr="id='heading-sub-task-' + ${task.id}">
+                                                        <h4 class="panel-title">
+                                                            <a role="button" data-toggle="collapse"
+                                                               th:attr="data-parent='#sub-item-' + ${task.id}, href='#sub-task-' + ${task.id}"
+                                                               aria-expanded="true"
+                                                               th:attr="aria-controls='sub-task-' + ${task.id}"
+                                                               th:text="#{label.sub_tasks}">Sub tasks</a>
+                                                        </h4>
+                                                    </div>
+                                                    <div class="panel-collapse collapse"
+                                                         th:attr="id='sub-task-' + ${task.id}, aria-labelledby='heading-sub-task-' + ${task.id}">
+                                                        <ul class="list-group">
+                                                            <li class="list-group-item" th:each="subTask : ${task.subTasks}">
+                                                                <a th:href="${subTask.url}" target="_blank" class="btn-link">
+                                                                    <i class="fa fa-external-link" aria-hidden="true"
+                                                                       style="vertical-align: middle;margin-right: 5px"></i>
+                                                                    <span th:text="${subTask.type} + ' #' + ${subTask.name}"></span>
+                                                                </a>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+
+                                                <div class="panel panel-info" th:if="${task.issueLinks != null}">
+                                                    <div class="panel-heading" th:attr="id='heading-issue-link-' + ${task.id}">
+                                                        <h4 class="panel-title">
+                                                            <a role="button" data-toggle="collapse"
+                                                               th:attr="data-parent='#sub-item-' + ${task.id}, href='#issue-link-' + ${task.id}"
+                                                               aria-expanded="true"
+                                                               th:attr="aria-controls='issue-link-' + ${task.id}"
+                                                               th:text="#{label.issue_links}">Issues links</a>
+                                                        </h4>
+                                                    </div>
+                                                    <div class="panel-collapse collapse"
+                                                         th:attr="id='issue-link-' + ${task.id}, aria-labelledby='heading-issue-link-' + ${task.id}">
+                                                        <ul class="list-group">
+                                                            <li class="list-group-item" th:each="issueLink : ${task.issueLinks}">
+                                                                <a th:href="${issueLink.url}" target="_blank" class="btn-link">
+                                                                    <i class="fa fa-external-link" aria-hidden="true"
+                                                                       style="vertical-align: middle;margin-right: 5px"></i>
+                                                                    <span th:text="${issueLink.value} + ' #' + ${issueLink.name}"></span>
+                                                                </a>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </th:block>
+                            </fieldset>
+                        </th:block>
+                    </th:block>
+                </th:block>
+            </div>
+
+            <div class="modal-footer">
+                <div th:if="${#lists.size(measures) > 1}">
+                    <nav class="col-lg-10">
+                        <ul class="pager" style="margin: 0px;">
+                            <li class="previous disabled">
+                                <a href="#"><span aria-hidden="true">&larr;</span> <span th:text="#{label.action.previous}">Previous</span></a>
+                            </li>
+                            <li class="next">
+                                <a href="#"><span th:text="#{label.action.next}">Next</span> <span aria-hidden="true">&rarr;</span></a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+                <button class="btn btn-default" data-dismiss="modal" data-aria-hidden="false" th:text="#{label.action.close}">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

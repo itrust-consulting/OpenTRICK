@@ -1,0 +1,44 @@
+<div class="modal fade" id="actionplancomputeoptions" tabindex="-1" role="dialog" aria-labelledby="actionplancomputeoptions" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" th:text="#{label.title.compute.action_plan}"></h4>
+            </div>
+            <div class="modal-body">
+                <p th:text="#{label.title.options.select_norm}"></p>
+                <p th:text="#{label.title.options.select_norm.info}"></p>
+
+                <form th:action="@{/ActionPlan/Compute(__${_csrf.parameterName}__=${_csrf.token})}" method="post"
+                      class="form-horizontal" id="actionplancomputationoptionsform">
+                    
+                    <input type="hidden" name="id" th:if="${id != null}" th:value="${id}"/>
+
+                    <table class="table text-center">
+                        <thead th:if="${standards != null}">
+                            <tr>
+                                <th th:each="analysisStandard : ${standards}">
+                                    <b th:text="${analysisStandard.standard.name}"></b>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody th:if="${standards != null}">
+                            <tr>
+                                <td th:each="analysisStandard : ${standards}">
+                                    <input type="checkbox" th:name="'standard_' + ${analysisStandard.id}" value="1"/>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button id="computeActionPlanButton" type="button" class="btn btn-default" data-dismiss="modal"
+                        onclick="return calculateActionPlanWithOptions('actionplancomputationoptionsform')"
+                        th:text="#{label.action.compute}"></button>
+                <button id="cancelcomputeActionPlanButton" type="button" class="btn btn-default" data-dismiss="modal"
+                        th:text="#{label.action.cancel}"></button>
+            </div>
+        </div>
+    </div>
+</div>
