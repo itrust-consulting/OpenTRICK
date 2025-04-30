@@ -1,0 +1,83 @@
+<div data-view-content-name="rrf">
+    <ul class="nav nav-tabs nav-justified">
+        <li class="active">
+            <a href="#import-${rawRRFItem.name}" data-toggle="tab">
+                <span th:text="#{label.from.excel.file}">File</span>
+            </a>
+        </li>
+        <li>
+            <a href="#import-${rrfItem.name}" data-toggle="tab">
+                <span th:text="#{label.from.knowledge_base}">Knowledge base</span>
+            </a>
+        </li>
+    </ul>
+    <div class="tab-content" data-view-tab="secondary">
+        <div th:with="item=${rawRRFItem}" class="tab-pane active" id="import-${item.name}"
+            data-view-name="${item.name}" data-view-process-url="${item.processURL}" data-view-extentions="${item.extensions}">
+            <!-- Including another page: use fragment inclusion in Thymeleaf -->
+            <div th:replace="~{default :: content}"></div>
+        </div>
+        <div class="tab-pane" id="import-${rrfItem.name}" data-view-name="${rrfItem.name}" data-view-process-url="${rrfItem.processURL}">
+            <fieldset>
+                <legend>
+                    <span th:text="#{label.title.data_manager.import.rrf}"></span>
+                </legend>
+                <div class="alert alert-sm alert-danger" style="margin-bottom: 15px">
+                    <span th:text="#{info.import.rrf}"></span>
+                </div>
+                <form action="#" class="form">
+                    <div class="form-group">
+                        <label class="control-label" th:data-helper-content="#{help.rrf.customer}">
+                            <span th:text="#{label.customers}"></span>
+                        </label>
+                        <select class="form-control" name="customer">
+                            <th:block th:each="customer : ${customers}">
+                                <option th:value="${customer.id}">
+                                    <span th:text="${customer.organisation}"></span>
+                                </option>
+                            </th:block>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label" th:data-helper-content="#{help.rrf.analysis}">
+                            <span th:text="#{label.analyses}"></span>
+                        </label>
+                        <select class="form-control" name="analysis">
+                            <th:block th:each="analysis : ${analyses}">
+                                <th:block th:if="${analysis.profile}">
+                                    <option th:value="${analysis.id}" th:title="#{${analysis.label}}"
+                                        th:data-trick-id="${analysis.customer.id}">
+                                        <span th:text="${analysis.label}"></span>
+                                    </option>
+                                </th:block>
+                                <th:block th:unless="${analysis.profile}">
+                                    <option th:value="${analysis.id}" th:title="#{${analysis.label} - v.${analysis.version}}"
+                                        th:data-trick-id="${analysis.customer.id}">
+                                        <span th:text="${analysis.label} - v.${analysis.version}"></span>
+                                    </option>
+                                </th:block>
+                            </th:block>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label th:data-helper-content="#{help.rrf.standard}">
+                            <span th:text="#{label.standards}"></span>
+                        </label>
+                        <select class="form-control" name="standards" multiple="multiple">
+                            <th:block th:each="analysis : ${analyses}">
+                                <th:block th:each="analysisStandard : ${analysis.analysisStandards.values()}">
+                                    <th:block th:if="${standards.contains(analysisStandard.standard)}">
+                                        <option th:title="#{${analysisStandard.standard.name} : ${analysisStandard.standard.label} - v.${analysisStandard.standard.version}}"
+                                            th:value="${analysisStandard.standard.id}" th:data-trick-id="${analysis.id}">
+                                            <span th:text="${analysisStandard.standard.name}"></span>
+                                        </option>
+                                    </th:block>
+                                </th:block>
+                            </th:block>
+                        </select>
+                    </div>
+                </form>
+            </fieldset>
+        </div>
+    </div>
+</div>

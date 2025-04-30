@@ -1,0 +1,48 @@
+<div class="modal fade" id="phase-modal-form" tabindex="-1" role="dialog" data-aria-labelledby="phase-modal-form" data-aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
+                <div class="modal-title">
+                    <h4 id="phaseNewModal-title" class="col-md-6">
+                        <span th:text="#{label.title.phase.add_edit(${form.id}, ${form.number})"></span>
+                    </h4>
+                </div>
+            </div>
+            <div class="modal-body">
+                <form name="phase" th:action="@{/Phase/Save(~{${_csrf.parameterName}=${_csrf.token}})}" class="form-horizontal" id="phaseForm">
+                    <input name="id" id="phase.id" th:value="${form.id}" type="hidden" />
+                    <div class="form-group">
+                        <label for="date" class="col-sm-3 control-label" th:data-helper-content="#{help.asset.period}"> 
+                            <span th:text="#{label.phase_period}"></span>
+                        </label>
+                        <div class="col-sm-9 phase-date-range" align="center">
+                            <input name="begin" type="date" class="form-control" style="width: 45%; display: inline-block; vertical-align: middle;"
+                                th:value="${#dates.format(form.begin, 'yyyy-MM-dd')}" placeholder="#{label.phase.date.pattern}"
+                                th:attr="required=${form.beginEnabled} ? 'required' : 'disabled readonly'" />
+                            <span class="add-on" style="height: 31px; width: 10%">
+                                <span th:text="#{label.date.to}"></span>
+                            </span>
+                            <input name="end" type="date" class="form-control" style="width: 45%; display: inline-block; vertical-align: middle;"
+                                th:value="${#dates.format(form.end, 'yyyy-MM-dd')}" placeholder="#{label.phase.date.pattern}"
+                                th:attr="required=${form.endEnabled} ? 'required' : 'disabled readonly'" />
+                        </div>
+                    </div>
+                    <button name="submit" type="submit" style="display: none"></button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" name="save">
+                    <span th:text="#{label.action.save}"></span>
+                </button>
+
+                <button type="button" class="btn btn-default" name="cancel" data-dismiss="modal">
+                    <span th:text="#{label.action.cancel}"></span>
+                </button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!-- /.modal -->

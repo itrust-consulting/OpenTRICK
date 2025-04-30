@@ -1,0 +1,37 @@
+<div class="tab-pane active" id="tab-history">
+    <div class="section" id="section_history">
+        <div class="page-header tab-content-header">
+            <div class="container">
+                <div class="row-fluid">
+                    <h3>
+                        <span th:text="#{format.analysis.name(${analysis.customer.organisation}, ${analysis.label}, ${analysis.version})}"> 
+                            ${analysis.customer.organisation}: ${analysis.label} - v${analysis.version}
+                        </span>
+                    </h3>
+                </div>
+            </div>
+        </div>
+        <table class="table table-hover table-fixed-header-analysis table-condensed"  data-fh-scroll-multi="1.09">
+            <thead>
+                <tr>
+                    <th style="width: 6%"><span th:text="#{label.history.version}"></span></th>
+                    <th style="width: 6%"><span th:text="#{label.history.date}"></span></th>
+                    <th style="width: 15%"><span th:text="#{label.history.author}"></span></th>
+                    <th><span th:text="#{label.history.comment}"></span></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="history : ${histories}" th:data-trick-class="'History'" th:data-trick-id="${history.id}">
+                    <td><span th:text="${history.version}"></span></td>
+                    <td><span th:text="${#dates.format(history.date, 'dd/MM/yyyy')}"></span></td>
+                    <td th:data-trick-field="author" th:data-trick-field-type="'string'" class="editable" onclick="editField(this);">
+                        <span th:text="${history.author}"></span>
+                    </td>
+                    <td th:onclick="'editField(this);'" class="editable" th:data-trick-field="comment" th:data-trick-field-type="'string'" th:data-trick-content="'text'">
+                        <span th:text="${history.comment}"></span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

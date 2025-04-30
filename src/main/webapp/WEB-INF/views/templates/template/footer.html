@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="https://www.thymeleaf.org/extras/spring-security">
+	<div th:fragment="footer" id="footer" class="navbar navbar-inverse navbar-fixed-bottom" style="height: 30px; min-height: 30px">
+		<div class="container" style="height: 100%;">
+			<div class="pull-left" style="width: 25%;">
+				<div th:switch="${#locale.language}">
+					<div th:case="'en'">
+						<a role="changeUILanguage" data-lang="en"
+							style="color: #c3c3c3; display: inline-block; padding: 5px;">
+							<img th:src="@{/images/flags/en_disabled.png}" /> English
+						</a>&nbsp;
+						<a th:href="@{'?lang=fr'}" role="changeUILanguage"
+							style="color: #ffffff; display: inline-block; padding: 5px;"
+							th:onclick="'return switchLangueTo(\'?lang=fr\')'">
+							<img th:src="@{/images/flags/fr.png}" /> Français
+						</a>
+					</div>
+					<div th:case="'fr'">
+						<a th:href="@{'?lang=en'}" role="changeUILanguage"
+							style="color: #ffffff; display: inline-block; padding: 5px;"
+							th:onclick="'return switchLangueTo(\'?lang=en\')'">
+							<img th:src="@{/images/flags/en.png}" /> English
+						</a>&nbsp;
+						<a role="changeUILanguage" data-lang="fr"
+							style="color: #c3c3c3; display: inline-block; padding: 5px;">
+							<img th:src="@{/images/flags/fr_disabled.png}" /> Français
+						</a>
+					</div>
+				</div>
+			</div>
+
+			<div style="color: white; text-align: center; width: 50%; margin: 0 auto; margin-top: 5px; float: left;">
+				&copy; <span th:text="#{label.copy_right.text(${#strings.toString(#dates.year(#dates.createNow()))})}">2015-2025 itrust consulting - All Rights Reserved</span>
+
+			</div>
+
+			<div class="pull-right" style="color: white; width: 25%; text-align: right; margin-top: 5px;">
+				<th:block sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_SUPERVISOR','ROLE_CONSULTANT', 'ROLE_USER')">
+					<span th:text="#{label.support.mail}">Support: </span>
+					<a th:href="'mailto:' + ${@environment.getProperty('app.settings.support.email')}"
+						style="margin-right: 5px;"
+						th:text="${@environment.getProperty('app.settings.support.email')}">support@example.com</a>
+
+					<th:block th:if="${userGuideURL}">
+						<th:block th:if="${userGuideURLInternal}">
+							<a th:href="@{${userGuideURL}(version=${userGuideVersion})}"
+								th:attr="data-base-url=${userGuideURL + '?version=' + userGuideVersion}"
+								style="color: #fff;" target="ts-user-guide">
+								<i class="fa fa-book" aria-hidden="true"></i> <span th:text="#{label.user.manual}">User
+									Manual</span>
+							</a>
+						</th:block>
+						<th:block th:unless="${userGuideURLInternal}">
+							<a th:href="${userGuideURL}" th:attr="data-base-url=${userGuideURL}" style="color: #fff;"
+								target="ts-user-guide">
+								<i class="fa fa-book" aria-hidden="true"></i> <span th:text="#{label.user.manual}">User
+									Manual</span>
+							</a>
+						</th:block>
+					</th:block>
+				</th:block>
+
+				<img alt="itrust consulting" th:src="@{/images/support/itrust.png}"
+					style="height: 30px; margin-top: -8px; margin-right: 10px; padding: 0px 10px; margin-bottom: -8px;" />
+				<span
+					th:attr="title='v ' + ${@environment.getProperty('app.settings.version')} + ${@environment.getProperty('app.settings.version.revision')}"
+					th:text="'v ' + ${@environment.getProperty('app.settings.version')}">v 1.0.0</span>
+			</div>
+		</div>
+	</div>
+
+	<th:block sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_SUPERVISOR','ROLE_CONSULTANT', 'ROLE_USER')">
+		<div class="hidden" id="controller-notifications">
+			<div th:replace="~{templates/template/successErrors :: successErrors}"></div>
+			<div th:replace="~{templates/template/notifications :: notifications}"></div>
+		</div>
+	</th:block>
+
+	<div th:replace="~{templates/template/alertDialog :: alertDialog}"></div>
+
+</html>

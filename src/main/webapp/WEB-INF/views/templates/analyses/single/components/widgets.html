@@ -1,0 +1,18 @@
+<div id="widgets">
+    <!-- Replacing JSP includes with Thymeleaf -->
+    <th:block th:replace="~{./standards/measure/widgetcontent :: widget}"></th:block>
+    <th:block th:replace="~{./standards/standard/widgetcontent :: widget}"></th:block>
+    
+    <!-- Modal -->
+    <div class="modal fade" id="rrfEditor" tabindex="-1" role="dialog" 
+         aria-labelledby="rrfEditor" aria-hidden="true" data-backdrop="static"></div>
+    
+    <!-- Conditional rendering for isEditable and type.quantitative -->
+    <div th:if="${isEditable and type.quantitative}">
+        <datalist id="dataListImplementationRate" hidden="hidden">
+            <!-- Iterating over the range from 0 to 100 -->
+            <option th:each="implementationRate : ${#numbers.sequence(0, 100)}"
+                    th:value="${implementationRate}" th:text="${implementationRate}"></option>
+        </datalist>    
+    </div>
+</div>

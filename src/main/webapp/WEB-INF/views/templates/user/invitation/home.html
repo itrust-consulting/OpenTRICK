@@ -1,0 +1,61 @@
+<div th:fragment="home" id="tab-invitation" class="tab-pane" data-update-required="true" data-trigger="loadUserInvitation" data-scroll-trigger="userInvitationScrolling">
+    <div class="col-md-3 col-lg-2 nav-left-affix" role="left-menu">
+        <strong><span th:text="#{label.title.control}">Control</span></strong>
+        <form class="form-horizontal" name="invitationControl" id="formInvitationControl">
+            <div class="form-group">
+                <label for="pageSize" class="col-sm-4 control-label">
+                    <span th:text="#{label.page.size}">Page size</span>
+                </label>
+                <div class="col-sm-8">
+                    <select name="size" class="form-control" onchange="updateInvitationControl()" id="invitationPageSize">
+                        <option th:value="30" th:selected="${invitationControl.size == 30}">30</option>
+                        <option th:value="120" th:selected="${invitationControl.size == 120}">120</option>
+                        <option th:value="500" th:selected="${ invitationControl.size == 500}">500</option>
+                        <option th:value="1000" th:selected="${invitationControl.size == 1000}">1000</option>
+                        <option th:value="2000" th:selected="${invitationControl.size == 2000}">2000</option>
+                    </select>
+                    
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="sort" class="col-sm-4 control-label">
+                    <span th:text="#{label.action.sort.over}">Sort by</span>
+                </label>
+                <div class="col-sm-8">
+                    <select name="sort" class="form-control" onchange="updateInvitationControl()">
+                        <th:block th:each="name : ${invitationSortNames}">
+                            <option th:value="#{${name}}"
+                                    th:selected="${invitationControl.sort} == ${name}"
+                                    th:text="#{${'label.invitation.' + name}}">Placeholder</option>
+                        </th:block>
+                    </select>
+                    
+                    
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="direction" class="col-sm-4 control-label">
+                    <span th:text="#{label.action.sort}">Sort</span>
+                </label>
+                <div class="col-sm-8">
+                    <div class="btn-group" data-toggle="buttons">
+                        <label class="btn btn-default" th:classappend="${invitationControl.direction == 'asc' ? 'active' : ''}" 
+                               title="<span th:text='#{label.sort_direction.ascending}'>Ascending</span>">
+                            <input type="radio" name="direction" value="asc" th:checked="${invitationControl.direction == 'asc'}" autocomplete="off" onchange="updateInvitationControl(this)">
+                            <i class="fa fa-play fa-rotate-270"></i>
+                        </label>
+                        <label class="btn btn-default" th:classappend="${invitationControl.direction == 'desc' ? 'active' : ''}" 
+                               title="<span th:text='#{label.sort_direction.descending}'>Descending</span>">
+                            <input type="radio" name="direction" value="desc" th:checked="${invitationControl.direction == 'desc'}" autocomplete="off" onchange="updateInvitationControl(this)">
+                            <i class="fa fa-play fa-rotate-90"></i>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div id="progress-invitation" class="center-block" style="width: 60px">
+            <i class="fa fa-spinner fa-pulse fa-5x fa-align-center fa-spin"></i>
+        </div>
+    </div>
+    <div class="col-md-9 col-lg-10" id="section_invitation"></div>
+</div>

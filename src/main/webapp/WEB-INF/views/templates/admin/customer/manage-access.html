@@ -1,0 +1,65 @@
+<div class="modal fade" id="manageCustomerUserModel" tabindex="-1" role="dialog"
+     aria-labelledby="manageCustomerUserModel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width: 705px;">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" th:text="#{label.customer.manage.users}">Manage customer users</h4>
+            </div>
+
+            <div class="modal-body" style="padding: 0;">
+                <div style="padding: 5px 20px;">
+                    <h5 style="font-weight: bold;" 
+                        th:text="#{label.customer.manage.access.info(${customer.organisation}, ${customer.contactPerson})}">
+                        Organisation: Example, Contact person: John Doe
+                    </h5>
+
+                    <div>
+                        <h4 class="col-xs-7 bordered-bottom" style="padding-left: 0" th:text="#{label.name}">Name</h4>
+                        <h4 class="col-xs-5 bordered-bottom text-center" th:text="#{label.customer.access}">Access</h4>
+                    </div>
+                </div>
+
+                <!-- Set up access labels -->
+                <div th:with="hasAccess=#{label.customer.acess.yes}, noAccess=#{label.customer.acess.no}"
+                     class="form-horizontal" style="padding: 5px 20px; height: 500px; overflow-x: hidden; clear: both;">
+
+                    <!-- Loop through users -->
+                    <div th:each="user : ${users}"
+                         th:with="userRight=${customerUsers.containsKey(user.login)},
+                                  name='user_' + ${user.id}"
+                         class="form-group"
+                         th:attr="data-default-value=${userRight}, data-trick-id=${user.id}, data-name=${name}">
+                        <div class="col-xs-7">
+                            <strong style="vertical-align: middle; text-transform: capitalize;"
+                                    th:text="${#strings.toLowerCase(user.firstName)} + ' ' + ${#strings.toLowerCase(user.lastName)}">
+                                john doe
+                            </strong>
+                        </div>
+
+                        <div class="col-xs-5 text-center">
+                            <div class="btn-group" data-toggle="buttons">
+                                <label class="btn btn-sm btn-default" 
+                                       th:classappend="${userRight} ? ' active' : ''"
+                                       th:text="${hasAccess}">
+                                    <input type="radio" th:checked="${userRight}" th:name="${name}" value="true" />
+                                </label>
+                                <label class="btn btn-sm btn-default" 
+                                       th:classappend="${!userRight} ? ' active' : ''"
+                                       th:text="${noAccess}">
+                                    <input type="radio" th:checked="${!userRight}" th:name="${name}" value="false" />
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" name="save" data-dismiss="modal" th:text="#{label.action.save}">Save</button>
+                <button type="button" class="btn btn-default" name="cancel" data-dismiss="modal" th:text="#{label.action.cancel}">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>

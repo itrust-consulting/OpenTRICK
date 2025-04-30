@@ -1,15 +1,5 @@
 package lu.itrust.business.ts.controller.account;
 
-import static lu.itrust.business.ts.constants.Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8;
-import static lu.itrust.business.ts.constants.Constant.EMPTY_STRING;
-import static lu.itrust.business.ts.constants.Constant.FILTER_CONTROL_FILTER_KEY;
-import static lu.itrust.business.ts.constants.Constant.FILTER_CONTROL_INVITATION;
-import static lu.itrust.business.ts.constants.Constant.FILTER_CONTROL_REPORT;
-import static lu.itrust.business.ts.constants.Constant.FILTER_CONTROL_SIZE_KEY;
-import static lu.itrust.business.ts.constants.Constant.FILTER_CONTROL_SORT_DIRCTION_KEY;
-import static lu.itrust.business.ts.constants.Constant.FILTER_CONTROL_SORT_KEY;
-import static lu.itrust.business.ts.constants.Constant.FILTER_CONTROL_SQLITE;
-
 import java.net.URLEncoder;
 import java.security.Principal;
 import java.security.SecureRandom;
@@ -49,6 +39,15 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lu.itrust.business.ts.component.TrickLogManager;
 import lu.itrust.business.ts.constants.Constant;
+import static lu.itrust.business.ts.constants.Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8;
+import static lu.itrust.business.ts.constants.Constant.EMPTY_STRING;
+import static lu.itrust.business.ts.constants.Constant.FILTER_CONTROL_FILTER_KEY;
+import static lu.itrust.business.ts.constants.Constant.FILTER_CONTROL_INVITATION;
+import static lu.itrust.business.ts.constants.Constant.FILTER_CONTROL_REPORT;
+import static lu.itrust.business.ts.constants.Constant.FILTER_CONTROL_SIZE_KEY;
+import static lu.itrust.business.ts.constants.Constant.FILTER_CONTROL_SORT_DIRCTION_KEY;
+import static lu.itrust.business.ts.constants.Constant.FILTER_CONTROL_SORT_KEY;
+import static lu.itrust.business.ts.constants.Constant.FILTER_CONTROL_SQLITE;
 import lu.itrust.business.ts.database.service.ServiceAnalysis;
 import lu.itrust.business.ts.database.service.ServiceAnalysisShareInvitation;
 import lu.itrust.business.ts.database.service.ServiceDataValidation;
@@ -219,7 +218,7 @@ public class ControllerAccount {
 
 		// if file could not be found retrun 404 error
 		if (wordReport == null)
-			return "jsp/errors/404";
+			return "templates/errors/404";
 
 		Integer idAnalysis = serviceAnalysis.getIdFromIdentifierAndVersion(wordReport.getIdentifier(),
 				wordReport.getVersion());
@@ -280,7 +279,7 @@ public class ControllerAccount {
 
 		// if file could not be found retrun 404 error
 		if (userSqLite == null)
-			return "jsp/errors/404";
+			return "templates/errors/404";
 
 		Integer idAnalysis = serviceAnalysis.getIdFromIdentifierAndVersion(userSqLite.getIdentifier(),
 				userSqLite.getVersion());
@@ -353,13 +352,31 @@ public class ControllerAccount {
 		model.addAttribute("invitationSortNames", InvitationFilter.SORTS());
 		session.setAttribute("sqliteControl", buildFromUser(user, FILTER_CONTROL_SQLITE));
 		session.setAttribute("reportControl", buildFromUser(user, FILTER_CONTROL_REPORT));
-		session.setAttribute("invitationControl", buildFromUser(user, FILTER_CONTROL_INVITATION));
+
+        TrickFilter invitationControl = (TrickFilter)session.getAttribute("invitationControl");
+		if(invitationControl == null){
+			session.setAttribute("invitationControl", invitationControl = buildFromUser(user, FILTER_CONTROL_INVITATION));
+		}
+		model.addAttribute("invitationControl", invitationControl);
+
+		TrickFilter sqliteControl = (TrickFilter)session.getAttribute("sqliteControl");
+		if(sqliteControl == null){
+			session.setAttribute("sqliteControl", sqliteControl = buildFromUser(user, FILTER_CONTROL_SQLITE));
+		}
+		model.addAttribute("sqliteControl", sqliteControl);
+
+		TrickFilter reportControl = (TrickFilter)session.getAttribute("reportControl");
+		if(reportControl == null){
+			session.setAttribute("reportControl", reportControl = buildFromUser(user, FILTER_CONTROL_REPORT));
+		}
+		model.addAttribute("reportControl", reportControl);
+
 		if (enabledOTP) {
 			String secret = user.getSecret();
 			if ((user.isUsing2FA() || forcedOTP) && StringUtils.hasText(secret))
 				model.addAttribute("qrcode", generateQRCode(user, secret));
 		}
-		return "jsp/user/home";
+		return "templates/user/home";
 	}
 
 	/**
@@ -394,7 +411,7 @@ public class ControllerAccount {
 		model.addAttribute("user", user);
 		model.addAttribute("enabledOTP", enabledOTP);
 		model.addAttribute("forcedOTP", forcedOTP);
-		return "jsp/user/otp/section";
+		return "templates/user/otp/section";
 
 	}
 
@@ -434,7 +451,7 @@ public class ControllerAccount {
 			filter = new FilterControl();
 		model.addAttribute("reports",
 				serviceWordReport.getAllFromUserByFilterControl(principal.getName(), page, filter));
-		return "jsp/user/report/section";
+		return "templates/user/report/section";
 	}
 
 	@RequestMapping(value = "/Section/Sqlite", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
@@ -445,7 +462,7 @@ public class ControllerAccount {
 			filter = new FilterControl();
 		model.addAttribute("sqlites",
 				serviceUserSqLite.getAllFromUserByFilterControl(principal.getName(), page, filter));
-		return "jsp/user/sqlite/section";
+		return "templates/user/sqlite/section";
 	}
 
 	@RequestMapping(value = "/Section/Invitation", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
@@ -456,7 +473,7 @@ public class ControllerAccount {
 			filter = new InvitationFilter();
 		model.addAttribute("invitations",
 				serviceAnalysisShareInvitation.findAllByUsernameAndFilterControl(principal.getName(), page, filter));
-		return "jsp/user/invitation/section";
+		return "templates/user/invitation/section";
 	}
 
 	@RequestMapping(value = "/Control/Report/Update", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)

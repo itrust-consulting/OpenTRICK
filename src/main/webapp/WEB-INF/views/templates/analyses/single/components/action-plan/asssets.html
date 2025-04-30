@@ -1,0 +1,86 @@
+<!-- Thymeleaf Template Fragment -->
+<div class="modal fade" id="actionPlanAssets" tabindex="-1" role="dialog"
+     aria-labelledby="actionPlanAssets" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog" style="width: 98%;">
+        <div class="modal-content" style="padding:0 5px 20px 5px">
+            <div class="modal-header" style="padding-bottom: 2px">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <div class="modal-title">
+                    <h4 th:text="#{label.title.actionplan.assets}"></h4>
+
+                    <ul class="nav nav-pills" id="menu_asset_actionplan">
+                        <li th:each="apt : ${actionplansplitted.keySet()}"
+                            th:classappend="${selectedApt} == ${apt} ? 'disabled'" 
+                            th:attr="data-trick-nav-control=${apt}">
+                            <a href="#"
+                               th:onclick="|return navToogled('#section_actionplans,#actionPlanAssets','#menu_actionplan,#tabOption,#menu_asset_actionplan','${apt}',true);|">
+                                <span th:text="#{label.action_plan_type.${#strings.toLowerCase(apt)}}"></span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="modal-body" style="padding-top: 0; overflow-x: auto;">
+                <div th:each="apt : ${actionplansplitted.keySet()}">
+                    <div th:attr="data-trick-nav-content=${apt}"
+                         th:if="${selectedApt} == ${apt}">
+                        <table class="table table-hover table-condensed table-fixed-header-analysis"
+                               th:attr="id='actionplantable_' + ${apt}">
+                            <thead>
+                                <tr>
+                                    <th style="width: 1%;" th:text="#{label.table.index}"></th>
+                                    <th style="width: 4%;" th:text="#{label.measure.norm}"></th>
+                                    <th style="width: 3%;" th:text="#{label.reference}"></th>
+                                    <th style="width: 4%;" th:text="#{label.action_plan.total_ale}"></th>
+                                    <th th:each="asset : ${actionplanassets}" 
+                                        th:text="${asset.name}"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:if="${#lists.size(actionplansplitted[apt]) > 0}">
+                                    <td colspan="3" th:text="#{label.action_plan.current_ale}"></td>
+
+                                    <td th:with="totalALE=${#numbers.formatDecimal((actionplansplitted[apt][0].totalALE + actionplansplitted[apt][0].deltaALE), 1, 2)},
+                                                 computedALE=${actionplansplitted[apt][0].totalALE + actionplansplitted[apt][0].deltaALE}"
+                                        th:classappend="${computedALE == 0} ? 'danger'"
+                                        th:title="|${#numbers.formatDecimal(computedALE, 1, 2)} €|"
+                                        th:text="${#numbers.formatDecimal(computedALE * 0.001, 0, 0)}">
+                                    </td>
+
+                                    <td th:each="asset : ${actionplanassets}">
+                                        <span th:switch="${apt}">
+                                            <span th:case="'APPO'" th:title="|${asset.ALEO} €|"
+                                                  th:text="${#numbers.formatDecimal(asset.ALEO * 0.001, 0, 2)}"></span>
+                                            <span th:case="'APPP'" th:title="|${asset.ALEP} €|"
+                                                  th:text="${#numbers.formatDecimal(asset.ALEP * 0.001, 0, 0)}"></span>
+                                            <span th:case="*"
+                                                  th:title="|${asset.ALE} €|"
+                                                  th:text="${#numbers.formatDecimal(asset.ALE * 0.001, 0, 0)}"></span>
+                                        </span>
+                                    </td>
+                                </tr>
+
+                                <tr th:each="ape : ${actionplansplitted[apt]}"
+                                    th:attr="data-trick-class='ActionPlanEntry', data-trick-id=${ape.id}"
+                                    th:attrappend="data-trick-callback=|reloadMeasureRow('${ape.measure.id}', '${ape.measure.measureDescription.standard.label}')|">
+                                    <td th:text="${ape.order}"></td>
+                                    <td th:text="${ape.measure.measureDescription.standard.name}"></td>
+                                    <td th:text="${ape.measure.measureDescription.reference}"></td>
+                                    <td th:classappend="${ape.totalALE == 0} ? 'danger'"
+                                        th:title="|${ape.totalALE} €|"
+                                        th:text="${#numbers.formatDecimal(ape.totalALE * 0.001, 0, 0)}"></td>
+
+                                    <td th:each="apa : ${#request.getAttribute('orderedActionPlanAssets')[ape.id]}"
+                                        th:title="|${apa.currentALE} €|"
+                                        th:text="${#numbers.formatDecimal(apa.currentALE * 0.001, 0, 0)}"></td>
+                                </tr>
+                            </tbody>
+                            <tfoot></tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

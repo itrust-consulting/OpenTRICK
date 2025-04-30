@@ -1,0 +1,68 @@
+<div th:fragment="home" id="tab-sqlite" class="tab-pane" data-update-required="true" data-trigger="loadUserSqlite" data-scroll-trigger="userSqliteScrolling">
+	<div class="col-md-3 col-lg-2 nav-left-affix" role="left-menu">
+		<strong th:text="#{label.title.control}">Control</strong>
+		<form class="form-horizontal" name="sqliteControl" id="formSqliteControl" th:object="${sqliteControl}">
+
+			<div class="form-group">
+				<label for="pageSize" class="col-sm-4 control-label" th:text="#{label.page.size}">Page size</label>
+				<div class="col-sm-8">
+					<select name="size" class="form-control" onchange="updateSqliteControl()" id="sqlitePageSize">
+						<option value="30" th:selected="${sqliteControl.size == 30}">30</option>
+						<option value="120" th:selected="${sqliteControl.size == 120}">120</option>
+						<option value="500" th:selected="${sqliteControl.size == 500}">500</option>
+						<option value="1000" th:selected="${sqliteControl.size == 1000}">1000</option>
+						<option value="2000" th:selected="${sqliteControl.size == 2000}">2000</option>
+					</select>
+				</div>
+			</div>
+
+			<div class="form-group">
+				<label for="filter" class="col-sm-4 control-label" th:text="#{label.action.show}">Show</label>
+				<div class="col-sm-8">
+					<select name="filter" class="form-control" onchange="updateSqliteControl()">
+						<option value="ALL" th:selected="${sqliteControl.filter == 'ALL'}" th:text="#{label.all}">All</option>
+						<th:block th:each="sqliteIdentifier : ${sqliteIdentifiers}">
+							<option th:value="${sqliteIdentifier}" th:selected="${sqliteControl.filter == sqliteIdentifier}">
+								<span th:text="#{${sqliteIdentifier}}"></span>
+							</option>
+						</th:block>
+					</select>
+				</div>
+			</div>
+
+			<div class="form-group">
+				<label for="sort" class="col-sm-4 control-label" th:text="#{label.action.sort.over}">Sort by</label>
+				<div class="col-sm-8">
+					<select name="sort" class="form-control" onchange="updateSqliteControl()">
+						<option value="identifier" th:selected="${sqliteControl.sort == 'identifier'}" th:text="#{label.analysis.identifier}">TRICK name</option>
+						<option value="label" th:selected="${sqliteControl.sort == 'label'}" th:text="#{label.analysis.label}">Name</option>
+						<option value="version" th:selected="${sqliteControl.sort == 'version'}" th:text="#{label.analysis.version}">Version</option>
+						<option value="created" th:selected="${sqliteControl.sort == 'created'}" th:text="#{label.date.created}">Created date</option>
+						<option value="length" th:selected="${sqliteControl.sort == 'length'}" th:text="#{label.file.size}">Size</option>
+					</select>
+				</div>
+			</div>
+
+			<div class="form-group">
+				<label for="direction" class="col-sm-4 control-label" th:text="#{label.action.sort}">Sort</label>
+				<div class="col-sm-8">
+					<div class="btn-group" data-toggle="buttons">
+						<label class="btn btn-default" th:classappend="${sqliteControl.direction == 'asc' ? ' active' : ''}" title="#{label.sort_direction.ascending}">
+							<input type="radio" name="direction" value="asc" th:checked="${sqliteControl.direction == 'asc'}" autocomplete="off" onchange="updateSqliteControl(this)">
+							<i class="fa fa-play fa-rotate-270"></i>
+						</label>
+						<label class="btn btn-default" th:classappend="${sqliteControl.direction == 'desc' ? ' active' : ''}" title="#{label.sort_direction.descending}">
+							<input type="radio" name="direction" value="desc" th:checked="${sqliteControl.direction == 'desc'}" autocomplete="off" onchange="updateSqliteControl(this)">
+							<i class="fa fa-play fa-rotate-90"></i>
+						</label>
+					</div>
+				</div>
+			</div>
+
+		</form>
+		<div id="progress-sqlite" class="center-block" style="width: 60px">
+			<i class="fa fa-spinner fa-pulse fa-5x fa-align-center fa-spin"></i>
+		</div>
+	</div>
+	<div class="col-md-9 col-lg-10" id="section_sqlite"></div>
+</div>

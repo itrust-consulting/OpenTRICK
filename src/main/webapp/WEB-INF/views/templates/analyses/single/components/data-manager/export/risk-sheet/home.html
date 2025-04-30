@@ -1,0 +1,35 @@
+<div data-view-content-name="risk-sheet">
+    <ul class="nav nav-tabs nav-justified">
+        <li class="active">
+            <a href="#import-[[${rawRiskSheetItem.name}]]" data-toggle="tab">
+                <span th:text="#{label.export.raw.data}"></span>
+            </a>
+        </li>
+        <li>
+            <a href="#import-[[${reportRiskSheetItem.name}]]" data-toggle="tab">
+                <span th:text="#{label.export.report.sheet}"></span>
+            </a>
+        </li>
+    </ul>
+    <div class="tab-content" data-view-tab="secondary">
+        <!-- Set item to rawRiskSheetItem -->
+        <div class="tab-pane active" id="import-[[${rawRiskSheetItem.name}]]"
+             data-view-name="[[${rawRiskSheetItem.name}]]"
+             data-view-process-url="[[${rawRiskSheetItem.processURL}]]"
+             data-view-extentions="[[${rawRiskSheetItem.extensions}]]">
+            <span th:with="type='RAW'"></span>
+            <!-- Include form.jsp (this would need to be handled with Thymeleaf or HTML snippet instead) -->
+            <div th:replace="form :: content"></div>
+        </div>
+
+        <!-- Set item to reportRiskSheetItem -->
+        <div class="tab-pane" id="import-[[${reportRiskSheetItem.name}]]"
+             data-view-name="[[${reportRiskSheetItem.name}]]"
+             data-view-process-url="[[${reportRiskSheetItem.processURL}]]"
+             data-view-extentions="[[${reportRiskSheetItem.extensions}]]">
+            <span th:with="type='REPORT'"></span>
+            <!-- Include form.jsp (this would need to be handled with Thymeleaf or HTML snippet instead) -->
+            <div th:replace="form :: content"></div>
+        </div>
+    </div>
+</div>

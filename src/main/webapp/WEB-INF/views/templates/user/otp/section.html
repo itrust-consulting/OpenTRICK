@@ -1,0 +1,82 @@
+
+<div th:fragment="section" id="tab-otp" class="tab-pane">
+    <div class="section" id="section_user_otp">
+        <div class="page-header tab-content-header">
+            <h3>
+                <span th:text="#{label.user.title.otp.options}">Sign-in settings</span>
+            </h3>
+        </div>
+        <div style="margin: 0 auto; max-width: 650px;">
+            <form id="user-otp-form" name="user-otp-form" class="form-horizontal" method="post"
+                th:action="@{/Account/OTP/Update}">
+                <th:block th:with="using2FA=${user.using2FA}, enable=#{label.action.enable}, disable=#{label.action.disable}">
+                    <div class="form-group" data-index="0">
+                        <label class="control-label col-md-6">
+                            <span th:text="#{label.user.otp.setting}"></span>
+                        </label>
+                        <div class="col-md-6 text-center">
+                            <div class="btn-group" data-toggle="buttons">
+                                <div th:if="${forcedOTP}">
+                                    <span th:with="titleForce=#{label.user.opt.forced}">
+                                        <label class="btn btn-sm btn-default active disabled" th:title="${titleForce}"
+                                            th:text="${enable}"></label>
+                                        <label class="btn btn-sm btn-default disabled" th:title="${titleForce}"
+                                            th:text="${disable}"></label>
+                                    </span>
+                                </div>
+                                <div th:unless="${forcedOTP}">
+                                    <div class="btn-group" data-toggle="buttons">
+                                        <label class="btn btn-sm btn-default" th:classappend="${using2FA} ? ' active' : ''">
+                                            <input type="radio" name="using2FA" value="true"
+                                                   th:checked="${using2FA}" onchange="updateUserOtp()" /> <span th:text="${enable}">Enable</span>
+                                        </label>
+                                        <label class="btn btn-sm btn-default" th:classappend="${!using2FA} ? ' active' : ''">
+                                            <input type="radio" name="using2FA" value="false"
+                                                   th:checked="${using2FA}" onchange="updateUserOtp()" /> <span th:text="${disable}">Disable</span>
+                                        </label>
+                                    </div>                                    
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div th:if="${using2FA || forcedOTP}">
+                        <th:block th:with="hasSecret=${not empty user.secret}">
+                            <div class="form-group" data-index="1">
+                                <label class="control-label col-md-6">
+                                    <span th:text="#{label.user.otp.use.application}">Use mobile application</span>
+                                </label>
+                                <div class="col-md-6 text-center">
+                                    <div class="btn-group" data-toggle="buttons">
+                                        <label class="btn btn-sm btn-default"
+                                            th:classappend="${hasSecret ? 'active' : ''}" th:text="${enable}">
+                                            <input th:checked="${hasSecret}" name="useApplication" type="radio"
+                                                value="true" onchange="updateUserOtp()">
+                                        </label>
+                                        <label class="btn btn-sm btn-default"
+                                            th:classappend="${!hasSecret ? 'active' : ''}" th:text="${disable}">
+                                            <input th:checked="${!hasSecret}" name="useApplication" type="radio"
+                                                value="false" onchange="updateUserOtp()">
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group" id="application-qrcode" data-index="2" th:if="${not empty qrcode}">
+                                <label class="control-label col-md-6">
+                                    <span th:text="#{label.user.otp.use.qrcode}">Please scan this following
+                                        qrcode</span>
+                                </label>
+                                <div class="col-md-6 text-center">
+                                    <img alt="#" th:attr="src='data:image/png;base64,' + ${qrcode}">
+                                </div>
+                            </div>
+                        </th:block>
+                    </div>
+                </th:block>
+            </form>
+        </div>
+    </div>
+</div>

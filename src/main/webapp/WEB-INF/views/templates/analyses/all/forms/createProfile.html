@@ -1,0 +1,79 @@
+<div class="modal fade" id="analysisProfileModal" tabindex="-1" role="dialog" aria-labelledby="newAnalysisProfile" aria-hidden="true" data-backdrop="static" data-keyboard="true">
+    <div class="modal-dialog" style="width: 705px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="createAnalysisProfile-title">
+                    <span th:text="#{label.title.add.analysis.profile}">Create new profile</span>
+                </h4>
+            </div>
+            <div class="modal-body">
+                <form id="analysisProfileform"
+                      th:action="@{/AnalysisProfile/Save(__${_csrf.parameterName}__=${_csrf.token})}" 
+                      method="post"
+                      class="form-horizontal">
+                    <input type="hidden" id="id" name="id" th:value="${id}" />
+
+                    <div class="form-group">
+                        <label for="name" class="col-sm-2 control-label" style="text-align: left;"
+                               data-helper-content="#{help.analysis.profile.name}">
+                            <span th:text="#{label.name}">Name</span>
+                        </label>
+                        <div class="col-sm-10">
+                            <input class="form-control" id="name" name="name">
+                        </div>
+                    </div>
+
+                    <div>
+                        <div>
+                            <h5 class="col-xs-7 bordered-bottom" style="padding-left: 0">
+                                <span th:text="#{label.title.norm}">Norm</span>
+                            </h5>
+                            <h5 class="col-xs-5 bordered-bottom text-center">
+                                <span th:text="#{label.action}">Action</span>
+                            </h5>
+                        </div>
+                    </div>
+
+                    <div th:with="include=#{label.action.include}, exclude=#{label.action.exclude}"
+                         class="form-horizontal" style="height: 450px; overflow-x: hidden; clear: both;">
+                        <div th:each="analysisStandard : ${analysisStandards}"
+                             th:with="name='user_' + ${analysisStandard.standard.id}"
+                             class="form-group"
+                             th:attr="data-trick-id=${analysisStandard.standard.id}, data-name=${name}">
+                            <div class="col-xs-7">
+                                <strong style="vertical-align: middle; text-transform: capitalize;"
+                                        th:text="${#strings.toLowerCase(analysisStandard.standard.label)} + ' - ' + ${#strings.toLowerCase(analysisStandard.standard.version)}">
+                                    Standard - Version
+                                </strong>
+                                <p th:text="${analysisStandard.standard.description}">Description</p>
+                            </div>
+                            <div class="col-xs-5 text-center">
+                                <div class="btn-group" data-toggle="buttons">
+                                    <label class="btn btn-sm btn-default active">
+                                        <span th:text="${include}">Include</span>
+                                        <input checked="checked" type="radio" th:name="${name}" value="true">
+                                    </label>
+                                    <label class="btn btn-sm btn-default">
+                                        <span th:text="${exclude}">Exclude</span>
+                                        <input type="radio" th:name="${name}" value="false">
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                <div class="clearfix"></div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" name="save">
+                    <span th:text="#{label.action.save}">Save</span>
+                </button>
+                <button type="button" class="btn btn-default" data-dismiss="modal" name="cancel">
+                    <span th:text="#{label.action.cancel}">Cancel</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

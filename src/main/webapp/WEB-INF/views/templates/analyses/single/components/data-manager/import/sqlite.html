@@ -1,0 +1,48 @@
+<div id="analysis-import-dialog" class="modal fade" role="dialog" tabindex="-1" data-aria-hidden="true" data-backdrop="static">
+	<div class="modal-dialog modal-sml">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
+				<h4 class="modal-title">
+					<span th:text="#{label.title.import.risk.analysis}">Import a new analysis</span>
+				</h4>
+			</div>
+			<!-- dialog body -->
+			<div class="modal-body">
+				<form class="form form-inline" th:action="@{${pageContext.request.contextPath}/Analysis/Import/${customer.id}}" method="post" enctype="multipart/form-data">
+					<input type="hidden" name="customer" id="importAnalysis.customer" th:value="${customer.id}">
+					<!-- Max File Size Logic -->
+					<span th:switch="${maxFileSize}">
+						<span th:case="${maxFileSize < 1024}" th:text="#{label.max.unit.data.byte(${maxFileSize})}"></span>
+						<span th:case="${maxFileSize < 1048576}" th:text="#{label.max.unit.data.kilo.byte(${maxFileSize / 1024})}"></span>
+						<span th:case="*">
+							<span th:text="#{label.max.unit.data.mega.byte(${maxFileSize / 1048576})}"></span>
+						</span>
+					</span>
+					
+					<label><span th:text="#{label.import.analysis.select.sqlite}">Select SQLite file</span></label>
+					<div class="input-group-btn">
+						<input id="importAnalysis.file" type="file" accept=".sqlite,.tsdb" name="file" style="display: none;" th:maxlength="${maxFileSize}" /> 
+						<input id="importAnalysis.file.info" name="filename" th:placeholder="${maxSizeInfo}" class="form-control" readonly="readonly" required="required" style="width: 83%" />
+						<button class="btn btn-primary" type="button" id="importAnalysis.file.browse.button" name="browse" style="margin-left: -5px;">
+							<span th:text="#{label.action.browse}">Browse</span>
+						</button>
+					</div>
+
+					<button name='submit' type="submit" style="display: none"></button>
+					<div class='clearfix'></div>
+				</form>
+
+			</div>
+			<!-- dialog buttons -->
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary" name="import">
+					<span th:text="#{label.action.import}">Import</span>
+				</button>
+				<button type="button" class="btn btn-default" name="cancel" data-dismiss="modal">
+					<span th:text="#{label.action.cancel}">Cancel</span>
+				</button>
+			</div>
+		</div>
+	</div>
+</div>

@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+    <div th:utext="${T(lu.itrust.business.ts.model.analysis.helper.AnalysisUtils).SplitParameters(parameters)}" th:with="mappedParameters=${T(lu.itrust.business.ts.model.analysis.helper.AnalysisUtils).SplitParameters(parameters)}"></div>
+    
+    <!-- Include other JSP pages -->
+    <div th:replace="~{other.jsp}"></div>
+    <div th:replace="~{impact_probability.jsp}"></div>
+
+    <!-- Conditional block for quantitative type and maturity -->
+    <div th:if="${type.quantitative and hasMaturity}">
+        <div th:replace="~{maturity/home.jsp}"></div>
+    </div>
+</body>
+</html>

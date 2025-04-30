@@ -1,0 +1,47 @@
+<div class="modal fade" id="formIDSModal" tabindex="-1" role="dialog" data-aria-labelledby="formIDSModal" data-backdrop="static" data-aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="ids-Modal-title">
+                    <span th:if="${ids == null or ids.id < 1}">
+                        <span th:text="#{label.title.add.ids}">Add new IDS</span>
+                    </span>
+                    <span th:unless="${ids == null or ids.id < 1}">
+                        <span th:text="#{label.title.edit.ids}">Edit IDS</span>
+                    </span>
+                </h4>
+            </div>
+            <span th:text="#{label.action.enable}" th:utext="Enable" th:object="${enable}" />
+            <span th:text="#{label.action.disable}" th:utext="Disable" th:object="${disable}" />
+            <div class="modal-body">
+                <div th:replace="~{../../template/successErrors :: successErrors}"></div>
+                <form th:action="@{/path/to/submit}" th:object="${ids}" method="post" class="form-horizontal">
+                    <input type="hidden" th:field="*{id}" />
+
+                    <div class="form-group">
+                        <label for="prefix" class="col-sm-3 control-label" th:data-helper-content="#{help.id.prefix}">
+                            <span th:text="#{label.name}">Name</span>
+                        </label>
+                        <div class="col-sm-9">
+                            <input th:field="*{prefix}" class="form-control" maxlength="32" size="32" required="true" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="token" class="col-sm-3 control-label" th:data-helper-content="#{help.id.token}">
+                            <span th:text="#{label.ids.token}">Token</span>
+                        </label>
+                        <div class="col-sm-9">
+                            <textarea th:field="*{token}" class="form-control resize_vectical_only" maxlength="512" readonly="true" rows="2"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="description" class="col-sm-3 control-label" th:data-helper-content="#{help.id.description}">
+                            <span th:text="#{label.description}">Name</span>
+                        </label>
+                        <div class="col-sm-9">
+                            <textarea th:field="*{description}" class="form-control resize_vectical_only" maxlength="255" size="255" rows="4" required="true"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-group" data-index="0">
+                        <label for="enable" class="col-sm-3 control-label" th:data-helper-content="#

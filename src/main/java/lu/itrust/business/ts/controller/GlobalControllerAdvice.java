@@ -9,7 +9,6 @@ import java.util.Locale;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.AnnotationUtils;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.ui.Model;
@@ -65,6 +64,19 @@ public class GlobalControllerAdvice {
 			model.addAttribute("customCSSs", new ArrayList<String>());
 		}
 	}
+
+	@ModelAttribute
+	public void handleAnyPage(HttpServletRequest request, Model model) {
+		String uri = request.getRequestURI();               // /app/Analysis/Risk-evolution
+		String contextPath = request.getContextPath();      // /app
+		String path = uri.substring(contextPath.length());  // /Analysis/Risk-evolution
+		String menu = path.startsWith("/") ? path.substring(1) : path; // Analysis/Risk-evolution
+		model.addAttribute("menu", menu);
+		if (!"Home".equals(menu)) {
+			model.addAttribute("homeURL", contextPath + "/Home");
+		}
+	}
+
 	
 	@ExceptionHandler(value = Exception.class)
 	public String defaultErrorHandler(HttpServletRequest request, Exception e) throws Exception {

@@ -1,0 +1,59 @@
+<div class="modal fade" id="editAnalysisModel" tabindex="-1" role="dialog" aria-labelledby="editAnalysis" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">
+                    <span th:text="#{label.title.edit.info.analysis.profile}">Edit profile analysis information</span>
+                </h4>
+            </div>
+            <div class="modal-body">
+                <form name="analysis" th:action="@{/update}" class="form-horizontal" id="analysis_form">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                </form>
+                <div class="col-sm-12" style="margin: 5px auto -10px auto;">
+                    <div class="progress progress-striped active" hidden="true">
+                        <div class="progress-bar" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="editAnalysisButton" type="button" class="btn btn-primary" onclick="saveAnalysis('analysis_form')">
+                    <span th:text="#{label.action.save}">Save</span>
+                </button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <span th:text="#{label.action.cancel}">Cancel</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteAnalysisModel" tabindex="-1" aria-hidden="true" aria-labelledby="deleteAnalysis" role="dialog" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="deleteAnalysisModel-title">
+                    <span th:text="#{title.delete.analysis}">Delete an analysis</span>
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div id="deleteAnalysisBody"></div>
+            </div>
+            <div class="col-sm-12" style="margin: 5px auto -10px auto;">
+                <div id="deleteprogressbar" class="progress progress-striped active" hidden="true">
+                    <div class="progress-bar" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="deleteanalysisbuttonYes" type="button" class="btn btn-danger" data-dismiss="modal">
+                    <span th:text="#{label.action.confirm.yes}">Yes</span>
+                </button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <span th:text="#{label.action.cancel}">Cancel</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

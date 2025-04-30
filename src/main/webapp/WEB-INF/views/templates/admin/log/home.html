@@ -1,0 +1,87 @@
+<div id="tab-log" class="tab-pane" data-update-required="true" data-trigger="loadSystemLog" data-scroll-trigger="loadSystemLogScrolling">
+	<div class="col-md-3 col-lg-2 nav-left-affix" role="left-menu">
+		<strong th:text="#{label.title.control}">Control</strong>
+		<form name="logFilter" id="logFilterForm" class="form-horizontal" th:action="@{/yourActionPath}" method="post">
+			<div class="form-group">
+				<label for="sort" class="col-sm-5 control-label" th:text="#{label.filter.level}">Filter by level</label>
+				<div class="col-sm-7">
+					<select name="level" class="form-control" onchange="updateLogFilter()">
+						<option th:selected="${logFilter.level == null}" value="ALL" th:text="#{label.all}">ALL</option>
+						<th:block th:each="logLevel : ${logLevels}">
+							<option th:value="${logLevel}" th:selected="${logFilter.level == logLevel}" 
+								th:text="#{label.log.level.${logLevel.toLowerCase()}}" >${logLevel}</option>
+						</th:block>
+					</select>
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="type" class="col-sm-5 control-label" th:text="#{label.filter.type}">Filter by type</label>
+				<div class="col-sm-7">
+					<select name="type" class="form-control" onchange="updateLogFilter()">
+						<option th:selected="${logFilter.type == null}" value="ALL" th:text="#{label.all}">ALL</option>
+						<th:block th:each="logType : ${logTypes}">
+							<option th:value="${logType}" th:selected="${logFilter.type == logType}" 
+								th:text="#{label.log.type.${logType.toLowerCase()}}" >${logType}</option>
+						</th:block>
+					</select>
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="action" class="col-sm-5 control-label" th:text="#{label.filter.action}">Filter by action</label>
+				<div class="col-sm-7">
+					<select name="action" class="form-control" onchange="updateLogFilter()">
+						<option th:selected="${logFilter.action == null}" value="ALL" th:text="#{label.all}">ALL</option>
+						<th:block th:each="action : ${actions}">
+							<option th:value="${action}" th:selected="${logFilter.action == action}" 
+								th:text="#{label.action.${action.toLowerCase()}}" >${action}</option>
+						</th:block>
+					</select>
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="author" class="col-sm-5 control-label" th:text="#{label.filter.author}">Filter by author</label>
+				<div class="col-sm-7">
+					<select name="author" class="form-control" onchange="updateLogFilter()">
+						<option th:selected="${logFilter.author == null}" value="ALL" th:text="#{label.all}">ALL</option>
+						<th:block th:each="author : ${authors}">
+							<option th:value="${author}" th:selected="${logFilter.author == author}" th:text="${author}"></option>
+						</th:block>
+					</select>
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="pageSize" class="col-sm-5 control-label" th:text="#{label.page.size}">Page size</label>
+				<div class="col-sm-7">
+					<select name="size" class="form-control" id="logFilterPageSize" onchange="updateLogFilter()">
+						<option th:value="60" th:selected="${logFilter.size == 60}">60</option>
+						<option th:value="120" th:selected="${logFilter.size == 120}">120</option>
+						<option th:value="250" th:selected="${logFilter.size == 250}">250</option>
+						<option th:value="500" th:selected="${logFilter.size == 500}">500</option>
+						<option th:value="1000" th:selected="${logFilter.size == 1000}">1000</option>
+						<option th:value="2000" th:selected="${logFilter.size == 2000}">2000</option>
+					</select>
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="direction" class="col-sm-5 control-label" th:text="#{label.action.sort}">Sort</label>
+				<div class="col-sm-7">
+					<div class="btn-group" data-toggle="buttons">
+						<label class="btn btn-default" th:classappend="${logFilter.direction == 'asc' ? 'active' : ''}" 
+							title="#{label.sort_direction.ascending}">
+							<input type="radio" name="direction" value="asc" 
+								th:checked="${logFilter.direction == 'asc'}" autocomplete="off" onchange="updateLogFilter(this)">
+							<i class="fa fa-play fa-rotate-270"></i>
+						</label>
+						<label class="btn btn-default" th:classappend="${logFilter.direction == 'desc' ? 'active' : ''}" 
+							title="#{label.sort_direction.descending}">
+							<input type="radio" name="direction" value="desc" 
+								th:checked="${logFilter.direction == 'desc'}" autocomplete="off" onchange="updateLogFilter(this)">
+							<i class="fa fa-play fa-rotate-90"></i>
+						</label>
+					</div>
+				</div>
+			</div>
+		</form>
+	</div>
+	<div class="col-md-9 col-lg-10" id="section_log"></div>
+</div>

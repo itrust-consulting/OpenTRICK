@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<div th:fragment="notifications">
+	<div th:each="notification : ${userNotifcations}"
+		th:with="lang=${#locale.language}, nType=${#strings.toLowerCase(notification.type)}" class="alert alert-info"
+		id="info-notification" th:class="'alert alert-'+${nType}" th:id="${nType}+${notification.id}">
+		<a href="#" class="close" data-dismiss="alert" style="margin-right: -10px; margin-top: -12px">×</a>
+		<div data-notification-type='info' th:attr="data-notification-type=${nType}" data-type='static' id='all'
+			th:id="${notification.id}">
+			[[${!#strings.isEmpty(notification.code)}? #{${notification.code}(${notification.parameters})} :
+			${notification.messages[{lang}]}]]
+		</div>
+	</div>
+</div>
+
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="${#locale.language}">
+<head th:replace="~{templates/template/header :: header}">
+    <!-- Inject CSS -->
+    <link rel="stylesheet" th:href="@{/css/bootstrap-suggest.css}" />
+</head>
+<body>
+<div id="wrap" class="wrap">
+    <!-- Nav Menu -->
+    <div th:replace="~{templates/template/menu :: menu}"></div>
+
+    <div class="container" data-ug-root="administration">
+        <!-- Nav Tabs -->
+        <ul class="nav nav-tabs affix affix-top nav-tab">
+            <li class="active"><a href="#tab-status" data-toggle="tab" th:text="#{label.menu.installation.status}">Status</a></li>
+            <li><a href="#tab-user" data-toggle="tab" th:text="#{menu.admin.user}">User</a></li>
+            <li><a href="#tab-ids" data-toggle="tab" th:text="#{menu.admin.ids}">IDS</a></li>
+            <li><a href="#tab-customer" data-toggle="tab" th:text="#{menu.knowledgebase.customers}">Customers</a></li>
+            <li><a href="#tab-analyses" data-toggle="tab" th:text="#{label.analysis.title}">All Analyses</a></li>
+            <li><a href="#tab-ts-setting" data-toggle="tab" th:text="#{label.settings}">Settings</a></li>
+            <li><a href="#tab-broadcasting" data-toggle="tab" th:text="#{label.administrator.messages}">Messages</a></li>
+            <li><a href="#tab-log" data-toggle="tab" th:text="#{label.logs}">Logs</a></li>
+        </ul>
+
+        <!-- Tab Content -->
+        <div class="tab-content" id="tab-container">
+            <div th:replace="~{administration/status :: content}"></div>
+            <div th:replace="~{administration/user/users :: content}"></div>
+            <div th:replace="~{administration/ids/home :: content}"></div>
+            <div th:replace="~{administration/customer/customers :: content}"></div>
+            <div th:replace="~{administration/analysis/analyses :: content}"></div>
+            <div th:replace="~{administration/tsSetting/home :: content}"></div>
+            <div th:replace="~{administration/notification/home :: content}"></div>
+            <div th:replace="~{administration/log/home :: content}"></div>
+            <div th:replace="~{administration/widget :: content}"></div>
+            <div th:replace="~{templates/template/tab-option :: tabOptions}"></div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div th:replace="~{templates/template/footer :: footer}"></div>
+</div>
+
+<!-- Scripts -->
+<div th:replace="~{templates/template/scripts :: scripts}"></div>
+<script th:src="@{/js/trickservice/administration.js}"></script>
+<script th:src="@{/js/trickservice/customer.js}"></script>
+<script th:src="@{/js/trickservice/user.js}"></script>
+<script th:src="@{/js/trickservice/ids.js}"></script>
+<script th:src="@{/js/bootstrap/bootstrap-suggest.js}"></script>
+
+<!-- Message Resolution JS -->
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    resolveMessage("label.notification.date.until", /*[[#{label.notification.date.until}]]*/ "");
+    resolveMessage("label.notification.date.from", /*[[#{label.notification.date.from}]]*/ "");
+    resolveMessage("label.created.date", /*[[#{label.created.date}]]*/ "");
+    resolveMessage("label.log.level.info", /*[[#{label.log.level.info}]]*/ "");
+    resolveMessage("label.log.level.warning", /*[[#{label.log.level.warning}]]*/ "");
+    resolveMessage("label.log.level.error", /*[[#{label.log.level.error}]]*/ "");
+    resolveMessage("label.log.level.success", /*[[#{label.log.level.success}]]*/ "");
+    /*]]>*/
+</script>
+</body>
+</html>

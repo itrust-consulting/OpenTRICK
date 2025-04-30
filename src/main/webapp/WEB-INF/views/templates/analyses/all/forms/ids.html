@@ -1,0 +1,87 @@
+<div class="modal fade"
+     id="manageAnalysisIDSAccessModel"
+     th:attr="data-trick-id=${analysis.id}"
+     tabindex="-1"
+     role="dialog"
+     aria-labelledby="manageAnalysisIDSAccessModel"
+     aria-hidden="true">
+    <div class="modal-dialog" style="width: 705px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button"
+                        class="close"
+                        data-dismiss="modal"
+                        aria-hidden="true">&times;</button>
+                <h4 class="modal-title">
+                    <span th:text="#{label.title.analysis.manage.ids.access}">Manage subscriptions to IDSs</span>
+                </h4>
+            </div>
+            <div class="modal-body" style="padding: 0;">
+                <div style="padding: 5px 20px;">
+                    <h5 style="font-weight: bold;">
+                        <span th:text="#{label.analysis.manage.access.info(${analysis.label}, ${analysis.version}, ${analysis.customer.organisation})}">
+                            Analysis: ...
+                        </span>
+                    </h5>
+                    <div>
+                        <h4 class="col-xs-8 bordered-bottom" style="padding-left: 0">
+                            <span th:text="#{label.name}">Name</span>
+                        </h4>
+                        <h4 class="col-xs-4 bordered-bottom text-center">
+                            <span th:text="#{label.action}">Action</span>
+                        </h4>
+                    </div>
+                </div>
+
+                <!-- Messages for actions -->
+                <div th:with="subscribe=#{label.action.subscribe}, unsubscribe=#{label.action.unsubscribe}">
+                    <div class="form-horizontal" style="padding: 5px 20px; height: 500px; overflow-x: hidden; clear: both;">
+                        <div th:each="ids : ${IDSs}"
+                             class="form-group"
+                             th:attr="data-trick-id=${ids.id}, data-default-value=${subscriptionsStates[ids.id] != null}">
+                            <div class="col-xs-8">
+                                <h4 style="vertical-align: middle; text-transform: capitalize;"
+                                    th:text="${#strings.toLowerCase(ids.prefix)}">IDS Prefix</h4>
+                            </div>
+                            <div class="col-xs-4 text-center">
+                                <div class="btn-group" data-toggle="buttons">
+                                    <label class="btn btn-sm btn-default"
+                                           th:classappend="${subscriptionsStates[ids.id] != null} ? 'active'">
+                                        <span th:text="${subscribe}">Subscribe</span>
+                                        <input type="radio"
+                                               th:name="${ids.id}"
+                                               value="true"
+                                               th:checked="${subscriptionsStates[ids.id] != null}"/>
+                                    </label>
+                                    <label class="btn btn-sm btn-default"
+                                           th:classappend="${subscriptionsStates[ids.id] == null} ? 'active'">
+                                        <span th:text="${unsubscribe}">Unsubscribe</span>
+                                        <input type="radio"
+                                               th:name="${ids.id}"
+                                               value="false"
+                                               th:checked="${subscriptionsStates[ids.id] == null}"/>
+                                    </label>
+                                </div>
+                            </div>
+                            <p class="col-xs-12" th:text="${ids.description}">IDS Description</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button"
+                        name="save"
+                        data-dismiss="modal"
+                        class="btn btn-primary">
+                    <span th:text="#{label.action.save}">Save</span>
+                </button>
+                <button type="button"
+                        name="cancel"
+                        class="btn btn-default"
+                        data-dismiss="modal">
+                    <span th:text="#{label.action.cancel}">Cancel</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

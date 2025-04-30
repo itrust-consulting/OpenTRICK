@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="#{label.title.data_manager.export.ilr}">ILR Export</title>
+</head>
+<body>
+
+<!-- Determine maxSizeInfo based on maxFileSize -->
+<th:block th:if="${maxFileSize < 1024}" th:with="maxSizeInfo=#{label.max.unit.data.byte(${maxFileSize})}"></th:block>
+<th:block th:if="${maxFileSize >= 1024 and maxFileSize < 1048576}" th:with="maxSizeInfo=#{label.max.unit.data.kilo.byte(${maxFileSize / 1024})}"></th:block>
+<th:block th:if="${maxFileSize >= 1048576}" th:with="maxSizeInfo=#{label.max.unit.data.mega.byte(${maxFileSize / 1048576})}"></th:block>
+
+<div th:attr="data-view-content-name=${item.name}, data-view-token=${item.token}">
+    <fieldset>
+        <legend th:text="#{label.title.data_manager.export.ilr}">ILR Export</legend>
+
+        <div class='alert alert-sm alert-info' style="margin-bottom: 15px" th:text="#{info.data_manager.export.ilr}">Export information</div>
+
+        <form th:action="@{${item.processURL}(token=${item.token}, ${_csrf.parameterName}=${_csrf.token})}" 
+              method="post" enctype="multipart/form-data" class="form form-inline">
+              
+            <div class="form-group" style="width: 88%">
+                <label th:attr="data-helper-content=#{help.export.measure.ilr.json}" th:text="#{label.ilr.export.json}">ILR JSON</label> 
+                <div class="col-sm-12">
+                    <div class="input-group-btn">
+                        <input id="ilr-json-file" type="file" accept=".json" name="ilrData" style="display: none;" 
+                               th:attr="maxlength=${maxFileSize}" />
+                        <input id="ilr-json-file-info" name="filename" class="form-control" readonly="readonly" required="required" 
+                               style="width: 90%" th:placeholder="${maxSizeInfo}" />
+                        <button class="btn btn-primary" type="button" id="ilr-json-file-browse-button" name="browse" style="margin-left: -5px;"
+                                th:text="#{label.action.browse}">Browse</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group" style="width: 88%; margin-top:10px">
+                <label th:attr="data-helper-content=#{help.export.measure.ilr.mapping}" th:text="#{label.ilr.export.mapping}">Mapping CSV</label> 
+                <div class="col-sm-12">
+                    <div class="input-group-btn">
+                        <input id="mapping-cvs-file" type="file" accept=".csv" name="mappingFile" style="display: none;" 
+                               th:attr="maxlength=${maxFileSize}" />
+                        <input id="mapping-cvs-file-info" name="filename" class="form-control" readonly="readonly" required="required" 
+                               style="width: 90%" th:placeholder="${maxSizeInfo}" />
+                        <button class="btn btn-primary" type="button" id="mapping-cvs-file-browse-button" name="browse" style="margin-left: -5px;"
+                                th:text="#{label.action.browse}">Browse</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hidden submit trigger -->
+            <button type="submit" class="hidden" th:attr="name=${item.name + '-submit'}"></button>
+        </form>
+    </fieldset>
+</div>
+
+</body>
+</html>

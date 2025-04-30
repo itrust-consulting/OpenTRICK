@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <!-- Set Locale -->
+    <div th:object="${locale}" th:if="${locale != null}">
+        <div th:field="*{locale}" th:value="'fr'"> </div>
+    </div>
+
+    <div class="tab-pane" id="tab-parameter-impact-probability">
+        <div class="section" id="section_parameter_impact_probability">
+            <div class="page-header tab-content-header">
+                <div class="container">
+                    <div class="row">
+                        <h3 th:text="#{label.title.impact_probability}"></h3>
+                    </div>
+                </div>
+            </div>
+
+            <div th:switch="${type.quantitative}">
+
+                <!-- Test if type is quantitative and not qualitative -->
+                <div th:case="true">
+                    <div class="row">
+                        <div th:replace="~{impact/financial :: content}"></div>
+                        <div th:replace="~{probability/likelihood :: content}"></div>
+                        <div th:replace="~{probability/dynamic :: content}"></div>
+                    </div>
+                </div>
+
+                <!-- Otherwise (type is not purely quantitative) -->
+                <div th:case="false">
+                    <div th:if="${type.quantitative}">
+                        <div class="row">
+                            <div th:replace="~{probability/likelihood :: content}"></div>
+                            <div th:replace="~{impact/financial :: content}"></div>
+                        </div>
+                    </div>
+                    <div th:replace="~{impact/qualitative :: content}"></div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="[[${locale.language}]]">
+<!-- Include Header -->
+<th:block th:if="${#strings.isEmpty(locale)}">
+    <th:block th:replace="../template/locale :: localeContextHolder"></th:block>
+</th:block>
+
+<!-- Set the page title -->
+<th:block th:with="title=${'label.title.knowledgebase'}"></th:block>
+
+<!-- Include header -->
+<div th:replace="~{../template/header :: header}"></div>
+
+<!-- ################################################################# Start Container ############################################################## -->
+<body>
+    <div id="wrap" class="wrap">
+        <!-- ################################################################### Nav Menu ################################################################### -->
+        <div th:replace="~{../template/menu :: menu}"></div>
+        
+        <div class="container" data-ug-root="knowledgebase">
+            <!-- #################################################################### Content ################################################################### -->
+            <ul class="nav nav-tabs affix affix-top nav-tab">
+                <li class="active">
+                    <a href="#tab-customer" data-toggle="tab" th:text="#{title.menu.knowledgebase.customers}">Customers</a>
+                </li>
+                <li>
+                    <a href="#tab-language" data-toggle="tab" th:text="#{title.menu.knowledgebase.languages}">Language</a>
+                </li>
+                <li class="dropdown-submenu">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                        <span th:text="#{label.menu.knowledgebase.standards_measures}">Standards-measures</span>
+                        <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a href="#tab-standard" data-toggle="tab" th:text="#{label.menu.knowledgebase.standards}">Standards</a></li>
+                        <li id="control_tab_measure" style="display: none;">
+                            <a href="#tab-measure" data-toggle="tab" th:text="#{label.menu.knowledgebase.measures}">Measures</a>
+                        </li>
+                    </ul>
+                </li>
+                <li><a href="#tab-scale-type" data-toggle="tab" th:text="#{label.menu.knowledgebase.impacts}">Impacts</a></li>
+                <li><a href="#tab-analyses" data-toggle="tab" th:text="#{label.analysis.profile.title}">Analysis profiles</a></li>
+            </ul>
+            
+            <div class="tab-content" id="tab-container">
+                <div th:replace="~{customer/customers :: customers}"></div>
+                <div th:replace="~{language/languages :: languages}"></div>
+                <div th:replace="~{standards/standard/standards :: standards}"></div>
+                <div th:replace="~{standards/measure/measures :: measures}"></div>
+                <div th:replace="~{analysis/analyses :: analyses}"></div>
+                <div th:replace="~{scale/home :: home}"></div>
+                <div th:replace="~{../template/tab-option :: tabOption}"></div>
+            </div>
+        </div>
+        <!-- ################################################################ End Container ################################################################# -->
+    </div>
+
+    <!-- Include Footer -->
+    <div th:replace="~{../template/footer :: footer}"></div>
+    <div th:replace="~{../template/widget :: widget}"></div>
+    
+    <!-- Scripts -->
+    <div th:replace="~{../template/scripts :: scripts}"></div>
+    
+    <!-- Custom JS -->
+    <script type="text/javascript" th:src="@{/js/trickservice/knowledgebase.js}"></script>
+    <script type="text/javascript" th:src="@{/js/jquery.fileDownload.js}"></script>
+    <script type="text/javascript" th:src="@{/js/trickservice/measuredescription.js}"></script>
+    <script type="text/javascript" th:src="@{/js/trickservice/standard.js}"></script>
+    <script type="text/javascript" th:src="@{/js/trickservice/language.js}"></script>
+    <script type="text/javascript" th:src="@{/js/trickservice/customer.js}"></script>
+    <script type="text/javascript" th:src="@{/js/trickservice/scale.js}"></script>
+</body>
+<!-- ################################################################### End HTML ################################################################### -->
+</html>

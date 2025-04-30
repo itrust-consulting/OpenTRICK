@@ -1,0 +1,48 @@
+<div class="active tab-pane" id="tab-customer">
+	<div class="section" id="section_customer">
+		<ul class="nav nav-pills bordered-bottom" id="menu_customer">
+			<li data-trick-ignored="true"><a href="#" onclick="return newCustomer();"><span class="glyphicon glyphicon-plus primary"></span> <span th:text="#{label.action.add}">Add</span> </a></li>
+			<li class="disabled" data-trick-selectable="true"><a href="#" onclick="return editSingleCustomer();"><span class="glyphicon glyphicon-edit danger"></span> <span th:text="#{label.action.edit}">Edit</span> </a></li>
+			<li class="disabled" data-trick-selectable="true"><a href="#" onclick="return manageCustomerTemplate();"><span class="glyphicon glyphicon-list"></span> <span th:text="#{label.action.manage.template}">Manage template</span> </a></li>
+			<li class="disabled pull-right" data-trick-selectable="true"><a href="#" class="text-danger" onclick="return deleteCustomer();"><span class="glyphicon glyphicon-remove"></span> <span th:text="#{label.action.delete}">Delete</span> </a></li>
+		</ul>
+
+		<div th:switch="${not empty customers}">
+			<div th:case="true">
+				<table class="table table-striped table-hover">
+					<thead>
+						<tr>
+							<th width="1%"></th>
+							<th><span th:text="#{label.customer.organisation}">Company</span></th>
+							<th><span th:text="#{label.customer.contact_person}">Contact person</span></th>
+							<th><span th:text="#{label.customer.phone_number}">Phone number</span></th>
+							<th><span th:text="#{label.customer.email}">Email address</span></th>
+							<th><span th:text="#{label.customer.address}">Address</span></th>
+							<th><span th:text="#{label.customer.zip_code}">Zip code</span></th>
+							<th><span th:text="#{label.customer.city}">City</span></th>
+							<th><span th:text="#{label.customer.country}">Country</span></th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:each="customer : ${customers}" th:data-trick-id="${customer.id}" th:onclick="'selectElement(this)'" th:data-trick-is-profile="${not customer.canBeUsed}" th:ondblclick="'return editSingleCustomer(' + ${customer.id} + ');'">
+							<td><input type="checkbox" class="checkbox" th:change="'return updateMenu(this,\'#section_customer\',\'#menu_customer\');'"></td>
+							<td th:data-trick-name="'organisation'" th:text="${customer.organisation}"></td>
+							<td th:data-trick-name="'contactPerson'" th:text="${customer.contactPerson}"></td>
+							<td th:data-trick-name="'phoneNumber'" th:text="${customer.phoneNumber}"></td>
+							<td th:data-trick-name="'email'" th:text="${customer.email}"></td>
+							<td th:data-trick-name="'address'" th:text="${customer.address}"></td>
+							<td th:data-trick-name="'ZIPCode'" th:text="${customer.ZIPCode}"></td>
+							<td th:data-trick-name="'city'" th:text="${customer.city}"></td>
+							<td th:data-trick-name="'country'" th:text="${customer.country}"></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<div th:case="false">
+				<h4>
+					<span th:text="#{label.customer.empty}">No customer</span>
+				</h4>
+			</div>
+		</div>
+	</div>
+</div>

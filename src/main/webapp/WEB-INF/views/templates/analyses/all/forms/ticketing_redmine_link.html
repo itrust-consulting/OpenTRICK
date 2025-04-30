@@ -1,0 +1,29 @@
+<div class="modal fade" id="modal-ticketing-project-linker" tabindex="-1" role="dialog" 
+     data-aria-labelledby="modalTicketingProjectLinker" data-aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" data-aria-hidden="false">&times;</button>
+                <h3 class="modal-title">
+                    <span th:text="${analysis.label} + ', V.' + ${analysis.version}"></span>
+                </h3>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="control-label" th:text="#{label.ticketing.link_to}">Link to</label>
+                    <select name="project" class="form-control">
+                        <option disabled="disabled" th:text="#{label.select.project.to.link}">Select project</option>
+                        <th:block th:each="project : ${projects}">
+                            <option th:value="${project.id}" th:text="${project.name}"></option>
+                        </th:block>
+                    </select>
+                </div>
+            </div>
+            <div class="clearfix"></div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" name="save" th:text="#{label.action.save}">Save</button>
+                <button class="btn btn-default" data-dismiss="modal" data-aria-hidden="false" th:text="#{label.action.cancel}">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>

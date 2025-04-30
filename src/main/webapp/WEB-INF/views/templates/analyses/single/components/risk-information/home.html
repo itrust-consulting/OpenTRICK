@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Risk Information</title>
+</head>
+<body>
+
+<div th:each="categoryRiskInformation : ${riskInformationSplited.keySet()}">
+    <div class="tab-pane" th:id="'tab-risk-information-' + ${T(java.lang.String).toLowerCase(categoryRiskInformation)}">
+        <div class="section" th:id="'section_risk-information_' + ${T(java.lang.String).toLowerCase(categoryRiskInformation)}">
+            <div class="page-header tab-content-header table-condensed">
+                <div class="container">
+                    <div class="row-fluid">
+                        <h3>
+                            <span th:switch="${categoryRiskInformation}">
+                                <span th:case="'threat'">
+                                    <span th:text="#{label.title.risk_information.threat}">Threat</span>
+                                </span>
+                                <span th:case="'vul'">
+                                    <span th:text="#{label.title.risk_information.vulnerabilities}">Vulnerabilities</span>
+                                </span>
+                                <span th:case="*">
+                                    <span th:text="#{label.title.risk_information.risks}">Risks</span>
+                                </span>
+                            </span>
+                            <span th:if="${isEditable}">
+                                <span class="pull-right" style="margin-top: -1px;">
+                                    <a href="#" class="btn btn-xs btn-link" th:onclick="|return manageBrainstorming('${categoryRiskInformation}');|">
+                                        <i class="glyphicon glyphicon-cog"></i>
+                                        <span th:text="#{label.action.manage}">Manage</span>
+                                    </a>
+                                </span>
+                            </span>
+                        </h3>
+                    </div>
+                </div>
+            </div>
+
+            <table th:id="'table_' + ${categoryRiskInformation}" class="table table-condensed table-hover table-fixed-header-analysis">
+                <thead>
+                    <tr>
+                        <th width="5%" title="#{label.title.id}"><span th:text="#{label.risk_information.id}">ID</span></th>
+                        <span th:switch="${categoryRiskInformation}">
+                            <span th:case="'threat'">
+                                <th width="15%" title="#{label.name}"><span th:text="#{label.name}">Name</span></th>
+                                <th width="5%" title="#{label.risk_information.acronym}"><span th:text="#{label.risk_information.acro}">Acronym</span></th>
+                            </span>
+                            <span th:case="'vul'">
+                                <th width="25%" title="#{label.name}"><span th:text="#{label.name}">Name</span></th>
+                            </span>
+                            <span th:case="*">
+                                <th width="15%" title="#{label.name}"><span th:text="#{label.name}">Name</span></th>
+                            </span>
+                        </span>
+                        <th width="5%" title="#{label.risk_information.exposed}"><span th:text="#{label.risk_information.expo}">Exposed</span></th>
+                        <th width="5%" title="#{label.title.risk_information.owner}"><span th:text="#{label.risk_information.owner}">Owner</span></th>
+                        <th width="30%" title="#{label.risk_information.comment}"><span th:text="#{label.risk_information.comment}">Comment</span></th>
+                        <span th:if="${showHiddenComment}">
+                            <th width="30%" title="#{label.risk_information.comment_hidden}"><span th:text="#{label.risk_information.comment_hidden}">Hidden Comment</span></th>
+                        </span>
+                    </tr>
+                </thead>
+                <tfoot></tfoot>
+                <tbody>
+                    <div th:each="riskInformation : ${riskInformationSplited.get(categoryRiskInformation)}">
+                        <tr th:data-trick-class="'RiskInformation'" th:data-trick-id="${riskInformation.id}">
+                            <span th:set="codeLabel=${riskInformation.label}"></span>
+                            <span th:switch="${riskInformation.custom}">
+                                <span th:case="true">
+                                    <span th:set="codeText=${riskInformation.label}"></span>
+                                </span>
+                                <span th:case="false">
+                                    <span th:switch="${riskInformation.category}">
+                                        <span th:case="'Risk_TBA'">
+                                            <span th:set="codeLabel='label.risk_information.' + ${T(java.lang.String).toLowerCase(categoryRiskInformation)} + '_tba.' + ${T(java.lang.String).replace(riskInformation.chapter,'.','_')}"></span>
+                                        </span>
+                                        <span th:case="'Risk_TBS'">
+                                            <span th:set="codeLabel='label.risk_information.' + ${T(java.lang.String).toLowerCase(categoryRiskInformation)} + '_tbs.' + ${T(java.lang.String).replace(riskInformation.chapter,'.','_')}"></span>
+                                        </span>
+                                        <span th:case="*">
+                                            <span th:set="codeLabel='label.risk_information.' + ${T(java.lang.String).toLowerCase(categoryRiskInformation)} + '.' + ${T(java.lang.String).replace(riskInformation.chapter,'.','_')}"></span>
+                                        </span>
+                                    </span>
+                                </span>
+                            </span>
+
+                            <span th:switch="${T(org.apache.commons.lang3.StringUtils).matches(riskInformation.chapter, chapterRegex)}">
+                                <span th:case="true">
+                                    <td style="height: 32px;"><strong th:text="${riskInformation.chapter}"></strong></td>
+                                    <span th:switch="${categoryRiskInformation}">
+                                        <span th:case="'Threat'">
+                                            <td colspan="2"><strong th:text="#{${codeLabel}}"></strong></td>
+                                        </span>
+                                        <span th:case="*">
+                                            <td><strong th:text="#{${codeLabel}}"></strong></td>
+                                        </span>
+                                    </span>
+                                    <td class="editable" th:data-trick-field="exposed" th:data-trick-choose=",++,+,N,-,--" th:data-trick-field-type="string" th:onclick="|return editField(this);|">
+                                        <span th:text="${riskInformation.exposed}"></span>
+                                    </td>
+                                    <td class="editable" th:onclick="|return editField(this);|" th:data-trick-field="owner" th:data-trick-field-type="string">
+                                        <span th:text="${riskInformation.owner}"></span>
+                                    </td>
+                                    <td class="editable" th:onclick="|return editField(this);|" th:data-trick-field="comment" th:data-trick-content="text" th:data-trick-field-type="string">
+                                        <span th:text="${riskInformation.comment}"></span>
+                                    </td>
+                                    <span th:if="${showHiddenComment}">
+                                        <td class="editable" th:onclick="|return editField(this);|" th:data-trick-field="hiddenComment" th:data-trick-content="text" th:data-trick-field-type="string">
+                                            <span th:text="${riskInformation.hiddenComment}"></span>
+                                        </td>
+                                    </span>
+                                </span>
+                                <span th:case="false">
+                                    <td style="height: 32px;" th:text="${riskInformation.chapter}"></td>
+                                    <td th:text="#{${codeLabel}}"></td>
+                                    <span th:if="${categoryRiskInformation == 'threat'}">
+                                        <td class="editable" th:data-trick-field="acronym" th:data-trick-field-type="string" th:onclick="|return editField(this);|">
+                                            <span th:text="${riskInformation.acronym}"></span>
+                                        </td>
+                                    </span>
+                                    <td class="editable" th:data-trick-field="exposed" th:data-trick-choose=",++,+,N,-,--" th:data-trick-field-type="string" th:onclick="|return editField(this);|">
+                                        <span th:text="${riskInformation.exposed}"></span>
+                                    </td>
+                                    <td class="editable" th:onclick="|return editField(this);|" th:data-trick-field="owner" th:data-trick-field-type="string">
+                                        <span th:text="${riskInformation.owner}"></span>
+                                    </td>
+                                    <td class="editable" th:onclick="|return editField(this);|" th:data-trick-field="comment" th:data-trick-content="text" th:data-trick-field-type="string">
+                                        <span th:text="${riskInformation.comment}"></span>
+                                    </td>
+                                    <span th:if="${showHiddenComment}">
+                                        <td class="editable" th:onclick="|return editField(this);|" th:data-trick-field="hiddenComment" th:data-trick-content="text" th:data-trick-field-type="string">
+                                            <span th:text="${riskInformation.hiddenComment}"></span>
+                                        </td>
+                                    </span>
+                                </span>
+                            </span>
+                        </tr>
+                    </div>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

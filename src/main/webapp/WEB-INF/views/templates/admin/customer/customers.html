@@ -1,0 +1,100 @@
+<div class="tab-pane" id="tab-customer">
+    <div class="section" id="section_customer">
+
+        <!-- Toolbar -->
+        <ul class="nav nav-pills bordered-bottom" id="menu_customer">
+            <li data-trick-ignored="true">
+                <a href="#" onclick="return newCustomer();">
+                    <span class="glyphicon glyphicon-plus primary"></span> <span th:text="#{label.action.add}">Add</span>
+                </a>
+            </li>
+            <li class="disabled" data-trick-selectable="true">
+                <a href="#" onclick="return editSingleCustomer();">
+                    <span class="glyphicon glyphicon-edit danger"></span> <span th:text="#{label.action.edit}">Edit</span>
+                </a>
+            </li>
+            <li class="disabled pull-right" data-trick-selectable="true">
+                <a href="#" class="text-danger" onclick="return deleteCustomer();">
+                    <span class="glyphicon glyphicon-remove"></span> <span th:text="#{label.action.delete}">Delete</span>
+                </a>
+            </li>
+
+            <sec:authorize access="hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERVISOR')">
+                <li class="disabled" data-trick-selectable="true" data-trick-check="isNotCustomerProfile()">
+                    <a href="#" onclick="return manageCustomerAccess();">
+                        <span class="glyphicon glyphicon-edit"></span> <span th:text="#{label.menu.manage.access.user_customer}">Manage user access</span>
+                    </a>
+                </li>
+                <li class="disabled" data-trick-selectable="true" data-trick-check="isCustomerProfile()">
+                    <a href="#" onclick="return manageCustomerTemplate();">
+                        <span class="glyphicon glyphicon-list"></span> <span th:text="#{label.action.manage.template}">Manage template</span>
+                    </a>
+                </li>
+                <li th:if="${adminaAllowedTicketing}" class="disabled" data-trick-selectable="true" data-trick-check="isNotCustomerProfile() && isTicketingType('EMAIL')">
+                    <a href="#" onclick="return editTicketingSystemEmailTemplate();">
+                        <span class="glyphicon glyphicon-align-justify"></span> <span th:text="#{label.menu.manage.ticketing.system.email.template}">Manage email template for ticketing</span>
+                    </a>
+                </li>
+            </sec:authorize>
+        </ul>
+
+        <!-- Customer Table or Empty Message -->
+        <div th:if="${customers != null and !customers.isEmpty()}">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th rowspan="1"></th>
+                        <th rowspan="1" th:text="#{label.customer.organisation}">Company</th>
+                        <th rowspan="1" th:text="#{label.customer.contact_person}">Contact</th>
+                        <th rowspan="1" th:text="#{label.customer.phone_number}">Phone</th>
+                        <th rowspan="1" th:text="#{label.customer.email}">Email</th>
+                        <th rowspan="1" th:text="#{label.customer.address}">Address</th>
+                        <th rowspan="1" th:text="#{label.customer.zip_code}">ZIP</th>
+                        <th rowspan="1" th:text="#{label.customer.city}">City</th>
+                        <th rowspan="1" th:text="#{label.customer.country}">Country</th>
+
+                        <sec:authorize access="hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERVISOR')">
+                            <th rowspan="1" th:text="#{label.customer.can_be_used}">Profile Only</th>
+                            <th colspan="5" class="text-center" th:if="${adminaAllowedTicketing}" th:text="#{label.ticketing.system}">Ticketing System</th>
+                        </sec:authorize>
+                    </tr>
+                    <tr th:if="${adminaAllowedTicketing}">
+                        <th th:text="#{label.ticketing.system.enabled}">Enabled</th>
+                        <th th:text="#{label.ticketing.system.name}">Name</th>
+                        <th th:text="#{label.ticketing.system.type}">Type</th>
+                        <th th:text="#{label.ticketing.system.tracker}">Tracker</th>
+                        <th th:text="#{label.ticketing.system.url}">URL</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="customer : ${customers}"
+                        th:attr="data-trick-id=${customer.id}, data-trick-is-profile=${!customer.canBeUsed}"
+                        ondblclick="return editSingleCustomer([[${customer.id}]]);"
+                        onclick="selectElement(this)">
+                        <td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_customer','#menu_customer');" /></td>
+                        <td th:text="${customer.organisation}">Org</td>
+                        <td th:text="${customer.contactPerson}">Contact</td>
+                        <td th:text="${customer.phoneNumber}">Phone</td>
+                        <td th:text="${customer.email}">Email</td>
+                        <td th:text="${customer.address}">Address</td>
+                        <td th:text="${customer.ZIPCode}">ZIP</td>
+                        <td th:text="${customer.city}">City</td>
+                        <td th:text="${customer.country}">Country</td>
+
+                        <sec:authorize access="hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERVISOR')">
+                            <td th:text="#{label.yes_no.${customer.canBeUsed ? 'false' : 'true'}}"></td>
+                            <td th:if="${adminaAllowedTicketing}" th:text="#{label.yes_no.${customer.ticketingSystem.enabled ? 'true' : 'false'}}"></td>
+                            <td th:if="${adminaAllowedTicketing}" th:text="${customer.ticketingSystem.name}">Sys Name</td>
+                            <td th:if="${adminaAllowedTicketing}" th:text="#{label.ticketing.system.type.${#strings.toLowerCase(customer.ticketingSystem.type)}}" />
+                            <td th:if="${adminaAllowedTicketing}" th:text="${customer.ticketingSystem.tracker}">Tracker</td>
+                            <td th:if="${adminaAllowedTicketing}" th:text="${customer.ticketingSystem.url}">URL</td>
+                        </sec:authorize>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div th:if="${customers == null or customers.isEmpty()}">
+            <h4 th:text="#{label.customer.empty}">No customer</h4>
+        </div>
+    </div>
+</div>

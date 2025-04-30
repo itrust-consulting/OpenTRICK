@@ -1,0 +1,102 @@
+<div id="section_kb_measure" data-standard-id="${standard.id}" data-language-id="${selectedLanguage.id}">
+    <div class="page-header tab-content-header">
+        <div class="container">
+            <div class="row-fluid">
+                <h3 id="section_title_measure">
+                    <th:block th:if="${standard != null}">
+                        <span th:text="${standard.name} + ': ' + ${standard.label} + ' - ' + ${standard.version} + '. ' + ${standard.description}"></span>
+                    </th:block>
+                </h3>
+            </div>
+        </div>
+    </div>
+    <ul class="nav nav-pills bordered-bottom" id="menu_measure_description">
+        <li data-trick-ignored="true">
+            <a href="#" onclick="return newMeasure();">
+                <span class="glyphicon glyphicon-plus primary"></span> 
+                <span th:text="#{label.action.add}">Add</span> 
+            </a>
+        </li>
+        <li class="disabled" data-trick-selectable="true">
+            <a href="#" onclick="return editSingleMeasure();">
+                <span class="glyphicon glyphicon-edit danger"></span> 
+                <span th:text="#{label.menu.edit.norm}">Edit</span> 
+            </a>
+        </li>
+        <th:block th:if="${languages != null}">
+            <li data-role="title" class="pull-right">
+                <select id="languageselect" class="form-control" style="width: auto; margin-top: 5px;">
+                    <th:block th:each="language : ${languages}">
+                        <option th:value="${language.id}" 
+                                th:selected="${language.id == selectedLanguage.id}">
+                            <span th:text="${language.name}"></span>
+                        </option>
+                    </th:block>
+                </select>
+            </li>
+        </th:block>
+        <sec:authorize access="hasAnyRole('ROLE_SUPERVISOR')">
+            <li class="disabled pull-right" data-trick-selectable="true" 
+                title="#{label.action.force.delete}">
+                <a href="#" class="text-danger" onclick="return deleteMeasure(true)">
+                    <span class="glyphicon glyphicon-remove-circle"></span> 
+                    <span th:text="#{label.action.force.delete}">Force delete</span>
+                </a>
+            </li>
+        </sec:authorize>
+        <li class="disabled pull-right" data-trick-selectable="true">
+            <a href="#" class="text-danger" onclick="return deleteMeasure();">
+                <span class="glyphicon glyphicon-remove"></span>
+                <span th:text="#{label.menu.delete.norm}">Delete</span>
+            </a>
+        </li>
+    </ul>
+    <table class="table table-hover" data-fh-scroll-multi="0.995">
+        <thead>
+            <tr role="row">
+                <th width="1%"></th>
+                <th><span th:text="#{label.reference}">Reference</span></th>
+                <th width="25%"><span th:text="#{label.measure.domain}">Domain</span></th>
+                <th width="70%"><span th:text="#{label.measure.description}">Description</span></th>
+                <th><span th:text="#{label.measure.computable}">Computable</span></th>
+            </tr>
+        </thead>
+        <tbody>
+            <th:block th:each="measureDescription : ${measureDescriptions}">
+                <th:block th:set="measureDescriptionText = ${measureDescription.findByLanguage(selectedLanguage)}">
+                    <tr th:classappend="${measureDescription.computable ? '' : 'active'}" 
+                        data-trick-id="${measureDescription.id}" 
+                        ondblclick="return editSingleMeasure('${measureDescription.id}','${standard.id}');">
+                        <td><input type="checkbox" class="checkbox" onchange="return updateMenu(this, '#section_kb_measure', '#menu_measure_description');"></td>
+                        <td data-trick-field="reference">
+                            <span th:text="${measureDescription.reference}"></span>
+                        </td>
+                        <th:block th:if="${measureDescriptionText == null}">
+                            <td data-trick-content="text"></td>
+                            <td data-trick-content="text"></td>
+                        </th:block>
+                        <th:block th:unless="${measureDescriptionText == null}">
+                            <td data-trick-content="text">
+                                <span th:text="${measureDescriptionText.domain}"></span>
+                            </td>
+                            <td data-trick-content="text">
+                                <span th:text="${measureDescriptionText.description}"></span>
+                            </td>
+                        </th:block>
+                        <td data-trick-field="computable" 
+                            data-trick-real-value="${measureDescription.computable}">
+                            <span th:text="#{label.yes_no.${measureDescription.computable}}">Yes/No</span>
+                        </td>
+                    </tr>
+                </th:block>
+            </th:block>
+        </tbody>
+    </table>
+    <div id="hidden-standard-data" style="display: none;">
+        <th:block th:if="${standard != null}">
+            <input type="hidden" id="idStandard" th:value="${standard.id}" />
+            <input type="hidden" id="standardLabel" th:value="${standard.label}" />
+            <input type="hidden" id="standardVersion" th:value="${standard.version}" />
+        </th:block>
+    </div>
+</div>

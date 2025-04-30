@@ -1,0 +1,159 @@
+<ul class="nav nav-tabs affix affix-top nav-analysis">
+    <div th:if="${not isProfile}">
+        <li class="active"><a href="#tab-history" data-toggle="tab" th:text="#{label.menu.analysis.history}"></a></li>
+    </div>
+    <li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown" th:text="#{label.menu.analysis.risk_context}"><span class="caret"></span></a>
+        <ul class="dropdown-menu">
+            <div th:if="${not isProfile}">
+                <li><a href="#tab-scope" data-toggle="tab" th:text="#{label.menu.analysis.item_information}"></a></li>
+                <li class="divider"></li>
+            </div>
+            <li class="dropdown-header" th:text="#{label.menu.analysis_parameters}">Analysis parameters</li>
+            <li><a href="#tab-parameter" data-toggle="tab" title="#{label.title.other.parameters}" th:text="#{label.menu.analysis.parameter}"></a></li>
+            <li><a href="#tab-parameter-impact-probability" data-toggle="tab" th:text="#{label.menu.analysis.parameter.impact_probability}"></a></li>
+            <div th:if="${type.quantitative and hasMaturity}">
+                <li><a href="#tab-parameter-maturity" data-toggle="tab" th:text="#{label.menu.analysis.parameter.maturity}"></a></li>
+            </div>
+        </ul>
+    </li>
+    <li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown" th:text="#{label.menu.analysis.risk_analysis}"><span class="caret"></span></a>
+        <ul class="dropdown-menu">
+            <div th:if="${not isProfile}">
+                <li class="dropdown-header" th:text="#{label.menu.analysis.qualitative_analysis}"></li>
+                <li><a href="#tab-risk-information-threat" data-toggle="tab" th:text="#{label.menu.analysis.threat}"></a></li>
+                <li><a href="#tab-risk-information-vul" data-toggle="tab" th:text="#{label.menu.analysis.vulnerability}"></a></li>
+                <li><a href="#tab-risk-information-risk" data-toggle="tab" th:text="#{label.menu.analysis.risk}"></a></li>
+                <li class="divider"></li>
+            </div>
+            <li class="dropdown-header" th:text="#{label.menu.analysis.quantitative_analysis}"></li>
+            <div th:if="${not isProfile}">
+                <li><a href="#tab-asset" data-toggle="tab" th:text="#{label.menu.analysis.asset}"></a></li>
+            </div>
+            <li><a href="#tab-scenario" data-toggle="tab" th:text="#{label.menu.analysis.scenario}"></a></li>
+            <div th:if="${not isProfile}">
+                <li><a href="#tab-risk-estimation" data-toggle="tab" th:text="#{label.menu.analysis.risk_estimation}"></a></li>
+            </div>
+        </ul>
+    </li>
+
+    <li class="dropdown-submenu" id="tab-standard"><a href="#" class="dropdown-toggle" data-toggle="dropdown" th:text="#{label.menu.analysis.risk_treatment_compliance}"><span class="caret"></span></a>
+        <ul class="dropdown-menu" id="standardmenu">
+            <li class="dropdown-header" th:text="#{label.menu.analysis.standards}"></li>
+            <li><a href="#tab-standards" data-toggle="tab" th:text="#{label.menu.analysis.view_by_collection}"></a></li>
+            <li title="#{label.menu.view.measures}"><a href="#tab-measure-edition" data-toggle="tab" th:text="#{label.menu.analysis.view_by_measure}"></a></li>
+            <div th:if="${isProfile or isEditable}">
+                <li title="#{label.title.manage_standard}"><a href="#" onclick="return manageStandard();" th:text="#{label.menu.manage_standard}"></a></li>
+            </div>
+            <li class="divider"></li>
+            <li class="dropdown-header" th:text="#{label.menu.analysis.implementation}"></li>
+            <li><a href="#tab-phase" data-toggle="tab" th:text="#{label.menu.analysis.phase}"></a></li>
+            <div th:if="${not isProfile}">
+                <li><a href="#tab-action-plan" data-toggle="tab" th:text="#{label.menu.analysis.action_plan}"></a></li>
+            </div>
+        </ul>
+    </li>
+    <div th:if="${not isProfile}">
+        <li class="dropdown-submenu"><a href="#" class="dropdown-toggle" data-toggle="dropdown" th:text="#{label.menu.analysis.risk_communication}"><span class="caret"></span></a>
+            <ul class="dropdown-menu">
+                <div th:if="${not empty soas}">
+                    <li><a href="#tab-soa" data-toggle="tab" th:text="#{label.menu.analysis.soa}"></a></li>
+                </div>
+                <li><a href="#tab-summary" data-toggle="tab" th:text="#{label.menu.analysis.summary}"></a></li>
+                <div th:if="${type.qualitative}">
+                    <li><a href="#tab-risk-register" data-toggle="tab" th:text="#{label.menu.analysis.risk_register}"></a></li>
+                </div>
+                <li class="divider"></li>
+                <li class="dropdown-header" th:text="#{label.menu.analysis.chart}"></li>
+                <li><a href="#tab-chart-compliance" data-toggle="tab" th:text="#{label.chart.compliance}"></a></li>
+                <div th:if="${type.qualitative}">
+                    <div th:if="${type.quantitative}">
+                        <li class="dropdown-header" th:text="#{label.menu.analysis.chart.qualitative}"></li>
+                    </div>
+                    <li><a href="#tab-chart-heat-map" data-toggle="tab" th:text="#{label.chart.risk_acceptance_heat_map}"></a></li>
+                    <li><a href="#tab-chart-risk-asset" data-toggle="tab" th:text="#{label.chart.risk_by_assets}"></a></li>
+                    <li><a href="#tab-chart-risk-asset-type" data-toggle="tab" th:text="#{label.chart.risk_by_asset_types}"></a></li>
+                    <li><a href="#tab-chart-risk-scenario" data-toggle="tab" th:text="#{label.chart.risk_by_scenarios}"></a></li>
+                    <li><a href="#tab-chart-risk-scenario-type" data-toggle="tab" th:text="#{label.chart.risk_by_scenario_types}"></a></li>
+                </div>
+                <div th:if="${type.quantitative}">
+                    <div th:if="${type.qualitative}">
+                        <li class="dropdown-header" th:text="#{label.menu.analysis.chart.quantitative}"></li>
+                    </div>
+                    <li><a href="#tab-chart-asset" data-toggle="tab" th:text="#{label.chart.asset}"></a></li>
+                    <li><a href="#tab-chart-scenario" data-toggle="tab" th:text="#{label.chart.scenario}"></a></li>
+                    <li><a href="#tab-chart-evolution" data-toggle="tab" th:text="#{label.chart.evolution}"></a></li>
+                    <li><a href="#tab-chart-budget" data-toggle="tab" th:text="#{label.chart.budget}"></a></li>
+                    <div th:if="${showDynamicAnalysis}">
+                        <li class="dropdown-header" th:text="#{label.menu.analysis.chart.dynamic}"></li>
+                        <li><a href="#tab-chart-ale-evolution" data-toggle="tab" th:text="#{label.title.chart.aleevolution}"></a></li>
+                        <li><a href="#tab-chart-ale-evolution-by-asset-type" data-toggle="tab" th:text="#{label.title.chart.aleevolution_by_asset_type}"></a></li>
+                        <li><a href="#tab-chart-parameter-evolution" data-toggle="tab" th:text="#{label.title.chart.dynamic}"></a></li>
+                    </div>
+                </div>
+            </ul>
+        </li>
+    </div>
+    <li class="pull-right" data-role="analysis-menu-control">
+        <a id="nav_menu_analysis_close" href="#" class="text-danger" title="#{label.action.close.analysis}">
+            <i class="fa fa-sign-out fa-2x"></i>
+        </a>
+    </li>
+    <li class="dropdown-submenu pull-right" data-role="analysis-menu-control">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown" title="#{label.actions}">
+            <i class="fa fa-cog fa-2x"></i>
+        </a>
+        <ul class="dropdown-menu" id="actionmenu">
+            <div th:if="${not isProfile}">
+                <li class="dropdown-header" th:text="#{label.menu.title.manual.update}"></li>
+                <div th:if="${isEditable and type.qualitative}">
+                    <li><a href="#" onclick="return computeRiskProfileMeasure();" th:text="#{label.action.compute.risk_profile.measure}"></a></li>
+                </div>
+                <div th:choose>
+                    <div th:when="${type.qualitative}">
+                        <li><a href="#" onclick="return calculateAction();" th:text="#{label.action.compute.action_plan}"></a></li>
+                    </div>
+                    <div th:otherwise>
+                        <li><a href="#" onclick="return displayActionPlanOptions();" th:text="#{label.action.compute.action_plan}"></a></li>
+                        <div th:if="${not isEditable}">
+                            <li class="divider"></li>
+                        </div>
+                    </div>
+                </div>
+                <li><a href="#" onclick="return reloadCharts();" th:text="#{label.action.reload.charts}"></a></li>
+                <div th:if="${isEditable}">
+                    <li><a href="#" onclick="return computeAssessment();" th:text="#{label.action.generate.missing}"></a></li>
+                    <div th:if="${type.quantitative and hasMaturity}">
+                        <li><a href="#" onclick="return updateMeasureEffience(undefined, true)" th:text="#{label.action.update.efficiency}"></a></li>
+                    </div>
+                </div>
+                <div th:if="${isEditable}">
+                    <li class="divider"></li>
+                    <div th:if="${canExport}">
+                        <li><a href="#" onclick="return exportDataManager(${analysis.id})" th:text="#{label.action.export}"></a></li>
+                    </div>
+                    <li><a href="#" onclick="return importDataManager(${analysis.id})" th:text="#{label.action.import}"></a></li>
+                    <li class="divider"></li>
+                </div>
+            </div>
+            <div th:if="${isProfile or isEditable}">
+                <div th:if="${type.quantitative}">
+                    <li><a href="#" onclick="return loadRRF();" th:text="#{label.title.rrf}"></a></li>
+                    <li class="divider"></li>
+                </div>
+                <li class="dropdown-header" th:text="#{label.title.edit_mode}"></li>
+                <li><a class="btn-group btn-group-xs clearfix"><span role="enterEditMode" class="btn btn-default" onclick="return enableEditMode()" th:text="#{label.action.edit_mode.open}"></span> <span role="leaveEditMode" class="btn btn-default active disabled" onclick="return disableEditMode()" th:text="#{label.action.edit_mode.close}"></span></a></li>
+                <div th:if="${not isProfile and isEditable}">
+                    <li class="divider"></li>
+                </div>
+            </div>
+            <div th:if="${not isProfile and isEditable}">
+                <li class="dropdown-header" th:text="#{label.menu.settings}"></li>
+                <li><a href="#" onclick="return manageSOA();" th:text="#{label.action.manage.soa}"></a></li>
+                <li><a href="#" onclick="return manageImpactScale();" th:text="#{label.action.manage.impact}"></a></li>
+                <li><a href="#" onclick="return manageScaleLevel();" th:text="#{label.action.manage.scale.level}"></a></li>
+                <li><a href="#" onclick="return manageAnalysisSettings();" th:text="#{label.action.analysis.setting}"></a></li>
+            </div>
+        </ul>
+    </li>
+    <li id="tabOption" style="display: none;" class="dropdown-submenu pull-right" data-role="analysis-menu-control"><a href="#" title="#{label.options}" class="dropdown-toggle" data-toggle="dropdown"><span class="fa fa-bars fa-2x"></span></a></li>
+</ul>

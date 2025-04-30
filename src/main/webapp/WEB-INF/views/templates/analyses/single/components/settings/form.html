@@ -1,0 +1,60 @@
+<div class="modal fade" id="analysisSettingModal" tabindex="-1" role="dialog" data-aria-labelledby="analysisSettingModal" data-aria-hidden="true" data-backdrop="static" data-keyboard="true">
+    <div class="modal-dialog" style="width: 705px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
+                <h4 class="modal-title" th:text="#{label.title.manage.analysis.settings}">Manage analysis settings</h4>
+            </div>
+            <div class="modal-body" style="padding: 5px 20px;">
+                <form id="manage-analysis-setting" th:action="@{/Analysis/Manage-settings/Save}" method="post" class="form-horizontal">
+                    <div>
+                        <div>
+                            <h4 class="col-xs-7 bordered-bottom" style="padding-left: 0">
+                                <span th:text="#{label.title.analysis.setting}"></span>
+                            </h4>
+                            <h4 class="col-xs-5 bordered-bottom text-center">
+                                <span th:text="#{label.action}">Action</span>
+                            </h4>
+                        </div>
+                    </div>
+                    <span th:text="#{label.yes_no.yes}" th:id="yes"></span>
+                    <span th:text="#{label.yes_no.no}" th:id="no"></span>
+                    <div class="form-horizontal" style="height: 500px; overflow-x: hidden; clear: both;">
+                        <div th:each="setting : ${settings}">
+                            <div th:object="${setting}" class="form-group" th:data-trick-name="${setting.name}">
+                                <div class="col-xs-7">
+                                    <strong style="vertical-align: middle;" th:text="#{${setting.code}}"></strong>
+                                </div>
+                                <div class="col-xs-5 text-center">
+                                    <div th:switch="${setting.type.simpleName}">
+                                        <div th:case="'Boolean'">
+                                            <div class="btn-group" data-toggle="buttons">
+                                                <label class="btn btn-sm btn-default" th:classappend="${setting.defaultValue ? 'active' : ''}">
+                                                    <span th:text="#{label.yes_no.yes}"></span>
+                                                    <input th:checked="${setting.defaultValue}" name="${setting.name}" type="radio" value="true">
+                                                </label>
+                                                <label class="btn btn-sm btn-default" th:classappend="${!setting.defaultValue ? 'active' : ''}">
+                                                    <span th:text="#{label.yes_no.no}"></span>
+                                                    <input th:checked="${!setting.defaultValue}" name="${setting.name}" type="radio" value="false">
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div th:case="*">
+                                            <input th:name="${setting.name}" th:value="${setting.defaultValue}" class="form-control">
+                                        </div>
+                                    </div>
+                                </div>
+                                <input th:name="${setting.name + '-default-value'}" th:value="${setting.defaultValue}" type="hidden">
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                <div class="clearfix"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal" name="save" th:text="#{label.action.save}">Save</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal" th:text="#{label.action.cancel}">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>

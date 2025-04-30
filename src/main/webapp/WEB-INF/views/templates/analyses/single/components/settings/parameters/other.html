@@ -1,0 +1,218 @@
+<div class="tab-pane" id="tab-parameter">
+    <div class="section" id="section_parameter">
+        <div class="page-header tab-content-header">
+            <div class="container">
+                <div class="row-fluid">
+                    <h3>
+                        <span th:text="#{label.title.parameter}"></span>
+                    </h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <fieldset>
+                <legend>
+                    <span th:text="#{label.title.parameter.simple.various}"></span>
+                </legend>
+                <table class="table table-hover table-condensed">
+                    <thead>
+                        <tr>
+                            <th class="textaligncenter"><span th:text="#{label.parameter.simple.internal_setup}"></span></th>
+                            <th class="textaligncenter"><span th:text="#{label.parameter.simple.external_setup}"></span></th>
+                            <th class="textaligncenter"><span th:text="#{label.parameter.simple.default_life_time}"></span></th>
+                            <th th:if="${type.quantitative}" class="textaligncenter"><span th:text="#{label.parameter.simple.max_rrf}"></span></th>
+                            <th class="textaligncenter"><span th:text="#{label.parameter.simple.soa}"></span></th>
+                            <th class="textaligncenter"><span th:text="#{label.parameter.simple.mandatory_phase}"></span></th>
+                            <th th:if="${isILR}" class="textaligncenter"><span th:text="#{label.parameter.simple.ilr_rrf_threshold}"></span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr data-trick-class="SimpleParameter" class="editable">
+                            <th:block th:each="parameter : ${mappedParameters['SINGLE']}">
+                                <th th:if="${parameter.description == 'soaThreshold'}" th:data-trick-id="${parameter.id}" 
+                                    th:data-name="'soaThreshold'" th:data-trick-min-value="0" th:data-trick-max-value="100"
+                                    th:data-trick-field="value" th:data-trick-field-type="'double'" 
+                                    th:onclick="'return editField(this);'" th:data-trick-callback="'soaThresholdUpdate()'">
+                                    <span th:text="${#numbers.formatDecimal(parameter.value, 0, '###') }"></span>
+                                </th>
+                                <th th:if="${parameter.description == 'max_rrf'}" th:data-trick-id="${parameter.id}" 
+                                    th:data-name="'max_rrf'" th:data-trick-min-value="0" th:data-trick-max-value="100"
+                                    th:data-trick-field="value" th:data-trick-field-type="'double'"
+                                    th:onclick="'return editField(this);'" th:data-trick-callback-pre="'fixMinRRFFromRRFThreshold()'"
+                                    th:data-trick-callback="'updateMaxRRF()'">
+                                    <span th:text="${#numbers.formatDecimal(parameter.value, 0, '###') }"></span>
+                                </th>
+                                <th th:if="${parameter.description == 'lifetime_default'}" th:data-trick-id="${parameter.id}"
+                                    th:data-trick-min-value="'1e-19'" class="textaligncenter" th:data-trick-field="value"
+                                    th:data-trick-callback="'updateMeasuresCost()'" th:data-trick-field-type="'double'"
+                                    th:onclick="'return editField(this);'">
+                                    <span th:text="${#numbers.formatDecimal(parameter.value, 0, '###') }"></span>
+                                </th>
+                                <th th:if="${parameter.description == 'ilr_rrf_threshold'}" th:data-trick-id="${parameter.id}"
+                                    th:data-name="'ilr_rrf_threshold'" th:data-trick-min-value="0" th:data-trick-max-value="100"
+                                    th:data-trick-field="value" th:data-trick-field-type="'double'"
+                                    th:onclick="'return editField(this);'" th:data-trick-callback-pre="'fixMaxRRFThresholdFromRRF()'">
+                                    <span th:text="${#numbers.formatDecimal(parameter.value, 2, '###.##') }"></span>
+                                </th>
+                                <th th:if="${parameter.description == 'mandatoryPhase'}" th:data-trick-id="${parameter.id}"
+                                    th:data-trick-callback-pre="'extractPhase(this,true)'" class="textaligncenter"
+                                    th:data-trick-field="value" th:data-trick-field-type="'double'" th:onclick="'return editField(this);'">
+                                    <span th:text="${#numbers.formatDecimal(parameter.value, 0, '###') }"></span>
+                                </th>
+                                <th th:if="${parameter.description != 'soaThreshold' and parameter.description != 'max_rrf' 
+                                          and parameter.description != 'lifetime_default' and parameter.description != 'ilr_rrf_threshold' 
+                                          and parameter.description != 'mandatoryPhase'}" th:data-trick-id="${parameter.id}"
+                                    class="textaligncenter" th:data-trick-field="value" th:data-trick-field-type="'double'"
+                                    th:data-trick-callback="'updateMeasuresCost()'" th:onclick="'return editField(this);'">
+                                    <span th:text="${#numbers.formatDecimal(parameter.value, 0, '###') }"></span>
+                                </th>
+                            </th:block>
+                        </tr>
+                    </tbody>
+                </table>
+            </fieldset>
+        </div>
+        
+        <div th:if="${type.qualitative}">
+            <span th:text="#{label.nil}" var="nil"></span>
+            <span th:text="#{label.all}" var="all"></span>
+            <span th:text="#{label.compliant}" var="compliant"></span>
+            
+            <div class="col-md-6">
+                <fieldset>
+                    <legend>
+                        <span th:text="#{label.title.parameter.simple.cssf}"></span>
+                    </legend>
+                    <table class="table table-hover table-condensed">
+                        <thead>
+                            <tr>
+                                <th class="textaligncenter"><span th:text="#{label.parameter.simple.cssf.impact_threshold}"></span></th>
+                                <th class="textaligncenter"><span th:text="#{label.parameter.simple.cssf.probability_threshold}"></span></th>
+                                <th class="textaligncenter"><span th:text="#{label.parameter.simple.cssf.direct_size}"></span></th>
+                                <th class="textaligncenter"><span th:text="#{label.parameter.simple.cssf.indirect_size}"></span></th>
+                                <th class="textaligncenter"><span th:text="#{label.parameter.simple.cssf.cia_size}"></span></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr data-trick-callback="reloadSection('section_riskregister');" data-trick-class="SimpleParameter">
+                                <th:block th:each="parameter : ${mappedParameters['CSSF']}">
+                                    <th th:if="${parameter.description == 'cssfImpactThreshold' or parameter.description == 'cssfProbabilityThreshold'}"
+                                        th:data-trick-id="${parameter.id}" th:data-trick-min-value="0" th:data-trick-max-value="10"
+                                        th:data-trick-step-value="1" class="editable textaligncenter" th:data-trick-field="value"
+                                        th:data-trick-field-type="'double'" th:onclick="'return editField(this);'">
+                                        <span th:text="${#numbers.formatDecimal(parameter.value, 0, '###') }"></span>
+                                    </th>
+                                    <th th:if="${parameter.description == 'cssfCIASize' or parameter.description == 'cssfDirectSize' 
+                                                or parameter.description == 'cssfIndirectSize'}">
+                                        <span th:text="${#numbers.formatDecimal(parameter.value, 0, '###') }" var="cssfSize"></span>
+                                        <th th:data-trick-id="${parameter.id}" th:data-trick-choose-translate="${nil}, ${all}, ${compliant}"
+                                            th:data-trick-min-value="-2" th:data-trick-step-value="1" th:data-trick-max-value="1000"
+                                            class="editable textaligncenter" th:data-trick-field="value" th:data-trick-field-type="'double'"
+                                            th:onclick="'return editField(this);'">
+                                            <span th:switch="${parameter.value}">
+                                                <span th:case="${parameter.value <= -2}">${nil}</span>
+                                                <span th:case="${parameter.value == -1}">${all}</span>
+                                                <span th:case="${parameter.value == 0}">${compliant}</span>
+                                                <span th:default>${cssfSize}</span>
+                                            </span>
+                                        </th>
+                                    </th>
+                                </th:block>
+                            </tr>
+                        </tbody>
+                    </table>
+                </fieldset>
+            </div>
+        </div>
+        
+        <div th:if="${type.qualitative}">
+            <div class="col-sm-3">
+                <fieldset>
+                    <legend>
+                        <span th:text="#{label.parameter.probability.label}"></span>
+                    </legend>
+                    <table class="table table-hover table-fixed-header-analysis table-condensed">
+                        <thead>
+                            <tr>
+                                <th class="textaligncenter"><span th:text="#{label.parameter.level}"></span></th>
+                                <th class="textaligncenter"><span th:text="#{label.parameter.label}"></span></th>
+                                <th th:if="${isILR}" class="textaligncenter"><span th:text="#{label.parameter.ilr}"></span></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <th:block th:each="parameter : ${mappedParameters['PROBA']}">
+                                <tr data-trick-class="LikelihoodParameter" data-trick-id="${parameter.id}">
+                                    <td th:data-trick-field="level" class="textaligncenter"><span th:text="#{parameter.level}"></span></td>
+                                    <td th:data-trick-field="label" th:data-trick-field-type="'string'" class="editable textaligncenter"
+                                        th:data-trick-callback="reloadSection('section_parameter_impact_probability'); reloadRiskHeatMapSection();"
+                                        th:onclick="'return editField(this);'"><span th:text="#{parameter.label}"></span></td>
+                                    <th th:if="${isILR}" class="textaligncenter">
+                                        <td class="editable textaligncenter" th:data-trick-min-value="-1" th:data-trick-step-value="1"
+                                            th:data-trick-max-value="4" th:data-trick-field="ilrLevel" th:data-trick-field-type="'integer'"
+                                            th:onclick="'return editField(this);'">
+                                            <span th:text="#{parameter.ilrLevel}"></span>
+                                        </td>
+                                    </th>
+                                </tr>
+                            </th:block>
+                        </tbody>
+                    </table>
+                </fieldset>
+            </div>
+        </div>
+        
+        <div th:if="${type.qualitative}">
+            <div class="col-sm-3">
+                <fieldset>
+                    <legend>
+                        <span th:text="#{label.parameter.impact.label}"></span>
+                    </legend>
+                    <table class="table table-hover table-fixed-header-analysis table-condensed">
+                        <thead>
+                            <tr>
+                                <th class="textaligncenter"><span th:text="#{label.parameter.level}"></span></th>
+                                <th class="textaligncenter"><span th:text="#{label.parameter.label}"></span></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <th:block th:each="parameter : ${mappedParameters[impactLabel]}">
+                                <tr data-trick-class="ImpactParameter" data-trick-id="${parameter.id}">
+                                    <td th:data-trick-field="level" class="textaligncenter"><span th:text="#{parameter.level}"></span></td>
+                                    <td th:data-trick-field="label" th:data-trick-field-type="'string'" class="editable textaligncenter"
+                                        th:data-trick-callback="reloadSection('section_parameter_impact_probability'); reloadRiskHeatMapSection();"
+                                        th:onclick="'return editField(this);'"><span th:text="#{parameter.label}"></span></td>
+                                </tr>
+                            </th:block>
+                        </tbody>
+                    </table>
+                </fieldset>
+            </div>
+        </div>
+
+        <div class="col-sm-{{isILR ? '6' : '3'}}">
+            <fieldset>
+                <legend>
+                    <span th:text="#{label.title.parameter.internal_params}"></span>
+                </legend>
+                <table class="table table-hover table-condensed">
+                    <thead>
+                        <tr>
+                            <th class="textaligncenter"><span th:text="#{label.parameter.name}"></span></th>
+                            <th class="textaligncenter"><span th:text="#{label.parameter.value}"></span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td th:data-trick-id="'riskregistertotal'" class="editable" th:data-trick-field="label"
+                                th:onclick="'return editField(this);'"><span th:text="#{label.riskregistertotal}"></span></td>
+                            <td class="editable" th:data-trick-field="value" th:data-trick-field-type="'double'"
+                                th:onclick="'return editField(this);'">
+                                <span th:text="${#numbers.formatDecimal(riskRegister.total, 2)}"></span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </fieldset>
+        </div>
+    </div>
+</div>

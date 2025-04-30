@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Risk Estimation Export</title>
+</head>
+<body>
+    <div data-view-content-name="${item.name}" data-view-token="${item.token}">
+        <fieldset>
+            <legend>
+                <span th:text="#{label.title.data_manager.export.risk_estimation}">Risk Estimation Export</span>
+            </legend>
+            <div class="alert alert-sm alert-info" style="margin-bottom: 15px">
+                <span th:text="#{info.data_manager.export.risk_estimation}">Information about Risk Estimation Export</span>
+            </div>
+            <form th:action="@{${item.processURL}?token=${item.token}&${_csrf.parameterName}=${_csrf.token}}" class="form form-inline" method="post" enctype="multipart/form-data">
+                <div class="form-group" style="width: 88%; margin-top:10px">
+                    <label th:data-helper-content="#{help.export.risk_estimation.additional.formula}">
+                        <span th:text="#{label.risk_estimation.export.additional.formula}">Additional Formula</span>
+                    </label>
+                    <div class="col-sm-12">
+                        <div class="input-group-btn">
+                            <input id="extrasFormula-cvs-file" type="file" accept=".csv" name="extrasFormula" style="display: none;" th:maxlength="${maxFileSize}" />
+                            <input id="extrasFormula-cvs-file-info" name="filename" th:placeholder="${maxSizeInfo}" class="form-control" readonly="readonly" required="required" style="width: 90%" />
+                            <button class="btn btn-primary" type="button" id="extrasFormula-cvs-file-browse-button" name="browse" style="margin-left: -5px;">
+                                <span th:text="#{label.action.browse}">Browse</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="hidden" th:name="${item.name}-submit"></button>
+            </form>
+        </fieldset>
+    </div>
+
+    <!-- Thymeleaf for conditionals -->
+    <div th:if="${maxFileSize < 1024}">
+        <span th:text="#{label.max.unit.data.byte} ${maxFileSize}"></span>
+    </div>
+    <div th:if="${maxFileSize >= 1024 and maxFileSize < 1048576}">
+        <span th:text="#{label.max.unit.data.kilo.byte} ${maxFileSize / 1024}"></span>
+    </div>
+    <div th:if="${maxFileSize >= 1048576}">
+        <span th:text="#{label.max.unit.data.mega.byte} ${maxFileSize / 1048576}"></span>
+    </div>
+</body>
+</html>

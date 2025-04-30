@@ -1,0 +1,97 @@
+<div th:fragment="home" id="tab-report" class="tab-pane" data-update-required="true" data-trigger="loadUserReport"
+    data-scroll-trigger="userReportScrolling">
+    <div class="col-md-3 col-lg-2 nav-left-affix" role="left-menu">
+        <strong><span th:text="#{label.title.control}">Control</span></strong>
+        <form class="form-horizontal" name="reportControl" id="formReportControl">
+            <div class="form-group">
+                <label for="pageSize" class="col-sm-4 control-label">
+                    <span th:text="#{label.page.size}">Page size</span>
+                </label>
+                <div class="col-sm-8">
+                    <select name="size" class="form-control" onchange="updateReportControl()" id="reportPageSize">
+                        <option value="30" th:selected="${reportControl.size == 30}">30
+                        </option>
+                        <option value="120" th:selected="${reportControl.size == 120}">120
+                        </option>
+                        <option value="500" th:selected="${reportControl.size == 500}">500
+                        </option>
+                        <option value="1000" th:selected="${reportControl.size == 1000}">1000
+                        </option>
+                        <option value="2000" th:selected="${reportControl.size == 2000}">2000
+                        </option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="filter" class="col-sm-4 control-label">
+                    <span th:text="#{label.action.show}">Show</span>
+                </label>
+                <div class="col-sm-8">
+                    <select name="filter" class="form-control" onchange="updateReportControl()">
+                        <option value="ALL" th:selected="${reportControl.filter == 'ALL'}">
+                            <span th:text="#{label.all}">All</span>
+                        </option>
+                        <th:block th:each="reportIdentifier : ${reportIdentifiers}">
+                            <option th:value="${reportIdentifier}"
+                                th:selected="${reportControl.filter == reportIdentifier}">
+                                <span th:text="#{${reportIdentifier}}"></span>
+                            </option>
+                        </th:block>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="sort" class="col-sm-4 control-label">
+                    <span th:text="#{label.action.sort.over}">Sort by</span>
+                </label>
+                <div class="col-sm-8">
+                    <select name="sort" class="form-control" onchange="updateReportControl()">
+                        <option value="identifier" th:selected="${reportControl.sort == 'identifier'}">
+                            <span th:text="#{label.analysis.identifier}">TRICK name</span>
+                        </option>
+                        <option value="label" th:selected="${reportControl.sort == 'label'}">
+                            <span th:text="#{label.analysis.label}">Name</span>
+                        </option>
+                        <option value="version" th:selected="${reportControl.sort == 'version'}">
+                            <span th:text="#{label.analysis.version}">Version</span>
+                        </option>
+                        <option value="created" th:selected="${reportControl.sort == 'created'}">
+                            <span th:text="#{label.date.created}">Created date</span>
+                        </option>
+                        <option value="length" th:selected="${reportControl.sort == 'length'}">
+                            <span th:text="#{label.file.size}">Size</span>
+                        </option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="direction" class="col-sm-4 control-label">
+                    <span th:text="#{label.action.sort}">Sort</span>
+                </label>
+                <div class="col-sm-8">
+                    <div class="btn-group" data-toggle="buttons">
+                        <label class="btn btn-default"
+                            th:classappend="${reportControl.direction == 'asc' ? 'active' : ''}"
+                            title="<span th:text='#{label.sort_direction.ascending}'>Ascending</span>">
+                            <input type="radio" name="direction" autocomplete="off"
+                                th:checked="${reportControl.direction == 'asc'}" value="asc"
+                                onchange="updateReportControl(this)">
+                            <i class="fa fa-play fa-rotate-270"></i>
+                        </label>
+                        <label class="btn btn-default"
+                            th:classappend="${reportControl.direction == 'desc' ? 'active' : ''}"
+                            title="<span th:text='#{label.sort_direction.descending}'>Descending</span>">
+                            <input type="radio" name="direction" th:checked="${reportControl.direction == 'desc'}"
+                                autocomplete="off" value="desc" onchange="updateReportControl(this)">
+                            <i class="fa fa-play fa-rotate-90"></i>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div id="progress-report" class="center-block" style="width: 60px">
+            <i class="fa fa-spinner fa-pulse fa-5x fa-align-center fa-spin"></i>
+        </div>
+    </div>
+    <div class="col-md-9 col-lg-10" id="section_report"></div>
+</div>

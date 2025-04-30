@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Scenario</title>
+</head>
+<body>
+
+<div th:if="${#lists.isEmpty(selectedScenario)}">
+    <label data-trick-controller-name='scenario' class="label label-danger"
+           th:text="#{error.rrf.no_scenrario}">[No Scenario Message]</label>
+</div>
+
+<div th:unless="${#lists.isEmpty(selectedScenario)}">
+    <th:block th:with="cssclass=${typeValue} ? 'success' : 'danger'">
+        <table data-trick-controller-name='scenario' class="table table-condensed rrf-values" style="margin-bottom: 0;">
+            <thead>
+                <tr>
+                    <th th:class="${cssclass} pdlc text-center" data-trick-type="type" th:text="#{label.rrf.scenario.preventive}">Preventive</th>
+                    <th th:class="${cssclass} pdlc text-center" data-trick-type="type" th:text="#{label.rrf.scenario.detective}">Detective</th>
+                    <th th:class="${cssclass} pdlc text-center" data-trick-type="type" th:text="#{label.rrf.scenario.limitative}">Limitative</th>
+                    <th th:class="${cssclass} pdlc text-center" data-trick-type="type" th:text="#{label.rrf.scenario.corrective}">Corrective</th>
+                    <th class="warning text-center" data-trick-type="source" th:text="#{label.rrf.scenario.intentional}">Intentional</th>
+                    <th class="warning text-center" data-trick-type="source" th:text="#{label.rrf.scenario.accidental}">Accidental</th>
+                    <th class="warning text-center" data-trick-type="source" th:text="#{label.rrf.scenario.environmental}">Environmental</th>
+                    <th class="warning text-center" data-trick-type="source" th:text="#{label.rrf.scenario.internalThreat}">Internal</th>
+                    <th class="warning text-center" data-trick-type="source" th:text="#{label.rrf.scenario.externalThreat}">External</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td th:class="'text-center ' + ${cssclass} + ' pdlc'" data-trick-type="type">
+                        <input type="range" id="scenario_preventive" name="preventive"
+                               orient="vertical" min="0" max="1" step="0.05" tooltip="show"
+                               th:value="${selectedScenario.preventive}">
+                    </td>
+                    <td th:class="'text-center ' + ${cssclass} + ' pdlc'" data-trick-type="type">
+                        <input type="range" id="scenario_detective" name="detective"
+                               orient="vertical" min="0" max="1" step="0.05"
+                               th:value="${selectedScenario.detective}">
+                    </td>
+                    <td th:class="'text-center ' + ${cssclass} + ' pdlc'" data-trick-type="type">
+                        <input type="range" id="scenario_limitative" name="limitative"
+                               orient="vertical" min="0" max="1" step="0.05" tooltip="show"
+                               th:value="${selectedScenario.limitative}">
+                    </td>
+                    <td th:class="'text-center ' + ${cssclass} + ' pdlc'" data-trick-type="type">
+                        <input type="range" id="scenario_corrective" name="corrective"
+                               orient="vertical" min="0" max="1" step="0.05"
+                               th:value="${selectedScenario.corrective}">
+                    </td>
+
+                    <td class="text-center warning" data-trick-type="source">
+                        <input type="range" id="scenario_intentional" name="intentional"
+                               orient="vertical" min="0" max="1" step="1"
+                               th:value="${selectedScenario.intentional}">
+                    </td>
+                    <td class="text-center warning" data-trick-type="source">
+                        <input type="range" id="scenario_accidental" name="accidental"
+                               orient="vertical" min="0" max="1" step="1"
+                               th:value="${selectedScenario.accidental}">
+                    </td>
+                    <td class="text-center warning" data-trick-type="source">
+                        <input type="range" id="scenario_environmental" name="environmental"
+                               orient="vertical" min="0" max="1" step="1"
+                               th:value="${selectedScenario.environmental}">
+                    </td>
+                    <td class="text-center warning" data-trick-type="source">
+                        <input type="range" id="scenario_internalThreat" name="internalThreat"
+                               orient="vertical" min="0" max="1" step="1"
+                               th:value="${selectedScenario.internalThreat}">
+                    </td>
+                    <td class="text-center warning" data-trick-type="source">
+                        <input type="range" id="scenario_externalThreat" name="externalThreat"
+                               orient="vertical" min="0" max="1" step="1"
+                               th:value="${selectedScenario.externalThreat}">
+                    </td>
+                </tr>
+
+                <tr>
+                    <td th:class="'text-center ' + ${cssclass} + ' pdlc'" data-trick-type="type">
+                        <input type="text" id="scenario_preventive_value" readonly
+                               class="text-center form-control"
+                               th:value="${selectedScenario.preventive}">
+                    </td>
+                    <td th:class="'text-center ' + ${cssclass} + ' pdlc'" data-trick-type="type">
+                        <input type="text" id="scenario_detective_value" readonly
+                               class="text-center form-control"
+                               th:value="${selectedScenario.detective}">
+                    </td>
+                    <td th:class="'text-center ' + ${cssclass} + ' pdlc'" data-trick-type="type">
+                        <input type="text" id="scenario_limitative_value" readonly
+                               class="text-center form-control"
+                               th:value="${selectedScenario.limitative}">
+                    </td>
+                    <td th:class="'text-center ' + ${cssclass} + ' pdlc'" data-trick-type="type">
+                        <input type="text" id="scenario_corrective_value" readonly
+                               class="text-center form-control"
+                               th:value="${selectedScenario.corrective}">
+                    </td>
+
+                    <td class="text-center warning" data-trick-type="source">
+                        <input type="text" id="scenario_intentional_value" readonly
+                               class="text-center form-control"
+                               th:value="${selectedScenario.intentional}">
+                    </td>
+                    <td class="text-center warning" data-trick-type="source">
+                        <input type="text" id="scenario_accidental_value" readonly
+                               class="text-center form-control"
+                               th:value="${selectedScenario.accidental}">
+                    </td>
+                    <td class="text-center warning" data-trick-type="source">
+                        <input type="text" id="scenario_environmental_value" readonly
+                               class="text-center form-control"
+                               th:value="${selectedScenario.environmental}">
+                    </td>
+                    <td class="text-center warning" data-trick-type="source">
+                        <input type="text" id="scenario_internalThreat_value" readonly
+                               class="text-center form-control"
+                               th:value="${selectedScenario.internalThreat}">
+                    </td>
+                    <td class="text-center warning" data-trick-type="source">
+                        <input type="text" id="scenario_externalThreat_value" readonly
+                               class="text-center form-control"
+                               th:value="${selectedScenario.externalThreat}">
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </th:block>
+</div>
+
+</body>
+</html>

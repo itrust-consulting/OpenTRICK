@@ -1,0 +1,101 @@
+<div class="modal fade" id="ticketingSystemEmailTemplateModel" tabindex="-1" role="dialog"
+     aria-labelledby="ticketingSystemEmailTemplateModel" aria-hidden="true">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">
+                    <span th:if="${form.id > 0}" th:text="#{label.title.edit.email.template}">Edit email template</span>
+                    <span th:unless="${form.id > 0}" th:text="#{label.title.add.email.template}">Add new email template</span>
+                </h4>
+            </div>
+            <div class="modal-body">
+                <span id="success" hidden></span>
+
+                <form name="form" th:action="@{/Admin/Customer/{customerID}/Tickecting-system/Email-template/Save(customerID=${customerID})}" 
+                      method="post" class="form-horizontal" id="email_template_form">
+                    <input type="hidden" name="id" th:value="${form.id}" th:readonly="${form.id > 0}" id="email_template_id" />
+
+                    <!-- Email -->
+                    <div class="form-group">
+                        <label for="email" class="col-sm-3 control-label" th:attr="data-helper-content=#{help.email.template.email}">
+                            <span th:text="#{label.email.template.email}">Email</span>
+                        </label>
+                        <div class="col-sm-9">
+                            <input id="email_template_email" name="email" class="form-control" type="email" 
+                                   th:value="${form.email}" required />
+                        </div>
+                    </div>
+
+                    <!-- Title -->
+                    <div class="form-group">
+                        <label for="title" class="col-sm-3 control-label" th:attr="data-helper-content=#{help.email.template.title}">
+                            <span th:text="#{label.email.template.title}">Subject</span>
+                        </label>
+                        <div class="col-sm-9">
+                            <input id="email_template_title_entry" list="dataListEmailSubject" class="form-control" 
+                                   th:attr="data-value=${form.title}" required />
+                            <input id="email_template_title" name="title" class="form-control hidden" 
+                                   th:value="${form.title}" required />
+                        </div>
+                    </div>
+
+                    <!-- Internal Time -->
+                    <div class="form-group">
+                        <label for="internalTime" class="col-sm-3 control-label" th:attr="data-helper-content=#{help.email.template.internal_time}">
+                            <span th:text="#{label.email.template.internal_time}">Internal time</span>
+                        </label>
+                        <div class="col-sm-9">
+                            <input id="email_template_internal_time" name="internalTime" class="form-control" type="number" min="0" max="1000000" step="10"
+                                   th:value="${form.internalTime}" required />
+                        </div>
+                    </div>
+
+                    <!-- HTML -->
+                    <div class="form-group">
+                        <label for="html" class="col-sm-3 control-label" th:attr="data-helper-content=#{help.email.template.html}">
+                            <span th:text="#{label.email.template.html}">Html</span>
+                        </label>
+                        <div class="col-sm-9" align="center">
+                            <div class="btn-group" data-toggle="buttons">
+                                <label class="btn btn-default" th:classappend="${form.html} ? ' active' : ''">
+                                    <span th:text="#{label.yes_no.yes}">Yes</span>
+                                    <input name="html" type="radio" value="true" th:checked="${form.html}" />
+                                </label>
+                                <label class="btn btn-default" th:classappend="${!form.html} ? ' active' : ''">
+                                    <span th:text="#{label.yes_no.no}">No</span>
+                                    <input name="html" type="radio" value="false" th:checked="${!form.html}" />
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Template Textarea -->
+                    <div class="form-group">
+                        <label for="template" class="col-sm-3 control-label" th:attr="data-helper-content=#{help.email.template.template}">
+                            <span th:text="#{label.email.template.template.template}">Template</span>
+                        </label>
+                        <div class="col-sm-9" align="center">
+                            <textarea id="email_template_template" name="template" class="form-control" rows="17" style="overflow-y: auto;" required
+                                      th:text="${form.template}"></textarea>
+                        </div>
+                    </div>
+
+                    <input name="submit" type="submit" hidden />
+
+                    <!-- Email Subject Datalist -->
+                    <datalist id="dataListEmailSubject" hidden>
+                        <option data-value="default" th:text="#{label.standard} + ': ' + #{label.measure.domain}"></option>
+                        <option data-value="domain" th:selected="${form.title == 'domain'}" th:text="#{label.measure.domain}"></option>
+                        <option data-value="todo" th:selected="${form.title == 'todo'}" th:text="#{label.measure.todo}"></option>
+                        <option data-value="tocheck" th:selected="${form.title == 'tocheck'}" th:text="#{label.measure.tocheck}"></option>
+                    </datalist>
+
+                    <!-- Hidden Parameters JSON -->
+                    <div id="measureAvailableParameters" class="hidden">
+                        <span th:utext="|[
+                            {'name':'Std','title':'#{label.standard}'},
+                            {'name':'Ref','title':'#{label.reference}'},
+                            {'name':'SecMeasure','title':'#{label.measure.domain}'},
+                            {'name':'Desc','title':'#{label.measure.description}'},
+                            {'name':'ST','title':'#{label.title.measure.status

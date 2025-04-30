@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Estimation UI</title>
+</head>
+<body>
+    <!-- Set Locale (Thymeleaf uses Spring MessageSource for i18n) -->
+    <!-- This is usually configured via Spring, no direct equivalent to <fmt:setLocale> -->
+    
+    <div th:if="${assessments != null}">
+        <!-- Include assessments fragment -->
+        <div th:replace="fragments/assessments :: assessmentsFragment"></div>
+    </div>
+
+    <div th:if="${assessment != null}">
+        <div id="estimation-ui"
+             class="col-lg-10 col-md-9 trick-ui"
+             data-view-type="single"
+             data-view-name="estimation-ui"
+             th:attr="data-trick-asset-id=${asset.id}, 
+                      data-trick-scenario-id=${scenario.id}, 
+                      data-trick-content='asset'">
+
+            <div th:if="${type.qualitative}">
+                <!-- Include qualitative form fragment -->
+                <div th:replace="form/qualitative :: qualitativeForm"></div>
+            </div>
+            <div th:unless="${type.qualitative}">
+                <!-- Set request variable (no exact equivalent in Thymeleaf, usually set in controller) -->
+                <!-- For example: model.addAttribute("rowLength", showHiddenComment ? "14" : "30"); -->
+                <div th:with="rowLength=${showHiddenComment} ? 14 : 30">
+                    <div th:replace="form/quantitative :: quantitativeForm"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:if="${assessments == null and assessment == null}">
+        <div id="estimation-ui"
+             class="col-md-9 trick-ui"
+             data-view-type="empty"
+             data-view-name="estimation-ui"
+             data-trick-asset-id="-2"
+             data-trick-scenario-id="-2"
+             data-trick-content="asset">
+        </div>
+    </div>
+</body>
+</html>

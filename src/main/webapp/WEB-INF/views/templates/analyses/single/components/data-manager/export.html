@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Export Modal</title>
+</head>
+<body>
+<div class="modal fade" id="export-modal" tabindex="-1" role="dialog" aria-labelledby="export-modal" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" th:text="#{label.title.data_manager.export}">Export Title</h4>
+            </div>
+            <div class="modal-body">
+                <div class='col-xs-3' data-view-part='nav'>
+                    <ul class="nav nav-pills nav-stacked">
+                        <li th:each="item, status : ${items}" th:classappend="${status.index == 0} ? 'active'">
+                            <a th:href="'#export-' + ${item.name}" data-toggle="tab"
+                               th:text="#{${'label.menu.data_manager.export.' + ${#strings.replace(item.name, '-', '_')}}}">
+                                Export Option
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="col-xs-9" data-view-part='content'>
+                    <div id="export-view-container" class="tab-content" data-view-tab='main'>
+                        <div th:each="item, status : ${items}"
+                             th:class="'tab-pane tab-pane-main' + (${status.index == 0} ? ' active' : '')"
+                             th:id="'export-' + ${item.name}"
+                             th:attr="data-view-name=${item.name},
+                                      data-view-url=${item.viewURL},
+                                      data-view-process-url=${item.processURL},
+                                      data-view-extentions=${item.extensions},
+                                      data-view-token=${item.token}">
+                            <div th:if="${#strings.isEmpty(item.viewURL)}">
+                                <fieldset>
+                                    <legend th:text="#{${'label.title.data_manager.export.' + ${#strings.replace(item.name, '-', '_')}}}">Export Legend</legend>
+                                    <div class='alert alert-sm alert-info' style="margin-bottom: 15px"
+                                         th:text="#{${'info.data_manager.export.' + ${#strings.replace(item.name, '-', '_')}}}">Export Info</div>
+
+                                    <div th:if="${!item.background}" class="hidden">
+                                        <a th:href="@{${item.processURL}(token=${item.token})}"
+                                           th:attr="data-token=${item.token}" target="_ts_downloading" download
+                                           class='btn btn-lg btn-primary'>
+                                            <span th:text="#{label.action.download.click}">Download</span>
+                                            <i class="glyphicon glyphicon-download"></i>
+                                        </a>
+                                    </div>
+                                </fieldset>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btn-export" name="export" class="btn btn-primary" disabled="disabled"
+                        th:text="#{label.action.export}">Export</button>
+                <button type="button" name="cancel" class="btn btn-default" data-dismiss="modal"
+                        th:text="#{label.action.cancel}">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

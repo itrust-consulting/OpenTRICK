@@ -7,7 +7,7 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 
 <div id="section_credential">
-	<ul class="nav nav-pills bordered-bottom" id="menu_credential">
+	<ul class="nav nav-pills bordered-bottom" id="menu_credential">	
 		<li data-trick-ignored="true"><a href="#" onclick="return addCredential();"><span class="glyphicon glyphicon-plus primary"></span> <spring:message
 					code="label.action.add" text="Add" /> </a></li>
 		<li class="disabled" data-trick-selectable="true"><a href="#" onclick="return editCredential();"><span class="glyphicon glyphicon-edit danger"></span> <spring:message

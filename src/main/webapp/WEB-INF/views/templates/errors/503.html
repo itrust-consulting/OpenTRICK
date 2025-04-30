@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="${locale.language}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="#{title.error.503}"></title>
+    <!-- Include Header -->
+    <div th:replace="../template/header :: header"></div>
+</head>
+<body>
+    <div id="wrap">
+        <!-- ################################################################### Nav Menu ################################################################### -->
+        <div th:replace="../template/menu :: menu"></div>
+
+        <div class="container">
+            <!-- Success/Error Message -->
+            <div th:replace="../template/successErrors :: successErrors"></div>
+
+            <!-- #################################################################### Content ################################################################### -->
+            <div class="page-header">
+                <h1 th:text="#{title.error.503}"></h1>
+            </div>
+
+            <div class="content" id="content" data-spy="scroll">
+                <span th:text="#{error.503.message}"></span>
+            </div>
+        </div>
+
+        <!-- ################################################################ Include Footer ################################################################ -->
+        <div th:replace="../template/footer :: footer"></div>
+    </div>
+
+    <!-- Include Scripts -->
+    <div th:replace="../template/scripts :: scripts"></div>
+</body>
+</html>

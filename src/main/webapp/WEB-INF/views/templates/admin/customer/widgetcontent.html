@@ -1,0 +1,147 @@
+<div class="modal fade" id="addCustomerModel" tabindex="-1" role="dialog" aria-labelledby="addNewCustomer" aria-hidden="true">
+    <div class="modal-dialog customer-modal" th:classappend="${adminaAllowedTicketing} ? ' modal-mdl' : ''">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" th:text="#{label.customer.add.menu}">Add new customer</h4>
+            </div>
+
+            <div class="modal-body">
+                <form th:action="@{/Customer/Create}" method="post" class="form-horizontal" id="customer_form">
+                    <input type="hidden" name="id" value="0" />
+                    <input type="hidden" name="canBeUsed" value="true" />
+
+                    <!-- Contact Fieldset -->
+                    <fieldset>
+                        <legend style="font-size: 15px" th:text="#{label.contact}">Contact</legend>
+
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label" th:attr="data-helper-content=#{help.customer.organisation}" th:text="#{label.customer.organisation}">Company</label>
+                            <div class="col-sm-9">
+                                <input name="organisation" id="customer_organisation" class="form-control" type="text" />
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label" th:attr="data-helper-content=#{help.customer.contact_person}" th:text="#{label.customer.contact_person}">Contact person</label>
+                            <div class="col-sm-9">
+                                <input name="contactPerson" id="customer_contactPerson" class="form-control" type="text" />
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label" th:attr="data-helper-content=#{help.customer.phone_number}" th:text="#{label.customer.phone_number}">Phone number</label>
+                            <div class="col-sm-9">
+                                <input name="phoneNumber" id="customer_phoneNumber" class="form-control" type="text" />
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label" th:attr="data-helper-content=#{help.customer.email}" th:text="#{label.customer.email}">Email</label>
+                            <div class="col-sm-9">
+                                <input name="email" id="customer_email" class="form-control" type="email" />
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <!-- Address Fieldset -->
+                    <fieldset>
+                        <legend style="font-size: 15px" th:text="#{label.address}">Address</legend>
+
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label" th:attr="data-helper-content=#{help.customer.address}" th:text="#{label.customer.address}">Address</label>
+                            <div class="col-sm-9">
+                                <input name="address" class="form-control" type="text" />
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label" th:attr="data-helper-content=#{help.customer.zip_code}" th:text="#{label.customer.zip_code}">Zip code</label>
+                            <div class="col-sm-9">
+                                <input name="zipCode" class="form-control" type="text" />
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label" th:attr="data-helper-content=#{help.customer.city}" th:text="#{label.customer.city}">City</label>
+                            <div class="col-sm-9">
+                                <input name="city" class="form-control" type="text" />
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label" th:attr="data-helper-content=#{help.customer.country}" th:text="#{label.customer.country}">Country</label>
+                            <div class="col-sm-9">
+                                <input name="country" class="form-control" type="text" />
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <!-- Ticketing System (if adminaAllowedTicketing is true) -->
+                    <div th:if="${adminaAllowedTicketing}">
+                        <fieldset>
+                            <legend th:text="#{label.ticketing.system}">Ticketing System</legend>
+
+                            <!-- Ticketing System Enabled -->
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label" th:attr="data-helper-content=#{help.ticketing.system.enabled}" th:text="#{label.ticketing.system.enabled}">Enabled</label>
+                                <div class="col-sm-9">
+                                    <div class="btn-group btn-group-justified" data-toggle="buttons">
+                                        <label class="btn btn-default">
+                                            <input type="radio" name="ticketingSystem.enabled" value="true" /> <span th:text="#{label.yes_no.yes}">Yes</span>
+                                        </label>
+                                        <label class="btn btn-default active">
+                                            <input type="radio" name="ticketingSystem.enabled" value="false" checked="checked" /> <span th:text="#{label.yes_no.no}">No</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Ticketing System Type -->
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label" th:attr="data-helper-content=#{help.ticketing.system.type}" th:text="#{label.ticketing.system.type}">Type</label>
+                                <div class="col-sm-9">
+                                    <div class="btn-group btn-group-justified" data-toggle="buttons">
+                                        <div th:each="type, stat : ${ticketingTypes}">
+                                            <label class="btn btn-default" th:classappend="${stat.index == 0} ? ' active' : ''">
+                                                <input type="radio" name="ticketingSystem.type" th:value="${type}" th:checked="${stat.index == 0}" />
+                                                <span th:text="#{label.ticketing.system.type.${#strings.toLowerCase(type)}}">Type</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Name, Tracker, URL -->
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label" th:text="#{label.ticketing.system.name}">Name</label>
+                                <div class="col-sm-9">
+                                    <input name="ticketingSystem.name" class="form-control" type="text" />
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label" th:text="#{label.ticketing.system.tracker}">Tracker</label>
+                                <div class="col-sm-9">
+                                    <input name="ticketingSystem.tracker" class="form-control" type="text" />
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label" th:text="#{label.ticketing.system.url}">URL</label>
+                                <div class="col-sm-9">
+                                    <input name="ticketingSystem.url" class="form-control" type="url" />
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="saveCustomer('customer_form')" th:text="#{label.action.add.customer}">Add Customer</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal" th:text="#{label.action.cancel}">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,37 @@
+<div class="tab-pane" id="tab-scope">
+    <div class="page-header tab-content-header">
+        <div class="container">
+            <div class="row-fluid">
+                <h3>
+                    <span th:text="#{label.title.scope}"></span>
+                </h3>
+            </div>
+        </div>
+    </div>
+    <div class="section" id="section_item-information">
+        <table id="iteminformationtable" class="table table-condensed table-hover table-fixed-header-analysis">
+            <thead>
+                <tr>
+                    <th style="width:25%"><span th:text="#{label.item_information.description}"></span></th>
+                    <th><span th:text="#{label.item_information.value}"></span></th>
+                </tr>
+            </thead>
+            <tfoot></tfoot>
+            <tbody>
+                <tr th:each="itemInformation : ${itemInformations}" 
+                    th:data-trick-class="'ItemInformation'" 
+                    th:data-trick-id="${itemInformation.id}">
+                    <td>
+                        <span th:text="#{label.item_information.${#strings.trim(itemInformation.description)}}"
+                              th:text="${itemInformation.description}"></span>
+                    </td>
+                    <td onclick="return editField(this);" class="editable" 
+                        data-trick-field="value" data-trick-content="text" 
+                        data-trick-field-type="string">
+                        <span th:text="${itemInformation.value}"></span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

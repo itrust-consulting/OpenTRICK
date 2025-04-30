@@ -1,0 +1,19 @@
+<div class="section" id="section_roles">
+    <table class="table" style="text-align: center;">
+        <thead>
+            <tr>
+                <th th:each="role : ${roles}">
+                    <span th:text="#{label.role.${#strings.toLowerCase(#strings.replace(role, 'ROLE_', ''))}}">Role</span>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td th:each="role : ${roles}" align="center">
+                    <input id="${role}" name="${role}" class="checkbox" type="checkbox"
+                        th:checked="${userRoles != null and userRoles.contains(role)}" />
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

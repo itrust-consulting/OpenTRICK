@@ -1,0 +1,51 @@
+<div class="tab-pane" id="tab-language">
+    <div class="section" id="section_language">
+        <ul class="nav nav-pills bordered-bottom" id="menu_language">
+            <li data-trick-ignored="true">
+                <a href="#" onclick="return newLanguage();">
+                    <span class="glyphicon glyphicon-plus primary"></span> 
+                    <span th:text="#{label.action.add}">Add</span>
+                </a>
+            </li>
+            <li class="disabled" data-trick-selectable="true">
+                <a href="#" onclick="return editSingleLanguage();">
+                    <span class="glyphicon glyphicon-edit danger"></span>
+                    <span th:text="#{label.menu.edit.language}">Edit</span>
+                </a>
+            </li>
+            <li class="disabled pull-right" data-trick-selectable="true">
+                <a href="#" class="text-danger" onclick="return deleteLanguage();">
+                    <span class="glyphicon glyphicon-remove"></span> 
+                    <span th:text="#{label.menu.delete.language}">Delete</span>
+                </a>
+            </li>
+        </ul>
+        <div th:if="${not #lists.isEmpty(languages)}">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th width="1%"></th>
+                        <th><span th:text="#{label.language.alpha3}">Alpha3</span></th>
+                        <th><span th:text="#{label.language.name}">Name</span></th>
+                        <th><span th:text="#{label.language.alt_name}">Alternative name</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="language : ${languages}" th:data-trick-id="${language.id}" th:onclick="|selectElement(this)|" th:ondblclick="|return editSingleLanguage(${language.id});|">
+                        <td>
+                            <input type="checkbox" class="checkbox" th:onchange="|return updateMenu(this,'#section_language','#menu_language');|">
+                        </td>
+                        <td th:data-field-name="alpha3" th:text="${language.alpha3}"></td>
+                        <td th:data-field-name="name" th:text="${language.name}"></td>
+                        <td th:data-field-name="altName" th:text="${language.altName}"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div th:unless="${not #lists.isEmpty(languages)}">
+            <h4>
+                <span th:text="#{label.language.empty}">No language</span>
+            </h4>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Data Manager Export</title>
+</head>
+<body>
+    <fieldset>
+        <legend th:text="#{label.title.data_manager.export.${T(org.springframework.util.StringUtils).replace(item.name,'-','_')}}" />
+        <div class="alert alert-sm alert-info" style="margin-bottom: 15px">
+            <span th:text="#{info.data_manager.export.${T(org.springframework.util.StringUtils).replace(item.name,'-','_')}}" />
+        </div>
+        <form class="form form-horizontal" name="filter">
+            <input th:value="${type}" name="type" type="hidden" />
+            <div th:if="${type == 'REPORT'}">
+                <div class="form-group">
+                    <label for="cssf" class="control-label col-xs-4" th:text="#{label.risk_sheet.report.type}" />
+                    <div class="col-xs-5">
+                        <div class="btn-group btn-group-justified" data-toggle="buttons">
+                            <label class="btn btn-default" th:classappend="${cssf == false} ? 'active' : ''">
+                                <span th:text="#{label.type.normal}" />
+                                <input name="cssf" th:checked="${cssf == false}" type="radio" value="false"/>
+                            </label>
+                            <label class="btn btn-default" th:classappend="${cssf == true} ? 'active' : ''">
+                                <span th:text="#{label.type.cssf}" />
+                                <input name="cssf" th:checked="${cssf == true}" type="radio" value="true"/>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label col-xs-4" th:text="#{label.parameter.simple.cssf.impact_threshold}" />
+                <div class="col-xs-5">
+                    <select name="filter.impact" class="form-control">
+                        <option th:each="impact : ${impacts}" th:value="${impact.level}" 
+                                th:selected="${impact.level == cssfImpactThreshold.value}">
+                            <span th:text="#{label.level.index(${impact.level})}" />
+                        </option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label col-xs-4" th:text="#{label.parameter.simple.cssf.probability_threshold}" />
+                <div class="col-xs-5">
+                    <select name="filter.probability" class="form-control">
+                        <option th:each="probability : ${probabilities}" th:value="${probability.level}" 
+                                th:selected="${probability.level == cssfProbabilityThreshold.value}">
+                            <span th:text="#{label.level.index(${probability.level})}" />
+                        </option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label col-xs-4" th:text="#{label.parameter.simple.cssf.direct_size}" />
+                <div class="col-xs-5">
+                    <select name="filter.direct" class="form-control">
+                        <option value="-2" th:selected="${cssfDirectSize.value == -2}">${nil}</option>
+                        <option value="-1" th:selected="${cssfDirectSize.value == -1}">${all}</option>
+                        <option value="0" th:selected="${cssfDirectSize.value == 0}">${compliant}</option>
+                        <option th:each="cssfCount : ${#numbers.sequence(5, 1000, 5)}" 
+                                th:value="${cssfCount}" th:selected="${cssfCount == cssfDirectSize.value}">
+                            <span th:text="${cssfCount}" />
+                        </option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label col-xs-4" th:text="#{label.parameter.simple.cssf.indirect_size}" />
+                <div class="col-xs-5">
+                    <select name="filter.indirect" class="form-control">
+                        <option value="-2" th:selected="${cssfIndirectSize.value == -2}">${nil}</option>
+                        <option value="-1" th:selected="${cssfIndirectSize.value == -1}">${all}</option>
+                        <option value="0" th:selected="${cssfIndirectSize.value == 0}">${compliant}</option>
+                        <option th:each="cssfCount : ${#numbers.sequence(5, 1000, 5)}" 
+                                th:value="${cssfCount}" th:selected="${cssfCount == cssfIndirectSize.value}">
+                            <span th:text="${cssfCount}" />
+                        </option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label col-xs-4" th:text="#{label.parameter.simple.cssf.cia_size}" />
+                <div class="col-xs-5">
+                    <select name="filter.cia" class="form-control">
+                        <option value="-2" th:selected="${cssfCIASize.value == -2}">${nil}</option>
+                        <option value="-1" th:selected="${cssfCIASize.value == -1}">${all}</option>
+                        <option value="0" th:selected="${cssfCIASize.value == 0}">${compliant}</option>
+                        <option th:each="cssfCount : ${#numbers.sequence(5, 1000, 5)}" 
+                                th:value="${cssfCount}" th:selected="${cssfCount == cssfCIASize.value}">
+                            <span th:text="${cssfCount}" />
+                        </option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label col-xs-4" th:text="#{label.title.owner}" />
+                <div class="col-xs-5">
+                    <select name="owner" class="form-control">
+                        <option value="">${all}</option>
+                        <option th:each="owner : ${owners}" th:value="${owner}" 
+                                th:text="#{${owner}}" />
+                    </select>
+                </div>
+            </div>
+        </form>
+    </fieldset>
+</body>
+</html>

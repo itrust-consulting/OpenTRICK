@@ -1,0 +1,65 @@
+<div class="modal fade" id="manageSAOModel" tabindex="-1" role="dialog" aria-labelledby="manageSAOModel" aria-hidden="true">
+    <div class="modal-dialog" style="width: 705px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="manageSAOModel-title">
+                    <span th:text="#{label.title.manage.soa}">Manage SOA</span>
+                </h4>
+            </div>
+            <div class="modal-body" style="padding: 0;">
+                <div style="padding: 5px 20px;">
+                    <div>
+                        <h4 class="col-xs-3 bordered-bottom" style="padding-left: 0">
+                            <span th:text="#{label.norm.label}">Name</span>
+                        </h4>
+                        <h4 class="col-xs-6 bordered-bottom" style="padding-left: 0">
+                            <span th:text="#{label.description}"></span>
+                        </h4>
+                        <h4 class="col-xs-3 bordered-bottom text-center">
+                            <span th:text="#{label.status}"></span>
+                        </h4>
+                    </div>
+                </div>
+                <span th:text="#{label.status.enabled}" th:utext="enabled">Enabled</span>
+                <span th:text="#{label.status.disabled}" th:utext="disabled">Disabled</span>
+                <div class="form-horizontal" style="padding: 5px 20px; height: 500px; overflow-x: hidden; clear: both;">
+                    <div th:each="analysisStandard : ${analysisStandards}" class="form-group" th:data-default-value="${analysisStandard.soaEnabled}" th:data-trick-id="${analysisStandard.id}">
+                        <div class="col-xs-3">
+                            <strong style="vertical-align: middle; text-transform: capitalize;">
+                                <span th:text="${analysisStandard.standard.name}"></span>
+                            </strong>
+                        </div>
+                        <div class="col-xs-6">
+                            <p style="padding-left: 0; font-size: 12px;text-transform: capitalize;">
+                                <span th:text="#{label.norm.standard_type.${analysisStandard.standard.type.toLowerCase()}}"></span>
+                                <span th:text="#{label.${analysisStandard.standard.computable ? 'yes' : 'no'}}"></span>
+                                <span th:text="#{label.standard.info}">Standard Info</span>
+                            </p>
+                        </div>
+                        <div class="col-xs-3 text-center">
+                            <div class="btn-group" data-toggle="buttons">
+                                <label class="btn btn-sm btn-default" th:classappend="${analysisStandard.soaEnabled ? 'active' : ''}">
+                                    <span th:text="${enabled}">Enabled</span>
+                                    <input th:checked="${analysisStandard.soaEnabled}" th:name="${analysisStandard.id}" type="radio" value="true"/>
+                                </label>
+                                <label class="btn btn-sm btn-default" th:classappend="${not analysisStandard.soaEnabled ? 'active' : ''}">
+                                    <span th:text="${disabled}">Disabled</span>
+                                    <input th:checked="${not analysisStandard.soaEnabled}" th:name="${analysisStandard.id}" type="radio" value="false"/>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" name="save" data-dismiss="modal" class="btn btn-primary">
+                    <span th:text="#{label.action.save}">Save</span>
+                </button>
+                <button type="button" name="cancel" class="btn btn-default" data-dismiss="modal">
+                    <span th:text="#{label.action.cancel}">Cancel</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

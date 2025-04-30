@@ -1,0 +1,59 @@
+<div class="modal fade" id="deleteUserModal" tabindex="-1" aria-hidden="true" aria-labelledby="deleteUser" role="dialog">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" th:text="#{label.title.delete.user}">Delete user</h4>
+            </div>
+            <div class="modal-body">
+                <p>
+                    <span th:text="#{confirm.delete.user(user.firstName, user.lastName, user.email)}">Are you sure, you want to delete: ${user.firstName} ${user.lastName}, email: ${user.email}?</span>
+                </p>
+                <div th:if="${not #lists.isEmpty(analyses)}">
+                    <hr>
+                </div>
+                <form name="deleteUserForm" class="form form-horizontal" style="max-height: 450px; padding: 5px; overflow-y: auto; overflow-x: hidden;" action="#">
+                    <input type="hidden" th:value="${user.id}" name="idUser">
+                    <div th:each="analysis : ${analyses}">
+                        <div class="form-group">
+                            <label class="col-md-6 control-label" th:for="${analysis.id}">
+                                <span th:switch="${analysis.profile}">
+                                    <span th:case="true" th:text="#{info.delete.analysis.profile(analysis.label)}">Profile: ${analysis.label}</span>
+                                    <span th:case="false" th:switch="${analysis.data}">
+                                        <span th:case="false" th:text="#{info.delete.analysis.no_data(analysis.label, analysis.version, analysis.identifier, analysis.customer.organisation)}">Empty analysis: ${analysis.label}, version: ${analysis.version}, TRICK Name: ${analysis.identifier}, Customer: ${analysis.customer.organisation}</span>
+                                        <span th:case="true" th:text="#{info.delete.analysis(analysis.label, analysis.version, analysis.identifier, analysis.customer.organisation)}">Analysis: ${analysis.label}, version: ${analysis.version}, TRICK Name: ${analysis.identifier}, Customer: ${analysis.customer.organisation}</span>
+                                    </span>
+                                </span>
+                            </label>
+                            <div class="col-md-6">
+                                <select name="${analysis.id}" class="form-control" required>
+                                    <option value="" selected disabled th:text="#{label.select.switch.owner_or_delete}">Delete or switch owner</option>
+                                    <option value="0" th:text="#{label.action.delete}">Delete</option>
+                                    <div th:each="owner : ${users}">
+                                        <div th:set="right=${analysis.findRightValue(owner)}">
+                                            <option th:value="${owner.id}">
+                                                <span th:text="#{label.action.switch.owner.to(owner.firstName, owner.lastName, owner.email)}">${owner.firstName} ${owner.lastName}, email: ${owner.email}</span> -
+                                                <span th:switch="${right}">
+                                                    <span th:case="''" th:text="#{label.analysis.right.none}">None</span>
+                                                    <span th:case="*"><span th:text="#{label.analysis.right(${right.toLowerCase()})}">${right}</span></span>
+                                                </span>
+                                            </option>
+                                        </div>
+                                    </div>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="submit" hidden="hidden" name="submit">
+                </form>
+            </div>
+            <div class="modal-footer" style="margin-top: 0px;">
+                <div id="deleteUserErrors" class="col-xs-7" align="left"></div>
+                <div class="col-xs-5">
+                    <button type="button" name="delete" class="btn btn-danger" th:text="#{label.action.delete}">Delete</button>
+                    <button type="submit" name="cancel" class="btn btn-default" data-dismiss="modal" th:text="#{label.action.cancel}">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

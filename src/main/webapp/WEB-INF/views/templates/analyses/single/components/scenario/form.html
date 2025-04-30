@@ -1,0 +1,327 @@
+<!-- Thymeleaf Template -->
+<div class="modal fade" id="addScenarioModal" tabindex="-1" role="dialog" aria-labelledby="addNewScenario" aria-hidden="true" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="addScenarioModel-title">
+                    <span th:text="#{label.title.scenario.${scenario == null ? 'add' : 'edit'}}"></span>
+                </h4>
+            </div>
+            <div class="modal-body" style="padding-bottom: 5px; padding-top: 5px;">
+                <!-- Check if scenario.id > 0 -->
+                <div th:if="${scenario.id > 0}" class="alert alert-sm alert-danger" style="margin-top: 0px">
+                    <span th:text="#{${scenario.assetLinked} ? 'info.scenario.asset.linked.change' : 'info.scenario.asset.type.change'}"></span>
+                </div>
+
+                <!-- Check if type is quantitative -->
+                <div th:if="${type.quantitative}">
+                    <ul id="scenario_form_tabs" class="nav nav-tabs">
+                        <li class="active">
+                            <a href="#tab_scenario_general" data-toggle="tab" 
+                            th:text="#{label.menu.general}">General</a>
+                        </li>
+                        <li>
+                            <a href="#tab_scenario_properties" data-toggle="tab" 
+                            th:attr="data-helper-content=#{help.scenario.properties}" 
+                            th:text="#{label.menu.properties}">Properties</a>
+                        </li>
+                        <li id="error_scenario_container" style="padding-top: 10px; padding-left: 10px"></li>
+                    </ul>
+                </div>
+                <form name="scenario" 
+                th:action="@{${pageContext.request.contextPath}/Scenario/Save({${_csrf.parameterName}}=${_csrf.token})}" 
+                class="form-horizontal tab-content" 
+                id="scenario_form">
+                    <input type="hidden" name="id" th:value="${#strings.isEmpty(scenario) ? '0' : scenario.id}" id="scenario_id">
+                    <div id="tab_scenario_general" class="tab-pane active" style="padding-top: ${type == 'QUANTITATIVE' ? '8px' : '3px'};">
+                        <div class="form-group">
+                            <label for="type" class="col-sm-3 control-label" th:data-helper-content="#{help.scenario.asset_linked}">
+                                <span th:text="#{label.scenario.applicable.to}"></span>
+                            </label>
+                            <div class="col-sm-9" align="center">
+                                <div class="btn-group" data-toggle="buttons">
+                                    <label class="btn btn-default" th:classappend="${#strings.isEmpty(scenario) or not scenario.assetLinked ? 'active' : ''}">
+                                        <span th:text="#{label.scenario.apply.to.asset_type}"></span>
+                                        <input type="radio" th:name="assetLinked" th:value="false" th:checked="${#strings.isEmpty(scenario) or not scenario.assetLinked}" />
+                                    </label>
+                                    <label class="btn btn-default" th:classappend="${#strings.isEmpty(scenario) or not scenario.assetLinked ? '' : 'active'}">
+                                        <span th:text="#{label.scenario.apply.to.asset}"></span>
+                                        <input type="radio" th:name="assetLinked" th:value="true" th:checked="${#strings.isEmpty(scenario) or scenario.assetLinked}" />
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    
+                        <div class="form-group">
+                            <label for="name" class="col-sm-3 control-label" th:data-helper-content="#{help.scenario.name}">
+                                <span th:text="#{label.scenario.name}"></span>
+                            </label>
+                            <div class="col-sm-9">
+                                <input name="name" id="scenario_name" class="form-control" th:value="${#strings.isEmpty(scenario) ? '' : scenario.name}" />
+                            </div>
+                        </div>
+                    
+                        <div class="form-group">
+                            <label for="scenarioType.id" class="col-sm-3 control-label" th:data-helper-content="#{help.scenario.type}">
+                                <span th:text="#{label.scenario.type}"></span>
+                            </label>
+                            <div class="col-sm-9">
+                                <select name="scenarioType" class="form-control" id="scenario_scenariotype_id">
+                                    <th:block th:if="${not #lists.isEmpty(scenariotypes)}">
+                                        <option value="0" th:text="#{label.scenario.type.select}"></option>
+                                        <th:each th:each="scenariotype : ${scenariotypes}" th:object="${scenariotype}">
+                                            <option th:value="${scenariotype.value}" th:selected="${scenario.type == scenariotype}">
+                                                <span th:text="#{label.scenario.type.${#strings.toLowerCase(#strings.replace(scenariotype.name, '-', '_'))}}"></span>
+                                            </option>
+                                        </th:each>
+                                    </th:block>
+                                    <th:block th:unless="${not #lists.isEmpty(scenariotypes)}">
+                                        <option value="0" th:text="#{label.scenario.type.loading}"></option>
+                                    </th:block>
+                                </select>
+                            </div>
+                        </div>
+                    
+                        <div class="form-group">
+                            <label for="selected" class="col-sm-3 control-label" th:data-helper-content="#{help.scenario.status}">
+                                <span th:text="#{label.status}"></span>
+                            </label>
+                            <div class="col-sm-9" align="center">
+                                <div class="btn-group" data-toggle="buttons">
+                                    <label class="btn btn-default" th:classappend="${#strings.isEmpty(scenario) or scenario.selected ? 'active' : ''}">
+                                        <span th:text="#{label.action.select}"></span>
+                                        <input type="radio" th:name="selected" th:value="true" th:checked="${#strings.isEmpty(scenario) or scenario.selected}" />
+                                    </label>
+                                    <label class="btn btn-default" th:classappend="${#strings.isEmpty(scenario) or scenario.selected ? '' : 'active'}">
+                                        <span th:text="#{label.action.unselect}"></span>
+                                        <input type="radio" th:name="selected" th:value="false" th:checked="${#strings.isEmpty(scenario) or not scenario.selected}" />
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    
+                        <div class="form-group">
+                            <label for="comment" class="col-sm-3 control-label" th:data-helper-content="#{help.scenario.comment}">
+                                <span th:text="#{label.scenario.description}"></span>
+                            </label>
+                            <div class="col-sm-9">
+                                <textarea name="description" class="form-control resize_vectical_only" rows="15" id="scenario_description" th:text="${#strings.isEmpty(scenario) ? '' : scenario.description}"></textarea>
+                            </div>
+                        </div>
+                    
+                        <div id="scenario-asset-type-values" class="form-group" th:classappend="${not #strings.isEmpty(scenario) and scenario.assetLinked ? 'hidden' : ''}">
+                            <label class="col-sm-3 control-label" th:data-helper-content="#{help.scenario.application.asset.types}">
+                                <span th:text="#{label.scenario.application.asset.types}"></span>
+                            </label>
+                            <span th:text="#{label.asset_type.choose.multi}"></span>
+                            <div class="col-sm-9">
+                                <th:block th:if="${not #strings.isEmpty(scenario)}">
+                                    <select name="assetTypeValues" multiple="multiple" class="form-control resize_vectical_only">
+                                        <option value="0" th:text="#{label.asset_type.choose.multi}"></option>
+                                        <th:each th:each="assetType : ${assetTypeValues.keySet()}" th:object="${assetType}">
+                                            <option th:value="${assetType.id}" th:selected="${assetTypeValues[assetType] > 0}">
+                                                <span th:text="#{label.asset_type.${#strings.toLowerCase(assetType.name)}}"></span>
+                                            </option>
+                                        </th:each>
+                                    </select>
+                                </th:block>
+                                <th:block th:if="${#strings.isEmpty(scenario)}">
+                                    <select name="assetTypeValues" multiple="multiple" class="form-control resize_vectical_only">
+                                        <option value="0" th:text="#{label.asset_type.choose.multi}"></option>
+                                        <th:each th:each="assetType : ${assetTypeValues.keySet()}" th:object="${assetType}">
+                                            <option th:value="${assetType.id}">
+                                                <span th:text="#{label.asset_type.${#strings.toLowerCase(assetType.name)}}"></span>
+                                            </option>
+                                        </th:each>
+                                    </select>
+                                </th:block>
+                            </div>
+                        </div>
+                    
+                        <div class="form-group" id="scenario-asset-values" th:classappend="${not #strings.isEmpty(scenario) and scenario.assetLinked ? '' : 'hidden'}">
+                            <label class="col-sm-3 control-label" th:data-helper-content="#{help.scenario.application.asset}">
+                                <span th:text="#{label.scenario.applicable.asset}"></span>
+                            </label>
+                            <span th:text="#{label.asset.choose.multi}"></span>
+                            <div class="col-sm-9">
+                                <th:block th:if="${not #strings.isEmpty(scenario)}">
+                                    <select name="assetValues" multiple="multiple" class="form-control resize_vectical_only">
+                                        <option value="0" th:text="#{label.asset.choose.multi}"></option>
+                                        <th:each th:each="asset : ${assetValues.keySet()}" th:object="${asset}">
+                                            <option th:value="${asset.id}" th:selected="${assetValues[asset] > 0}">
+                                                <span th:text="${asset.name}"></span>
+                                            </option>
+                                        </th:each>
+                                    </select>
+                                </th:block>
+                                <th:block th:if="${#strings.isEmpty(scenario)}">
+                                    <select name="assetValues" multiple="multiple" class="form-control resize_vectical_only">
+                                        <option value="0" th:text="#{label.asset.choose.multi}"></option>
+                                        <th:each th:each="asset : ${assetValues.keySet()}" th:object="${asset}">
+                                            <option th:value="${asset.id}">
+                                                <span th:text="${asset.name}"></span>
+                                            </option>
+                                        </th:each>
+                                    </select>
+                                </th:block>
+                            </div>
+                        </div>
+                    </div>
+                    <div th:if="${type.quantitative}">
+                        <div id="tab_scenario_properties" class="tab-pane" style="padding-top: 17px;">
+                            <span th:text="${empty scenario or scenario.hasControlCharacteristics() ? 'success' : 'danger'}" th:attr="class=${cssclass}" />
+                            <div class="sceneario-sliders">
+                                <table data-trick-controller-name="scenario" class="table table-condensed" style="margin-bottom: 0;">
+                                    <thead>
+                                        <tr>
+                                            <th th:class="${cssclass} pdlc text-center" data-trick-type="type" th:text="#{label.rrf.scenario.preventive}" />
+                                            <th th:class="${cssclass} pdlc text-center" data-trick-type="type" th:text="#{label.rrf.scenario.detective}" />
+                                            <th th:class="${cssclass} pdlc text-center" data-trick-type="type" th:text="#{label.rrf.scenario.limitative}" />
+                                            <th th:class="${cssclass} pdlc text-center" data-trick-type="type" th:text="#{label.rrf.scenario.corrective}" />
+                                            <th class="warning text-center" data-trick-type="source" th:text="#{label.rrf.scenario.intentional}" />
+                                            <th class="warning text-center" data-trick-type="source" th:text="#{label.rrf.scenario.accidental}" />
+                                            <th class="warning text-center" data-trick-type="source" th:text="#{label.rrf.scenario.environmental}" />
+                                            <th class="warning text-center" data-trick-type="source" th:text="#{label.rrf.scenario.internalThreat}" />
+                                            <th class="warning text-center" data-trick-type="source" th:text="#{label.rrf.scenario.externalThreat}" />
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <div th:if="${empty scenario}">
+                                            <tr class="slider-vertical">
+                                                <td th:class="${cssclass} pdlc" data-trick-type="type">
+                                                    <input type="range" orient="vertical" id="scenario_preventive" value="0.25" min="0" max="1" step="0.05" name="preventive"/>
+                                                </td>
+                                                <td th:class="${cssclass} pdlc" data-trick-type="type">
+                                                    <input type="range" orient="vertical" id="scenario_detective" value="0.25" min="0" max="1" step="0.05" name="detective"/>
+                                                </td>
+                                                <td th:class="${cssclass} pdlc" data-trick-type="type">
+                                                    <input type="range" orient="vertical" id="scenario_limitative" value="0.25" min="0" max="1" step="0.05" name="limitative"/>
+                                                </td>
+                                                <td th:class="${cssclass} pdlc" data-trick-type="type">
+                                                    <input type="range" orient="vertical" id="scenario_corrective" value="0.25" min="0" max="1" step="0.05" name="corrective"/>
+                                                </td>
+                                                <td class="warning" data-trick-type="type">
+                                                    <input type="range" orient="vertical" id="scenario_intentional" value="1" min="0" max="1" step="1" name="intentional"/>
+                                                </td>
+                                                <td class="warning" data-trick-type="type">
+                                                    <input type="range" orient="vertical" id="scenario_accidental" value="1" min="0" max="1" step="1" name="accidental"/>
+                                                </td>
+                                                <td class="warning" data-trick-type="type">
+                                                    <input type="range" orient="vertical" id="scenario_environmental" value="1" min="0" max="1" step="1" name="environmental"/>
+                                                </td>
+                                                <td class="warning" data-trick-type="type">
+                                                    <input type="range" orient="vertical" id="scenario_internalThreat" value="1" min="0" max="1" step="1" name="internalThreat"/>
+                                                </td>
+                                                <td class="warning" data-trick-type="type">
+                                                    <input type="range" orient="vertical" id="scenario_externalThreat" value="1" min="0" max="1" step="1" name="externalThreat"/>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td th:class="${cssclass} pdlc" data-trick-type="type">
+                                                    <input type="text" style="text-align: center;" id="scenario_preventive_value" readonly="readonly" class="form-control" value="0.25"/>
+                                                </td>
+                                                <td th:class="${cssclass} pdlc" data-trick-type="type">
+                                                    <input type="text" style="text-align: center;" readonly="readonly" class="form-control" id="scenario_detective_value" value="0.25"/>
+                                                </td>
+                                                <td th:class="${cssclass} pdlc" data-trick-type="type">
+                                                    <input type="text" style="text-align: center;" id="scenario_limitative_value" readonly="readonly" class="form-control" value="0.25"/>
+                                                </td>
+                                                <td th:class="${cssclass} pdlc" data-trick-type="type">
+                                                    <input type="text" style="text-align: center;" readonly="readonly" class="form-control" id="scenario_corrective_value" value="0.25"/>
+                                                </td>
+                                                <td class="warning" data-trick-type="source">
+                                                    <input type="text" style="text-align: center;" readonly="readonly" class="form-control" id="scenario_intentional_value" value="1"/>
+                                                </td>
+                                                <td class="warning" data-trick-type="source">
+                                                    <input type="text" style="text-align: center;" readonly="readonly" class="form-control" id="scenario_accidental_value" value="1"/>
+                                                </td>
+                                                <td class="warning" data-trick-type="source">
+                                                    <input type="text" style="text-align: center;" readonly="readonly" class="form-control" id="scenario_environmental_value" value="1"/>
+                                                </td>
+                                                <td class="warning" data-trick-type="source">
+                                                    <input type="text" style="text-align: center;" readonly="readonly" class="form-control" id="scenario_internalThreat_value" value="1"/>
+                                                </td>
+                                                <td class="warning" data-trick-type="source">
+                                                    <input type="text" style="text-align: center;" readonly="readonly" class="form-control" id="scenario_externalThreat_value" value="1"/>
+                                                </td>
+                                            </tr>
+                                        </div>
+                                        <div th:unless="${empty scenario}">
+                                            <tr class="slider-vertical">
+                                                <td th:class="${cssclass} pdlc" data-trick-type="type">
+                                                    <input type="range" orient="vertical" id="scenario_preventive" th:value="${scenario.preventive}" min="0" max="1" step="0.05" name="preventive"/>
+                                                </td>
+                                                <td th:class="${cssclass} pdlc" data-trick-type="type">
+                                                    <input type="range" orient="vertical" id="scenario_detective" th:value="${scenario.detective}" min="0" max="1" step="0.05" name="detective"/>
+                                                </td>
+                                                <td th:class="${cssclass} pdlc" data-trick-type="type">
+                                                    <input type="range" orient="vertical" id="scenario_limitative" th:value="${scenario.limitative}" min="0" max="1" step="0.05" name="limitative"/>
+                                                </td>
+                                                <td th:class="${cssclass} pdlc" data-trick-type="type">
+                                                    <input type="range" orient="vertical" id="scenario_corrective" th:value="${scenario.corrective}" min="0" max="1" step="0.05" name="corrective"/>
+                                                </td>
+                                                <td class="warning" data-trick-type="type">
+                                                    <input type="range" orient="vertical" id="scenario_intentional" th:value="${scenario.intentional}" min="0" max="1" step="1" name="intentional"/>
+                                                </td>
+                                                <td class="warning" data-trick-type="type">
+                                                    <input type="range" orient="vertical" id="scenario_accidental" th:value="${scenario.accidental}" min="0" max="1" step="1" name="accidental"/>
+                                                </td>
+                                                <td class="warning" data-trick-type="type">
+                                                    <input type="range" orient="vertical" id="scenario_environmental" th:value="${scenario.environmental}" min="0" max="1" step="1" name="environmental"/>
+                                                </td>
+                                                <td class="warning" data-trick-type="type">
+                                                    <input type="range" orient="vertical" id="scenario_internalThreat" th:value="${scenario.internalThreat}" min="0" max="1" step="1" name="internalThreat"/>
+                                                </td>
+                                                <td class="warning" data-trick-type="type">
+                                                    <input type="range" orient="vertical" id="scenario_externalThreat" th:value="${scenario.externalThreat}" min="0" max="1" step="1" name="externalThreat"/>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td th:class="${cssclass} pdlc" data-trick-type="type">
+                                                    <input type="text" style="text-align: center;" id="scenario_preventive_value" readonly="readonly" class="form-control" th:value="${scenario.preventive}"/>
+                                                </td>
+                                                <td th:class="${cssclass} pdlc" data-trick-type="type">
+                                                    <input type="text" style="text-align: center;" readonly="readonly" class="form-control" id="scenario_detective_value" th:value="${scenario.detective}"/>
+                                                </td>
+                                                <td th:class="${cssclass} pdlc" data-trick-type="type">
+                                                    <input type="text" style="text-align: center;" id="scenario_limitative_value" readonly="readonly" class="form-control" th:value="${scenario.limitative}"/>
+                                                </td>
+                                                <td th:class="${cssclass} pdlc" data-trick-type="type">
+                                                    <input type="text" style="text-align: center;" readonly="readonly" class="form-control" id="scenario_corrective_value" th:value="${scenario.corrective}"/>
+                                                </td>
+                                                <td class="warning" data-trick-type="source">
+                                                    <input type="text" style="text-align: center;" readonly="readonly" class="form-control" id="scenario_intentional_value" th:value="${scenario.intentional}"/>
+                                                </td>
+                                                <td class="warning" data-trick-type="source">
+                                                    <input type="text" style="text-align: center;" readonly="readonly" class="form-control" id="scenario_accidental_value" th:value="${scenario.accidental}"/>
+                                                </td>
+                                                <td class="warning" data-trick-type="source">
+                                                    <input type="text" style="text-align: center;" readonly="readonly" class="form-control" id="scenario_environmental_value" th:value="${scenario.environmental}"/>
+                                                </td>
+                                                <td class="warning" data-trick-type="source">
+                                                    <input type="text" style="text-align: center;" readonly="readonly" class="form-control" id="scenario_internalThreat_value" th:value="${scenario.internalThreat}"/>
+                                                </td>
+                                                <td class="warning" data-trick-type="source">
+                                                    <input type="text" style="text-align: center;" readonly="readonly" class="form-control" id="scenario_externalThreat_value" th:value="${scenario.externalThreat}"/>
+                                                </td>
+                                            </tr>
+                                        </div>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>                    
+                </form>
+            </div>
+            <div class="modal-footer">
+                <span th:utext="${#{label.action.save}}"></span>
+                <button type="button" class="btn btn-primary" onclick="return saveScenario('scenario_form')" 
+                        th:data-loading-text="#{label.action.save}" th:text="#{label.action.save}"></button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <span th:utext="#{label.action.cancel}"></span>
+                </button>
+            </div>            
+        </div>
+    </div>
+</div>

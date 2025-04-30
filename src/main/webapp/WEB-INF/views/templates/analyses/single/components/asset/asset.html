@@ -1,0 +1,120 @@
+<!-- Asset Tab - Thymeleaf Version -->
+<div class="tab-pane" id="tab-asset" th:with="locale='fr'">
+    <div class="section" id="section_asset">
+      <div class="page-header tab-content-header">
+        <div class="container">
+          <div class="row-fluid">
+            <h3 th:text="#{label.title.assets}"></h3>
+          </div>
+        </div>
+      </div>
+  
+      <div th:if="${isEditable}">
+        <ul class="nav nav-pills bordered-bottom" id="menu_asset">
+          <li data-trick-ignored="true">
+            <a href="#anchorAsset" th:onclick="'return editAsset(undefined,true);'">
+              <span class="glyphicon glyphicon-plus primary"></span>
+              <span th:text="#{label.action.add.asset}"></span>
+            </a>
+          </li>
+          <li class="disabled" data-trick-selectable="true">
+            <a href="#anchorAsset" onclick="return editAsset();">
+              <span class="glyphicon glyphicon-edit danger"></span>
+              <span th:text="#{label.action.edit.asset}"></span>
+            </a>
+          </li>
+          <li class="disabled" data-trick-single-check="!isSelected('asset')" data-trick-check="hasSelectedState('asset','false')" data-trick-selectable="multi">
+            <a href="#anchorAsset" onclick="return selectAsset(undefined,'true')">
+              <span class="glyphicon glyphicon-plus-sign"></span>
+              <span th:text="#{label.action.select.asset}"></span>
+            </a>
+          </li>
+          <li class="disabled" data-trick-single-check="isSelected('asset')" data-trick-check="hasSelectedState('asset','true')" data-trick-selectable="multi">
+            <a href="#anchorAsset" onclick="return selectAsset(undefined, 'false')">
+              <span class="glyphicon glyphicon-minus-sign"></span>
+              <span th:text="#{label.action.unselect.asset}"></span>
+            </a>
+          </li>
+          <li style="display: none;" class="dropdown-header" th:text="#{label.menu.advanced}"></li>
+          <li class="disabled pull-right" data-trick-check="isEditable()" data-trick-selectable="multi">
+            <a href="#anchorAsset" class="text-danger" onclick="return deleteAsset();">
+              <span class="glyphicon glyphicon-remove"></span>
+              <span th:text="#{label.action.delete.asset}"></span>
+            </a>
+          </li>
+        </ul>
+      </div>
+  
+      <table class="table table-hover table-fixed-header-analysis table-condensed" id="assetTable">
+        <thead>
+          <tr>
+            <th th:if="${isEditable}" style="width: 2%">
+              <input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'asset')">
+            </th>
+            <th style="width: 3%">
+              <a href="#" onclick="return sortTable('index',this,true)" data-order="0" th:text="#{label.row.index}"></a>
+            </th>
+            <th style="width: 20%">
+              <a href="#" onclick="return sortTable('name',this)" data-order="1" th:text="#{label.asset.name}"></a>
+            </th>
+            <th style="width: 8%">
+              <a href="#" onclick="return sortTable('type',this)" data-order="1" th:text="#{label.asset.type}"></a>
+            </th>
+            <th style="width: 6%">
+              <a href="#" onclick="return sortTable('value',this,true)" data-order="1" th:text="#{label.asset.value}"></a>
+            </th>
+  
+            <th th:if="${type.quantitative and show_uncertainty}" style="width: 5%">
+              <a href="#" onclick="return sortTable('aleo',this,true)" data-order="1" th:text="#{label.asset.aleo}"></a>
+            </th>
+            <th th:if="${type.quantitative and show_uncertainty}" style="width: 5%">
+              <a href="#" onclick="return sortTable('ale',this,true)" data-order="1" th:text="#{label.asset.ale}"></a>
+            </th>
+            <th th:if="${type.quantitative and show_uncertainty}" style="width: 5%">
+              <a href="#" onclick="return sortTable('alep',this,true)" data-order="1" th:text="#{label.asset.alep}"></a>
+            </th>
+            <th th:if="${type.quantitative and !show_uncertainty}" style="width: 5%">
+              <a href="#" onclick="return sortTable('ale',this,true)" data-order="1" th:text="#{label.asset.ale}"></a>
+            </th>
+  
+            <th th:if="${isILR}" style="width: 2%" th:title="#{label.scenario.type.confidentiality}">
+              <a href="#" onclick="return sortTable('ilrImpactC',this,true)" data-order="1" th:text="#{label.asset.ilr.impact.c}"></a>
+            </th>
+            <th th:if="${isILR}" style="width: 2%" th:title="#{label.scenario.type.integrity}">
+              <a href="#" onclick="return sortTable('ilrImpactI',this,true)" data-order="1" th:text="#{label.asset.ilr.impact.i}"></a>
+            </th>
+            <th th:if="${isILR}" style="width: 2%" th:title="#{label.scenario.type.availability}">
+              <a href="#" onclick="return sortTable('ilrImpactA',this,true)" data-order="1" th:text="#{label.asset.ilr.impact.a}"></a>
+            </th>
+  
+            <th><a href="#" onclick="return sortTable('comment',this)" data-order="1" th:text="#{label.asset.comment}"></a></th>
+            <th th:if="${showHiddenComment}"><a href="#" onclick="return sortTable('hiddenComment',this)" data-order="1" th:text="#{label.asset.hidden_comment}"></a></th>
+            <th th:if="${isILR}" style="width: 15%">
+              <a href="#" onclick="return sortTable('relatedName',this)" data-order="1" th:text="#{label.asset.related_name}"></a>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="asset, status : ${assets}" th:object="${asset}" th:classappend="${asset.selected} ? (${asset.value} < 1 ? 'warning' : 'editable') : ''" th:attr="data-trick-id=${asset.id}, data-trick-selected=${asset.selected}" ondblclick="return editAsset([[${asset.id}]])" onclick="selectElement(this)" data-trick-class="Asset">
+            <td th:if="${isEditable}" th:class="${asset.selected ? 'selected' : 'unselected'}">
+              <input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_asset','#menu_asset');">
+            </td>
+            <td data-trick-field="index" th:text="${status.index + 1}"></td>
+            <td data-trick-field="name" th:text="${asset.name}"></td>
+            <td data-trick-field="type" th:text="#{label.asset_type.${#strings.toLowerCase(asset.assetType.name)}}"></td>
+            <td data-trick-field="value" th:title="${#numbers.formatDecimal(asset.value, 0)} + ' €'" th:text="${#numbers.formatDecimal(asset.value * 0.001, 0)}"></td>
+            <td onclick="editField(this);" data-trick-field="comment" data-trick-field-type="string" data-trick-content="text" th:text="${asset.comment}"></td>
+            <td th:if="${showHiddenComment}" onclick="editField(this);" data-trick-field="hiddenComment" data-trick-field-type="string" data-trick-content="text" th:text="${asset.hiddenComment}"></td>
+            <td th:if="${isILR}" onclick="editField(this);" data-trick-field="relatedName" data-trick-field-type="string" data-trick-content="text" th:text="${asset.relatedName}"></td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr class="panel-footer" style="font-weight: bold;">
+            <td th:colspan="${isEditable ? 4 : 3}" th:text="#{label.total.ale}"></td>
+            <td th:title="${#numbers.formatDecimal(totalAssetValue, 0)} + ' €'" th:text="${#numbers.formatDecimal(totalAssetValue * 0.001, 0)}"></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+  

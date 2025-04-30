@@ -1,0 +1,52 @@
+<!-- Manage Analysis Access Modal -->
+<div class="modal fade" id="manageAnalysisAccessModel" tabindex="-1" role="dialog"
+     aria-labelledby="manageAnalysisAccessModel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" th:text="#{label.analysis.manage.access}">
+                    Manage Analysis Access Rights
+                </h4>
+            </div>
+
+            <div class="modal-body">
+                <!-- Dynamic content will be injected here -->
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" name="save" class="btn btn-primary" th:text="#{label.analysis.save}">Save</button>
+                <button type="button" name="cancel" class="btn btn-default" data-dismiss="modal"
+                        th:text="#{label.action.cancel}">Cancel</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Delete Analysis Modal -->
+<div class="modal fade" id="deleteAnalysisModel" tabindex="-1" aria-hidden="true"
+     aria-labelledby="deleteAnalysis" role="dialog" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h4 class="modal-title" id="deleteAnalysisModel-title" th:text="#{label.title.delete.analysis}">
+                    Delete an analysis
+                </h4>
+            </div>
+
+            <div class="modal-body">
+                <!-- Dynamic content will be injected here -->
+            </div>
+
+            <div class="modal-footer">
+                <button name="delete" type="button" class="btn btn-danger" th:text="#{label.yes_no.true}">Yes</button>
+                <button name="cancel" type="button" class="btn btn-default" data-dismiss="modal"
+                        th:text="#{label.yes_no.false}">No</button>
+            </div>
+
+        </div>
+    </div>
+</div>

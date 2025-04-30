@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+
+    <!-- Set locale if not already set -->
+    <div th:if="${#request.getAttribute('locale') == null}"
+        th:with="locale=${T(org.springframework.context.i18n.LocaleContextHolder).getLocale()}"></div>
+
+    <!-- Store language in request -->
+    <div th:with="language=${locale.language}"></div>
+
+    <!-- Set session locale -->
+    <div th:with="${#locale.setLocale('fr')}"></div>
+
+    <!-- Messages -->
+    <div th:with="
+        statusM=${#messages.msg('label.measure.status.m')},
+        statusAP=${#messages.msg('label.measure.status.ap')},
+        statusEX=${#messages.msg('label.measure.status.ex')},
+        statusOP=${#messages.msg('label.measure.status.op')},
+        statusNA=${#messages.msg('label.measure.status.na')},
+        
+        titleStatusM=${#messages.msg('label.title.measure.status.m')},
+        titleStatusAP=${#messages.msg('label.title.measure.status.ap')},
+        titleStatusOP=${#messages.msg('label.title.measure.status.op')},
+        titleStatusEX=${#messages.msg('label.title.measure.status.ex')},
+        titleStatusNA=${#messages.msg('label.title.measure.status.na')}
+    "></div>
+
+    <!-- Iterating importance values -->
+    <div th:each="impValue : ${#numbers.sequence(1, 3)}"
+        th:with="
+            ${'imp' + impValue}=${#messages.msg('label.measure.importance.value', ${impValue})},
+            ${'titleImp' + impValue}=${#messages.msg('label.title.measure.importance.value', ${impValue})}
+        ">
+    </div>
+
+    <!-- Implementation Rate Attributes -->
+    <div th:with="implementationRateAttr=
+        ${type == 'QUALITATIVE' or !showDynamicAnalysis} ?
+        'data-trick-min-value=\'0\' data-trick-max-value=\'100\' data-trick-step-value=\'1\'' :
+        'data-trick-list-value=\"dataListImplementationRate\"'">
+    </div>
+
+    <div class="tab-pane" id="tab-standards" data-callback='checkForCollectionUpdate'>
+        <div class="page-header tab-content-header">
+            <div class="container">
+                <div class="row-fluid">
+                    <h3>
+                        <span class="col-sm-4" style="display: block; padding: 5px;">
+                            <span th:text="#{label.title.analysis.measures_by_collection}"></span>
+                        </span>
+                        <span class="col-sm-offset-1 col-sm-7">
+                            <select id="measure-collection-selector" class="form-control" style="max-width: 280px;">
+                                <option th:each="standard, stat : ${standards}"
+                                        th:value="'tab-standard-' + ${standard.id}"
+                                        th:attr="data-trick-name=#{${standard.name}}"
+                                        th:text="#{${standard.name}}">
+                                </option>
+                            </select>
+                        </span>
+                    </h3>
+                </div>
+            </div>
+        </div>
+        <tr th:each="standard : ${#maps.keys(measuresByStandard)}">
+            <div th:with="
+            selectedStandard=${T(lu.itrust.business.ts.component.MeasureManager).getStandard(standards, standard)},
+            standardType=${selectedStandard.type},
+            standardid=${selectedStandard.id},
+            analysisOnly=${selectedStandard.analysisOnly},
+            measureExportUrl=@{'/Analysis/Standard/' + ${selectedStandard.id} + '/Export/Measure'}
+            ">
+                <!-- Use the variables here -->
+                <a th:href="${measureExportUrl}">Export Measure</a>
+            </div>
+            <div th:id="'tab-standard-' + ${standardid}"
+            th:attr="data-trick-id=${standardid},
+                     data-trick-has-menu=${analysisOnly or isLinkedToProject},
+                     data-targetable='true',
+                     data-trick-export-url=${measureExportUrl}"
+            th:style="${firstStandard == selectedStandard} ? '' : 'display: none'">
+                <div th:id="'section_standard_' + ${standardid}"
+                th:attr="data-trick-id=${standardid}, data-trick-label=${standard}">
+                    <div th:if="${isLinkedToProject and (isEditable or !(isEditable or isNoClientTicketing)) or (analysisOnly and isEditable)}">
+                        <ul class="nav nav-pills bordered-bottom" th:id="'menu_standard_' + ${standardid}">
+                            
+                            <li th:if="${analysisOnly and isEditable}" data-trick-ignored="true">
+                                <a href="#" th:onclick="'return addMeasure(this,' + ${standardid} + ');'">
+                                    <span class="glyphicon glyphicon-plus primary"></span>
+                                    <span th:text="#{label.action.add}"></span>
+                                </a>
+                            </li>
+                            
+                            <li th:if="${analysisOnly and isEditable}" data-trick-check="isEditable()" data-trick-selectable="true" class="disabled">
+                                <a href="#" th:onclick="'return editMeasure(this,' + ${standardid} + ');'">
+                                    <span class="glyphicon glyphicon-edit danger"></span>
+                                    <span th:text="#{label.action.edit}"></span>
+                                </a>
+                            </li>
+                    
+                            <div th:if="${isLinkedToProject}" th:with="ttSysName=${#strings.toLowerCase(ticketingName)}">
+                                
+                                <li th:if="${ttSysName == 'email'}" class="disabled" data-trick-selectable="multi" 
+                                    data-trick-single-check="'!isLinkedTicketingSystem(\'#section_standard_' + ${standardid} + '\')'">
+                                    <a href="#" th:onclick="'return createTickets(\'#section_standard_' + ${standardid} + '\')'">
+                                        <span th:text="#{label.action.create.email.tickets}">Create ticket by email</span>
+                                    </a>
+                                </li>
+                    
+                                <li th:if="${ttSysName == 'email'}" class="disabled" data-trick-selectable="multi">
+                                    <a href="#" th:onclick="'return generateTickets(\'#section_standard_' + ${standardid} + '\')'">
+                                        <span th:text="#{label.action.update.tickets}">Re-create ticket by email</span>
+                                    </a>
+                                </li>
+                    
+                                <li th:if="${ttSysName == 'email'}" class="disabled" data-trick-selectable="multi" 
+                                    data-trick-single-check="'isLinkedTicketingSystem(\'#section_standard_' + ${standardid} + '\')'">
+                                    <a href="#" th:onclick="'return unLinkToTicketingSystem(\'#section_standard_' + ${standardid} + '\')'">
+                                        <span th:text="#{label.action.clear.email.status}">Clean ticket status</span>
+                                    </a>
+                                </li>
+                    
+                                <li th:if="${isNoClientTicketing}" class="disabled" data-trick-selectable="multi">
+                                    <a href="#" th:onclick="'return createTickets(\'#section_standard_' + ${standardid} + '\')'">
+                                        <span th:text="#{label.action.export}">Export</span>
+                                    </a>
+                                </li>
+                    
+                                <div th:if="${!ttSysName.equals('email') and !isNoClientTicketing}">
+                                    <div th:if="${isEditable}">
+                                        <li class="disabled" data-trick-selectable="multi"
+                                            data-trick-single-check="'isLinkedTicketingSystem(\'#section_standard_' + ${standardid} + '\')'">
+                                            <a href="#" th:onclick="'return synchroniseWithTicketingSystem(\'#section_standard_' + ${standardid} + '\')'">
+                                                <span th:text="#{label.open.ticket_measure}">Open Measure/Ticket</span>
+                                            </a>
+                                        </li>
+                                        <li class="disabled" data-trick-selectable="multi">
+                                            <a href="#" th:onclick="'return generateTickets(\'#section_standard_' + ${standardid} + '\')'">
+                                                <span th:text="#{label.action.create_or_update.tickets}">Generate/Update Tickets</span>
+                                            </a>
+                                        </li>
+                                        <li class="disabled" data-trick-selectable="multi"
+                                            data-trick-single-check="'isUnLinkedTicketingSystem(\'#section_standard_' + ${standardid} + '\')'">
+                                            <a href="#" th:onclick="'return linkToTicketingSystem(\'#section_standard_' + ${standardid} + '\')'">
+                                                <span th:text="#{label.link.to.ticketing.system(${ticketingName})}">Link to [[${ticketingName}]]</span>
+                                            </a>
+                                        </li>
+                                        <li class="disabled" data-trick-selectable="multi"
+                                            data-trick-single-check="'isLinkedTicketingSystem(\'#section_standard_' + ${standardid} + '\')'">
+                                            <a href="#" th:onclick="'return unLinkToTicketingSystem(\'#section_standard_' + ${standardid} + '\')'">
+                                                <span th:text="#{label.unlink.from.ticketing.system(${ticketingName})}">Unlink from [[${ticketingName}]]</span>
+                                            </a>
+                                        </li>
+                                    </div>
+                                    <div th:unless="${isEditable}">
+                                        <li class="disabled" data-trick-selectable="multi"
+                                            data-trick-single-check="'isLinkedTicketingSystem(\'#section_standard_' + ${standardid} + '\')'">
+                                            <a href="#" th:onclick="'return openTicket(\'#section_standard_' + ${standardid} + '\')'">
+                                                <span th:text="#{label.open.ticket}">Open ticket</span>
+                                            </a>
+                                        </li>
+                                    </div>
+                                </div>
+                            </div>
+                    
+                            <li th:if="${analysisOnly and isEditable}" style="display: none;" class="dropdown-header">
+                                <span th:text="#{label.menu.advanced}"></span>
+                            </li>
+                            
+                            <li th:if="${analysisOnly and isEditable}" class="disabled pull-right" data-trick-check="isEditable()" data-trick-selectable="multi">
+                                <a href="#" th:onclick="'return deleteMeasure(null,' + ${standardid} + ');'" class="text-danger">
+                                    <span class="glyphicon glyphicon-remove"></span>
+                                    <span th:text="#{label.action.delete}"></span>
+                                </a>
+                            </li>
+                    
+                        </ul>
+                    </div>
+                
+                </div>
+                <table class="table table-hover table-fixed-header-analysis table-condensed"
+                th:id="'table_Measure_' + ${standardid}"
+                th:lang="${language}">
+                    <thead>
+                        <tr>
+                            <th th:if="${isLinkedToProject or (analysisOnly and isEditable)}" width="1%">
+                                <input type="checkbox" class="checkbox"
+                                    th:attr="onchange=|return checkControlChange(this,'standard_${standardid}')|">
+                            </th>
+                            <th width="2%" th:title="#{label.reference}">[[#{label.measure.ref}]]</th>
+                    
+                            <th th:switch="${hasMaturity and standard == '27002'}">
+                                <th th:case="true" width="8%" th:title="#{label.measure.domain}">[[#{label.measure.domain}]]</th>
+                                <th th:case="true" width="2%" th:title="#{label.title.measure.status}">[[#{label.measure.status}]]</th>
+                                <th th:case="true" width="2%" th:title="#{label.title.measure.ir}">[[#{label.measure.ir}]]</th>
+                                <th th:case="true" width="2%" th:title="#{label.title.measure.mer}">[[#{label.measure.mer}]]</th>
+                    
+                                <th th:case="false" width="10%" th:title="#{label.measure.domain}">[[#{label.measure.domain}]]</th>
+                                <th th:case="false" width="2%" th:title="#{label.title.measure.status}">[[#{label.measure.status}]]</th>
+                                <th th:case="false" width="2%" th:title="#{label.title.measure.ir}">[[#{label.measure.ir}]]</th>
+                            </th>
+                    
+                            <th width="2%" th:title="#{label.title.measure.iw}">[[#{label.measure.iw}]]</th>
+                            <th width="2%" th:title="#{label.title.measure.ew}">[[#{label.measure.ew}]]</th>
+                            <th width="2%" th:title="#{label.title.measure.inv}">[[#{label.measure.inv}]]</th>
+                            <th width="2%" th:title="#{label.title.measure.lt}">[[#{label.measure.lt}]]</th>
+                            <th width="2%" th:title="#{label.title.measure.im}">[[#{label.measure.im}]]</th>
+                            <th width="2%" th:title="#{label.title.measure.em}">[[#{label.measure.em}]]</th>
+                            <th width="2%" th:title="#{label.title.measure.ri}">[[#{label.measure.ri}]]</th>
+                            <th width="2%" th:title="#{label.title.measure.cost}">[[#{label.measure.cost}]]</th>
+                            <th width="2%" th:title="#{label.title.measure.phase}">[[#{label.measure.phase}]]</th>
+                            <th width="2%" th:title="#{label.title.measure.importance}">[[#{label.measure.importance}]]</th>
+                            <th width="3%" th:title="#{label.title.measure.responsible}">[[#{label.measure.responsible}]]</th>
+                    
+                            <th th:switch="${standardType.name}">
+                                <th th:case="'NORMAL'" width="14%" th:title="#{label.measure.tocheck}">[[#{label.measure.tocheck}]]</th>
+                                <th th:case="'ASSET'" width="14%" th:title="#{label.measure.tocheck}">[[#{label.measure.tocheck}]]</th>
+                                <th th:case="'NORMAL'" width="25%" th:title="#{label.comment}">[[#{label.comment}]]</th>
+                                <th th:case="'ASSET'" width="25%" th:title="#{label.measure.todo}">[[#{label.measure.todo}]]</th>
+                    
+                                <th th:case="*"
+                                    width="32%" th:title="#{label.comment}">[[#{label.comment}]]</th>
+                                <th th:case="*"
+                                    width="32%" th:title="#{label.measure.todo}">[[#{label.measure.todo}]]</th>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tfoot>
+                    </tfoot>
+                    <tbody>
+                        <tr th:each="measure : ${measuresByStandard[standard]}">
+                            <!-- Set implementationRate -->
+                            <span th:with="implementationRate=${measure.getImplementationRateValue(valueFactory)}"></span>
+
+                            <!-- Set css variable based on condition -->
+                            <span th:with="css=${implementationRate < 100 and !(measure.status eq 'NA' or measure.status eq 'EX') ? 'editable' : ''}"></span>
+
+                            <!-- Set todoCSS based on condition -->
+                            <span th:with="todoCSS=${(measure.toDo == null and css.contains('editable')) ? 'danger' : css}"></span>
+
+                            <!-- Set measureDescriptionText -->
+                            <span th:with="measureDescriptionText=${measure.measureDescription.getMeasureDescriptionTextByAlpha2(language)}"></span>
+
+                            <!-- Set dblclickaction based on condition -->
+                            <span th:with="dblclickaction=${isEditable and (analysisOnly or (type.quantitative and measure.measureDescription.computable and selectedStandard.computable and selectedStandard.type != 'MATURITY')) ? 'ondblclick=\"return editMeasure(this, ' + ${standardid} + ', ' + ${measure.id} + ');\"' : ''}"></span>
+
+                            <!-- Set popoverRef based on condition -->
+                            <span th:with="popoverRef=${(measure.measureDescription.reference != null or measureDescriptionText.description != null) ? 'data-toggle=\"tooltip\" data-container=\"body\" data-trigger=\"click\" data-placement=\'auto\' data-title=\'${measureDescriptionText.description}\' style=\'cursor: pointer;\'' : ''}"></span>
+
+                            <!-- Set hasTicket -->
+                            <span th:with="hasTicket=${isLinkedToProject and measure.ticket != null}"></span>
+                            <tr th:data-trick-computable="${not measure.measureDescription.computable}" 
+                            th:data-trick-reference="${measure.measureDescription.reference}" 
+                            th:onclick="selectElement(this)" th:data-trick-class="'Measure'"
+                            th:classappend="${'active'}" th:data-trick-id="${measure.id}" 
+                            th:data-is-linked="${hasTicket}" 
+                            th:data-trick-callback="reloadMeasureRow(${measure.id}, ${standardid});" 
+                            th:attr="${dblclickaction}">
+                                <th:block th:if="${isLinkedToProject or analysisOnly and isEditable}">
+                                    <td>
+                                        <input type="checkbox" th:disabled="${analysisOnly ? 'disabled' : ''}" class="checkbox"
+                                            th:onchange="return updateMenu(this,'#section_standard_${standardid}','#menu_standard_${standardid}');">
+                                    </td>
+                                </th:block>
+                                <td>
+                                    <div th:switch="${hasTicket}">
+                                        <span th:case="true">
+                                            <div th:switch="${isNoClientTicketing}">
+                                                <span th:case="true" style="white-space: nowrap;">
+                                                    <i class="fa fa-paper-plane" style="font-size: 8px;" aria-hidden="true"></i> 
+                                                    <span th:text="${measure.measureDescription.reference}"></span>
+                                                </span>
+                                                <span th:case="false">
+                                                    <span th:utext="${T(lu.itrust.business.ts.model.ticketing.builder.ClientBuilder).TicketLink(ttSysName, ticketingURL, measure.ticket)}" />
+                                                    <a href="#" target="_ticket_ts" class="btn btn-link btn-xs" style="padding-top:0; padding-left: 0">
+                                                        <span style="white-space: nowrap;">
+                                                            <i class="fa fa-link" style="font-size: 12px;" aria-hidden="true"></i> 
+                                                            <span th:text="${measure.measureDescription.reference}"></span>
+                                                        </span>
+                                                    </a>
+                                                </span>
+                                            </div>
+                                        </span>
+                                        <span th:case="false">
+                                            <div th:switch="${isNoClientTicketing}">
+                                                <span th:case="true" style="white-space: nowrap;">
+                                                    <i class="fa fa-paper-plane-o" style="font-size: 8px;" aria-hidden="true"></i>
+                                                    <span th:text="${measure.measureDescription.reference}"></span>
+                                                </span>
+                                                <span th:case="false">
+                                                    <span th:switch="${isLinkedToProject}">
+                                                        <span th:case="true" style="white-space: nowrap;">
+                                                            <i class="fa fa-chain-broken" style="font-size: 10px" aria-hidden="true"></i>
+                                                            <span th:text="${measure.measureDescription.reference}"></span>
+                                                        </span>
+                                                        <span th:case="false">
+                                                            <span th:text="${measure.measureDescription.reference}"></span>
+                                                        </span>
+                                                    </span>
+                                                </span>
+                                            </div>
+                                        </span>
+                                    </div>
+                                </td>
+                            
+                                <td th:data-trick-field="status" th:data-trick-choose="M,AP,OP,EX,NA"
+                                    th:data-trick-choose-translate="${statusM},${statusAP},${statusOP},${statusEX},${statusNA}"
+                                    th:data-trick-choose-title="${titleStatusM},${titleStatusAP},${titleStatusOP},${titleStatusEX},${titleStatusNA}"
+                                    th:data-trick-field-type="'string'" th:onclick="return editField(this);" 
+                                    th:data-trick-callback="reloadMeasureAndCompliance(${standardid}, ${measure.id})">
+                                    <span th:switch="${measure.status}">
+                                        <span th:case="'NA'">${statusNA}</span>
+                                        <span th:case="'AP'">${statusAP}</span>
+                                        <span th:case="'OP'">${statusOP}</span>
+                                        <span th:case="'EX'">${statusEX}</span>
+                                        <span th:case="*">${statusM}</span>
+                                    </span>
+                                </td>
+                            
+                                <fmt:formatNumber th:value="${implementationRate}" th:maxFractionDigits="0" th:minFractionDigits="0" var="implementationRateValue" />
+                                
+                                <th:block th:switch="${standardType.name}">
+                                    <th:block th:case="'MATURITY'">
+                                        <td th:data-trick-field="implementationRate" th:data-trick-class="'MaturityMeasure'" 
+                                            th:data-trick-field-type="'double'" th:title="${implementationRateValue} %" 
+                                            th:data-trick-callback="reloadMeasureAndCompliance(${standardid}, ${measure.id});updateMeasureEffience(${measure.measureDescription.reference});" 
+                                            th:onclick="return editField(this);">${implementationRateValue}</td>
+                                    </th:block>
+                                    <th:block th:case="*">
+                                        <td th:data-trick-field="implementationRate" th:data-trick-field-type="'string'"
+                                            th:title="${implementationRateValue} %" th:onclick="return editField(this);">${implementationRateValue}</td>
+                                    </th:block>
+                                </th:block>
+                            
+                                <th:block th:switch="${hasMaturity and standard.equals('27002')}">
+                                    <th:block th:case="true">
+                                        <td class="text-center" th:data-trick-field="mer">
+                                            <span th:switch="${effectImpl27002[measure.measureDescription.reference]}">
+                                                <span th:case="null">0</span>
+                                                <span th:case="*">
+                                                    <fmt:formatNumber th:value="${effectImpl27002[measure.measureDescription.reference]}" th:maxFractionDigits="0" th:minFractionDigits="0" />
+                                                </span>
+                                            </span>
+                                        </td>
+                                    </th:block>
+                                </th:block>
+                            
+                                <td th:data-trick-field="internalWL" th:data-trick-field-type="'double'" th:onclick="return editField(this);" 
+                                    th:data-trick-min-value="0"><fmt:formatNumber th:value="${measure.internalWL}" th:maxFractionDigits="2" /></td>
+                                <td th:data-trick-field="externalWL" th:data-trick-field-type="'double'" th:onclick="return editField(this);" 
+                                    th:data-trick-min-value="0"><fmt:formatNumber th:value="${measure.externalWL}" th:maxFractionDigits="2" /></td>
+                                <td th:data-trick-field="investment" th:data-trick-field-type="'double'" th:onclick="return editField(this);"
+                                    th:data-real-value="${measure.investment*0.001}" 
+                                    th:title="${fct:round(measure.investment,0)} &euro;">
+                                    <fmt:formatNumber th:value="${fct:round(measure.investment*0.001,0)}" th:maxFractionDigits="0" />
+                                </td>
+                                <td th:data-trick-field="lifetime" th:data-trick-field-type="'double'" th:onclick="return editField(this);">
+                                    <fmt:formatNumber th:value="${measure.lifetime}" th:maxFractionDigits="2" />
+                                </td>
+                                <td th:data-trick-field="internalMaintenance" th:data-trick-field-type="'double'" th:onclick="return editField(this);">
+                                    <fmt:formatNumber th:value="${measure.internalMaintenance}" th:maxFractionDigits="2" />
+                                </td>
+                                <td th:data-trick-field="externalMaintenance" th:data-trick-field-type="'double'" th:onclick="return editField(this);">
+                                    <fmt:formatNumber th:value="${measure.externalMaintenance}" th:maxFractionDigits="2" />
+                                </td>
+                                <td th:data-trick-field="recurrentInvestment" th:data-trick-field-type="'double'" th:onclick="return editField(this);"
+                                    th:title="${fct:round(measure.recurrentInvestment,0)} &euro;" th:data-real-value="${measure.recurrentInvestment*0.001}">
+                                    <fmt:formatNumber th:value="${fct:round(measure.recurrentInvestment*0.001,0)}" th:maxFractionDigits="0" />
+                                </td>
+                            </tr>
+                        </tr>                        
+                    </tbody>
+                </table>
+            </div>
+        </tr>                
+    </div>
+</body>
+</html>
