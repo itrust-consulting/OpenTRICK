@@ -212,16 +212,16 @@ public class ControllerAnalysis extends AbstractController {
 						"An analysis is already archived", locale));
 			analysis.setArchived(true);
 			serviceAnalysis.saveOrUpdate(analysis);
-			TrickLogManager.Persist(LogType.ANALYSIS, "log.archive.analysis",
+			TrickLogManager.persist(LogType.ANALYSIS, "log.archive.analysis",
 					String.format("Analysis: %s, version: %s", analysis.getIdentifier(), analysis.getVersion()),
 					principal.getName(), LogAction.ARCHIVE, analysis.getIdentifier(), analysis.getVersion());
 			return JsonMessage.Success(messageSource.getMessage("success.analysis.archived", null,
 					"Analysis has been successfully archived", locale));
 		} catch (TrickException e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage.Error(
 					messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
 		}
@@ -317,10 +317,10 @@ public class ControllerAnalysis extends AbstractController {
 			}
 
 		} catch (TrickException e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			errors.put("analysis", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			errors.put("analysis", messageSource.getMessage("error.analysis.duplicate.unknown", null,
 					"An unknown error occurred during duplication!", locale));
 		}
@@ -356,7 +356,7 @@ public class ControllerAnalysis extends AbstractController {
 					"Analysis was deleted successfully", locale));
 		} catch (Exception e) {
 			// return error message
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage.Error(
 					messageSource.getMessage("failed.delete.analysis", null, "Analysis cannot be deleted!", locale));
 		}
@@ -522,7 +522,7 @@ public class ControllerAnalysis extends AbstractController {
 			errors.put("analysis", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			errors.put("owner", messageSource.getMessage("error.user.not_found", null, "User cannot be found", locale));
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 		}
 		return errors;
 	}
@@ -760,14 +760,14 @@ public class ControllerAnalysis extends AbstractController {
 			/**
 			 * Log
 			 */
-			TrickLogManager.Persist(LogType.ANALYSIS,
+			TrickLogManager.persist(LogType.ANALYSIS,
 					readOnly ? "log.open.analysis"
 							: mode == OpenMode.EDIT ? "log.edit.analysis" : "log.edit.analysis.measure",
 					String.format("Analysis: %s, version: %s", analysis.getIdentifier(), analysis.getVersion()),
 					user.getLogin(), readOnly ? LogAction.OPEN : LogAction.EDIT,
 					analysis.getIdentifier(), analysis.getVersion());
 		} else {
-			TrickLogManager.Persist(LogLevel.ERROR, LogType.ANALYSIS, "log.analysis.access_deny",
+			TrickLogManager.persist(LogLevel.ERROR, LogType.ANALYSIS, "log.analysis.access_deny",
 					String.format("Analysis: %s, version: %s", analysis.getIdentifier(), analysis.getVersion()),
 					user.getLogin(), LogAction.DENY_ACCESS, analysis.getIdentifier(),
 					analysis.getVersion());
@@ -829,7 +829,7 @@ public class ControllerAnalysis extends AbstractController {
 		} catch (TrickException e) {
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage.Error(
 					messageSource.getMessage("error.analysis.ale.update", null, "ALE cannot be updated", locale));
 		}
@@ -1038,7 +1038,7 @@ public class ControllerAnalysis extends AbstractController {
 					/**
 					 * Log
 					 */
-					TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.rename.analysis",
+					TrickLogManager.persist(LogLevel.WARNING, LogType.ANALYSIS, "log.rename.analysis",
 							String.format("Analysis: %s, version: %s, old: %s, new: %s ", analysis.getIdentifier(),
 									analysis.getVersion(), name, tmpAnalysis.getLabel()),
 							owner.getLogin(), LogAction.RENAME, analysis.getIdentifier(), analysis.getVersion(), name,
@@ -1050,7 +1050,7 @@ public class ControllerAnalysis extends AbstractController {
 				/**
 				 * Log
 				 */
-				TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.user.edit.analysis.information",
+				TrickLogManager.persist(LogLevel.WARNING, LogType.ANALYSIS, "log.user.edit.analysis.information",
 						String.format("Analysis: %s, version: %s", analysis.getIdentifier(), analysis.getVersion()),
 						owner.getLogin(), LogAction.UPDATE, analysis.getIdentifier(),
 						analysis.getVersion());
@@ -1059,11 +1059,11 @@ public class ControllerAnalysis extends AbstractController {
 			return true;
 		} catch (TrickException e) {
 			errors.put("analysis", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 		} catch (Exception e) {
 			errors.put("analysis",
 					messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 		}
 		return false;
 	}

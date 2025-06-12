@@ -185,7 +185,7 @@ public class WorkerCreateAnalysisVersion extends WorkerImpl{
 				/**
 				 * Log
 				 */
-				TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.create.analysis.version",
+				TrickLogManager.persist(LogLevel.WARNING, LogType.ANALYSIS, "log.create.analysis.version",
 						String.format("Analysis: %s, version: %s, new version: (%s)", analysis.getIdentifier(), analysis.getVersion(), copy.getVersion()), userName,
 						LogAction.CREATE, analysis.getIdentifier(), analysis.getVersion(), copy.getVersion());
 			}
@@ -206,7 +206,7 @@ public class WorkerCreateAnalysisVersion extends WorkerImpl{
 				if (session != null && session.isOpen())
 					session.close();
 			} catch (HibernateException e) {
-				TrickLogManager.Persist(e);
+				TrickLogManager.persist(e);
 			}
 			if (isWorking()) {
 				synchronized (this) {
@@ -231,7 +231,7 @@ public class WorkerCreateAnalysisVersion extends WorkerImpl{
 			if (session != null && session.isOpen() && session.getTransaction().getStatus().canRollback())
 				session.getTransaction().rollback();
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 		}
 	}
 

@@ -133,7 +133,7 @@ public class WorkerExportAnalysis extends WorkerImpl {
 				if (session != null && session.isOpen())
 					session.close();
 			} catch (HibernateException e) {
-				TrickLogManager.Persist(e);
+				TrickLogManager.persist(e);
 			}
 
 			if (isWorking()) {
@@ -226,17 +226,17 @@ public class WorkerExportAnalysis extends WorkerImpl {
 			/**
 			 * Log
 			 */
-			TrickLogManager.Persist(LogType.ANALYSIS, "log.analysis.export",
+			TrickLogManager.persist(LogType.ANALYSIS, "log.analysis.export",
 					String.format("Analyis: %s, version: %s, type: data", analysis.getIdentifier(),
 							analysis.getVersion()),
 					user.getLogin(), LogAction.EXPORT, analysis.getIdentifier(), analysis.getVersion());
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			try {
 				if (transaction != null)
 					transaction.rollback();
 			} catch (Exception e1) {
-				TrickLogManager.Persist(e1);
+				TrickLogManager.persist(e1);
 			}
 		}
 	}
@@ -302,14 +302,14 @@ public class WorkerExportAnalysis extends WorkerImpl {
 				try {
 					isr.close();
 				} catch (Exception e) {
-					TrickLogManager.Persist(e);
+					TrickLogManager.persist(e);
 				}
 			}
 			if (reader != null) {
 				try {
 					reader.close();
 				} catch (Exception e) {
-					TrickLogManager.Persist(e);
+					TrickLogManager.persist(e);
 				}
 			}
 			// close file
@@ -317,7 +317,7 @@ public class WorkerExportAnalysis extends WorkerImpl {
 				try {
 					inp.close();
 				} catch (Exception e) {
-					TrickLogManager.Persist(e);
+					TrickLogManager.persist(e);
 				}
 			}
 		}

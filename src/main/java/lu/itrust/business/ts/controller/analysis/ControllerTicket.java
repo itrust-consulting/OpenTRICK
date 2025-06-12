@@ -121,12 +121,12 @@ public class ControllerTicket extends AbstractController {
 		} catch (ResourceNotFoundException e) {
 			throw e;
 		} catch (TrickException e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			attributes.addAttribute("error",
 					messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 			return "redirect:/Error";
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			attributes.addAttribute("error",
 					messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 			return "redirect:/Error";
@@ -135,7 +135,7 @@ public class ControllerTicket extends AbstractController {
 				try {
 					client.close();
 				} catch (IOException e) {
-					TrickLogManager.Persist(e);
+					TrickLogManager.persist(e);
 				}
 			}
 		}
@@ -232,19 +232,19 @@ public class ControllerTicket extends AbstractController {
 		} catch (TrickException e) {
 			attributes.addAttribute("error",
 					messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return "redirect:/Error";
 		} catch (Exception e) {
 			attributes.addAttribute("error",
 					messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return "redirect:/Error";
 		} finally {
 			if (client != null) {
 				try {
 					client.close();
 				} catch (IOException e) {
-					TrickLogManager.Persist(e);
+					TrickLogManager.persist(e);
 				}
 			}
 		}
@@ -276,19 +276,19 @@ public class ControllerTicket extends AbstractController {
 		} catch (TrickException e) {
 			attributes.addAttribute("error",
 					messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return "redirect:/Error";
 		} catch (Exception e) {
 			attributes.addAttribute("error",
 					messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return "redirect:/Error";
 		} finally {
 			if (client != null) {
 				try {
 					client.close();
 				} catch (IOException e) {
-					TrickLogManager.Persist(e);
+					TrickLogManager.persist(e);
 				}
 			}
 		}
@@ -340,19 +340,19 @@ public class ControllerTicket extends AbstractController {
 		} catch (TrickException e) {
 			attributes.addAttribute("error",
 					messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return "redirect:/Error";
 		} catch (Exception e) {
 			attributes.addAttribute("error",
 					messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return "redirect:/Error";
 		} finally {
 			if (client != null) {
 				try {
 					client.close();
 				} catch (IOException e) {
-					TrickLogManager.Persist(e);
+					TrickLogManager.persist(e);
 				}
 			}
 		}
@@ -414,19 +414,19 @@ public class ControllerTicket extends AbstractController {
 		} catch (TrickException e) {
 			attributes.addAttribute("error",
 					messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return "redirect:/Error";
 		} catch (Exception e) {
 			attributes.addAttribute("error",
 					messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return "redirect:/Error";
 		} finally {
 			if (client != null) {
 				try {
 					client.close();
 				} catch (IOException e) {
-					TrickLogManager.Persist(e);
+					TrickLogManager.persist(e);
 				}
 			}
 		}
@@ -525,7 +525,7 @@ public class ControllerTicket extends AbstractController {
 				try {
 					client.close();
 				} catch (IOException e) {
-					TrickLogManager.Persist(e);
+					TrickLogManager.persist(e);
 				}
 			}
 		}

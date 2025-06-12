@@ -247,11 +247,11 @@ public class ControllerFieldEditor {
 					"ActionPlan entry was successfully updated", locale));
 
 		} catch (TrickException e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			// return error
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null,
 					"An unknown error occurred while updating field", locale));
 		}
@@ -313,11 +313,11 @@ public class ControllerFieldEditor {
 			return JsonMessage.Success(
 					messageSource.getMessage("success.asset.updated", null, "Asset was successfully updated", locale));
 		} catch (TrickException e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			// return error
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null,
 					"An unknown error occurred while updating field", locale));
 		}
@@ -424,11 +424,11 @@ public class ControllerFieldEditor {
 						messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 
 		} catch (TrickException e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			// return error
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null,
 					"An unknown error occurred while updating field", locale));
 		}
@@ -482,11 +482,11 @@ public class ControllerFieldEditor {
 				return JsonMessage.Error(
 						messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 		} catch (TrickException e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			// return error
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null,
 					"An unknown error occurred while updating field", locale));
 		}
@@ -524,11 +524,11 @@ public class ControllerFieldEditor {
 				return JsonMessage.Error(
 						messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 		} catch (TrickException e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			// return error
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null,
 					"An unknown error occurred while updating field", locale));
 		}
@@ -594,11 +594,11 @@ public class ControllerFieldEditor {
 						messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 
 		} catch (TrickException e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			// return error
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null,
 					"An unknown error occurred while updating field", locale));
 		}
@@ -667,11 +667,11 @@ public class ControllerFieldEditor {
 				// update as if it would be a normal measure
 				return measure(elementID, fieldEditor, session, locale, principal);
 		} catch (TrickException e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			// return error
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null,
 					"An unknown error occurred while updating field", locale));
 		}
@@ -715,11 +715,11 @@ public class ControllerFieldEditor {
 				return JsonMessage.Error(
 						messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 		} catch (TrickException e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			// return error
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null,
 					"An unknown error occurred while updating field", locale));
 		}
@@ -927,11 +927,11 @@ public class ControllerFieldEditor {
 					"Measure was successfully updated", locale));
 
 		} catch (TrickException e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			// return error
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null,
 					"An unknown error occurred while updating field", locale));
 		}
@@ -1004,11 +1004,11 @@ public class ControllerFieldEditor {
 				return JsonMessage.Error(
 						messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 		} catch (TrickException e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			// return error
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null,
 					"An unknown error occurred while updating field", locale));
 		}
@@ -1047,11 +1047,11 @@ public class ControllerFieldEditor {
 					messageSource.getMessage("success.phase.updated", null, "Phase was successfully updated", locale));
 
 		} catch (TrickException e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			// return error
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null,
 					"An unknown error occurred while updating field", locale));
 		}
@@ -1142,11 +1142,11 @@ public class ControllerFieldEditor {
 				return JsonMessage.Error(
 						messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 		} catch (TrickException e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			// return error
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null,
 					"An unknown error occurred while updating field", locale));
 		}
@@ -1187,11 +1187,11 @@ public class ControllerFieldEditor {
 				return JsonMessage.Error(
 						messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 		} catch (TrickException e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			// return error
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null,
 					"An unknown error occurred while updating field", locale));
 		}
@@ -1222,11 +1222,11 @@ public class ControllerFieldEditor {
 			return JsonMessage.Success(messageSource.getMessage("success.risk_information.updated", null,
 					"Risk information was successfully updated", locale));
 		} catch (TrickException e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			// return error
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null,
 					"An unknown error occurred while updating field", locale));
 		}
@@ -1318,11 +1318,11 @@ public class ControllerFieldEditor {
 					"Scenario was successfully updated", locale));
 
 		} catch (TrickException e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			// return error
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null,
 					"An unknown error occurred while updating field", locale));
 		}
@@ -1369,11 +1369,11 @@ public class ControllerFieldEditor {
 					"Measure was successfully updated", locale));
 
 		} catch (TrickException e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			// return error
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null,
 					"An unknown error occurred while updating field", locale));
 		}
@@ -1458,7 +1458,7 @@ public class ControllerFieldEditor {
 			else
 				result.turnOnError(messageSource.getMessage("error.unknown.edit.field", null,
 						"An unknown error occurred while updating field", locale));
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 		}
 		return result;
 	}
@@ -1598,11 +1598,11 @@ public class ControllerFieldEditor {
 			// return success message
 			return result;
 		} catch (TrickException e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return Result.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			// return error
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return Result.Error(messageSource.getMessage("error.unknown.edit.field", null,
 					"An unknown error occurred while updating field", locale));
 		}
@@ -1763,11 +1763,11 @@ public class ControllerFieldEditor {
 
 			return result;
 		} catch (TrickException e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return Result.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			// return error
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return Result.Error(messageSource.getMessage("error.unknown.edit.field", null,
 					"An unknown error occurred while updating field", locale));
 		}
@@ -2024,7 +2024,7 @@ public class ControllerFieldEditor {
 		} catch (TrickException e) {
 			throw e;
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return false;
 		}
 	}

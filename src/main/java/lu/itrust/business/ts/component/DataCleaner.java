@@ -86,7 +86,7 @@ public class DataCleaner {
 			List<WordReport> reports = daoWordReport.findByCreatedBefore(deleteDate, i, pageSize);
 			for (WordReport report : reports) {
 				daoWordReport.delete(report);
-				TrickLogManager.Persist(LogLevel.INFO, LogType.SYSTEM, "log.system.data.cleaner.report",
+				TrickLogManager.persist(LogLevel.INFO, LogType.SYSTEM, "log.system.data.cleaner.report",
 						String.format("Type: report, analysis: %s,name: %s, version: %s, exported: %s, owner: %s",
 								report.getIdentifier(), report.getLabel(), report.getVersion(),
 								report.getCreated(), report.getUser().getLogin()),
@@ -110,7 +110,7 @@ public class DataCleaner {
 			List<UserSQLite> sqLites = daoUserSqLite.findByCreatedBefore(deleteDate, i, pageSize);
 			for (UserSQLite sqlite : sqLites) {
 				daoUserSqLite.delete(sqlite);
-				TrickLogManager.Persist(LogLevel.INFO, LogType.SYSTEM, "log.system.data.cleaner.sqlite",
+				TrickLogManager.persist(LogLevel.INFO, LogType.SYSTEM, "log.system.data.cleaner.sqlite",
 						String.format("Type: database, analysis: %s,name: %s, version: %s, exported: %s, owner: %s",
 								sqlite.getIdentifier(), sqlite.getLabel(), sqlite.getVersion(),
 								sqlite.getCreated(), sqlite.getUser().getLogin()),

@@ -176,7 +176,7 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 				throw new InvalidParameterException("AnalysisRight cannot be null!");
 			return serviceUserAnalysisRight.hasRightOrOwner(analysisId, principal.getName(), right);
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return false;
 		}
 	}
@@ -360,7 +360,7 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 			}
 			return serviceUserAnalysisRight.isUserAuthorized(analysisId, principal.getName(), right);
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return false;
 		}
 	}
@@ -381,7 +381,7 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 				return false;
 			return serviceUserAnalysisRight.isUserAuthorized(analysisId, principal.getName(), right);
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return false;
 		}
 	}
@@ -408,7 +408,7 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 			return serviceUserAnalysisRight.isUserAuthorized(analysisId, principal.getName(), right)
 					|| serviceAnalysis.isAnalysisOwner(analysisId, principal.getName());
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return false;
 		}
 	}
@@ -452,7 +452,7 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 				return false;
 			return serviceUserAnalysisRight.hasDeletePermission(analysisId, principal.getName(), isProfile);
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return false;
 		}
 	}
@@ -475,7 +475,7 @@ public class PermissionEvaluatorImpl implements PermissionEvaluator {
 				return false;
 			return serviceUserAnalysisRight.hasManagementPermission(analysisId, principal.getName());
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return false;
 		}
 	}

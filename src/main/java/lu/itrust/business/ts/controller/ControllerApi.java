@@ -21,6 +21,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.FileCopyUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.util.unit.DataSize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -174,6 +175,7 @@ public class ControllerApi {
 	public Object createAnalysisAsset(@PathVariable final Integer idAnalysis,
 			@RequestParam(name = "name") final String assetName,
 			@RequestParam(name = "type") final String assetTypeName,
+			@RequestParam(name = "comment", required = false) String comment,
 			@RequestParam(name = "selected", defaultValue = "false") final boolean selected, final Principal principal,
 			final Locale locale) {
 		try {
@@ -185,6 +187,8 @@ public class ControllerApi {
 			asset.setSelected(selected);
 
 			asset.setAssetType(serviceAssetType.getByName(assetTypeName));
+
+			asset.setComment(comment);
 
 			final Analysis analysis = serviceAnalysis.get(idAnalysis);
 
@@ -201,10 +205,10 @@ public class ControllerApi {
 
 			return JsonMessage.SuccessWithId(asset.getId());
 		} catch (final TrickException e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (final Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage
 					.Error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 		}
@@ -220,10 +224,10 @@ public class ControllerApi {
 			return JsonMessage.Success(messageSource.getMessage("success.asset.delete.successfully", null,
 					"Asset was deleted successfully", locale));
 		} catch (final TrickException e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (final Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage.Error(
 					messageSource.getMessage("error.asset.delete.failed", null, "Asset cannot be deleted", locale));
 		}
@@ -235,6 +239,7 @@ public class ControllerApi {
 			@PathVariable final Integer idAsset,
 			@RequestParam(name = "name") final String assetName,
 			@RequestParam(name = "type") final String assetTypeName,
+			@RequestParam(name = "comment", required = false) String comment,
 			@RequestParam(name = "selected", defaultValue = "true") final boolean selected, final Principal principal,
 			final Locale locale) {
 		try {
@@ -254,14 +259,17 @@ public class ControllerApi {
 			else
 				assessmentAndRiskProfileManager.unSelectAsset(asset);
 
+			if (StringUtils.hasText(comment))
+				asset.setComment(comment.trim());
+
 			assessmentAndRiskProfileManager.build(asset, idAnalysis);
 
 			return JsonMessage.SuccessWithId(asset.getId());
 		} catch (final TrickException e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (final Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage
 					.Error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 		}
@@ -542,10 +550,7 @@ public class ControllerApi {
 		apiRRF.setScenario(new ApiScenario(assessment.getScenario().getId(), assessment.getScenario().getName(),
 				assessment.getScenario().getType().getValue(),
 				assessment.getScenario().getType().getName()));
-		apiRRF.setAsset(new ApiAsset(assessment.getAsset().getId(), assessment.getAsset().getName(),
-				assessment.getAsset().getAssetType().getId(),
-				assessment.getAsset().getAssetType().getName(), assessment.getAsset().getValue(),
-				assessment.getAsset().isSelected()));
+		apiRRF.setAsset(ApiAsset.create(assessment.getAsset()));
 		final IParameter rrfTuning = analysis.findParameter(Constant.PARAMETERTYPE_TYPE_SINGLE_NAME,
 				Constant.PARAMETER_MAX_RRF);
 		final ValueFactory factory = new ValueFactory(analysis.getParameters());
@@ -574,7 +579,7 @@ public class ControllerApi {
 	public Object loadUserCustomer(final Principal principal, final Locale locale) {
 		return serviceCustomer.getAllNotProfileOfUser(principal.getName()).stream()
 				.map(customer -> new ApiNamable(customer.getId(), customer.getOrganisation()))
-				.collect(Collectors.toList());
+				.toList();
 	}
 
 	/**
@@ -660,10 +665,10 @@ public class ControllerApi {
 			return JsonMessage.Success(messageSource.getMessage("success.assessment.refresh", null,
 					"Assessments were successfully refreshed", locale));
 		} catch (final TrickException e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (final Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage.Error(
 					messageSource.getMessage("error.asset.delete.failed", null, "Asset cannot be deleted", locale));
 		}

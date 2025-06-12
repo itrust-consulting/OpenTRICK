@@ -149,7 +149,7 @@ public class ImportCustomStandard {
 			 * Log
 			 */
 
-			TrickLogManager.Persist(LogType.ANALYSIS, "log.import.standard",
+			TrickLogManager.persist(LogType.ANALYSIS, "log.import.standard",
 					String.format("Standard: %s, version: %d", newStandard.getName(), newStandard.getVersion()),
 					username,
 					LogAction.IMPORT, newStandard.getName(), String.valueOf(newStandard.getVersion()));
@@ -158,19 +158,19 @@ public class ImportCustomStandard {
 					getMessageSource().getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 			if (transaction != null && transaction.getStatus().canRollback())
 				session.getTransaction().rollback();
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 		} catch (Exception e) {
 			messages.put("error", getMessageSource().getMessage("error.import.norm", null,
 					"Import of standard failed! Error message is: " + e.getMessage(), locale));
 			if (transaction != null && transaction.getStatus().canRollback())
 				transaction.rollback();
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 		} finally {
 			try {
 				if (session != null && !session.isOpen())
 					session.close();
 			} catch (HibernateException e) {
-				TrickLogManager.Persist(e);
+				TrickLogManager.persist(e);
 			}
 
 			getServiceStorage().delete(getFilename());

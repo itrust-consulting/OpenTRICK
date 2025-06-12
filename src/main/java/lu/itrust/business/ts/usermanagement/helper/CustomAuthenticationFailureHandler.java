@@ -79,7 +79,7 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
 			 */
 			System.err.println(stringdate + " CustomAuthenticationFailureHandler - ERROR: User '" + username
 					+ "' does not exist! Requesting IP: " + remoteaddr);
-			TrickLogManager.Persist(LogLevel.WARNING, LogType.AUTHENTICATION, "log.user.bad.credential",
+			TrickLogManager.persist(LogLevel.WARNING, LogType.AUTHENTICATION, "log.user.bad.credential",
 					String.format("%s attempts to connect from %s", username, remoteaddr),
 					ANONYMOUS, LogAction.AUTHENTICATE, username, remoteaddr);
 
@@ -90,7 +90,7 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
 			/**
 			 * Log
 			 */
-			TrickLogManager.Persist(LogLevel.WARNING, LogType.AUTHENTICATION, "log.user.account.disabled",
+			TrickLogManager.persist(LogLevel.WARNING, LogType.AUTHENTICATION, "log.user.account.disabled",
 					String.format("%s's account is disabled but he tries to connect from %s", username, remoteaddr),
 					ANONYMOUS, LogAction.AUTHENTICATE, username, remoteaddr);
 		} else if (exception.getCause() instanceof TrickException) {
@@ -102,7 +102,7 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
 			/**
 			 * Log
 			 */
-			TrickLogManager.Persist(LogLevel.ERROR, LogType.AUTHENTICATION, "log.user.account.processing",
+			TrickLogManager.persist(LogLevel.ERROR, LogType.AUTHENTICATION, "log.user.account.processing",
 					String.format("User: %s from %s, Error: %s", username, remoteaddr, e.getMessage()), ANONYMOUS,
 					LogAction.AUTHENTICATE, username, remoteaddr, e.getMessage());
 			request.getSession().setAttribute("LOGIN_ERROR_EXCEPTION", e);
@@ -113,7 +113,7 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
 			 */
 			System.err.println(stringdate + " CustomAuthenticationFailureHandler - ERROR: User '" + username
 					+ "' one time password failed! Requesting IP: " + remoteaddr);
-			TrickLogManager.Persist(LogLevel.ERROR, LogType.AUTHENTICATION, "log.user.otp.failure",
+			TrickLogManager.persist(LogLevel.ERROR, LogType.AUTHENTICATION, "log.user.otp.failure",
 					String.format("%s attempts to connect from %s but one time password failed", username, remoteaddr),
 					username, LogAction.AUTHENTICATE, username, remoteaddr);
 		} else if (exception instanceof LockedException) {

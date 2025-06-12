@@ -106,7 +106,7 @@ public class WorkerImportRiskInformation extends WorkerImpl {
 			}
 		} catch (Exception e) {
 			setError(e);
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 		} finally {
 			if (isWorking()) {
 				synchronized (this) {
@@ -170,7 +170,7 @@ public class WorkerImportRiskInformation extends WorkerImpl {
 			/**
 			 * Log
 			 */
-			TrickLogManager.Persist(LogType.ANALYSIS, "log.import.risk.information",
+			TrickLogManager.persist(LogType.ANALYSIS, "log.import.risk.information",
 					String.format("Brainstorming data has been overwritten, Analysis: %s, version: %s",
 							analysis.getIdentifier(), analysis.getVersion()),
 					username,
@@ -179,14 +179,14 @@ public class WorkerImportRiskInformation extends WorkerImpl {
 			setError(e);
 			getServiceTaskFeedback().send(getId(),
 					new MessageHandler(e.getCode(), e.getParameters(), e.getMessage(), e));
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			if (!(session == null || transaction == null) && transaction.getStatus().canRollback())
 				session.getTransaction().rollback();
 		} catch (Exception e) {
 			setError(e);
 			getServiceTaskFeedback().send(getId(),
 					new MessageHandler("error.import.risk.information", "Import of risk information failed!", e));
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			if (transaction != null && transaction.getStatus().canRollback())
 				transaction.rollback();
 		} finally {
@@ -194,7 +194,7 @@ public class WorkerImportRiskInformation extends WorkerImpl {
 				if (session != null && !session.isOpen())
 					session.close();
 			} catch (HibernateException e) {
-				TrickLogManager.Persist(e);
+				TrickLogManager.persist(e);
 			}
 			if (isWorking()) {
 				synchronized (this) {

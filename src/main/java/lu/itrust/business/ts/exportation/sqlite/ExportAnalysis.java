@@ -277,7 +277,7 @@ public class ExportAnalysis {
 			MessageHandler handler = new MessageHandler(e);
 			serviceTaskFeedback.send(idTask, handler);
 			System.out.println(e.getMessage());
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return handler;
 		} catch (Exception e) {
 			// ****************************************************************
@@ -293,7 +293,7 @@ public class ExportAnalysis {
 				try {
 					getSqlite().close();
 				} catch (SQLException e) {
-					TrickLogManager.Persist(e);
+					TrickLogManager.persist(e);
 				}
 			}
 

@@ -136,7 +136,7 @@ public class WorkerImportStandard extends WorkerImpl {
 			 * Log
 			 */
 			String username = getServiceTaskFeedback().findUsernameById(this.getId());
-			TrickLogManager.Persist(LogType.ANALYSIS, "log.import.standard",
+			TrickLogManager.persist(LogType.ANALYSIS, "log.import.standard",
 					String.format("Standard: %s, version: %d", newstandard.getName(), newstandard.getVersion()),
 					username,
 					LogAction.IMPORT, newstandard.getName(), String.valueOf(newstandard.getVersion()));
@@ -157,7 +157,7 @@ public class WorkerImportStandard extends WorkerImpl {
 				if (session != null && !session.isOpen())
 					session.close();
 			} catch (HibernateException e) {
-				TrickLogManager.Persist(e);
+				TrickLogManager.persist(e);
 			}
 			if (isWorking()) {
 				synchronized (this) {
@@ -452,7 +452,7 @@ public class WorkerImportStandard extends WorkerImpl {
 			}
 		} catch (Exception e) {
 			setError(e);
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 		} finally {
 			if (isWorking()) {
 				synchronized (this) {

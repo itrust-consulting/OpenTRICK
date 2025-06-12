@@ -185,7 +185,7 @@ public class ControllerRegister {
 			errors.put("email",
 					messageSource.getMessage("error.user.email.used_change", null, "Change the email", locale));
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			errors.put("general", messageSource.getMessage("error.user.save", null,
 					"Error during account creation, please try again later...", locale));
 		}
@@ -264,12 +264,12 @@ public class ControllerRegister {
 				/**
 				 * Log
 				 */
-				TrickLogManager.Persist(LogLevel.INFO, LogType.AUTHENTICATION, "log.request.reset.password",
+				TrickLogManager.persist(LogLevel.INFO, LogType.AUTHENTICATION, "log.request.reset.password",
 						String.format("from: %s", ipAdress), user.getLogin(),
 						LogAction.REQUEST_TO_RESET_PASSWORD, ipAdress);
 			} else
 				// Log
-				TrickLogManager.Persist(LogLevel.ERROR, LogType.AUTHENTICATION, "log.bad.request.rest.password",
+				TrickLogManager.persist(LogLevel.ERROR, LogType.AUTHENTICATION, "log.bad.request.rest.password",
 						String.format("Target: %s, from: %s", resetPassword.getData(), ipAdress), "anonymous",
 						LogAction.REQUEST_TO_RESET_PASSWORD, resetPassword.getData(),
 						ipAdress);
@@ -279,11 +279,11 @@ public class ControllerRegister {
 							"You will receive an email to reset your password, you have one hour to do.", locale));
 
 		} catch (TrickException e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			attributes.addFlashAttribute("error",
 					messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 
 			attributes.addFlashAttribute("error",
 					messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
@@ -316,7 +316,7 @@ public class ControllerRegister {
 			model.addAttribute("changePassword", new ChangePasswordhelper(keyControl));
 			return "jsp/default/recovery/change-password";
 		} catch (TrickException e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			attributes.addFlashAttribute("error",
 					messageSource.getMessage(e.getCode(), e.getParameters(),
 							e.getMessage(), locale));
@@ -384,16 +384,16 @@ public class ControllerRegister {
 			String ipAdress = request.getHeader("X-FORWARDED-FOR");
 			if (ipAdress == null)
 				ipAdress = request.getRemoteAddr();
-			TrickLogManager.Persist(LogLevel.INFO, LogType.AUTHENTICATION, "log.reset.password",
+			TrickLogManager.persist(LogLevel.INFO, LogType.AUTHENTICATION, "log.reset.password",
 					String.format("from: %s", ipAdress), username, LogAction.RESET_PASSWORD, ipAdress);
 		} catch (ResourceNotFoundException e) {
 			throw e;
 		} catch (TrickException e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			attributes.addFlashAttribute("error",
 					messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			attributes.addFlashAttribute("error",
 					messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
 		}
@@ -475,7 +475,7 @@ public class ControllerRegister {
 
 		} catch (Exception e) {
 			errors.put("user", messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 		}
 
 		return errors.isEmpty();

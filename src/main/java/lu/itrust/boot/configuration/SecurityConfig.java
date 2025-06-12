@@ -30,6 +30,7 @@ import org.springframework.security.web.authentication.session.SessionFixationPr
 import org.springframework.security.web.context.DelegatingSecurityContextRepository;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
+import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.security.web.session.ConcurrentSessionFilter;
 import org.springframework.security.web.session.SimpleRedirectSessionInformationExpiredStrategy;
@@ -43,6 +44,7 @@ import lu.itrust.business.ts.usermanagement.helper.ApiAuthenticationFilter;
 import lu.itrust.business.ts.usermanagement.helper.ApiAuthenticationManager;
 import lu.itrust.business.ts.usermanagement.helper.CustomAuthenticationFailureHandler;
 import lu.itrust.business.ts.usermanagement.helper.CustomAuthenticationSuccessHandler;
+import lu.itrust.business.ts.usermanagement.helper.CustomRequestCache;
 import lu.itrust.business.ts.usermanagement.helper.CustomUsernamePasswordAuthenticationFilter;
 import lu.itrust.business.ts.usermanagement.helper.OTPAuthenticationFilter;
 import lu.itrust.business.ts.usermanagement.helper.OTPAuthenticationProcessingFilter;
@@ -144,6 +146,7 @@ public class SecurityConfig {
                 http.securityContext(s -> s.securityContextRepository(delegatingSecurityContextRepository()))
                                 .csrf(e -> e.ignoringRequestMatchers(mvc.pattern("/Messaging/**")))
                                 .headers(e -> e.frameOptions(f -> f.sameOrigin()))
+                                .requestCache(cache -> cache.requestCache(customRequestCache()))
                                 .authorizeHttpRequests(
                                                 e -> e.requestMatchers(
                                                                 mvc.pattern("/favicon.ico"), mvc.pattern("/css/**"),
@@ -457,6 +460,11 @@ public class SecurityConfig {
                 return new DelegatingSecurityContextRepository(
                                 new RequestAttributeSecurityContextRepository(),
                                 new HttpSessionSecurityContextRepository());
+        }
+
+        @Bean
+        public RequestCache customRequestCache() {
+                return new CustomRequestCache();
         }
 
 }

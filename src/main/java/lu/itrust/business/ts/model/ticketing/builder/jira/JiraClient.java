@@ -128,7 +128,7 @@ public class JiraClient implements Client {
 					passward);
 			return this.restClient.getUserClient().getUser(username).claim() != null;
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return false;
 		}
 	}
@@ -185,7 +185,7 @@ public class JiraClient implements Client {
 				if (node.has("percent"))
 					task.setProgress(node.get("percent").asInt(0));
 			} catch (Exception e) {
-				TrickLogManager.Persist(e);
+				TrickLogManager.persist(e);
 			}
 		}
 
@@ -224,7 +224,7 @@ public class JiraClient implements Client {
 									issueLink.getIssueLinkType().getDescription(),
 									issueLink.getTargetIssueUri().toURL().toString()));
 			} catch (MalformedURLException e) {
-				TrickLogManager.Persist(e);
+				TrickLogManager.persist(e);
 			}
 		}
 
@@ -402,7 +402,7 @@ public class JiraClient implements Client {
 						restClient.getIssueClient().updateIssue(measure.getTicket(), builder.build());
 					}
 				} catch (Exception e) {
-					TrickLogManager.Persist(e);
+					TrickLogManager.persist(e);
 					if (!handler.getCode().startsWith("error."))
 						handler.update("error.update.ticket",
 								String.format("An unknown error occurred while update task for %s - %s",

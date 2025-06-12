@@ -67,7 +67,6 @@ import lu.itrust.business.ts.helper.DependencyGraphManager;
 import lu.itrust.business.ts.messagehandler.MessageHandler;
 import lu.itrust.business.ts.messagehandler.TaskName;
 import lu.itrust.business.ts.model.analysis.Analysis;
-import lu.itrust.business.ts.model.analysis.AnalysisSetting;
 import lu.itrust.business.ts.model.assessment.Assessment;
 import lu.itrust.business.ts.model.asset.Asset;
 import lu.itrust.business.ts.model.asset.AssetType;
@@ -184,7 +183,7 @@ public class WorkerImportEstimation extends WorkerImpl {
 			}
 		} catch (Exception e) {
 			setError(e);
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 		} finally {
 			cleanUp();
 		}
@@ -286,7 +285,7 @@ public class WorkerImportEstimation extends WorkerImpl {
 			else
 				messageHandler = new MessageHandler("error.500.message", "Internal error", e);
 			getServiceTaskFeedback().send(getId(), messageHandler);
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 		} finally {
 			if (session != null) {
 				try {
@@ -566,7 +565,7 @@ public class WorkerImportEstimation extends WorkerImpl {
 		usedScales.stream().filter(e -> !analysis.getIlrImpactTypes().contains(e))
 				.forEach(e -> analysis.getIlrImpactTypes().add(e));
 
-		TrickLogManager.Persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.import.asset",
+		TrickLogManager.persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.import.asset",
 				String.format("Analysis: %s, version: %s, type: Asset", analysis.getIdentifier(),
 						analysis.getVersion()),
 				getUsername(), LogAction.IMPORT, analysis.getIdentifier(),
@@ -625,6 +624,7 @@ public class WorkerImportEstimation extends WorkerImpl {
 
 		final int nameIndex = columns.indexOf("assetlist");
 		final int assetTypeIndex = columns.indexOf("assettype");
+		final int assetComment  = columns.indexOf("assetcomment");
 		if (nameIndex == -1)
 			throw new TrickException("error.import.data.no.column", "AssetList column cannot be found!", "AssetList");
 
@@ -646,7 +646,7 @@ public class WorkerImportEstimation extends WorkerImpl {
 			final AssetNode node = nodes.computeIfAbsent(asset.getName().toLowerCase(), k -> new AssetNode(asset));
 			final Map<AssetNode, AssetEdge> oldEdges = oldDependancies.get(node);
 			for (int j = 0; j < columns.size(); j++) {
-				if (nameIndex == j || assetTypeIndex == j)
+				if (nameIndex == j || assetTypeIndex == j || assetComment == j)
 					continue;
 				final String childName = columns.get(j);
 				final Asset childAsset = assets.get(childName);
@@ -878,7 +878,7 @@ public class WorkerImportEstimation extends WorkerImpl {
 
 		valuesToDelete.forEach(v -> daoAssessment.delete(v));
 
-		TrickLogManager.Persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.import.risk.estimation",
+		TrickLogManager.persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.import.risk.estimation",
 				String.format("Analysis: %s, version: %s, type: Risk estimation", analysis.getIdentifier(),
 						analysis.getVersion()),
 				getUsername(), LogAction.IMPORT,
@@ -1057,7 +1057,7 @@ public class WorkerImportEstimation extends WorkerImpl {
 					}));
 		}
 
-		TrickLogManager.Persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.import.scenario",
+		TrickLogManager.persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.import.scenario",
 				String.format("Analysis: %s, version: %s, type: Scenario", analysis.getIdentifier(),
 						analysis.getVersion()),
 				getUsername(), LogAction.IMPORT,

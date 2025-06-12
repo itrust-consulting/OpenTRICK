@@ -112,7 +112,7 @@ public class RiskSheetComputation {
 		} catch (Exception e) {
 			// print error message
 			System.out.println("Risk Register calculation and saving failed!");
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return new MessageHandler(e);
 		} finally {
 			if (helper != null) {
@@ -143,7 +143,7 @@ public class RiskSheetComputation {
 			this.analysis.setRiskRegisters(CSSFComputation(this.analysis.getAssessments(), generateTMAs(analysis, helper.getFactory(), mandatoryPhase), helper, filter));
 			return null;
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return new MessageHandler(e);
 		} finally {
 			if (helper != null) {

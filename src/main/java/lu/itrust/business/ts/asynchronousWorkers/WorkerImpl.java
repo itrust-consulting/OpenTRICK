@@ -94,7 +94,7 @@ public abstract class WorkerImpl implements Worker {
 	 */
 	protected void setError(Exception e) {
 		this.error = e;
-		TrickLogManager.Persist(e);
+		TrickLogManager.persist(e);
 	}
 
 	/**

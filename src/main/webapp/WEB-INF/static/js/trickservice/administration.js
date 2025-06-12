@@ -934,7 +934,46 @@ function editTicketingSystemEmailTemplate(customerID) {
 		success: function (response, textStatus, jqXHR) {
 			let $view = $(new DOMParser().parseFromString(response, "text/html")).find("#ticketingSystemEmailTempalteModel");
 			if ($view.length) {
+				let availableParameters = JSON.parse($view.find("#measureAvailableParameters").text());
+				let $subjectInput = $view.find("#email_template_title");
+				let $subjectInputEntry = $view.find("#email_template_title_entry");
+				let $subjectDatalist = $view.find("#dataListEmailSubject");
+
+
+				let $current = $subjectDatalist.find("option[data-value='" + $subjectInput.val() + "']");
+
+				if ($current.length == 1)
+					$subjectInputEntry.val($current.text());
+				else $subjectInputEntry.val($subjectInput.val());
+
+				$subjectInputEntry.attr("placeholder", $subjectInputEntry.val());
+
+				$subjectInputEntry.on("change", (e)=> {
+					$current = $subjectDatalist.find("option:contains('" + $subjectInputEntry.val() + "')");
+					if ($current.text() === $subjectInputEntry.val())
+						$subjectInput.val($current.attr("data-value"));
+					else $subjectInput.val($subjectInputEntry.val());
+				});
+
+				console.log(availableParameters);
+
+				$view.find('#email_template_template').suggest('$', {
+					data: availableParameters,
+					filter : {
+						casesensitive: false,
+						limit: availableParameters.length
+					},
+					map: function(parameter) {
+						console.log(parameter);
+					  return {
+						value: "{"+parameter.name+"}",
+						text: '<strong>'+parameter.name+'</strong>: <small>'+parameter.title+'</small>'
+					  }
+					}
+				  });
+
 				$view.appendTo("#widget").modal("show").on("hidden.bs.modal", () => $view.remove());
+
 				$("button[name='save']", $view).on("click", e => $("input[name='submit']", $view).click());
 				$view.find("form").on("submit", e => {
 					e.preventDefault();

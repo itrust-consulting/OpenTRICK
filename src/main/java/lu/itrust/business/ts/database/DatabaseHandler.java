@@ -109,7 +109,7 @@ public class DatabaseHandler implements AutoCloseable {
 			res = !con.getAutoCommit();
 
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 		}
 		return res;
 	}
@@ -154,7 +154,7 @@ public class DatabaseHandler implements AutoCloseable {
 			res = con.getAutoCommit();
 
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 		}
 		return res;
 	}
@@ -269,7 +269,7 @@ public class DatabaseHandler implements AutoCloseable {
 				res = st.getResultSet();
 			}
 		} catch (SQLException e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 		}
 
 		// ****************************************************************
@@ -364,7 +364,7 @@ public class DatabaseHandler implements AutoCloseable {
 			// return autocommit status
 			res = con.getAutoCommit();
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 		}
 		return res;
 	}

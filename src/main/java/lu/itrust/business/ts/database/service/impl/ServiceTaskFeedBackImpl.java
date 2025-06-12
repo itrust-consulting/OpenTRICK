@@ -268,9 +268,9 @@ public class ServiceTaskFeedBackImpl implements ServiceTaskFeedback {
 			this.messagingTemplate.convertAndSendToUser(username, "/Task", asyncResult);
 		} catch (MessagingException e) {
 			setWebSocketSupported(username, false);
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 		}
 	}
 

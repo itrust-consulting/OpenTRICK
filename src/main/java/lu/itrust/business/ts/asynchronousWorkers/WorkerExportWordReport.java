@@ -129,7 +129,7 @@ public class WorkerExportWordReport extends WorkerImpl {
 				if (session != null && session.isOpen())
 					session.close();
 			} catch (HibernateException e) {
-				TrickLogManager.Persist(e);
+				TrickLogManager.persist(e);
 			} finally {
 				cleanUp();
 			}
@@ -187,7 +187,7 @@ public class WorkerExportWordReport extends WorkerImpl {
 			/**
 			 * Log
 			 */
-			TrickLogManager.Persist(LogType.ANALYSIS, "log.analysis.export.word",
+			TrickLogManager.persist(LogType.ANALYSIS, "log.analysis.export.word",
 					String.format("Analyis: %s, version: %s, type: report", analysis.getIdentifier(),
 							analysis.getVersion()),
 					username, LogAction.EXPORT, analysis.getIdentifier(),
@@ -197,7 +197,7 @@ public class WorkerExportWordReport extends WorkerImpl {
 				if (session.getTransaction().getStatus().canRollback())
 					session.getTransaction().rollback();
 			} catch (Exception e1) {
-				TrickLogManager.Persist(e1);
+				TrickLogManager.persist(e1);
 			}
 			throw e;
 		}

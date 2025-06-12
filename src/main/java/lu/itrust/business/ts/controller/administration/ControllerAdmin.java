@@ -364,7 +364,7 @@ public class ControllerAdmin {
 		} finally {
 			String settingName = messageSource.getMessage("label." + tsSetting.getNameLower(), null,
 					tsSetting.getNameLower(), Locale.ENGLISH);
-			TrickLogManager.Persist(LogLevel.INFO, LogType.ADMINISTRATION, "log.setting.change",
+			TrickLogManager.persist(LogLevel.INFO, LogType.ADMINISTRATION, "log.setting.change",
 					String.format("Settings: %s, value: %s", settingName, tsSetting.getString()),
 					principal.getName(), LogAction.CHANGE, settingName, tsSetting.getString());
 		}
@@ -390,7 +390,7 @@ public class ControllerAdmin {
 			model.addAttribute("userAnalysisRights", userAnalysisRights);
 			return "jsp/admin/analysis/switch-owner";
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return "redirect:/Error";
 		}
 	}
@@ -415,7 +415,7 @@ public class ControllerAdmin {
 			return JsonMessage.Success(messageSource.getMessage("success.analysis.switch.owner", null,
 					"Analysis owner was successfully updated", locale));
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage.Error(
 					messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
 		}
@@ -453,7 +453,7 @@ public class ControllerAdmin {
 				session.removeAttribute(Constant.SELECTED_ANALYSIS);
 			return customDelete.deleteAnalysis(ids, principal.getName());
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return false;
 		}
 	}
@@ -464,7 +464,7 @@ public class ControllerAdmin {
 		try {
 			model.addAttribute("trickLogs", serviceTrickLog.getAll(page, loadLogFilter(session, principal.getName())));
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 		}
 		return "jsp/admin/log/section";
 	}
@@ -485,7 +485,7 @@ public class ControllerAdmin {
 			return JsonMessage.Success(messageSource.getMessage("success.filter.updated", null,
 					"Filter has been successfully updated", locale));
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage.Error(messageSource.getMessage("error.invalid.data", null, "Invalid data", locale));
 		}
 	}
@@ -538,7 +538,7 @@ public class ControllerAdmin {
 			return JsonMessage.Success(messageSource.getMessage("success.update.analysis.right", null,
 					"Analysis access rights were successfully updated!", locale));
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			if (e instanceof TrickException)
 				return JsonMessage.Error(messageSource.getMessage(((TrickException) e).getCode(),
 						((TrickException) e).getParameters(), e.getMessage(), locale));
@@ -660,13 +660,13 @@ public class ControllerAdmin {
 				/**
 				 * Log
 				 */
-				TrickLogManager.Persist(LogLevel.WARNING, LogType.ADMINISTRATION, "log.add.user",
+				TrickLogManager.persist(LogLevel.WARNING, LogType.ADMINISTRATION, "log.add.user",
 						String.format("Target: %s, access: %s", user.getLogin(), userRole),
 						principal.getName(), LogAction.CREATE, user.getLogin(),
 						userAccess == null ? "none" : userAccess.name());
 				// give access
 				user.getRoles().stream().filter(role -> role.getType() != userAccess)
-						.forEach(role -> TrickLogManager.Persist(LogLevel.WARNING, LogType.ADMINISTRATION,
+						.forEach(role -> TrickLogManager.persist(LogLevel.WARNING, LogType.ADMINISTRATION,
 								"log.user.get.access",
 								String.format("Target: %s, access: %s", user.getLogin(),
 										role.getRoleName().toLowerCase()),
@@ -681,7 +681,7 @@ public class ControllerAdmin {
 				 */
 				// remove access
 				userRoles.stream().filter(role -> !user.hasRole(role))
-						.forEach(role -> TrickLogManager.Persist(LogLevel.WARNING, LogType.ADMINISTRATION,
+						.forEach(role -> TrickLogManager.persist(LogLevel.WARNING, LogType.ADMINISTRATION,
 								"log.user.remove.access",
 								String.format("Target: %s, access: %s", user.getLogin(),
 										role.getRoleName().toLowerCase()),
@@ -689,7 +689,7 @@ public class ControllerAdmin {
 								user.getLogin(), role.getType().name()));
 				// give access
 				user.getRoles().stream().filter(role -> !userRoles.contains(role))
-						.forEach(role -> TrickLogManager.Persist(LogLevel.WARNING, LogType.ADMINISTRATION,
+						.forEach(role -> TrickLogManager.persist(LogLevel.WARNING, LogType.ADMINISTRATION,
 								"log.user.grant.access",
 								String.format("Target: %s, access: %s", user.getLogin(),
 										role.getRoleName().toLowerCase()),
@@ -730,7 +730,7 @@ public class ControllerAdmin {
 			model.addAttribute("analyses", serviceAnalysis.getAllFromOwner(user));
 			return "jsp/admin/user/delete-dialog";
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return "redirect:/Error";
 		}
 	}
@@ -745,7 +745,7 @@ public class ControllerAdmin {
 				return JsonMessage.Success(
 						messageSource.getMessage("success.delete.user", null, "User was successfully deleted", locale));
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			if (errors.isEmpty())
 				return JsonMessage.Error(
 						messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
@@ -799,7 +799,7 @@ public class ControllerAdmin {
 					if (!user.containsCustomer(customer)) {
 						user.addCustomer(customer);
 						serviceUser.saveOrUpdate(user);
-						TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.give.access.to.customer",
+						TrickLogManager.persist(LogLevel.WARNING, LogType.ANALYSIS, "log.give.access.to.customer",
 								String.format("Customer: %s, target: %s", customer.getOrganisation(), user.getLogin()),
 								principal.getName(), LogAction.GIVE_ACCESS,
 								customer.getOrganisation(), user.getLogin());
@@ -811,7 +811,7 @@ public class ControllerAdmin {
 					"Customer users successfully updated!", locale));
 		} catch (Exception e) {
 			// return errors
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage
 					.Error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 		}
@@ -956,13 +956,13 @@ public class ControllerAdmin {
 			 * Log
 			 */
 			if (errors.isEmpty())
-				TrickLogManager.Persist(LogType.ANALYSIS, "log.add_or_update.customer",
+				TrickLogManager.persist(LogType.ANALYSIS, "log.add_or_update.customer",
 						String.format("Customer: %s", customer.getOrganisation()), principal.getName(),
 						LogAction.CREATE_OR_UPDATE, customer.getOrganisation());
 		} catch (Exception e) {
 			errors.put("customer",
 					messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 		}
 		return errors;
 	}
@@ -1094,7 +1094,7 @@ public class ControllerAdmin {
 		 */
 		var language = template.getLanguage().getAlpha3() == null ? "ALL" : template.getLanguage().getAlpha3();
 		if (template.getType() == TrickTemplateType.REPORT) {
-			TrickLogManager.Persist(LogType.ANALYSIS, "log.customer.report.template.download",
+			TrickLogManager.persist(LogType.ANALYSIS, "log.customer.report.template.download",
 					String.format("Customer: %s, Template: %s, version: %s, created at: %s, type: %s, Language: %s",
 							customer.getContactPerson(), template.getLabel(),
 							template.getVersion(), template.getCreated(), template.getAnalysisType(),
@@ -1104,7 +1104,7 @@ public class ControllerAdmin {
 					String.valueOf(template.getCreated()), String.valueOf(template.getAnalysisType()),
 					language);
 		} else {
-			TrickLogManager.Persist(LogType.ANALYSIS, "log.customer.template.download",
+			TrickLogManager.persist(LogType.ANALYSIS, "log.customer.template.download",
 					String.format("Customer: %s, Template: %s, version: %s, created at: %s, type: %s, Language: %s",
 							customer.getContactPerson(), template.getLabel(),
 							template.getVersion(), template.getCreated(), template.getType(),

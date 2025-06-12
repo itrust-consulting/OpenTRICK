@@ -58,7 +58,7 @@ public class ServiceStorageImpl implements ServiceStorage {
 			if (Files.exists(path))
 				Files.delete(path);
 		} catch (IOException e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 		}
 	}
 
@@ -183,7 +183,7 @@ public class ServiceStorageImpl implements ServiceStorage {
 					copyResourceToFilePath(resource, destinationPath.resolve(relativePath).toString());
 			}
 		} catch (IOException e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 		}
 	}
 

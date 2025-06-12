@@ -21,8 +21,8 @@ public enum RoleType {
 	 * @param right
 	 * @return inherited roles
 	 */
-	public static List<RoleType> InheritedRoles(RoleType right) {
-		List<RoleType> rights = new LinkedList<RoleType>();
+	public static List<RoleType> inheritedRoles(RoleType right) {
+		List<RoleType> rights = new LinkedList<>();
 		if (right != null) {
 			if (right == ROLE_IDS)
 				rights.add(ROLE_IDS);
@@ -42,8 +42,8 @@ public enum RoleType {
 	 * @param right
 	 * @return inherited roles
 	 */
-	public static List<RoleType> GreaterRoles(RoleType right) {
-		List<RoleType> rights = new LinkedList<RoleType>();
+	public static List<RoleType> greaterRoles(RoleType right) {
+		List<RoleType> rights = new LinkedList<>();
 		if (right != null) {
 			if (right == ROLE_IDS)
 				rights.add(ROLE_IDS);

@@ -61,4 +61,6 @@ public interface ServiceUser {
 	public String findUsernameById(Integer id);
 
     public boolean isUsing2FA(String username);
+
+    public String findUsernameByEmail(String email);
 }

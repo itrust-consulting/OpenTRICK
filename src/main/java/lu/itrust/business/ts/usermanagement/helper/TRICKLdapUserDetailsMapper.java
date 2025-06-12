@@ -182,7 +182,7 @@ public class TRICKLdapUserDetailsMapper implements UserDetailsContextMapper {
 		} catch (BadCredentialsException | DisabledException e) {
 			throw e;
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			throw new InternalAuthenticationServiceException(e.getMessage(), e);
 		}
 	}

@@ -126,7 +126,7 @@ public class WorkerCreateAnalysisProfile extends WorkerImpl {
 			/**
 			 * Log
 			 */
-			TrickLogManager.Persist(LogType.ANALYSIS, "log.analysis.profile.create",
+			TrickLogManager.persist(LogType.ANALYSIS, "log.analysis.profile.create",
 					String.format("Analyis: %s, version: %s, profile: %s, name: %s, version: %s",
 							analysis.getIdentifier(), analysis.getVersion(), copy.getIdentifier(),
 							copy.getLabel(), copy.getVersion()),
@@ -140,7 +140,7 @@ public class WorkerCreateAnalysisProfile extends WorkerImpl {
 				if (transaction != null && transaction.getStatus().canRollback())
 					transaction.rollback();
 			} catch (Exception e1) {
-				TrickLogManager.Persist(e1);
+				TrickLogManager.persist(e1);
 			}
 		} catch (Exception e) {
 			try {
@@ -150,7 +150,7 @@ public class WorkerCreateAnalysisProfile extends WorkerImpl {
 				if (transaction != null && transaction.getStatus().canRollback())
 					transaction.rollback();
 			} catch (Exception e1) {
-				TrickLogManager.Persist(e1);
+				TrickLogManager.persist(e1);
 			}
 
 		} finally {
@@ -158,7 +158,7 @@ public class WorkerCreateAnalysisProfile extends WorkerImpl {
 				if (session != null && session.isOpen())
 					session.close();
 			} catch (HibernateException e) {
-				TrickLogManager.Persist(e);
+				TrickLogManager.persist(e);
 			}
 			if (isWorking()) {
 				synchronized (this) {

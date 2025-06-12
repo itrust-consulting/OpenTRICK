@@ -61,7 +61,7 @@ public class ActionPlanManager {
 				assets.add(apa.getAsset());
 			return assets;
 		} catch (TrickException e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 		}
 		return Collections.emptyList();
 	}
@@ -83,7 +83,7 @@ public class ActionPlanManager {
 				apassets.add(mapofassets.get(asset));
 			return apassets;
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return Collections.emptyList();
 		}
 	}

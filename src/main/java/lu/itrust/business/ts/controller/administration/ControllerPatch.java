@@ -118,14 +118,14 @@ public class ControllerPatch {
 			return JsonMessage.Success(messageSource.getMessage("success.scenario.update.all", null,
 					"Scenarios were successfully updated", locale));
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage.Error(
 					messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
 		} finally {
 			/**
 			 * Log
 			 */
-			TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.patch.apply",
+			TrickLogManager.persist(LogLevel.WARNING, LogType.ANALYSIS, "log.patch.apply",
 					String.format("Runtime: %s", "Scenario-category-value"), principal.getName(), LogAction.APPLY,
 					"Scenario-category-value");
 		}
@@ -142,13 +142,13 @@ public class ControllerPatch {
 		} catch (Exception e) {
 			errors.put("error",
 					messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return errors;
 		} finally {
 			/**
 			 * Log
 			 */
-			TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.patch.apply",
+			TrickLogManager.persist(LogLevel.WARNING, LogType.ANALYSIS, "log.patch.apply",
 					String.format("Runtime: %s", "Update-assessment"), principal.getName(), LogAction.APPLY,
 					"Update-assessment");
 		}
@@ -167,14 +167,14 @@ public class ControllerPatch {
 			return JsonMessage.Success(messageSource.getMessage("success.start.restore.analysis.right", null,
 					"Restoring analysis rights", locale));
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage.Error(
 					messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
 		} finally {
 			/**
 			 * Log
 			 */
-			TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.patch.apply",
+			TrickLogManager.persist(LogLevel.WARNING, LogType.ANALYSIS, "log.patch.apply",
 					String.format("Runtime: %s", "Restore-analysis-Right"), principal.getName(), LogAction.APPLY,
 					"Restore-analysis-Right");
 		}
@@ -193,14 +193,14 @@ public class ControllerPatch {
 			return JsonMessage.Success(messageSource.getMessage("success.start.synchronise.analyses.measure.collection",
 					null, "Synchronising analyses measure collection", locale));
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage.Error(
 					messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
 		} finally {
 			/**
 			 * Log
 			 */
-			TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.patch.apply",
+			TrickLogManager.persist(LogLevel.WARNING, LogType.ANALYSIS, "log.patch.apply",
 					String.format("Runtime: %s", "Synchronise-analyses-measure-collection"), principal.getName(),
 					LogAction.APPLY, "Synchronise-analyses-measure-collection");
 		}
@@ -234,7 +234,7 @@ public class ControllerPatch {
 
 				serviceAnalysis.saveOrUpdate(analysis);
 
-				TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.analysis.copy.risk_item.information",
+				TrickLogManager.persist(LogLevel.WARNING, LogType.ANALYSIS, "log.analysis.copy.risk_item.information",
 						String.format("Analysis: %s, version: %s; Copy risk and item information from default profile",
 								analysis.getIdentifier(), analysis.getVersion()),
 						principal.getName(), LogAction.UPDATE, analysis.getIdentifier(), analysis.getVersion());
@@ -253,7 +253,7 @@ public class ControllerPatch {
 			return JsonMessage.Error(
 					messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
 		} finally {
-			TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.patch.apply",
+			TrickLogManager.persist(LogLevel.WARNING, LogType.ANALYSIS, "log.patch.apply",
 					String.format("Runtime: %s", "Copy-risk-item-information-from-default-profile"),
 					principal.getName(), LogAction.APPLY, "Copy-risk-item-information-from-default-profile");
 		}
@@ -294,7 +294,7 @@ public class ControllerPatch {
 						/**
 						 * log
 						 */
-						TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.analysis.add.scope",
+						TrickLogManager.persist(LogLevel.WARNING, LogType.ANALYSIS, "log.analysis.add.scope",
 								String.format("Analysis: %s, version: %s; Add missing scopes", analysis.getIdentifier(),
 										analysis.getVersion()),
 								principal.getName(), LogAction.UPDATE, analysis.getIdentifier(), analysis.getVersion());
@@ -304,11 +304,11 @@ public class ControllerPatch {
 			return JsonMessage.Success(messageSource.getMessage("success.update.analyses.scopes", null,
 					"Scopes of analyses were successfully updated", locale));
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage.Error(
 					messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
 		} finally {
-			TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.patch.apply",
+			TrickLogManager.persist(LogLevel.WARNING, LogType.ANALYSIS, "log.patch.apply",
 					String.format("Runtime: %s", "Update-scopes-of-analyses"), principal.getName(), LogAction.APPLY,
 					"Update-scopes-of-analyses");
 		}
@@ -363,14 +363,14 @@ public class ControllerPatch {
 			return JsonMessage.Success(messageSource.getMessage("success.matv.update", null,
 					"MeasureAssetTypeValues successfully updated", locale));
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage.Error(
 					messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
 		} finally {
 			/**
 			 * Log
 			 */
-			TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.patch.apply",
+			TrickLogManager.persist(LogLevel.WARNING, LogType.ANALYSIS, "log.patch.apply",
 					String.format("Runtime: %s", "Update-measure-asset-types"), principal.getName(), LogAction.APPLY,
 					"Update-measure-asset-types");
 		}
@@ -408,18 +408,18 @@ public class ControllerPatch {
 			return JsonMessage.Success(messageSource.getMessage("success.fix-qualitative-impact-parameter", null,
 					"Impact parameters were successfully recomputed", locale));
 		} catch (TrickException e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage
 					.Success(messageSource.getMessage(e.getMessage(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage
 					.Error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 		} finally {
 			/**
 			 * Log
 			 */
-			TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.patch.apply",
+			TrickLogManager.persist(LogLevel.WARNING, LogType.ANALYSIS, "log.patch.apply",
 					String.format("Runtime: %s", "Fix-qualitative-impact-parameter"), principal.getName(), LogAction.APPLY,
 					"Fix-qualitative-impact-parameter");
 		}
@@ -454,18 +454,18 @@ public class ControllerPatch {
 			return JsonMessage.Success(messageSource.getMessage("success.add.css_parameter", null,
 					"CSSF parameters were successfully added", locale));
 		} catch (TrickException e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage
 					.Success(messageSource.getMessage(e.getMessage(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage
 					.Error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 		} finally {
 			/**
 			 * Log
 			 */
-			TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.patch.apply",
+			TrickLogManager.persist(LogLevel.WARNING, LogType.ANALYSIS, "log.patch.apply",
 					String.format("Runtime: %s", "Add-CSSF-parameters"), principal.getName(), LogAction.APPLY,
 					"Add-CSSF-parameters");
 		}

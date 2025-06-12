@@ -171,7 +171,7 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 			}
 		} catch (Exception e) {
 			setError(e);
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 		} finally {
 			if (isWorking()) {
 				synchronized (this) {
@@ -250,7 +250,7 @@ public class WorkerExportRiskSheet extends WorkerImpl {
 			else
 				messageHandler = new MessageHandler("error.500.message", "Internal error", e);
 			getServiceTaskFeedback().send(getId(), messageHandler);
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 		} finally {
 			if (session != null) {
 				try {

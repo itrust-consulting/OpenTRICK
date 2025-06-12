@@ -158,10 +158,10 @@ public class WorkerTSInstallation extends WorkerAnalysisImport {
 			/**
 			 * Log
 			 */
-			TrickLogManager.Persist(LogType.ANALYSIS, "log.system.install", String.format("System: TRCIK Service, version: %s", trickService.getVersion()), username,
+			TrickLogManager.persist(LogType.ANALYSIS, "log.system.install", String.format("System: TRCIK Service, version: %s", trickService.getVersion()), username,
 					LogAction.INSTALL, trickService.getVersion());
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			if (session != null && session.getTransaction().getStatus().canRollback())
 				session.getTransaction().rollback();
 		} finally {

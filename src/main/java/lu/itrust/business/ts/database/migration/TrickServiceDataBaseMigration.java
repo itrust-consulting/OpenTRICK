@@ -41,7 +41,7 @@ public abstract class TrickServiceDataBaseMigration extends BaseJavaMigration {
         try {
             return jdbcTemplate.update(String.format("ALTER TABLE `%s` DROP FOREIGN KEY `%s`", tableName, key));
         } catch (DataAccessException e) {
-            TrickLogManager.Persist(e);
+            TrickLogManager.persist(e);
             return 1;
         }
     }
@@ -50,7 +50,7 @@ public abstract class TrickServiceDataBaseMigration extends BaseJavaMigration {
         try {
             return jdbcTemplate.update(String.format("ALTER TABLE `%s` DROP INDEX `%s`", tableName, key));
         } catch (DataAccessException e) {
-            TrickLogManager.Persist(e);
+            TrickLogManager.persist(e);
             return 1;
         }
     }

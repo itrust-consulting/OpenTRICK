@@ -259,14 +259,14 @@ public class ControlerCredential {
 			client = ClientBuilder.Build(ticketingSystem.getType().name().toLowerCase());
 			return client.connect(settings);
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return false;
 		} finally {
 			if (client != null) {
 				try {
 					client.close();
 				} catch (IOException e) {
-					TrickLogManager.Persist(e);
+					TrickLogManager.persist(e);
 				}
 			}
 		}

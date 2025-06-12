@@ -57,7 +57,7 @@ public class CustomerManager {
 		 * Log
 		 */
 		analyses.stream().filter(analysis -> analysis.getCustomer() != customer).findAny()
-				.ifPresent(analysis -> TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS,
+				.ifPresent(analysis -> TrickLogManager.persist(LogLevel.WARNING, LogType.ANALYSIS,
 						"log.user.switch.analysis.customer",
 						String.format("Analysis: %s, old: %s, new: %s", analysis.getIdentifier(),
 								analysis.getCustomer().getOrganisation(), customer.getOrganisation()),
@@ -217,7 +217,7 @@ public class CustomerManager {
 		} catch (Exception e) {
 			errors.put("customer",
 					messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 		}
 		return customer;
 	}

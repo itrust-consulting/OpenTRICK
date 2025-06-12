@@ -125,7 +125,7 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 			};
 			emailTaskExecutor.execute(() -> javaMailSender.send(preparator));
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 		}
 	}
 
@@ -165,7 +165,7 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 			};
 			emailTaskExecutor.execute(() -> javaMailSender.send(preparator));
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 		}
 	}
 
@@ -207,7 +207,7 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 			emailTaskExecutor.execute(() -> javaMailSender.send(preparator));
 
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 		}
 		if (!(recipients == null || recipients.isEmpty())) {
 			for (final User admin : recipients) {
@@ -242,7 +242,7 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 					emailTaskExecutor.execute(() -> javaMailSender.send(preparator));
 
 				} catch (Exception e) {
-					TrickLogManager.Persist(e);
+					TrickLogManager.persist(e);
 				}
 			}
 		}
@@ -275,7 +275,7 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 			};
 			emailTaskExecutor.execute(() -> javaMailSender.send(preparator));
 		} catch (MailException e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 		}
 	}
 
@@ -313,7 +313,7 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 			};
 			emailTaskExecutor.execute(() -> javaMailSender.send(preparator));
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 		}
 	}
 
@@ -356,7 +356,7 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 			};
 			emailTaskExecutor.execute(() -> javaMailSender.send(preparator));
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 		}
 
 	}
@@ -393,7 +393,7 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 			};
 			emailTaskExecutor.execute(() -> javaMailSender.send(preparator));
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 		}
 
 	}
@@ -427,7 +427,7 @@ public class ServiceEmailSenderImpl implements ServiceEmailSender {
 			};
 			emailTaskExecutor.execute(() -> javaMailSender.send(preparator));
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 		}
 	}
 

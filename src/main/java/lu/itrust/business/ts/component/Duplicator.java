@@ -651,10 +651,10 @@ public class Duplicator {
 			}
 			return copy;
 		} catch (CloneNotSupportedException e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return null;
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return null;
 		}
 

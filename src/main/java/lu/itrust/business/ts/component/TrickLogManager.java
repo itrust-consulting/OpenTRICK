@@ -33,16 +33,16 @@ import lu.itrust.business.ts.model.general.TrickLog;
  */
 public class TrickLogManager {
 	
-	private static volatile TrickLogManager instance;
+	private static TrickLogManager instance;
 
-	private Queue<TrickLog> trickLogs = new LinkedList<TrickLog>();
+	private Queue<TrickLog> trickLogs = new LinkedList<>();
 
 	private Logger logger = LogManager.getLogger(TrickLogManager.class.getSimpleName());
 
 	private TrickLogManager() {
 	}
 
-	public static String GetLoggerName() {
+	public static String getLoggerName() {
 		try {
 			InetAddress address = InetAddress.getLocalHost();
 			return address.getHostName();
@@ -61,11 +61,11 @@ public class TrickLogManager {
 		return instance;
 	}
 
-	public static boolean Persist(TrickLog trickLog) {
-		return LogMe(trickLog);
+	public static boolean persist(TrickLog trickLog) {
+		return logMe(trickLog);
 	}
 
-	protected static boolean LogMe(TrickLog trickLog) {
+	protected static boolean logMe(TrickLog trickLog) {
 		try {
 			synchronized (getInstance().trickLogs) {
 				return getInstance().trickLogs.offer(trickLog);
@@ -78,8 +78,7 @@ public class TrickLogManager {
 			case WARNING:
 				getInstance().logger.warn(trickLog.toLog4J());
 				break;
-			case INFO:
-			case SUCCESS:
+			case INFO,SUCCESS:
 				getInstance().logger.info(trickLog.toLog4J());
 				break;
 			}
@@ -91,8 +90,8 @@ public class TrickLogManager {
 	 * @param message
 	 * @param parameters
 	 */
-	public static boolean Persist(String code, String message, String author, LogAction action, List<String> parameters) {
-		return LogMe(new TrickLog(code, message, author, action, parameters));
+	public static boolean persist(String code, String message, String author, LogAction action, List<String> parameters) {
+		return logMe(new TrickLog(code, message, author, action, parameters));
 	}
 
 	/**
@@ -100,19 +99,8 @@ public class TrickLogManager {
 	 * @param message
 	 * @param parameters
 	 */
-	public static boolean Persist(String code, String message, String author, LogAction action, String... parameters) {
-		return LogMe(new TrickLog(code, message, author, action, parameters));
-
-	}
-
-	/**
-	 * @param level
-	 * @param code
-	 * @param message
-	 * @param parameters
-	 */
-	public static boolean Persist(LogLevel level, String code, String message, String author, LogAction action, String... parameters) {
-		return LogMe(new TrickLog(level, code, message, author, action, parameters));
+	public static boolean persist(String code, String message, String author, LogAction action, String... parameters) {
+		return logMe(new TrickLog(code, message, author, action, parameters));
 	}
 
 	/**
@@ -121,8 +109,18 @@ public class TrickLogManager {
 	 * @param message
 	 * @param parameters
 	 */
-	public static boolean Persist(LogLevel level, String code, String message, String author, LogAction action, List<String> parameters) {
-		return LogMe(new TrickLog(level, code, message, author, action, parameters));
+	public static boolean persist(LogLevel level, String code, String message, String author, LogAction action, String... parameters) {
+		return logMe(new TrickLog(level, code, message, author, action, parameters));
+	}
+
+	/**
+	 * @param level
+	 * @param code
+	 * @param message
+	 * @param parameters
+	 */
+	public static boolean persist(LogLevel level, String code, String message, String author, LogAction action, List<String> parameters) {
+		return logMe(new TrickLog(level, code, message, author, action, parameters));
 	}
 
 	/**
@@ -131,9 +129,8 @@ public class TrickLogManager {
 	 * @param message
 	 * @param parameters
 	 */
-	public static boolean Persist(LogType type, String code, String message, String author, LogAction action, List<String> parameters) {
-		return LogMe(new TrickLog(type, code, message, author, action, parameters));
-
+	public static boolean persist(LogType type, String code, String message, String author, LogAction action, List<String> parameters) {
+		return logMe(new TrickLog(type, code, message, author, action, parameters));
 	}
 
 	/**
@@ -142,8 +139,8 @@ public class TrickLogManager {
 	 * @param message
 	 * @param parameters
 	 */
-	public static boolean Persist(LogType type, String code, String message, String author, LogAction action, String... parameters) {
-		return LogMe(new TrickLog(type, code, message, author, action, parameters));
+	public static boolean persist(LogType type, String code, String message, String author, LogAction action, String... parameters) {
+		return logMe(new TrickLog(type, code, message, author, action, parameters));
 	}
 
 	/**
@@ -153,8 +150,8 @@ public class TrickLogManager {
 	 * @param message
 	 * @param parameters
 	 */
-	public static boolean Persist(LogLevel level, LogType type, String code, String message, String author, LogAction action, List<String> parameters) {
-		return LogMe(new TrickLog(level, type, code, message, author, action, parameters));
+	public static boolean persist(LogLevel level, LogType type, String code, String message, String author, LogAction action, List<String> parameters) {
+		return logMe(new TrickLog(level, type, code, message, author, action, parameters));
 	}
 
 	/**
@@ -164,12 +161,12 @@ public class TrickLogManager {
 	 * @param message
 	 * @param parameters
 	 */
-	public static boolean Persist(LogLevel level, LogType type, String code, String message, String author, LogAction action, String... parameters) {
-		return LogMe(new TrickLog(level, type, code, message, author, action, parameters));
+	public static boolean persist(LogLevel level, LogType type, String code, String message, String author, LogAction action, String... parameters) {
+		return logMe(new TrickLog(level, type, code, message, author, action, parameters));
 	}
 
 	@Scheduled(initialDelay = 5000, fixedDelay = 5000)
-	public void Persist() {
+	public void persist() {
 		if (trickLogs.isEmpty())
 			return;
 		synchronized (trickLogs) {
@@ -197,20 +194,20 @@ public class TrickLogManager {
 
 	}
 
-	public static boolean Persist(Exception e) {
+	public static boolean persist(Exception e) {
 		ByteArrayOutputStream outStream = null;
 		PrintStream printStream = null;
 		try {
 			if (e == null)
 				return false;
-			if (e instanceof TrickException)
-				return Persist((TrickException) e);
+			if (e instanceof TrickException e1)
+				return persist(e1);
 			printStream = new PrintStream(outStream = new ByteArrayOutputStream());
 			if (e.getCause() != null)
 				e.getCause().printStackTrace(printStream);
 			e.printStackTrace(printStream);
 			String stackTrace = outStream.toString();
-			return Persist(LogLevel.ERROR, LogType.SYSTEM, "error.system.exception", String.format("Stack trace: %s", stackTrace), "TS logger", LogAction.RISE_EXCEPTION,
+			return persist(LogLevel.ERROR, LogType.SYSTEM, "error.system.exception", String.format("Stack trace: %s", stackTrace), "TS logger", LogAction.RISE_EXCEPTION,
 					stackTrace);
 		} finally {
 			try {
@@ -229,7 +226,7 @@ public class TrickLogManager {
 		}
 	}
 
-	protected static boolean Persist(TrickException e) {
-		return Persist(LogLevel.ERROR, LogType.SYSTEM, e.getCode(), e.getMessage(), "TS logger", LogAction.RISE_EXCEPTION, e.getStringParameters());
+	protected static boolean persist(TrickException e) {
+		return persist(LogLevel.ERROR, LogType.SYSTEM, e.getCode(), e.getMessage(), "TS logger", LogAction.RISE_EXCEPTION, e.getStringParameters());
 	}
 }

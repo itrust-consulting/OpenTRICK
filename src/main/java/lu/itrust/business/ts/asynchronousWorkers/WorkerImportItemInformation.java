@@ -103,7 +103,7 @@ public class WorkerImportItemInformation extends WorkerImpl {
 			}
 		} catch (Exception e) {
 			setError(e);
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 		} finally {
 			if (isWorking()) {
 				synchronized (this) {
@@ -165,7 +165,7 @@ public class WorkerImportItemInformation extends WorkerImpl {
 			/**
 			 * Log
 			 */
-			TrickLogManager.Persist(LogType.ANALYSIS, "log.import.item.information",
+			TrickLogManager.persist(LogType.ANALYSIS, "log.import.item.information",
 					String.format("Scope data has been overwritten, Analysis: %s, version: %s",
 							analysis.getIdentifier(), analysis.getVersion()),
 					username,
@@ -174,14 +174,14 @@ public class WorkerImportItemInformation extends WorkerImpl {
 			setError(e);
 			getServiceTaskFeedback().send(getId(),
 					new MessageHandler(e.getCode(), e.getParameters(), e.getMessage(), e));
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			if (!(session == null || transaction == null) && transaction.getStatus().canRollback())
 				session.getTransaction().rollback();
 		} catch (Exception e) {
 			setError(e);
 			getServiceTaskFeedback().send(getId(),
 					new MessageHandler("error.import.item.information", "Import of scope failed!", e));
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			if (transaction != null && transaction.getStatus().canRollback())
 				transaction.rollback();
 		} finally {
@@ -189,7 +189,7 @@ public class WorkerImportItemInformation extends WorkerImpl {
 				if (session != null && !session.isOpen())
 					session.close();
 			} catch (HibernateException e) {
-				TrickLogManager.Persist(e);
+				TrickLogManager.persist(e);
 			}
 			if (isWorking()) {
 				synchronized (this) {

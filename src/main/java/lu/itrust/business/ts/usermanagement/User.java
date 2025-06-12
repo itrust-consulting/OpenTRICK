@@ -8,6 +8,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
+
 import jakarta.persistence.Cacheable;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
@@ -24,12 +29,6 @@ import jakarta.persistence.MapKeyColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Transient;
 import jakarta.persistence.UniqueConstraint;
-
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
-
 import lu.itrust.business.ts.model.general.Customer;
 import lu.itrust.business.ts.model.general.TicketingSystem;
 
@@ -88,8 +87,8 @@ public class User implements Serializable, IUser {
 	@ManyToMany
 	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@JoinTable(name = "UserCustomer", joinColumns = {
-			@JoinColumn(name = "fiUser", nullable = false,insertable = false, updatable = false) }, inverseJoinColumns = {
-					@JoinColumn(name = "fiCustomer", nullable = false,insertable = false, updatable = false) }, uniqueConstraints = @UniqueConstraint(columnNames = {
+			@JoinColumn(name = "fiUser") }, inverseJoinColumns = {
+					@JoinColumn(name = "fiCustomer") }, uniqueConstraints = @UniqueConstraint(columnNames = {
 							"fiUser", "fiCustomer" }))
 	@Cascade(CascadeType.ALL)
 	private List<Customer> customers = new ArrayList<>();
@@ -122,10 +121,11 @@ public class User implements Serializable, IUser {
 	private String repeatPassword = null;
 
 	@ManyToMany
+	@Cascade({ CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH })
 	@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 	@JoinTable(name = "UserRole", joinColumns = {
-			@JoinColumn(name = "fiUser", nullable = false, insertable = false, updatable = false) }, inverseJoinColumns = {
-					@JoinColumn(name = "fiRole", nullable = false,insertable = false, updatable = false) })
+			@JoinColumn(name = "fiUser") }, inverseJoinColumns = {
+					@JoinColumn(name = "fiRole") })
 	private List<Role> roles = new ArrayList<>();
 
 	@ElementCollection
@@ -682,59 +682,61 @@ public class User implements Serializable, IUser {
 	/**
 	 * Sets the value indicating whether the user is using 2-factor authentication.
 	 *
-	 * @param using2FA true if the user is using 2-factor authentication, false otherwise
+	 * @param using2FA true if the user is using 2-factor authentication, false
+	 *                 otherwise
 	 */
 	public void setUsing2FA(boolean using2FA) {
 		setSetting(USER_USING_2_FACTOR_AUTHENTICATION, using2FA);
 	}
 
-    /**
-     * Clears the roles associated with this object.
-     *
-     * @return true if the roles were successfully cleared, false otherwise.
-     */
-    private boolean clearRole() {
-        if (roles == null)
-            return true;
-        else
-            roles.clear();
-        return roles.isEmpty();
-    }
+	/**
+	 * Clears the roles associated with this object.
+	 *
+	 * @return true if the roles were successfully cleared, false otherwise.
+	 */
+	private boolean clearRole() {
+		if (roles == null)
+			return true;
+		else
+			roles.clear();
+		return roles.isEmpty();
+	}
 
-    /**
-     * Checks if the email is validated.
-     *
-     * @return true if the email is validated, false otherwise.
-     */
-    public boolean isEmailValidated() {
-        return emailValidated;
-    }
+	/**
+	 * Checks if the email is validated.
+	 *
+	 * @return true if the email is validated, false otherwise.
+	 */
+	public boolean isEmailValidated() {
+		return emailValidated;
+	}
 
-    /**
-     * Sets the email validation status.
-     *
-     * @param emailValidated the email validation status to set.
-     */
-    public void setEmailValidated(boolean emailValidated) {
-        this.emailValidated = emailValidated;
-    }
+	/**
+	 * Sets the email validation status.
+	 *
+	 * @param emailValidated the email validation status to set.
+	 */
+	public void setEmailValidated(boolean emailValidated) {
+		this.emailValidated = emailValidated;
+	}
 
-    /**
-     * Gets the credentials associated with this object.
-     *
-     * @return the credentials as a map of TicketingSystem and UserCredential.
-     */
-    public Map<TicketingSystem, UserCredential> getCredentials() {
-        return credentials;
-    }
+	/**
+	 * Gets the credentials associated with this object.
+	 *
+	 * @return the credentials as a map of TicketingSystem and UserCredential.
+	 */
+	public Map<TicketingSystem, UserCredential> getCredentials() {
+		return credentials;
+	}
 
-    /**
-     * Sets the credentials for this object.
-     *
-     * @param credentials the credentials to set as a map of TicketingSystem and UserCredential.
-     */
-    public void setCredentials(Map<TicketingSystem, UserCredential> credentials) {
-        this.credentials = credentials;
-    }
+	/**
+	 * Sets the credentials for this object.
+	 *
+	 * @param credentials the credentials to set as a map of TicketingSystem and
+	 *                    UserCredential.
+	 */
+	public void setCredentials(Map<TicketingSystem, UserCredential> credentials) {
+		this.credentials = credentials;
+	}
 
 }

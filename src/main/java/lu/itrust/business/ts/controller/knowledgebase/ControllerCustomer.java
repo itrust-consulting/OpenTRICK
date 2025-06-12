@@ -166,13 +166,13 @@ public class ControllerCustomer {
 			 * Log
 			 */
 			if (errors.isEmpty())
-				TrickLogManager.Persist(LogType.ANALYSIS, "log.add_or_update.customer",
+				TrickLogManager.persist(LogType.ANALYSIS, "log.add_or_update.customer",
 						String.format("Customer: %s", customer.getOrganisation()), principal.getName(),
 						LogAction.CREATE_OR_UPDATE, customer.getOrganisation());
 		} catch (Exception e) {
 			errors.put("customer",
 					messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 		}
 		return errors;
 	}
@@ -419,7 +419,7 @@ public class ControllerCustomer {
 
 		var language = template.getLanguage().getAlpha3() == null ? "ALL" : template.getLanguage().getAlpha3();
 		if (template.getType() == TrickTemplateType.REPORT) {
-			TrickLogManager.Persist(LogType.ANALYSIS, "log.customer.report.template.download",
+			TrickLogManager.persist(LogType.ANALYSIS, "log.customer.report.template.download",
 					String.format("Customer: %s, Template: %s, version: %s, created at: %s, type: %s, Language: %s",
 							customer.getContactPerson(), template.getLabel(),
 							template.getVersion(), template.getCreated(), template.getAnalysisType(),
@@ -429,7 +429,7 @@ public class ControllerCustomer {
 					String.valueOf(template.getCreated()), String.valueOf(template.getAnalysisType()),
 					language);
 		} else {
-			TrickLogManager.Persist(LogType.ANALYSIS, "log.customer.template.download",
+			TrickLogManager.persist(LogType.ANALYSIS, "log.customer.template.download",
 					String.format("Customer: %s, Template: %s, version: %s, created at: %s, type: %s, Language: %s",
 							customer.getContactPerson(), template.getLabel(),
 							template.getVersion(), template.getCreated(), template.getType(), language),

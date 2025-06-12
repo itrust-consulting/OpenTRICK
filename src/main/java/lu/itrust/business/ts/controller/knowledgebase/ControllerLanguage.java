@@ -123,12 +123,12 @@ public class ControllerLanguage {
 			/**
 			 * Log
 			 */
-			TrickLogManager.Persist(LogType.ANALYSIS, "log.language.add_or_update", String.format("Language: %s", language.getAlpha3()), principal.getName(),
+			TrickLogManager.persist(LogType.ANALYSIS, "log.language.add_or_update", String.format("Language: %s", language.getAlpha3()), principal.getName(),
 					LogAction.CREATE_OR_UPDATE, language.getAlpha3());
 
 		} catch (Exception e) {
 			errors.put("language",  messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 		}
 		return errors;
 	}
@@ -150,11 +150,11 @@ public class ControllerLanguage {
 			/**
 			 * Log
 			 */
-			TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.language.delete", String.format("Language: %s", language.getAlpha3()), principal.getName(),
+			TrickLogManager.persist(LogLevel.WARNING, LogType.ANALYSIS, "log.language.delete", String.format("Language: %s", language.getAlpha3()), principal.getName(),
 					LogAction.DELETE, language.getAlpha3());
 			return JsonMessage.Success(messageSource.getMessage("success.language.delete.successfully", null, "Language was deleted successfully", locale));
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage.Error(messageSource.getMessage("error.language.in_use", null, "Language is still used.", locale));
 		}
 	}
@@ -221,7 +221,7 @@ public class ControllerLanguage {
 
 		} catch (Exception e) {
 			errors.put("language",  messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return false;
 		}
 

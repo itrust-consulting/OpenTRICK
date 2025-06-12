@@ -212,7 +212,7 @@ public class CustomDelete {
 						/**
 						 * Log
 						 */
-						TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.delete.measure",
+						TrickLogManager.persist(LogLevel.WARNING, LogType.ANALYSIS, "log.delete.measure",
 								String.format("Analysis: %s, version: %s, target: Measure (%s) from: %s",
 										analysis.getIdentifier(), analysis.getVersion(),
 										measureDescription.getReference(), measureDescription.getStandard().getName()),
@@ -284,7 +284,7 @@ public class CustomDelete {
 				deleteAnalysis(analysis, username);
 			return true;
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return false;
 		}
 	}
@@ -344,7 +344,7 @@ public class CustomDelete {
 		/**
 		 * Log
 		 */
-		TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.delete.analysis",
+		TrickLogManager.persist(LogLevel.WARNING, LogType.ANALYSIS, "log.delete.analysis",
 				String.format("Analysis: %s, version: %s", analysis.getIdentifier(), analysis.getVersion()), username,
 				LogAction.DELETE, analysis.getIdentifier(),
 				analysis.getVersion());
@@ -427,7 +427,7 @@ public class CustomDelete {
 		}
 
 		daoCustomer.delete(customer);
-		TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.delete.customer",
+		TrickLogManager.persist(LogLevel.WARNING, LogType.ANALYSIS, "log.delete.customer",
 				String.format("Customer: %s", customer.getOrganisation()), username, LogAction.DELETE,
 				customer.getOrganisation());
 	}
@@ -497,7 +497,7 @@ public class CustomDelete {
 		daoEmailValidatingRequest.deleteByUser(user);
 		daoUser.delete(user);
 
-		TrickLogManager.Persist(LogLevel.WARNING, LogType.ADMINISTRATION, "log.user.delete",
+		TrickLogManager.persist(LogLevel.WARNING, LogType.ADMINISTRATION, "log.user.delete",
 				String.format("User: %s %s, username: %s, email: %s", user.getFirstName(), user.getLastName(),
 						user.getLogin(), user.getEmail()),
 				username, LogAction.DELETE,
@@ -538,12 +538,12 @@ public class CustomDelete {
 							daoUserAnalysisRight.delete(userAnalysisRight);
 
 					} catch (TrickException e) {
-						TrickLogManager.Persist(e);
+						TrickLogManager.persist(e);
 						errors.put(entry.getKey(),
 								messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 						throw new DataIntegrityViolationException(e.getMessage(), e);
 					} catch (Exception e) {
-						TrickLogManager.Persist(e);
+						TrickLogManager.persist(e);
 						errors.put(entry.getKey(), messageSource.getMessage("error.unknown.occurred", null,
 								"An unknown error occurred", locale));
 						throw e;
@@ -632,7 +632,7 @@ public class CustomDelete {
 		/**
 		 * Log
 		 */
-		TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.remove.access.to.customer",
+		TrickLogManager.persist(LogLevel.WARNING, LogType.ANALYSIS, "log.remove.access.to.customer",
 				String.format("Customer: %s, target: %s", customer.getOrganisation(), user.getLogin()), adminUsername,
 				LogAction.REMOVE_ACCESS, customer.getOrganisation(),
 				user.getLogin());

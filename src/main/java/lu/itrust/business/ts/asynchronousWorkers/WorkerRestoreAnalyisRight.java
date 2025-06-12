@@ -116,7 +116,7 @@ public class WorkerRestoreAnalyisRight extends WorkerImpl {
 				if (session != null)
 					session.close();
 			} catch (HibernateException e) {
-				TrickLogManager.Persist(e);
+				TrickLogManager.persist(e);
 			}
 			if (isWorking()) {
 				synchronized (this) {
@@ -185,7 +185,7 @@ public class WorkerRestoreAnalyisRight extends WorkerImpl {
 						/**
 						 * Log
 						 */
-						TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.restore.analysis.right",
+						TrickLogManager.persist(LogLevel.WARNING, LogType.ANALYSIS, "log.restore.analysis.right",
 								String.format("Analysis: %s, version: %s, old: %s, new: %s, target: %s", analysis.getIdentifier(), analysis.getVersion(), old.toLower(),
 										userAnalysisRight.rightToLower(), analysisRight.getUser().getLogin()),
 								username, LogAction.RESTORE_ACCESS_RIGHT, analysis.getIdentifier(), analysis.getVersion(), old.name(), userAnalysisRight.getRight().name(),

@@ -251,7 +251,7 @@ public class ControllerStandard extends AbstractController {
 			return JsonMessage
 					.Success(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage.Error(messageSource.getMessage("error.analysis.add.standard", null,
 					"An unknown error occurred during analysis saving", locale));
 		}
@@ -362,10 +362,10 @@ public class ControllerStandard extends AbstractController {
 			}
 		} catch (TrickException e) {
 			errors.put("standard", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return errors;
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			errors.put("standard", messageSource.getMessage(e.getMessage(), null, locale));
 			return errors;
 		}
@@ -393,7 +393,7 @@ public class ControllerStandard extends AbstractController {
 			return JsonMessage.Success(messageSource.getMessage("success.measure.delete.successfully", null,
 					"Measure was deleted successfully", locale));
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			if (e instanceof TrickException)
 				return JsonMessage.Error(messageSource.getMessage(((TrickException) e).getCode(),
 						((TrickException) e).getParameters(), e.getMessage(), locale));
@@ -468,11 +468,11 @@ public class ControllerStandard extends AbstractController {
 			// return success message
 			return "jsp/analyses/single/components/standards/measure/form";
 		} catch (TrickException e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			attributes.addFlashAttribute("error",
 					messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			attributes.addFlashAttribute("error",
 					messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
 		}
@@ -752,7 +752,7 @@ public class ControllerStandard extends AbstractController {
 			model.addAttribute("selectedMeasure", measure);
 			model.addAttribute("phases", phases);
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 		}
 		return "jsp/analyses/single/components/standards/edition/measure";
 
@@ -861,10 +861,10 @@ public class ControllerStandard extends AbstractController {
 			result.put("id", measure.getId());
 
 		} catch (TrickException e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			errors.put("error", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			errors.put("error",
 					messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
 		}
@@ -942,11 +942,11 @@ public class ControllerStandard extends AbstractController {
 			// return success message
 			return "jsp/analyses/single/components/standards/measure/form";
 		} catch (TrickException e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			attributes.addFlashAttribute("error",
 					messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			attributes.addFlashAttribute("error",
 					messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
 		}
@@ -974,7 +974,7 @@ public class ControllerStandard extends AbstractController {
 			return JsonMessage.Success(messageSource.getMessage("success.analysis.norm.delete", null,
 					"Standard was successfully removed from your analysis", locale));
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			return JsonMessage.Error(messageSource.getMessage("error.analysis.norm.delete", null,
 					"Standard could not be deleted!", locale));
 		}
@@ -1258,12 +1258,12 @@ public class ControllerStandard extends AbstractController {
 
 		} catch (TrickException e) {
 			errors.put("standard", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 		} catch (Exception e) {
 			// return error
 			errors.put("standard",
 					messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 		}
 		return null;
 	}
@@ -1311,7 +1311,7 @@ public class ControllerStandard extends AbstractController {
 				model.addAttribute("hasMaturity",
 						serviceAnalysisStandard.hasStandard(idAnalysis, Constant.STANDARD_MATURITY));
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 		}
 
 	}

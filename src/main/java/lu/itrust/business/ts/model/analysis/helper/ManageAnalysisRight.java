@@ -96,7 +96,7 @@ public class ManageAnalysisRight {
 					/**
 					 * Log
 					 */
-					TrickLogManager.Persist(LogType.ANALYSIS, "log.remove.analysis.access.right",
+					TrickLogManager.persist(LogType.ANALYSIS, "log.remove.analysis.access.right",
 							String.format("Analysis: %s, version: %s, access: %s, target: %s", analysis.getIdentifier(), analysis.getVersion(), uar.getRight().toLower(),
 									user.getLogin()),
 							principal.getName(), LogAction.REMOVE_ACCESS, analysis.getIdentifier(), analysis.getVersion(), uar.getRight().toLower(), user.getLogin());
@@ -109,11 +109,11 @@ public class ManageAnalysisRight {
 						 * Log
 						 */
 						if (uar.getUser().getLogin().equals(principal.getName()))
-							TrickLogManager.Persist(LogType.ANALYSIS, "log.auto.grant.analysis.access.right",
+							TrickLogManager.persist(LogType.ANALYSIS, "log.auto.grant.analysis.access.right",
 									String.format("Analysis: %s, version: %s, access: %s", analysis.getIdentifier(), analysis.getVersion(), uar.getRight().toLower()),
 									principal.getName(), LogAction.AUTO_GRANT, analysis.getIdentifier(), analysis.getVersion(), uar.getRight().toLower());
 						else
-							TrickLogManager.Persist(LogType.ANALYSIS, "log.grant.analysis.access.right",
+							TrickLogManager.persist(LogType.ANALYSIS, "log.grant.analysis.access.right",
 									String.format("Analysis: %s, version: %s, access: %s, target: %s", analysis.getIdentifier(), analysis.getVersion(), uar.getRight().toLower(),
 											user.getLogin()),
 									principal.getName(), LogAction.GRANT_ACCESS, analysis.getIdentifier(), analysis.getVersion(), uar.getRight().toLower(), user.getLogin());
@@ -196,7 +196,7 @@ public class ManageAnalysisRight {
 		invitation.setRight(right);
 		daoAnalysisShareInviatation.saveOrUpdate(invitation);
 
-		TrickLogManager.Persist(LogType.ANALYSIS, "log.grant.analysis.access.right",
+		TrickLogManager.persist(LogType.ANALYSIS, "log.grant.analysis.access.right",
 				String.format("Analysis: %s, version: %s, access: %s, target: %s", analysis.getIdentifier(), analysis.getVersion(), right.toLower(), invitation.getEmail()),
 				principal.getName(), LogAction.GRANT_ACCESS, analysis.getIdentifier(), analysis.getVersion(), right.toLower(), invitation.getEmail());
 	}
@@ -216,7 +216,7 @@ public class ManageAnalysisRight {
 		final AnalysisShareInvitation invitation = new AnalysisShareInvitation(token, analysis, host, email, right);
 		daoAnalysisShareInviatation.saveOrUpdate(invitation);
 		serviceEmailSender.send(invitation);
-		TrickLogManager.Persist(LogType.ANALYSIS, "log.send.share.analysis.access",
+		TrickLogManager.persist(LogType.ANALYSIS, "log.send.share.analysis.access",
 				String.format("Analysis: %s, version: %s, access: %s, target: %s", analysis.getIdentifier(), analysis.getVersion(), right.toLower(), email), host.getLogin(),
 				LogAction.ACCESS_REQUEST, analysis.getIdentifier(), analysis.getVersion(), right.toLower(), email);
 	}
@@ -245,11 +245,11 @@ public class ManageAnalysisRight {
 		daoAnalysisShareInviatation.delete(invitation);
 
 		if (principal == null)
-			TrickLogManager.Persist(LogType.ANALYSIS, "log.reject.share.analysis.access",
+			TrickLogManager.persist(LogType.ANALYSIS, "log.reject.share.analysis.access",
 					String.format("Analysis: %s, version: %s, Guest: %s, Host: %s", identifier, version, invitation.getEmail(), host), ANONYMOUS, LogAction.REJECT_ACCESS_REQUEST,
 					identifier, version, invitation.getEmail(), host);
 		else
-			TrickLogManager.Persist(LogType.ANALYSIS, "log.cancel.share.analysis.access",
+			TrickLogManager.persist(LogType.ANALYSIS, "log.cancel.share.analysis.access",
 					String.format("Analysis: %s, version: %s, Guest: %s, Host: %s", identifier, version, invitation.getEmail(), host), principal.getName(),
 					LogAction.CANCEL_ACCESS_REQUEST, identifier, version, invitation.getEmail(), host);
 	}
@@ -266,11 +266,11 @@ public class ManageAnalysisRight {
 	private void grantAccess(Principal principal, Analysis analysis, RightForm rightForm, User user, UserAnalysisRight userRight) {
 		userRight.setRight(rightForm.getNewRight());
 		if (user.getLogin().equals(principal.getName()))
-			TrickLogManager.Persist(LogType.ANALYSIS, "log.auto.grant.analysis.access.right",
+			TrickLogManager.persist(LogType.ANALYSIS, "log.auto.grant.analysis.access.right",
 					String.format("Analysis: %s, version: %s, access: %s", analysis.getIdentifier(), analysis.getVersion(), userRight.getRight().toLower()), principal.getName(),
 					LogAction.AUTO_GRANT, analysis.getIdentifier(), analysis.getVersion(), userRight.getRight().toLower());
 		else
-			TrickLogManager.Persist(LogType.ANALYSIS, "log.grant.analysis.access.right",
+			TrickLogManager.persist(LogType.ANALYSIS, "log.grant.analysis.access.right",
 					String.format("Analysis: %s, version: %s, access: %s, target: %s", analysis.getIdentifier(), analysis.getVersion(), userRight.getRight().toLower(),
 							user.getLogin()),
 					principal.getName(), LogAction.GRANT_ACCESS, analysis.getIdentifier(), analysis.getVersion(), userRight.getRight().toLower(), user.getLogin());
@@ -291,7 +291,7 @@ public class ManageAnalysisRight {
 		final Analysis analysis = invitation.getAnalysis();
 		if (!user.isEmailValidated()) {
 
-			TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.share.analysis.access.not.validated.mail",
+			TrickLogManager.persist(LogLevel.WARNING, LogType.ANALYSIS, "log.share.analysis.access.not.validated.mail",
 					String.format("Cause: Invalidated e-mail, Analysis: %s, version: %s, access: %s, Guest: %s", analysis.getIdentifier(), analysis.getVersion(),
 							invitation.getRight().toLower(), invitation.getEmail()),
 					principal.getName(), LogAction.DENY_ACCESS, analysis.getIdentifier(), analysis.getVersion(), invitation.getRight().toLower(), invitation.getEmail());
@@ -301,7 +301,7 @@ public class ManageAnalysisRight {
 
 		if (!user.getEmail().equalsIgnoreCase(invitation.getEmail())) {
 
-			TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.share.analysis.access.bad.mail",
+			TrickLogManager.persist(LogLevel.WARNING, LogType.ANALYSIS, "log.share.analysis.access.bad.mail",
 					String.format("Cause: Bad e-mail, Analysis: %s, version: %s, access: %s, Guest: %s, Host: %s", analysis.getIdentifier(), analysis.getVersion(),
 							invitation.getRight().toLower(), invitation.getEmail(), user.getEmail()),
 					principal.getName(), LogAction.DENY_ACCESS, analysis.getIdentifier(), analysis.getVersion(), invitation.getRight().toLower(), invitation.getEmail(),
@@ -313,7 +313,7 @@ public class ManageAnalysisRight {
 
 		daoAnalysisShareInviatation.delete(invitation);
 
-		TrickLogManager.Persist(LogType.ANALYSIS, "log.accept.share.analysis.access",
+		TrickLogManager.persist(LogType.ANALYSIS, "log.accept.share.analysis.access",
 				String.format("Analysis: %s, version: %s, access: %s, Guest: %s, Host: %s", analysis.getIdentifier(), analysis.getVersion(), invitation.getRight().toLower(),
 						invitation.getEmail(), invitation.getHost().getLogin()),
 				principal.getName(), LogAction.ACCEPT_ACCESS_REQUEST, analysis.getIdentifier(), analysis.getVersion(), invitation.getRight().toLower(), invitation.getEmail(),
@@ -333,14 +333,14 @@ public class ManageAnalysisRight {
 		if (!user.containsCustomer(analysis.getCustomer())) {
 			user.addCustomer(analysis.getCustomer());
 			if (username != null) {
-				TrickLogManager.Persist(LogLevel.WARNING, LogType.ANALYSIS, "log.give.access.to.customer",
+				TrickLogManager.persist(LogLevel.WARNING, LogType.ANALYSIS, "log.give.access.to.customer",
 						String.format("Customer: %s, target: %s", analysis.getCustomer().getOrganisation(), user.getLogin()), username, LogAction.GIVE_ACCESS,
 						analysis.getCustomer().getOrganisation(), user.getLogin());
 			}
 		}
 
 		if (username != null) {
-			TrickLogManager.Persist(LogType.ANALYSIS, "log.give.analysis.access.right",
+			TrickLogManager.persist(LogType.ANALYSIS, "log.give.analysis.access.right",
 					String.format("Analysis: %s, version: %s, access: %s, target: %s", analysis.getIdentifier(), analysis.getVersion(),
 							rightForm.getNewRight().name().toLowerCase(), user.getLogin()),
 					username, LogAction.GIVE_ACCESS, analysis.getIdentifier(), analysis.getVersion(), rightForm.getNewRight().name().toLowerCase(), user.getLogin());
@@ -361,7 +361,7 @@ public class ManageAnalysisRight {
 		if (userRight == null)
 			return;
 		daoUserAnalysisRight.delete(userRight);
-		TrickLogManager.Persist(LogType.ANALYSIS, "log.remove.analysis.access.right",
+		TrickLogManager.persist(LogType.ANALYSIS, "log.remove.analysis.access.right",
 				String.format("Analysis: %s, version: %s, access: %s, target: %s", analysis.getIdentifier(), analysis.getVersion(), userRight.getRight().toLower(),
 						user.getLogin()),
 				principal.getName(), LogAction.REMOVE_ACCESS, analysis.getIdentifier(), analysis.getVersion(), userRight.getRight().toLower(), user.getLogin());

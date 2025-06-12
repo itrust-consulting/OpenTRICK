@@ -55,7 +55,7 @@ public class CredentialEncryptListner implements PostLoadEventListener, PreUpdat
 			credential.setValue(encryptedPassword.toMerge());
 	
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 		}
 	}
 
@@ -73,7 +73,7 @@ public class CredentialEncryptListner implements PostLoadEventListener, PreUpdat
 			credential.setValue(
 					PasswordEncryptionHelper.decrypt(source.getEncryption(), credential.getName(), source.getIv()));
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 		}
 	}
 

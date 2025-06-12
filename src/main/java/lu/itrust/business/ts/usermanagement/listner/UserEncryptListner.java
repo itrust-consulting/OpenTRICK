@@ -65,7 +65,7 @@ public class UserEncryptListner implements PostLoadEventListener, PreUpdateEvent
 				return;
 			user.setSecret(PasswordEncryptionHelper.encrypt(password, user.getLogin()).toMerge());
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 		}
 	}
 
@@ -91,7 +91,7 @@ public class UserEncryptListner implements PostLoadEventListener, PreUpdateEvent
 				user.setSecret(
 						PasswordEncryptionHelper.decrypt(source.getEncryption(), user.getLogin(), source.getIv()));
 		} catch (Exception e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 		}
 	}
 

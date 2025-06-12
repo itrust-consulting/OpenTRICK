@@ -248,7 +248,7 @@ public class ActionPlanComputation {
 
 			return null;
 		} catch (TrickException e) {
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			MessageHandler messageHandler = new MessageHandler(e);
 			serviceTaskFeedback.send(idTask, messageHandler);
 			return messageHandler;
@@ -256,7 +256,7 @@ public class ActionPlanComputation {
 			System.out.println("Action Plan saving failed! ");
 			MessageHandler messageHandler = new MessageHandler(e.getMessage(), "Action Plan saving failed", e);
 			serviceTaskFeedback.send(idTask, messageHandler);
-			TrickLogManager.Persist(e);
+			TrickLogManager.persist(e);
 			// return messagehandler with errors
 			return messageHandler;
 		}

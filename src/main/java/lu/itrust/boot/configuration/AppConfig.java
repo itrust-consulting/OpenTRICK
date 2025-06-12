@@ -251,7 +251,7 @@ public class AppConfig {
 				} else
 					throw new TrickException("error.web.xml.parse", "Error parsing Web XML");
 			} catch (Exception e) {
-				TrickLogManager.Persist(e);
+				TrickLogManager.persist(e);
 			}
 		};
 	}
