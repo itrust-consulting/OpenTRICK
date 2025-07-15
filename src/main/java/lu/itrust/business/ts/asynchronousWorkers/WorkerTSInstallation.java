@@ -14,8 +14,8 @@ import lu.itrust.business.ts.asynchronousWorkers.helper.AsyncCallback;
 import lu.itrust.business.ts.component.TrickLogManager;
 import lu.itrust.business.ts.database.dao.DAOAnalysis;
 import lu.itrust.business.ts.database.dao.DAOTrickService;
-import lu.itrust.business.ts.database.dao.hbm.DAOAnalysisHBM;
-import lu.itrust.business.ts.database.dao.hbm.DAOTrickServiceHBM;
+import lu.itrust.business.ts.database.dao.impl.DAOAnalysisImpl;
+import lu.itrust.business.ts.database.dao.impl.DAOTrickServiceImpl;
 import lu.itrust.business.ts.database.service.ServiceStorage;
 import lu.itrust.business.ts.database.service.ServiceTaskFeedback;
 import lu.itrust.business.ts.database.service.WorkersPoolManager;
@@ -68,7 +68,7 @@ public class WorkerTSInstallation extends WorkerAnalysisImport {
 			setName(TaskName.INSTALL_APPLICATION);
 			getServiceTaskFeedback().send(getId(), new MessageHandler("info.delete.default.profile", "Removing the default profiles", 1));
 			session = getSessionFactory().openSession();
-			final DAOAnalysis daoAnalysis = new DAOAnalysisHBM(session);
+			final DAOAnalysis daoAnalysis = new DAOAnalysisImpl(session);
 			final List<Analysis> analyses = daoAnalysis.getDefaultProfiles();
 			if (!analyses.isEmpty()) {
 				session.beginTransaction();
@@ -145,7 +145,7 @@ public class WorkerTSInstallation extends WorkerAnalysisImport {
 		try {
 			session = getSessionFactory().openSession();
 			session.beginTransaction();
-			final DAOTrickService daoTrickService = new DAOTrickServiceHBM(session);
+			final DAOTrickService daoTrickService = new DAOTrickServiceImpl(session);
 			TrickService trickService = daoTrickService.getStatus();
 			if (trickService == null)
 				trickService = new TrickService(currentVersion, true);

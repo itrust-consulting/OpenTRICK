@@ -181,12 +181,12 @@ public class ControllerStandard extends AbstractController {
 	 * @param principal
 	 * @param locale
 	 * @return
-	 * @throws Exception
+	 * @
 	 */
 	@RequestMapping(value = "/Add/{idStandard}", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String addStandard(@PathVariable int idStandard, HttpSession session, Principal principal,
-			Locale locale) throws Exception {
+			Locale locale) {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		try {
 			final Standard standard = serviceStandard.get(idStandard);
@@ -300,7 +300,7 @@ public class ControllerStandard extends AbstractController {
 	@RequestMapping(value = "/Compute-efficiency", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).READ)")
 	public @ResponseBody Object computeEfficience(@RequestBody List<String> chapters, HttpSession session,
-			Principal principal) throws Exception {
+			Principal principal) {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		List<Measure> measures = serviceMeasure.getByAnalysisIdStandardAndChapters(idAnalysis, Constant.STANDARD_27002,
 				chapters);
@@ -323,13 +323,12 @@ public class ControllerStandard extends AbstractController {
 	 * @param attributes
 	 * @param locale
 	 * @return
-	 * @throws Exception
+	 * @
 	 */
 	@RequestMapping(value = "/Save", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody Object createStandardForm(@RequestBody String value, HttpSession session, Principal principal,
-			Model model, RedirectAttributes attributes, Locale locale)
-			throws Exception {
+			Model model, RedirectAttributes attributes, Locale locale) {
 		Map<String, String> errors = new LinkedHashMap<>();
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		try {
@@ -379,7 +378,7 @@ public class ControllerStandard extends AbstractController {
 	 * @param measureid
 	 * @param locale
 	 * @return
-	 * @throws Exception
+	 * @
 	 */
 	@RequestMapping(value = "/{idStandard}/Measure/Delete/{idMeasure}", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #idMeasure, 'Measure', #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).MODIFY)")
@@ -488,7 +487,7 @@ public class ControllerStandard extends AbstractController {
 	 * @param principal
 	 * @param locale
 	 * @return
-	 * @throws Exception
+	 * @
 	 */
 	@RequestMapping(value = "/Available", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).MODIFY)")
@@ -545,12 +544,11 @@ public class ControllerStandard extends AbstractController {
 	 * @param session
 	 * @param principal
 	 * @return
-	 * @throws Exception
+	 * @
 	 */
 	@RequestMapping(value = "/{idStandard}/SingleMeasure/{elementID}", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'Measure', #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).READ)")
-	public String getSingleMeasure(@PathVariable int elementID, Model model, HttpSession session, Principal principal)
-			throws Exception {
+	public String getSingleMeasure(@PathVariable int elementID, Model model, HttpSession session, Principal principal) {
 		final OpenMode mode = (OpenMode) session.getAttribute(Constant.OPEN_MODE);
 		final Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		final Analysis analysis = serviceAnalysis.get(idAnalysis);
@@ -628,11 +626,11 @@ public class ControllerStandard extends AbstractController {
 	 * @param principal
 	 * @param model
 	 * @return
-	 * @throws Exception
+	 * @
 	 */
 	@RequestMapping(value = "/SOA", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).READ)")
-	public String loadSOA(HttpSession session, Principal principal, Model model) throws Exception {
+	public String loadSOA(HttpSession session, Principal principal, Model model) {
 		// retrieve analysis id
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 
@@ -674,12 +672,12 @@ public class ControllerStandard extends AbstractController {
 	 * @param attributes
 	 * @param locale
 	 * @return
-	 * @throws Exception
+	 * @
 	 */
 	@RequestMapping(value = "/Manage", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).MODIFY)")
 	public String manageForm(HttpSession session, Principal principal, Model model, RedirectAttributes attributes,
-			Locale locale) throws Exception {
+			Locale locale) {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		model.addAttribute("currentStandards", serviceStandard.getAllFromAnalysis(idAnalysis));
 		return "jsp/analyses/single/components/standards/standard/form/manage";
@@ -695,12 +693,12 @@ public class ControllerStandard extends AbstractController {
 	 * @param attributes
 	 * @param locale
 	 * @return
-	 * @throws Exception
+	 * @
 	 */
 	@RequestMapping(value = "/SOA/Manage", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).MODIFY)")
 	public String manageSOA(HttpSession session, Principal principal, Model model, RedirectAttributes attributes,
-			Locale locale) throws Exception {
+			Locale locale) {
 		model.addAttribute("analysisStandards",
 				serviceAnalysisStandard.findByAndAnalysisIdAndTypeIn(
 						(Integer) session.getAttribute(Constant.SELECTED_ANALYSIS), NormalStandard.class,
@@ -761,8 +759,7 @@ public class ControllerStandard extends AbstractController {
 	@RequestMapping(value = "/Measure/Save", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody Map<String, Object> measuresave(@RequestBody MeasureForm measureForm, Model model,
-			Principal principal, HttpSession session, Locale locale)
-			throws Exception {
+			Principal principal, HttpSession session, Locale locale) {
 		Map<String, Object> result = new HashMap<>();
 		Map<String, Object> errors = new LinkedHashMap<>();
 		try {
@@ -786,14 +783,6 @@ public class ControllerStandard extends AbstractController {
 				if (measure == null)
 					errors.put("measure", messageSource.getMessage("error.measure.belong.standard", null,
 							"Measure does not belong to standard", locale));
-				/*
-				 * errors.put("measure", messageSource.getMessage("error.measure.not_found",
-				 * null,
-				 * "Measure cannot be found", locale));
-				 * /*else if
-				 * (!measure.getMeasureDescription().getStandard().equals(analysisStandard.
-				 * getStandard()))
-				 */
 				else if (measure instanceof AssetMeasure && measureForm.isComputable()
 						&& measureForm.getAssetValues().isEmpty())
 					errors.put("asset",
@@ -871,7 +860,7 @@ public class ControllerStandard extends AbstractController {
 		return result;
 	}
 
-	@RequestMapping(value = "/{idStandard}/Measure/New", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@GetMapping(value = "/{idStandard}/Measure/New", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).MODIFY)")
 	public String newAssetMeasure(@PathVariable("idStandard") int idStandard, Model model, HttpSession session,
 			Principal principal, RedirectAttributes attributes, Locale locale) {
@@ -898,7 +887,7 @@ public class ControllerStandard extends AbstractController {
 
 			List<AssetType> analysisAssetTypes = serviceAssetType.getAllFromAnalysis(idAnalysis);
 
-			if (measure instanceof AssetMeasure) {
+			if (measure instanceof AssetMeasure assetMeasure) {
 
 				List<Asset> availableAssets = serviceAsset.getAllFromAnalysisIdAndSelected(idAnalysis);
 
@@ -906,10 +895,9 @@ public class ControllerStandard extends AbstractController {
 
 				model.addAttribute("assetTypes", analysisAssetTypes);
 
-				((AssetMeasure) measure).setMeasurePropertyList(new MeasureProperties());
+				assetMeasure.setMeasurePropertyList(new MeasureProperties());
 
-			} else if (measure instanceof NormalMeasure) {
-				NormalMeasure normalMeasure = (NormalMeasure) measure;
+			} else if (measure instanceof NormalMeasure normalMeasure) {
 				normalMeasure.setMeasurePropertyList(new MeasureProperties());
 				List<AssetType> assetTypes = serviceAssetType.getAll();
 
@@ -922,7 +910,8 @@ public class ControllerStandard extends AbstractController {
 				model.addAttribute("hiddenAssetTypes", assetTypesMapping);
 			}
 
-			measure.setMeasureDescription(new MeasureDescription(new MeasureDescriptionText(language)));
+			measure.setMeasureDescription(
+					new MeasureDescription(analysisStandard.getStandard(), new MeasureDescriptionText(language)));
 
 			if (type == AnalysisType.QUANTITATIVE) {
 				Map<String, Boolean> excludes = new HashMap<>();
@@ -931,11 +920,11 @@ public class ControllerStandard extends AbstractController {
 				model.addAttribute("cssfExcludes", excludes);
 			}
 
-			model.addAttribute("isComputable", measure.getMeasureDescription().getStandard().isComputable());
+			model.addAttribute("isComputable", analysisStandard.getStandard().isComputable());
 
 			model.addAttribute("type", type);
 
-			model.addAttribute("isAnalysisOnly", measure.getMeasureDescription().getStandard().isAnalysisOnly());
+			model.addAttribute("isAnalysisOnly", analysisStandard.getStandard().isAnalysisOnly());
 
 			model.addAttribute("measureForm", MeasureForm.build(measure, type, language.getAlpha3()));
 
@@ -962,12 +951,12 @@ public class ControllerStandard extends AbstractController {
 	 * @param principal
 	 * @param locale
 	 * @return
-	 * @throws Exception
+	 * @
 	 */
 	@RequestMapping(value = "/Delete/{idStandard}", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String removeStandard(@PathVariable int idStandard, HttpSession session, Principal principal,
-			Locale locale) throws Exception {
+			Locale locale) {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		try {
 			measureManager.removeStandardFromAnalysis(idAnalysis, idStandard);
@@ -983,8 +972,7 @@ public class ControllerStandard extends AbstractController {
 	@RequestMapping(value = "/SOA/Save", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody Object saveSOA(@RequestBody List<SOAForm> soaForms, HttpSession session, Principal principal,
-			Model model, RedirectAttributes attributes, Locale locale)
-			throws Exception {
+			Model model, RedirectAttributes attributes, Locale locale) {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		soaForms.forEach(form -> {
 			AnalysisStandard analysisStandard = serviceAnalysisStandard.findOne(form.getId(), idAnalysis);
@@ -1005,11 +993,11 @@ public class ControllerStandard extends AbstractController {
 	 * @param model
 	 * @param principal
 	 * @return
-	 * @throws Exception
+	 * @
 	 */
 	@RequestMapping("/Section")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).READ)")
-	public String section(HttpSession session, Model model, Principal principal) throws Exception {
+	public String section(HttpSession session, Model model, Principal principal) {
 
 		// retrieve analysis id
 		final OpenMode mode = (OpenMode) session.getAttribute(Constant.OPEN_MODE);
@@ -1073,12 +1061,12 @@ public class ControllerStandard extends AbstractController {
 	 * @param model
 	 * @param principal
 	 * @return
-	 * @throws Exception
+	 * @
 	 */
 	@RequestMapping("/Section/{standardid}")
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).READ)")
 	public String sectionByStandard(@PathVariable Integer standardid, HttpSession session, Model model,
-			Principal principal) throws Exception {
+			Principal principal) {
 
 		// retrieve analysis id
 		final Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
@@ -1132,7 +1120,7 @@ public class ControllerStandard extends AbstractController {
 
 		loadAnalysisSettings(model, idAnalysis);
 
-		return "analyses/single/components/standards/standard/standards";
+		return "jsp/analyses/single/components/standards/standard/standards";
 	}
 
 	@RequestMapping(value = "/Update/Cost", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
@@ -1325,12 +1313,12 @@ public class ControllerStandard extends AbstractController {
 
 	private Map<String, Object> update(Measure measure, MeasureForm measureForm, Analysis analysis,
 			AnalysisStandard analysisStandard, Locale locale,
-			Map<String, Object> errors) throws Exception {
+			Map<String, Object> errors) {
 		if (errors == null)
 			errors = new LinkedHashMap<>();
 		MeasureDescription description = measure.getMeasureDescription();
 		if (description == null) {
-			if (analysisStandard.getMeasures().stream().allMatch(
+			if (analysisStandard.getMeasures().stream().filter(e -> e != measure).anyMatch(
 					e -> e.getMeasureDescription().getReference().equalsIgnoreCase(measureForm.getReference()))) {
 				errors.put("reference",
 						messageSource.getMessage("error.measure_description.reference.duplicated",
@@ -1341,10 +1329,10 @@ public class ControllerStandard extends AbstractController {
 				return errors;
 			}
 			description = serviceMeasureDescription.getByReferenceAndStandard(measureForm.getReference(),
-					measure.getMeasureDescription().getStandard());
+					analysisStandard.getStandard());
 			if (description == null) {
 				description = new MeasureDescription(measureForm.getReference(),
-						measure.getMeasureDescription().getStandard(), measureForm.isComputable());
+						analysisStandard.getStandard(), measureForm.isComputable());
 				description.addMeasureDescriptionText(new MeasureDescriptionText(description, measureForm.getDomain(),
 						measureForm.getDescription(), analysis.getLanguage()));
 			}
@@ -1379,8 +1367,7 @@ public class ControllerStandard extends AbstractController {
 			return errors;
 		}
 
-		if (measure instanceof AssetMeasure) {
-			AssetMeasure assetMeasure = (AssetMeasure) measure;
+		if (measure instanceof AssetMeasure assetMeasure) {
 			if (assetMeasure.getMeasurePropertyList() == null)
 				assetMeasure.setMeasurePropertyList(new MeasureProperties());
 
@@ -1412,8 +1399,7 @@ public class ControllerStandard extends AbstractController {
 					assetValues.remove(assetValue);
 			}
 			assetMeasure.getMeasureAssetValues().addAll(assetValues);
-		} else if (measure instanceof NormalMeasure) {
-			NormalMeasure normalMeasure = (NormalMeasure) measure;
+		} else if (measure instanceof NormalMeasure normalMeasure) {
 			if (normalMeasure.getMeasurePropertyList() == null)
 				normalMeasure.setMeasurePropertyList(new MeasureProperties());
 			if (AnalysisType.isQuantitative(analysis.getType()))
@@ -1425,8 +1411,7 @@ public class ControllerStandard extends AbstractController {
 	}
 
 	private Map<String, Object> updateAssetTypeValues(NormalMeasure measure,
-			List<MeasureAssetValueForm> assetValueForms, final Map<String, Object> errors, Locale locale)
-			throws Exception {
+			List<MeasureAssetValueForm> assetValueForms, final Map<String, Object> errors, Locale locale) {
 		Map<Integer, AssetType> assetTypes = new LinkedHashMap<>();
 		serviceAssetType.getAll().stream().forEach(assetType -> assetTypes.put(assetType.getId(), assetType));
 		assetValueForms.stream().forEach(assetTypeValueForm -> {
@@ -1468,7 +1453,7 @@ public class ControllerStandard extends AbstractController {
 				});
 	}
 
-	private void validate(MeasureForm measureForm, Map<String, Object> errors, Locale locale) throws Exception {
+	private void validate(MeasureForm measureForm, Map<String, Object> errors, Locale locale) {
 		ValidatorField validator = serviceDataValidation.findByClass(MeasureDescriptionValidator.class);
 		if (validator == null)
 			serviceDataValidation.register(validator = new MeasureDescriptionValidator());

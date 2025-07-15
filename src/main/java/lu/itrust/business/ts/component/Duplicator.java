@@ -24,11 +24,11 @@ import lu.itrust.business.ts.database.dao.DAOAnalysisStandard;
 import lu.itrust.business.ts.database.dao.DAOMeasureDescription;
 import lu.itrust.business.ts.database.dao.DAOMeasureDescriptionText;
 import lu.itrust.business.ts.database.dao.DAOStandard;
-import lu.itrust.business.ts.database.dao.hbm.DAOAnalysisHBM;
-import lu.itrust.business.ts.database.dao.hbm.DAOAnalysisStandardHBM;
-import lu.itrust.business.ts.database.dao.hbm.DAOMeasureDescriptionHBM;
-import lu.itrust.business.ts.database.dao.hbm.DAOMeasureDescriptionTextHBM;
-import lu.itrust.business.ts.database.dao.hbm.DAOStandardHBM;
+import lu.itrust.business.ts.database.dao.impl.DAOAnalysisImpl;
+import lu.itrust.business.ts.database.dao.impl.DAOAnalysisStandardImpl;
+import lu.itrust.business.ts.database.dao.impl.DAOMeasureDescriptionImpl;
+import lu.itrust.business.ts.database.dao.impl.DAOMeasureDescriptionTextImpl;
+import lu.itrust.business.ts.database.dao.impl.DAOStandardImpl;
 import lu.itrust.business.ts.database.service.ServiceTaskFeedback;
 import lu.itrust.business.ts.exception.TrickException;
 import lu.itrust.business.ts.messagehandler.MessageHandler;
@@ -94,11 +94,11 @@ public class Duplicator {
 	}
 
 	public Duplicator(Session session) {
-		this.daoAnalysis = new DAOAnalysisHBM(session);
-		this.daoAnalysisStandard = new DAOAnalysisStandardHBM(session);
-		this.daoStandard = new DAOStandardHBM(session);
-		this.daoMeasureDescription = new DAOMeasureDescriptionHBM(session);
-		this.daoMeasureDescriptionText = new DAOMeasureDescriptionTextHBM(session);
+		this.daoAnalysis = new DAOAnalysisImpl(session);
+		this.daoAnalysisStandard = new DAOAnalysisStandardImpl(session);
+		this.daoStandard = new DAOStandardImpl(session);
+		this.daoMeasureDescription = new DAOMeasureDescriptionImpl(session);
+		this.daoMeasureDescriptionText = new DAOMeasureDescriptionTextImpl(session);
 
 	}
 

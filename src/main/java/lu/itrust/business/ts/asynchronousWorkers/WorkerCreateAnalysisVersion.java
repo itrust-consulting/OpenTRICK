@@ -12,7 +12,7 @@ import lu.itrust.business.ts.asynchronousWorkers.helper.AsyncCallback;
 import lu.itrust.business.ts.component.Duplicator;
 import lu.itrust.business.ts.component.TrickLogManager;
 import lu.itrust.business.ts.database.dao.DAOIDS;
-import lu.itrust.business.ts.database.dao.hbm.DAOIDSHBM;
+import lu.itrust.business.ts.database.dao.impl.DAOIDSImpl;
 import lu.itrust.business.ts.exception.TrickException;
 import lu.itrust.business.ts.messagehandler.MessageHandler;
 import lu.itrust.business.ts.model.analysis.Analysis;
@@ -126,7 +126,7 @@ public class WorkerCreateAnalysisVersion extends WorkerImpl{
 
 			session = getSessionFactory().openSession();
 
-			daoIDS = new DAOIDSHBM(session);
+			daoIDS = new DAOIDSImpl(session);
 
 			Duplicator duplicator = new Duplicator(session);
 

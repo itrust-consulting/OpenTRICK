@@ -1,53 +1,65 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns='http://www.ehcache.org/v3' xmlns:jsr107='http://www.ehcache.org/v3/jsr107'
-	xsi:schemaLocation="
-        https://www.ehcache.org/v3 https://www.ehcache.org/schema/ehcache-core-3.5.xsd
-        https://www.ehcache.org/v3/jsr107 https://www.ehcache.org/schema/ehcache-107-ext-3.5.xsd">
+<config xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+	xmlns='http://www.ehcache.org/v3'
+	xmlns:jsr107='http://www.ehcache.org/v3/jsr107' xsi:schemaLocation="http://www.ehcache.org/v3 http://www.ehcache.org/schema/ehcache-core-3.5.xsd
+                            http://www.ehcache.org/v3/jsr107 http://www.ehcache.org/schema/ehcache-107-ext-3.5.xsd" >
 
 	<service>
-		<jsr107:defaults default-template="defaultCache" enable-management="true" enable-statistics="true" />
+		<jsr107:defaults default-template="defaultCache" enable-management="true" enable-statistics="true"/>
 	</service>
 
-	<persistence directory="${java.io.tmpdir}/ot-cache" />
+	<persistence directory="${app.settings.level.cache}" />
 
+	<!-- Base Template -->
 	<cache-template name="defaultCache">
 		<expiry>
-			<ttl unit="days">90</ttl>
+			<ttl unit="days">60</ttl>
 		</expiry>
 		<heap unit="entries">2000</heap>
 	</cache-template>
 
+	<!-- Entity Template -->
 	<cache-template name="entityDefaultCache">
 		<expiry>
-			<ttl unit="days">90</ttl>
+			<ttl unit="days">60</ttl>
 		</expiry>
 		<heap unit="entries">10000</heap>
 	</cache-template>
 
+	<!-- Collection Template -->
 	<cache-template name="collectionDefaultCache">
 		<expiry>
-			<ttl unit="days">45</ttl>
+			<ttl unit="days">30</ttl>
 		</expiry>
 		<heap unit="entries">5000</heap>
 	</cache-template>
 
+	<!-- Force Disk Template -->
 	<cache-template name="forceDiskdefaultCache">
 		<expiry>
-			<ttl unit="days">180</ttl>
+			<ttl unit="days">90</ttl>
 		</expiry>
 		<resources>
-			<disk persistent="false" unit="GB">5</disk>
+			<disk persistent="true" unit="GB">1</disk>
 		</resources>
-		<disk-store-settings thread-pool="pool-disk" writer-concurrency="10" disk-segments="16" />
+		<disk-store-settings thread-pool="pool-disk" writer-concurrency="4" disk-segments="8"/>
 	</cache-template>
 
+	<!-- Region Definitions -->
 	<cache alias="default-update-timestamps-region" uses-template="defaultCache" />
 
 	<cache alias="default-query-results-region" uses-template="defaultCache">
 		<expiry>
-			<tti unit="seconds">300</tti>
+			<tti unit="seconds">180</tti>
 		</expiry>
 	</cache>
+
+	<!-- Entity Mappings -->
+	<cache alias="lu.itrust.business.ts.model.general.Customer.templates" uses-template="forceDiskdefaultCache" />
+	<cache alias="lu.itrust.business.ts.model.general.document.impl.WordReport" uses-template="forceDiskdefaultCache"/>
+	<cache alias="lu.itrust.business.ts.model.general.document.impl.UserSQLite" uses-template="forceDiskdefaultCache"/>
+	<cache alias="lu.itrust.business.ts.model.general.document.impl.ReportTemplate" uses-template="forceDiskdefaultCache"/>
+
 	<!-- Entities -->
 	<cache alias="lu.itrust.business.ts.model.history.History" uses-template="entityDefaultCache" />
 	<cache alias="lu.itrust.business.ts.model.standard.measuredescription.MeasureDescriptionText" uses-template="entityDefaultCache" />
@@ -88,15 +100,12 @@
 	<cache alias="lu.itrust.business.ts.model.parameter.type.impl.ParameterType" uses-template="entityDefaultCache" />
 	<cache alias="lu.itrust.business.ts.model.analysis.AnalysisShareInvitation" uses-template="entityDefaultCache" />
 	<cache alias="lu.itrust.business.ts.model.general.TSSetting" uses-template="entityDefaultCache" />
-	<cache alias="lu.itrust.business.ts.model.general.document.impl.WordReport" uses-template="entityDefaultCache" />
-	<cache alias="lu.itrust.business.ts.model.general.document.impl.UserSQLite" uses-template="entityDefaultCache" />
 	<cache alias="lu.itrust.business.ts.model.externalnotification.ExternalNotification" uses-template="entityDefaultCache" />
 	<cache alias="lu.itrust.business.ts.usermanagement.EmailValidatingRequest" uses-template="entityDefaultCache" />
 	<cache alias="lu.itrust.business.ts.usermanagement.IDS" uses-template="entityDefaultCache" />
 	<cache alias="lu.itrust.business.ts.usermanagement.Role" uses-template="entityDefaultCache" />
 	<cache alias="lu.itrust.business.ts.model.general.TrickLog" uses-template="entityDefaultCache" />
 	<cache alias="lu.itrust.business.ts.model.standard.measure.impl.MeasureAssetValue" uses-template="entityDefaultCache" />
-	<cache alias="lu.itrust.business.ts.model.general.document.impl.ReportTemplate" uses-template="entityDefaultCache" />
 	<cache alias="lu.itrust.business.ts.usermanagement.UserCredential" uses-template="entityDefaultCache" />
 	<cache alias="lu.itrust.business.ts.model.general.TicketingSystem" uses-template="entityDefaultCache" />
 	<!-- Collections -->
@@ -126,6 +135,5 @@
 	<cache alias="lu.itrust.business.ts.usermanagement.User.customers" uses-template="collectionDefaultCache" />
 	<cache alias="lu.itrust.business.ts.usermanagement.User.roles" uses-template="collectionDefaultCache" />
 	<cache alias="lu.itrust.business.ts.usermanagement.User.userSettings" uses-template="collectionDefaultCache" />
-	<cache alias="lu.itrust.business.ts.model.general.Customer.templates" uses-template="collectionDefaultCache" />
 	<cache alias="lu.itrust.business.ts.usermanagement.User.credentials" uses-template="collectionDefaultCache" />
 </config>

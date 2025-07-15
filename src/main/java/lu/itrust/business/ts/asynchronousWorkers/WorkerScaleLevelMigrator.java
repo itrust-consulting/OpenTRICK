@@ -17,9 +17,9 @@ import lu.itrust.business.ts.component.TrickLogManager;
 import lu.itrust.business.ts.database.dao.DAOAnalysis;
 import lu.itrust.business.ts.database.dao.DAOImpactParameter;
 import lu.itrust.business.ts.database.dao.DAOLikelihoodParameter;
-import lu.itrust.business.ts.database.dao.hbm.DAOAnalysisHBM;
-import lu.itrust.business.ts.database.dao.hbm.DAOImpactParameterHBM;
-import lu.itrust.business.ts.database.dao.hbm.DAOLikelihoodParameterHBM;
+import lu.itrust.business.ts.database.dao.impl.DAOAnalysisImpl;
+import lu.itrust.business.ts.database.dao.impl.DAOImpactParameterImpl;
+import lu.itrust.business.ts.database.dao.impl.DAOLikelihoodParameterImpl;
 import lu.itrust.business.ts.exception.TrickException;
 import lu.itrust.business.ts.messagehandler.MessageHandler;
 import lu.itrust.business.ts.messagehandler.TaskName;
@@ -291,15 +291,15 @@ public class WorkerScaleLevelMigrator extends WorkerImpl {
 
 	/**
 	 * Sets up the Data Access Objects (DAOs) for the WorkerScaleLevelMigrator.
-	 * Initializes the DAOAnalysisHBM, DAOImpactParameterHBM, and DAOLikelihoodParameterHBM objects
+	 * Initializes the DAOAnalysisImpl, DAOImpactParameterImpl, and DAOLikelihoodParameterImpl objects
 	 * with the provided session.
 	 *
 	 * @param session the Hibernate session to be used by the DAOs
 	 */
 	private void setUpDOA(Session session) {
-		setDaoAnalysis(new DAOAnalysisHBM(session));
-		setDaoImpactParameter(new DAOImpactParameterHBM(session));
-		setDaoLikelihoodParameter(new DAOLikelihoodParameterHBM(session));
+		setDaoAnalysis(new DAOAnalysisImpl(session));
+		setDaoImpactParameter(new DAOImpactParameterImpl(session));
+		setDaoLikelihoodParameter(new DAOLikelihoodParameterImpl(session));
 	}
 
 	/**

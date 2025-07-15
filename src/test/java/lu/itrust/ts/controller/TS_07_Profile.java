@@ -31,7 +31,7 @@ import org.testng.annotations.Test;
 import lu.itrust.business.ts.asynchronousWorkers.Worker;
 import lu.itrust.business.ts.asynchronousWorkers.WorkerExportAnalysis;
 import lu.itrust.business.ts.asynchronousWorkers.WorkerExportWordReport;
-import lu.itrust.business.ts.database.dao.hbm.DAOUserHBM;
+import lu.itrust.business.ts.database.dao.impl.DAOUserImpl;
 import lu.itrust.business.ts.database.service.ServiceTaskFeedback;
 import lu.itrust.business.ts.database.service.WorkersPoolManager;
 import lu.itrust.business.ts.messagehandler.MessageHandler;
@@ -214,7 +214,7 @@ public class TS_07_Profile extends SpringTestConfiguration {
 				.andExpect(content().string("{}"));
 		Session session = sessionFactory.openSession();
 		try {
-			assertFalse(new DAOUserHBM(session = sessionFactory.openSession()).existByUsername("lolmdr"));
+			assertFalse(new DAOUserImpl(session = sessionFactory.openSession()).existByUsername("lolmdr"));
 		} finally {
 			if (session != null && session.isOpen())
 				session.close();
@@ -236,7 +236,7 @@ public class TS_07_Profile extends SpringTestConfiguration {
 		Session session = null;
 		try {
 			session = sessionFactory.openSession();
-			User user = new DAOUserHBM(session = sessionFactory.openSession()).get(USERNAME);
+			User user = new DAOUserImpl(session = sessionFactory.openSession()).get(USERNAME);
 			assertEquals(user.getConnexionType(), User.LADP_CONNEXION);
 		} finally {
 			if (session != null && session.isOpen())
@@ -260,7 +260,7 @@ public class TS_07_Profile extends SpringTestConfiguration {
 		Session session = null;
 		try {
 			session = sessionFactory.openSession();
-			User user = new DAOUserHBM(session = sessionFactory.openSession()).get(USERNAME);
+			User user = new DAOUserImpl(session = sessionFactory.openSession()).get(USERNAME);
 			assertFalse(user.hasRole(RoleType.ROLE_SUPERVISOR));
 		} finally {
 			if (session != null && session.isOpen())

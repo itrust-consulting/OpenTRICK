@@ -19,7 +19,7 @@ import org.hibernate.Session;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import lu.itrust.business.ts.database.dao.DAOTrickLog;
-import lu.itrust.business.ts.database.dao.hbm.DAOTrickLogHBM;
+import lu.itrust.business.ts.database.dao.impl.DAOTrickLogImpl;
 import lu.itrust.business.ts.exception.TrickException;
 import lu.itrust.business.ts.helper.InstanceManager;
 import lu.itrust.business.ts.model.general.LogAction;
@@ -175,7 +175,7 @@ public class TrickLogManager {
 				if (trickLogs.isEmpty())
 					return;
 				session = InstanceManager.getSessionFactory().openSession();
-				DAOTrickLog daoTrickLog = new DAOTrickLogHBM(session);
+				DAOTrickLog daoTrickLog = new DAOTrickLogImpl(session);
 				session.beginTransaction();
 				while (!trickLogs.isEmpty())
 					daoTrickLog.saveOrUpdate(trickLogs.remove());

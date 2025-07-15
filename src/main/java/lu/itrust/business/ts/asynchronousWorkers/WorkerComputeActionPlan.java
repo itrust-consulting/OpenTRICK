@@ -22,15 +22,15 @@ import lu.itrust.business.ts.database.dao.DAOActionPlanSummary;
 import lu.itrust.business.ts.database.dao.DAOActionPlanType;
 import lu.itrust.business.ts.database.dao.DAOAnalysis;
 import lu.itrust.business.ts.database.dao.DAORiskRegister;
-import lu.itrust.business.ts.database.dao.hbm.DAOActionPlanHBM;
-import lu.itrust.business.ts.database.dao.hbm.DAOActionPlanSummaryHBM;
-import lu.itrust.business.ts.database.dao.hbm.DAOActionPlanTypeHBM;
-import lu.itrust.business.ts.database.dao.hbm.DAOAnalysisHBM;
-import lu.itrust.business.ts.database.dao.hbm.DAOAssessmentHBM;
-import lu.itrust.business.ts.database.dao.hbm.DAOAssetHBM;
-import lu.itrust.business.ts.database.dao.hbm.DAORiskProfileHBM;
-import lu.itrust.business.ts.database.dao.hbm.DAORiskRegisterHBM;
-import lu.itrust.business.ts.database.dao.hbm.DAOScenarioHBM;
+import lu.itrust.business.ts.database.dao.impl.DAOActionPlanImpl;
+import lu.itrust.business.ts.database.dao.impl.DAOActionPlanSummaryImpl;
+import lu.itrust.business.ts.database.dao.impl.DAOActionPlanTypeImpl;
+import lu.itrust.business.ts.database.dao.impl.DAOAnalysisImpl;
+import lu.itrust.business.ts.database.dao.impl.DAOAssessmentImpl;
+import lu.itrust.business.ts.database.dao.impl.DAOAssetImpl;
+import lu.itrust.business.ts.database.dao.impl.DAORiskProfileImpl;
+import lu.itrust.business.ts.database.dao.impl.DAORiskRegisterImpl;
+import lu.itrust.business.ts.database.dao.impl.DAOScenarioImpl;
 import lu.itrust.business.ts.exception.TrickException;
 import lu.itrust.business.ts.messagehandler.MessageHandler;
 import lu.itrust.business.ts.messagehandler.TaskName;
@@ -379,17 +379,17 @@ public class WorkerComputeActionPlan extends WorkerImpl {
 	 * @param session the session object used for database operations
 	 */
 	private void initialiseDAO(Session session) {
-		daoActionPlan = new DAOActionPlanHBM(session);
-		daoActionPlanSummary = new DAOActionPlanSummaryHBM(session);
-		daoActionPlanType = new DAOActionPlanTypeHBM(session);
-		daoAnalysis = new DAOAnalysisHBM(session);
-		daoRiskRegister = new DAORiskRegisterHBM(session);
+		daoActionPlan = new DAOActionPlanImpl(session);
+		daoActionPlanSummary = new DAOActionPlanSummaryImpl(session);
+		daoActionPlanType = new DAOActionPlanTypeImpl(session);
+		daoAnalysis = new DAOAnalysisImpl(session);
+		daoRiskRegister = new DAORiskRegisterImpl(session);
 		assessmentAndRiskProfileManager = new AssessmentAndRiskProfileManager();
 		assessmentAndRiskProfileManager.setDaoAnalysis(daoAnalysis);
-		assessmentAndRiskProfileManager.setDaoAsset(new DAOAssetHBM(session));
-		assessmentAndRiskProfileManager.setDaoScenario(new DAOScenarioHBM(session));
-		assessmentAndRiskProfileManager.setDaoAssessment(new DAOAssessmentHBM(session));
-		assessmentAndRiskProfileManager.setDaoRiskProfile(new DAORiskProfileHBM(session));
+		assessmentAndRiskProfileManager.setDaoAsset(new DAOAssetImpl(session));
+		assessmentAndRiskProfileManager.setDaoScenario(new DAOScenarioImpl(session));
+		assessmentAndRiskProfileManager.setDaoAssessment(new DAOAssessmentImpl(session));
+		assessmentAndRiskProfileManager.setDaoRiskProfile(new DAORiskProfileImpl(session));
 
 	}
 

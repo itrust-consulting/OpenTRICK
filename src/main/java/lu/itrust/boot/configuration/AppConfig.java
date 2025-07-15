@@ -47,10 +47,10 @@ import lu.itrust.business.ts.exception.TrickException;
 import lu.itrust.business.ts.helper.InstanceManager;
 import lu.itrust.business.ts.usermanagement.listner.helper.PasswordEncryptionHelper;
 
-
 /**
  * Configuration class for the application.
- * This class defines various beans and configurations required for the application.
+ * This class defines various beans and configurations required for the
+ * application.
  */
 @Configuration
 public class AppConfig {
@@ -104,25 +104,30 @@ public class AppConfig {
 	}
 
 	/**
-	 * Creates and configures a DataSource object based on the provided environment properties.
+	 * Creates and configures a DataSource object based on the provided environment
+	 * properties.
 	 * The DataSource object is used for establishing a connection to the database.
 	 *
-	 * @param environment the environment object containing the necessary properties for configuring the DataSource
+	 * @param environment the environment object containing the necessary properties
+	 *                    for configuring the DataSource
 	 * @return the configured DataSource object
 	 */
 	@Bean
 	public DataSource dataSource(Environment environment) {
 		var dataSourceBuilder = DataSourceBuilder.create();
-		dataSourceBuilder.driverClassName(environment.getRequiredProperty("jdbc.driverClassName"));
-		dataSourceBuilder.url(environment.getRequiredProperty("jdbc.databaseurl"));
-		dataSourceBuilder.username(environment.getRequiredProperty("jdbc.username"));
-		dataSourceBuilder.password(environment.getRequiredProperty("jdbc.password"));
+		System.setProperty("app.settings.level.cache",
+				environment.getProperty("app.settings.level.cache", "/tmp/ot-cache"));
+		dataSourceBuilder.driverClassName(environment.getRequiredProperty("spring.datasource.driver-class-name"));
+		dataSourceBuilder.url(environment.getRequiredProperty("spring.datasource.url"));
+		dataSourceBuilder.username(environment.getRequiredProperty("spring.datasource.username"));
+		dataSourceBuilder.password(environment.getRequiredProperty("spring.datasource.password"));
 		return dataSourceBuilder.build();
 	}
 
 	/**
 	 * Creates and configures a MessageSource bean.
-	 * The MessageSource is responsible for resolving messages from different sources,
+	 * The MessageSource is responsible for resolving messages from different
+	 * sources,
 	 * such as property files or databases, based on a given message key.
 	 * 
 	 * @return the configured MessageSource bean
@@ -148,7 +153,8 @@ public class AppConfig {
 
 	/**
 	 * Configures the MultipartResolver bean for handling multipart requests.
-	 * This bean is responsible for resolving multipart requests and converting them into a format that can be processed by the application.
+	 * This bean is responsible for resolving multipart requests and converting them
+	 * into a format that can be processed by the application.
 	 * It uses the StandardServletMultipartResolver implementation.
 	 */
 	@Bean
@@ -169,9 +175,11 @@ public class AppConfig {
 	}
 
 	/**
-	 * Creates and configures a JavaMailSender instance based on the provided environment settings.
+	 * Creates and configures a JavaMailSender instance based on the provided
+	 * environment settings.
 	 * 
-	 * @param env the environment object containing the necessary properties for configuring the JavaMailSender
+	 * @param env the environment object containing the necessary properties for
+	 *            configuring the JavaMailSender
 	 * @return a configured JavaMailSender instance
 	 */
 	@Bean
@@ -190,8 +198,10 @@ public class AppConfig {
 	/**
 	 * Configures a handler for serving favicon requests.
 	 *
-	 * This handler uses the {@link ResourceHttpRequestHandler} class to handle requests for favicon resources.
-	 * It sets the locations where the favicon resources are located and returns the configured request handler.
+	 * This handler uses the {@link ResourceHttpRequestHandler} class to handle
+	 * requests for favicon resources.
+	 * It sets the locations where the favicon resources are located and returns the
+	 * configured request handler.
 	 */
 	@Bean
 	protected ResourceHttpRequestHandler faviconRequestHandler() {
@@ -214,11 +224,13 @@ public class AppConfig {
 	}
 
 	/**
-	 * Creates a bean for registering the HttpSessionEventPublisher servlet listener.
+	 * Creates a bean for registering the HttpSessionEventPublisher servlet
+	 * listener.
 	 * This listener publishes HttpSession events to the Spring application context.
 	 * It is required for session management in a Spring Boot application.
 	 *
-	 * @return The ServletListenerRegistrationBean for the HttpSessionEventPublisher.
+	 * @return The ServletListenerRegistrationBean for the
+	 *         HttpSessionEventPublisher.
 	 */
 	@Bean
 	public ServletListenerRegistrationBean<HttpSessionEventPublisher> httpSessionEventPublisher() {
@@ -226,7 +238,8 @@ public class AppConfig {
 	}
 
 	/**
-	 * Interface that can be implemented by any object that needs to be initialized with a {@link ServletContext}.
+	 * Interface that can be implemented by any object that needs to be initialized
+	 * with a {@link ServletContext}.
 	 * Typically used in the context of configuring a web application.
 	 */
 	@Bean

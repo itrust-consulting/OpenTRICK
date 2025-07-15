@@ -24,9 +24,9 @@ import lu.itrust.business.ts.database.DatabaseHandler;
 import lu.itrust.business.ts.database.dao.DAOAnalysis;
 import lu.itrust.business.ts.database.dao.DAOUser;
 import lu.itrust.business.ts.database.dao.DAOUserSqLite;
-import lu.itrust.business.ts.database.dao.hbm.DAOAnalysisHBM;
-import lu.itrust.business.ts.database.dao.hbm.DAOUserHBM;
-import lu.itrust.business.ts.database.dao.hbm.DAOUserSqLiteHBM;
+import lu.itrust.business.ts.database.dao.impl.DAOAnalysisImpl;
+import lu.itrust.business.ts.database.dao.impl.DAOUserImpl;
+import lu.itrust.business.ts.database.dao.impl.DAOUserSqLiteImpl;
 import lu.itrust.business.ts.exception.TrickException;
 import lu.itrust.business.ts.exportation.sqlite.ExportAnalysis;
 import lu.itrust.business.ts.helper.InstanceManager;
@@ -93,7 +93,7 @@ public class WorkerExportAnalysis extends WorkerImpl {
 				setCurrent(Thread.currentThread());
 			}
 			session = getSessionFactory().openSession();
-			final DAOAnalysis daoAnalysis = new DAOAnalysisHBM(session);
+			final DAOAnalysis daoAnalysis = new DAOAnalysisImpl(session);
 			getServiceTaskFeedback().send(getId(),
 					new MessageHandler("info.export.load.analysis", "Load analysis to export", 0));
 			final Analysis analysis = daoAnalysis.get(getIdAnalysis());
@@ -190,8 +190,8 @@ public class WorkerExportAnalysis extends WorkerImpl {
 	 * @param sqlite The SQLite file to be saved.
 	 */
 	private void saveSqLite(Session session, Analysis analysis, File sqlite) {
-		final DAOUser daoUser = new DAOUserHBM(session);
-		final DAOUserSqLite daoUserSqLite = new DAOUserSqLiteHBM(session);
+		final DAOUser daoUser = new DAOUserImpl(session);
+		final DAOUserSqLite daoUserSqLite = new DAOUserSqLiteImpl(session);
 		Transaction transaction = null;
 		try {
 			final User user = daoUser.get(username);

@@ -14,9 +14,9 @@ import lu.itrust.business.ts.component.Duplicator;
 import lu.itrust.business.ts.component.TrickLogManager;
 import lu.itrust.business.ts.database.dao.DAOAnalysis;
 import lu.itrust.business.ts.database.dao.DAOCustomer;
-import lu.itrust.business.ts.database.dao.hbm.DAOAnalysisHBM;
-import lu.itrust.business.ts.database.dao.hbm.DAOCustomerHBM;
-import lu.itrust.business.ts.database.dao.hbm.DAOUserHBM;
+import lu.itrust.business.ts.database.dao.impl.DAOAnalysisImpl;
+import lu.itrust.business.ts.database.dao.impl.DAOCustomerImpl;
+import lu.itrust.business.ts.database.dao.impl.DAOUserImpl;
 import lu.itrust.business.ts.exception.TrickException;
 import lu.itrust.business.ts.messagehandler.MessageHandler;
 import lu.itrust.business.ts.model.analysis.Analysis;
@@ -100,9 +100,9 @@ public class WorkerCreateAnalysisProfile extends WorkerImpl {
 				setCurrent(Thread.currentThread());
 			}
 			session = getSessionFactory().openSession();
-			DAOAnalysis daoAnalysis = new DAOAnalysisHBM(session);
-			DAOCustomer daoCustomer = new DAOCustomerHBM(session);
-			User owner = new DAOUserHBM(session).get(username);
+			DAOAnalysis daoAnalysis = new DAOAnalysisImpl(session);
+			DAOCustomer daoCustomer = new DAOCustomerImpl(session);
+			User owner = new DAOUserImpl(session).get(username);
 			Customer customer = daoCustomer.getProfile();
 			if (customer == null) {
 				getServiceTaskFeedback().send(getId(), new MessageHandler("error.not.customer.profile",

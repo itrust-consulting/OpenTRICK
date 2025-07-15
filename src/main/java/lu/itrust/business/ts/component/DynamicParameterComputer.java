@@ -11,8 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 import lu.itrust.business.ts.constants.Constant;
 import lu.itrust.business.ts.database.dao.DAOAnalysis;
 import lu.itrust.business.ts.database.dao.DAOIDS;
-import lu.itrust.business.ts.database.dao.hbm.DAOAnalysisHBM;
-import lu.itrust.business.ts.database.dao.hbm.DAOIDSHBM;
+import lu.itrust.business.ts.database.dao.impl.DAOAnalysisImpl;
+import lu.itrust.business.ts.database.dao.impl.DAOIDSImpl;
 import lu.itrust.business.ts.database.service.ServiceExternalNotification;
 import lu.itrust.business.ts.database.service.impl.ServiceExternalNotificationImpl;
 import lu.itrust.business.ts.model.analysis.Analysis;
@@ -46,13 +46,13 @@ public class DynamicParameterComputer {
 	}
 
 	public DynamicParameterComputer(Session session) {
-		this(session, new DAOAnalysisHBM(session));
+		this(session, new DAOAnalysisImpl(session));
 	}
 
 	public DynamicParameterComputer(Session session, DAOAnalysis daoAnalysis) {
 		this.daoAnalysis = daoAnalysis;
 		this.serviceExternalNotification = new ServiceExternalNotificationImpl(session);
-		this.daoIDS = new DAOIDSHBM(session);
+		this.daoIDS = new DAOIDSImpl(session);
 	}
 
 	/**

@@ -22,8 +22,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.testng.annotations.Test;
 
-import lu.itrust.business.ts.database.dao.hbm.DAOCustomerHBM;
-import lu.itrust.business.ts.database.dao.hbm.DAOUserHBM;
+import lu.itrust.business.ts.database.dao.impl.DAOCustomerImpl;
+import lu.itrust.business.ts.database.dao.impl.DAOUserImpl;
 import lu.itrust.business.ts.model.general.LogAction;
 import lu.itrust.business.ts.model.general.LogLevel;
 import lu.itrust.business.ts.model.general.LogType;
@@ -62,7 +62,7 @@ public class TS_08_Administration extends SpringTestConfiguration {
 		Session session = null;
 		try {
 			session = sessionFactory.openSession();
-			put(USER_TO_DELETE_ID, new DAOUserHBM(session).get("user").getId());
+			put(USER_TO_DELETE_ID, new DAOUserImpl(session).get("user").getId());
 		} finally {
 			if (session != null && session.isOpen())
 				session.close();
@@ -81,7 +81,7 @@ public class TS_08_Administration extends SpringTestConfiguration {
 		Session session = null;
 		try {
 			session = sessionFactory.openSession();
-			put(CUSTOMER_TO_DELETE_ID, new DAOCustomerHBM(session).getFromContactPerson(CUSTOMER_NAME).getId());
+			put(CUSTOMER_TO_DELETE_ID, new DAOCustomerImpl(session).getFromContactPerson(CUSTOMER_NAME).getId());
 		} finally {
 			if (session != null && session.isOpen())
 				session.close();

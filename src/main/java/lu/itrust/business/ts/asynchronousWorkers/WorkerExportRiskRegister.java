@@ -34,9 +34,9 @@ import lu.itrust.business.ts.constants.Constant;
 import lu.itrust.business.ts.database.dao.DAOAnalysis;
 import lu.itrust.business.ts.database.dao.DAOUser;
 import lu.itrust.business.ts.database.dao.DAOWordReport;
-import lu.itrust.business.ts.database.dao.hbm.DAOAnalysisHBM;
-import lu.itrust.business.ts.database.dao.hbm.DAOUserHBM;
-import lu.itrust.business.ts.database.dao.hbm.DAOWordReportHBM;
+import lu.itrust.business.ts.database.dao.impl.DAOAnalysisImpl;
+import lu.itrust.business.ts.database.dao.impl.DAOUserImpl;
+import lu.itrust.business.ts.database.dao.impl.DAOWordReportImpl;
 import lu.itrust.business.ts.exception.TrickException;
 import lu.itrust.business.ts.helper.InstanceManager;
 import lu.itrust.business.ts.messagehandler.MessageHandler;
@@ -151,9 +151,9 @@ public class WorkerExportRiskRegister extends WorkerImpl {
 				setCurrent(Thread.currentThread());
 			}
 			session = getSessionFactory().openSession();
-			daoAnalysis = new DAOAnalysisHBM(session);
-			daoWordReport = new DAOWordReportHBM(session);
-			daoUser = new DAOUserHBM(session);
+			daoAnalysis = new DAOAnalysisImpl(session);
+			daoWordReport = new DAOWordReportImpl(session);
+			daoUser = new DAOUserImpl(session);
 			session.beginTransaction();
 			long reportId = processing();
 			session.getTransaction().commit();

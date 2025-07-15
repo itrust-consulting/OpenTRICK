@@ -23,7 +23,7 @@ import org.hibernate.Session;
 import lu.itrust.business.ts.asynchronousWorkers.helper.AsyncCallback;
 import lu.itrust.business.ts.component.TrickLogManager;
 import lu.itrust.business.ts.database.dao.DAOAnalysis;
-import lu.itrust.business.ts.database.dao.hbm.DAOAnalysisHBM;
+import lu.itrust.business.ts.database.dao.impl.DAOAnalysisImpl;
 import lu.itrust.business.ts.exception.TrickException;
 import lu.itrust.business.ts.form.TicketingForm;
 import lu.itrust.business.ts.helper.InstanceManager;
@@ -132,7 +132,7 @@ public class WorkerGenerateTickets extends WorkerImpl {
 	 * @throws InterruptedException If the execution of the task is interrupted.
 	 */
 	private void executeTask(Session session) throws InterruptedException {
-		final DAOAnalysis daoAnalysis = new DAOAnalysisHBM(session);
+		final DAOAnalysis daoAnalysis = new DAOAnalysisImpl(session);
 		session.beginTransaction();
 		final Analysis analysis = daoAnalysis.get(idAnalysis);
 		if (analysis.hasProject() || analysis.getCustomer().getTicketingSystem().getType().isNoClient()) {

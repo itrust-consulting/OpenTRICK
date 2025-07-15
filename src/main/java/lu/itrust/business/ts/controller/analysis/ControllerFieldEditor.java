@@ -35,7 +35,7 @@ import lu.itrust.business.ts.component.AssessmentAndRiskProfileManager;
 import lu.itrust.business.ts.component.ChartGenerator;
 import lu.itrust.business.ts.component.TrickLogManager;
 import lu.itrust.business.ts.constants.Constant;
-import lu.itrust.business.ts.database.dao.hbm.DAOHibernate;
+import lu.itrust.business.ts.database.dao.impl.DAOHibernate;
 import lu.itrust.business.ts.database.service.ServiceActionPlan;
 import lu.itrust.business.ts.database.service.ServiceAnalysis;
 import lu.itrust.business.ts.database.service.ServiceAssessment;

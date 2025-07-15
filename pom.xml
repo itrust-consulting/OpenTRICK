@@ -533,7 +533,6 @@
 					<layers>
 						<enabled>true</enabled>
 					</layers>
-					<!--<imageName>opentrick.eu/docker</imageName>-->
 					<imageName>${module.image.name}</imageName>
 				</configuration>
 				<executions>
@@ -558,7 +557,6 @@
 					<argLine>-Dspring.config.additional-location=classpath:/deployment-ldap.properties,classpath:/deployment.properties</argLine>
 					<suiteXmlFiles>
 						<suiteXmlFile>src/test/resources/scenarios/Controller.xml</suiteXmlFile>
-						<!-- <suiteXmlFile>src/test/resources/scenarios/UI.xml</suiteXmlFile> -->
 					</suiteXmlFiles>
 				</configuration>
 			</plugin>

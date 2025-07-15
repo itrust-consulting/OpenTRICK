@@ -4,6 +4,7 @@
 package lu.itrust.business.ts.component;
 
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -37,6 +38,7 @@ import lu.itrust.business.ts.database.dao.DAOCustomer;
 import lu.itrust.business.ts.database.dao.DAOEmailValidatingRequest;
 import lu.itrust.business.ts.database.dao.DAOIDS;
 import lu.itrust.business.ts.database.dao.DAOMeasure;
+import lu.itrust.business.ts.database.dao.DAOMeasureAssetValue;
 import lu.itrust.business.ts.database.dao.DAOMeasureDescription;
 import lu.itrust.business.ts.database.dao.DAOMeasureDescriptionText;
 import lu.itrust.business.ts.database.dao.DAOResetPassword;
@@ -66,18 +68,21 @@ import lu.itrust.business.ts.model.ilr.AssetNode;
 import lu.itrust.business.ts.model.scenario.Scenario;
 import lu.itrust.business.ts.model.standard.AnalysisStandard;
 import lu.itrust.business.ts.model.standard.Standard;
+import lu.itrust.business.ts.model.standard.StandardType;
 import lu.itrust.business.ts.model.standard.measure.AbstractNormalMeasure;
 import lu.itrust.business.ts.model.standard.measure.Measure;
+import lu.itrust.business.ts.model.standard.measure.impl.AssetMeasure;
+import lu.itrust.business.ts.model.standard.measure.impl.MeasureAssetValue;
 import lu.itrust.business.ts.model.standard.measuredescription.MeasureDescription;
 import lu.itrust.business.ts.model.standard.measuredescription.MeasureDescriptionText;
 import lu.itrust.business.ts.usermanagement.ResetPassword;
 import lu.itrust.business.ts.usermanagement.User;
 import lu.itrust.business.ts.usermanagement.helper.UserDeleteHelper;
 
-
 /**
  * This class represents a component responsible for custom deletion operations.
- * It provides methods to delete various entities such as assessments, assets, measures, etc.
+ * It provides methods to delete various entities such as assessments, assets,
+ * measures, etc.
  * The deletion operations are performed in a transactional manner.
  */
 @Component
@@ -156,6 +161,9 @@ public class CustomDelete {
 	private DAOAssetNode daoAssetNode;
 
 	@Autowired
+	private DAOMeasureAssetValue daoMeasureAssetValue;
+
+	@Autowired
 	private DAOIDS daoIDS;
 
 	/**
@@ -177,11 +185,12 @@ public class CustomDelete {
 	}
 
 	/**
-	 * Deletes the action plan and measure associated with the given analyses, measure description, and principal.
+	 * Deletes the action plan and measure associated with the given analyses,
+	 * measure description, and principal.
 	 *
-	 * @param analyses          the list of analyses
+	 * @param analyses           the list of analyses
 	 * @param measureDescription the measure description
-	 * @param principal         the principal
+	 * @param principal          the principal
 	 * @throws Exception if an error occurs during the deletion process
 	 */
 	private void deleteActionPlanAndMeasure(List<Analysis> analyses, MeasureDescription measureDescription,
@@ -230,12 +239,15 @@ public class CustomDelete {
 	}
 
 	/**
-	 * Deletes the action plan associated with the given analysis and also deletes any dependencies on scenarios or assets.
+	 * Deletes the action plan associated with the given analysis and also deletes
+	 * any dependencies on scenarios or assets.
 	 *
-	 * @param analysis The analysis for which the action plan and dependencies need to be deleted.
-	 * @param assessments The list of assessments associated with the analysis.
+	 * @param analysis     The analysis for which the action plan and dependencies
+	 *                     need to be deleted.
+	 * @param assessments  The list of assessments associated with the analysis.
 	 * @param riskProfiles The list of risk profiles associated with the analysis.
-	 * @throws Exception If an error occurs while deleting the action plan or dependencies.
+	 * @throws Exception If an error occurs while deleting the action plan or
+	 *                   dependencies.
 	 */
 	private void deleteActionPlanAndScenarioOrAssetDependencies(Analysis analysis, List<Assessment> assessments,
 			List<RiskProfile> riskProfiles) throws Exception {
@@ -260,7 +272,7 @@ public class CustomDelete {
 	 * Deletes an analysis with the specified ID and username.
 	 *
 	 * @param idAnalysis the ID of the analysis to delete
-	 * @param username the username of the user performing the deletion
+	 * @param username   the username of the user performing the deletion
 	 * @throws Exception if an error occurs during the deletion process
 	 */
 	@Transactional
@@ -269,7 +281,8 @@ public class CustomDelete {
 	}
 
 	/**
-	 * Deletes the analyses with the specified IDs and updates the username of the user performing the deletion.
+	 * Deletes the analyses with the specified IDs and updates the username of the
+	 * user performing the deletion.
 	 *
 	 * @param ids      the list of analysis IDs to be deleted
 	 * @param username the username of the user performing the deletion
@@ -383,6 +396,37 @@ public class CustomDelete {
 				analysis.removeRiskProfile(asset));
 
 		analysis.removeFromScenario(asset).forEach(scenario -> daoScenario.saveOrUpdate(scenario));
+
+		final List<AssetMeasure> assetMeasures = analysis.getAnalysisStandards().values().stream()
+				.filter(e -> e.isAnalysisOnly() && e.getStandard().getType() == StandardType.ASSET)
+				.flatMap(e -> e.getMeasures().stream())
+				.filter(m -> m instanceof AssetMeasure && ((AssetMeasure) m).getMeasureAssetValues().stream()
+						.anyMatch(av -> av.getAsset().equals(asset)))
+				.map(m -> (AssetMeasure) m).collect(Collectors.toList());
+
+		final var measureOption = assetMeasures.stream().filter(e -> e.getMeasureAssetValues().size() == 1).findFirst();
+
+		if (measureOption.isPresent()) {
+
+			var measure = measureOption.get();
+
+			throw new TrickException("error.asset.measure.in_use",
+					"Asset cannot be deleted: please remove the asset from the measure first: "
+							+ measure.getMeasureDescription().getReference() + " from standard "
+							+ measure.getMeasureDescription().getStandard().getName(),
+					measure.getMeasureDescription().getReference(),
+					measure.getMeasureDescription().getStandard().getName());
+		} else {
+			final List<MeasureAssetValue> assetValues = new ArrayList<>();
+			// Remove the asset from all measures
+			assetMeasures
+					.forEach(measure -> measure.getMeasureAssetValues().removeIf(av -> av.getAsset().equals(asset) &&
+							assetValues.add(av)));
+
+			assetValues.forEach(daoMeasureAssetValue::delete);
+
+		
+		}
 
 		analysis.getAssets().remove(asset);
 

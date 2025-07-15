@@ -15,10 +15,10 @@ import lu.itrust.business.ts.component.TrickLogManager;
 import lu.itrust.business.ts.constants.Constant;
 import lu.itrust.business.ts.database.dao.DAOAnalysis;
 import lu.itrust.business.ts.database.dao.DAOTrickTemplate;
-import lu.itrust.business.ts.database.dao.hbm.DAOAnalysisHBM;
-import lu.itrust.business.ts.database.dao.hbm.DAOTrickTemplateHBM;
-import lu.itrust.business.ts.database.dao.hbm.DAOUserHBM;
-import lu.itrust.business.ts.database.dao.hbm.DAOWordReportHBM;
+import lu.itrust.business.ts.database.dao.impl.DAOAnalysisImpl;
+import lu.itrust.business.ts.database.dao.impl.DAOTrickTemplateImpl;
+import lu.itrust.business.ts.database.dao.impl.DAOUserImpl;
+import lu.itrust.business.ts.database.dao.impl.DAOWordReportImpl;
 import lu.itrust.business.ts.exception.TrickException;
 import lu.itrust.business.ts.exportation.word.ExportReport;
 import lu.itrust.business.ts.helper.Task;
@@ -95,7 +95,7 @@ public class WorkerExportWordReport extends WorkerImpl {
 			}
 
 			session = getSessionFactory().openSession();
-			DAOAnalysis daoAnalysis = new DAOAnalysisHBM(session);
+			DAOAnalysis daoAnalysis = new DAOAnalysisImpl(session);
 			Analysis analysis = daoAnalysis.get(idAnalysis);
 			if (analysis == null)
 				throw new TrickException("error.analysis.not_exist", "Analysis not found");
@@ -105,7 +105,7 @@ public class WorkerExportWordReport extends WorkerImpl {
 				throw new TrickException("error.analysis.no_data", "Empty analysis cannot be exported");
 			getServiceTaskFeedback().send(getId(), new MessageHandler("info.export.report.prepare.document",
 					"Please wait while preparing word document", 0));
-			final DAOTrickTemplate daoTrickTemplate = new DAOTrickTemplateHBM(session);
+			final DAOTrickTemplate daoTrickTemplate = new DAOTrickTemplateImpl(session);
 			final TrickTemplate reportTemplate = exportReport.getFile() != null ? null
 					: daoTrickTemplate.findByIdAndCustomerOrDefault(idTemplate, analysis.getCustomer().getId());
 			if (exportReport.getFile() == null) {
@@ -161,7 +161,7 @@ public class WorkerExportWordReport extends WorkerImpl {
 	 */
 	private void saveWordDocument(Session session) throws Exception {
 		try {
-			final User user = new DAOUserHBM(session).get(username);
+			final User user = new DAOUserImpl(session).get(username);
 			final Analysis analysis = exportReport.getAnalysis();
 			final File file = exportReport.getFile();
 
@@ -178,7 +178,7 @@ public class WorkerExportWordReport extends WorkerImpl {
 			getServiceTaskFeedback().send(getId(),
 					new MessageHandler("info.saving.word.report", "Saving word report", 99));
 			session.getTransaction().begin();
-			new DAOWordReportHBM(session).saveOrUpdate(report);
+			new DAOWordReportImpl(session).saveOrUpdate(report);
 			session.getTransaction().commit();
 			MessageHandler messageHandler = new MessageHandler("success.save.word.report",
 					"Report has been successfully saved", 100);

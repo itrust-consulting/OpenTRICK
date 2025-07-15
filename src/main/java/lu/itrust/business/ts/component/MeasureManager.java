@@ -24,7 +24,7 @@ import lu.itrust.business.ts.database.dao.DAOAssetType;
 import lu.itrust.business.ts.database.dao.DAOAssetTypeValue;
 import lu.itrust.business.ts.database.dao.DAOMeasure;
 import lu.itrust.business.ts.database.dao.DAOMeasureDescription;
-import lu.itrust.business.ts.database.dao.hbm.DAOHibernate;
+import lu.itrust.business.ts.database.dao.impl.DAOHibernate;
 import lu.itrust.business.ts.exception.TrickException;
 import lu.itrust.business.ts.form.ImportRRFForm;
 import lu.itrust.business.ts.model.analysis.Analysis;

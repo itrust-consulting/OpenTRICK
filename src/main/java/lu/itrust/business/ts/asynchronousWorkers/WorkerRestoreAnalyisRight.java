@@ -14,8 +14,8 @@ import org.hibernate.Session;
 import lu.itrust.business.ts.component.TrickLogManager;
 import lu.itrust.business.ts.database.dao.DAOAnalysis;
 import lu.itrust.business.ts.database.dao.DAOUserAnalysisRight;
-import lu.itrust.business.ts.database.dao.hbm.DAOAnalysisHBM;
-import lu.itrust.business.ts.database.dao.hbm.DAOUserAnalysisRightHBM;
+import lu.itrust.business.ts.database.dao.impl.DAOAnalysisImpl;
+import lu.itrust.business.ts.database.dao.impl.DAOUserAnalysisRightImpl;
 import lu.itrust.business.ts.messagehandler.MessageHandler;
 import lu.itrust.business.ts.messagehandler.TaskName;
 import lu.itrust.business.ts.model.analysis.Analysis;
@@ -205,8 +205,8 @@ public class WorkerRestoreAnalyisRight extends WorkerImpl {
 	 * @param session the Hibernate session object used for database operations
 	 */
 	private void initialiseDAO(Session session) {
-		setDaoAnalysis(new DAOAnalysisHBM(session));
-		setDaoUserAnalysisRight(new DAOUserAnalysisRightHBM(session));
+		setDaoAnalysis(new DAOAnalysisImpl(session));
+		setDaoUserAnalysisRight(new DAOUserAnalysisRightImpl(session));
 	}
 
 	/*

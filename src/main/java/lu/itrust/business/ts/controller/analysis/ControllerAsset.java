@@ -25,6 +25,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -103,7 +104,7 @@ public class ControllerAsset {
 	 * @return an Object representing the chart of assets for the analysis
 	 * @throws Exception if an error occurs during the chart generation
 	 */
-	@RequestMapping(value = "/Chart/Ale", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@GetMapping(value = "/Chart/Ale", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).READ)")
 	public @ResponseBody Object aleByAsset(HttpSession session, Model model, Principal principal, Locale locale)
 			throws Exception {
@@ -123,7 +124,7 @@ public class ControllerAsset {
 	 * @return an Object representing the chart of assets for the analysis
 	 * @throws Exception if an error occurs during the chart generation
 	 */
-	@RequestMapping(value = "/Chart/Type/Ale", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@GetMapping(value = "/Chart/Type/Ale", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).READ)")
 	public @ResponseBody Object assetByALE(HttpSession session, Model model, Principal principal, Locale locale)
 			throws Exception {
@@ -145,7 +146,7 @@ public class ControllerAsset {
 	 *         operation.
 	 * @throws Exception If an error occurs during the delete operation.
 	 */
-	@RequestMapping(value = "/Delete/{idAsset}", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PostMapping(value = "/Delete/{idAsset}", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #idAsset, 'Asset', #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String delete(@PathVariable int idAsset, Principal principal, Locale locale,
 			HttpSession session) throws Exception {

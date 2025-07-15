@@ -38,8 +38,8 @@ import lu.itrust.business.ts.asynchronousWorkers.helper.AsyncCallback;
 import lu.itrust.business.ts.component.TrickLogManager;
 import lu.itrust.business.ts.database.dao.DAOAnalysis;
 import lu.itrust.business.ts.database.dao.DAORiskInformation;
-import lu.itrust.business.ts.database.dao.hbm.DAOAnalysisHBM;
-import lu.itrust.business.ts.database.dao.hbm.DAORiskInformationHBM;
+import lu.itrust.business.ts.database.dao.impl.DAOAnalysisImpl;
+import lu.itrust.business.ts.database.dao.impl.DAORiskInformationImpl;
 import lu.itrust.business.ts.exception.TrickException;
 import lu.itrust.business.ts.exportation.word.impl.docx4j.helper.AddressRef;
 import lu.itrust.business.ts.messagehandler.MessageHandler;
@@ -391,8 +391,8 @@ public class WorkerImportRiskInformation extends WorkerImpl {
 	}
 
 	private void initialiseDAO(Session session) {
-		setDaoAnalysis(new DAOAnalysisHBM(session));
-		setDaoRiskInformation(new DAORiskInformationHBM(session));
+		setDaoAnalysis(new DAOAnalysisImpl(session));
+		setDaoRiskInformation(new DAORiskInformationImpl(session));
 	}
 
 	public DAOAnalysis getDaoAnalysis() {

@@ -1322,7 +1322,7 @@ public class Analysis implements Cloneable {
 		// In that case, we must update
 		// lu.itrust.business.ts.database.dao.DAOParameter#getAllExpressionParametersFromAnalysis(Integer),
 		// so in particular
-		// lu.itrust.business.ts.database.dao.hbm.DAOParameterHBM#getAllExpressionParametersFromAnalysis(Integer).
+		// lu.itrust.business.ts.database.dao.Impl.DAOParameterImpl#getAllExpressionParametersFromAnalysis(Integer).
 		return this.parameters.entrySet().stream()
 				.filter(entry -> entry.getKey().equals(Constant.PARAMETER_TYPE_PROPABILITY_NAME)
 						|| entry.getKey().equals(Constant.PARAMETER_TYPE_IMPACT_NAME)
