@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.docx4j.openpackaging.packages.SpreadsheetMLPackage;
 import org.docx4j.openpackaging.parts.SpreadsheetML.TablePart;
 import org.docx4j.openpackaging.parts.SpreadsheetML.WorkbookPart;
@@ -30,13 +31,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.xlsx4j.sml.CTTable;
 import org.xlsx4j.sml.CTTableColumn;
@@ -345,7 +349,7 @@ public class ControllerMeasureCollection {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Import", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8, method = RequestMethod.POST)
+	@PostMapping(value = "/Import", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody String importNewStandard(@RequestParam(value = "file") MultipartFile file, Principal principal,
 			RedirectAttributes attributes, Locale locale)
 			throws Exception {
@@ -370,146 +374,18 @@ public class ControllerMeasureCollection {
 	 * @param locale
 	 * @param response
 	 * @return
+	 * @throws IOException
+	 * @throws Docx4JException
+	 * @throws TrickException
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Export/{idStandard}", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
-	public String exportStandard(@PathVariable("idStandard") Integer idStandard, Principal principal,
-			HttpServletRequest request, Locale locale, HttpServletResponse response)
-			throws Exception {
-
-		final Standard standard = serviceStandard.get(idStandard);
-
-		if (standard == null)
-			return "404";
-		final File workFile = serviceStorage.createTmpFile();
-		try {
-
-			serviceStorage.copy(template, workFile.getName());
-
-			SpreadsheetMLPackage mlPackage = SpreadsheetMLPackage.load(workFile);
-
-			WorkbookPart workbook = mlPackage.getWorkbookPart();
-
-			SheetData sheet = findSheet(workbook, "NormInfo");
-
-			TablePart tablePart = findTable(sheet, "TableNormInfo");
-			tablePart.getContents().getRef();
-			AddressRef address = AddressRef.parse(tablePart.getContents().getRef());
-			int row = address.getBegin().getRow() + 1;
-			int nameCol = address.getBegin().getCol();
-			int labelCol = nameCol + 1;
-			int versionCol = labelCol + 1;
-			int descCol = versionCol + 1;
-			// standard name
-			Cell cell = sheet.getRow().get(row).getC().get(nameCol);
-			setValue(cell, standard.getName());
-			// standard label
-			cell = sheet.getRow().get(row).getC().get(labelCol);
-			setValue(cell, standard.getLabel());
-			// standard version
-			cell = sheet.getRow().get(row).getC().get(versionCol);
-			setValue(cell, standard.getVersion());
-			// standard description
-			cell = sheet.getRow().get(row).getC().get(descCol);
-			setValue(cell, standard.getDescription());
-			// standard computable
-			cell = sheet.getRow().get(row).getC().get(address.getEnd().getCol());
-			setValue(cell, standard.isComputable());
-
-			/**
-			 * Measures
-			 */
-
-			sheet = findSheet(workbook, "NormData");
-			final List<Language> languages = serviceLanguage.getAll();
-			final List<MeasureDescription> measuredescriptions = serviceMeasureDescription
-					.getAllByStandard(standard.getId());
-
-			measuredescriptions
-					.sort((m1, m2) -> NaturalOrderComparator.compareTo(m1.getReference(), m2.getReference()));
-
-			int referenceCol = 0, computableCol = 1, colSize = (languages.size() + 1) * 2, index = 0;
-			sheet.getRow().clear();
-			Row sheetRow = getOrCreateRow(sheet, 0, colSize);
-			setValue(sheetRow.getC().get(index++), "Reference");
-			setValue(sheetRow.getC().get(index++), "Computable");
-			tablePart = findTable(sheet, "TableNormData");
-			address = AddressRef.parse(tablePart.getContents().getRef());
-			CTTable table = tablePart.getContents();
-			while (table.getTableColumns().getTableColumn().size() > index)
-				table.getTableColumns().getTableColumn().remove(index);
-
-			for (Language language : languages) {
-				CTTableColumn columnDomain = new CTTableColumn(), columnDesc = new CTTableColumn();
-				table.getTableColumns().getTableColumn().add(columnDomain);
-				table.getTableColumns().getTableColumn().add(columnDesc);
-				columnDomain.setName("Domain_" + language.getAlpha3());
-				columnDesc.setName("Description_" + language.getAlpha3());
-				setValue(sheetRow.getC().get(index++), columnDomain.getName());
-				setValue(sheetRow.getC().get(index++), columnDesc.getName());
-			}
-
-			for (int i = 0; i < colSize; i++)
-				table.getTableColumns().getTableColumn().get(i).setId(i + 1);
-
-			address.getEnd().setCol(colSize - 1);
-			address.getEnd().setRow(measuredescriptions.size());
-
-			table.setRef(address.toString());
-
-			if (table.getAutoFilter() != null)
-				table.getAutoFilter().setRef(table.getRef());
-
-			final WorksheetPart worksheetPart = getWorksheetPart(sheet);
-
-			if (worksheetPart.getContents().getDimension() != null)
-				worksheetPart.getContents().getDimension().setRef(table.getRef());
-
-			row = 1;
-
-			for (MeasureDescription measuredescription : measuredescriptions) {
-
-				sheetRow = getOrCreateRow(sheet, row++, colSize);
-
-				setValue(sheetRow.getC().get(referenceCol), measuredescription.getReference());
-
-				setValue(sheetRow.getC().get(computableCol), measuredescription.isComputable());
-
-				int domainCol = computableCol + 1;
-
-				for (Language language : languages) {
-					MeasureDescriptionText measureDescriptionText = serviceMeasureDescriptionText
-							.getForMeasureDescriptionAndLanguage(measuredescription.getId(), language.getId());
-					if (measureDescriptionText != null) {
-						setValue(sheetRow.getC().get(domainCol), measureDescriptionText.getDomain());
-						setValue(sheetRow.getC().get(domainCol + 1), measureDescriptionText.getDescription());
-					}
-					domainCol += 2;
-				}
-			}
-
-			final String filename = String.format(Constant.ITR_FILE_NAMING,
-					"R5xx_STA_TSE",
-					"KB",
-					Utils.cleanUpFileName(standard.getLabel()), "MeasureCollection", standard.getVersion(),
-					"xlsx");
-
-			response.setContentType("xlsx");
-			response.setHeader("Content-Disposition",
-					"attachment; filename=\"" + filename + "\"");
-			mlPackage.save(response.getOutputStream());
-			/**
-			 * Log
-			 */
-			TrickLogManager.persist(LogLevel.WARNING, LogType.KNOWLEDGE_BASE, "log.export.standard",
-					String.format("Standard: %s, version: %d", standard.getLabel(), standard.getVersion()),
-					principal.getName(), LogAction.EXPORT, standard.getLabel(),
-					String.valueOf(standard.getVersion()));
-			// return
-			return null;
-		} finally {
-			serviceStorage.delete(workFile.getName());
-		}
+	@GetMapping(value = "/Export/{idStandard}", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	public void exportStandard(@PathVariable("idStandard") Integer idStandard, Principal principal,
+			HttpServletRequest request, HttpServletResponse response, Locale locale)
+			throws TrickException, Docx4JException, IOException {
+		if (measureManager.exportStandard(idStandard, response, principal.getName()))
+			throw new ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND,
+					messageSource.getMessage("error.standard.not_found", null, "Standard not found", locale));
 
 	}
 

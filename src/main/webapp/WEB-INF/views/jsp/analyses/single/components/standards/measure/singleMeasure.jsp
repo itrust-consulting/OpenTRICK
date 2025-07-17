@@ -62,8 +62,8 @@
 		<tr data-trick-computable="false" data-trick-reference='${measure.measureDescription.reference}' onclick="selectElement(this)" data-trick-class="Measure"
 			class='active' data-trick-id="${measure.id}" data-is-linked='${hasTicket}' data-trick-callback="reloadMeasureRow('${measure.id}','${standardid}');"
 			${dblclickaction}>
-			<c:if test="${isLinkedToProject or analysisOnly and isEditable}">
-				<td><input type="checkbox" ${not analysisOnly?'disabled':''} class="checkbox"
+			<c:if test="${isLinkedToProject or isAnalysisOnly and isEditable}">
+				<td><input type="checkbox" ${not isAnalysisOnly?'disabled':''} class="checkbox"
 					onchange="return updateMenu(this,'#section_standard_${standardid}','#menu_standard_${standardid}');"></td>
 			</c:if>
 			<td><c:choose>
@@ -115,11 +115,11 @@
 	<c:otherwise>
 		<tr ${isAnalysisOnly? dblclickaction : ''} data-trick-class="Measure" data-trick-id="${measure.id}" data-trick-reference='${measure.measureDescription.reference}'
 			onclick="selectElement(this)" data-trick-callback="reloadMeasureRow('${measure.id}','${standardid}');" data-is-linked='${isLinkedToProject and not empty measure.ticket}'>
-			<c:if test="${isLinkedToProject or  analysisOnly and isEditable}">
+			<c:if test="${isLinkedToProject or  isAnalysisOnly and isEditable}">
 				<td><input type="checkbox" ${measure.status eq 'NA' || measure.status eq 'EX' ?'disabled':''} class="checkbox"
 					onchange="return updateMenu(this,'#section_standard_${standardid}','#menu_standard_${standardid}');"></td>
 			</c:if>
-			<td ${not analysisOnly? dblclickaction : ''}><c:choose>
+			<td ${not isAnalysisOnly? dblclickaction : ''}><c:choose>
 					<c:when test="${hasTicket}">
 						<c:choose>
 							<c:when test="${isNoClientTicketing}"><span style="white-space: nowrap;"><i class="fa fa-paper-plane" style="font-size: 8px;" aria-hidden="true"></i> <spring:message text="${measure.measureDescription.reference}" /></span></c:when>

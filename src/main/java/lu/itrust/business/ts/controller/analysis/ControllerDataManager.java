@@ -1453,7 +1453,7 @@ public class ControllerDataManager {
 					.allMatch(idStandard -> serviceStandard.belongsToAnalysis(rrfForm.getAnalysis(), idStandard)))
 				return JsonMessage.Error(messageSource.getMessage("error.action.not_authorise", null,
 						"Action does not authorised", locale));
-			measureManager.importStandard((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS), rrfForm);
+			measureManager.importRRFFromStandard((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS), rrfForm);
 			return JsonMessage.Success(messageSource.getMessage("success.import_rrf", null,
 					"Measure characteristics has been successfully imported", locale));
 		} catch (TrickException e) {

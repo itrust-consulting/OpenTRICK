@@ -73,7 +73,8 @@ public class DAOUserAnalysisRightImpl extends DAOHibernate implements DAOUserAna
 	@Override
 	public boolean isUserAuthorized(Integer analysisId, Integer userId, AnalysisRight right) {
 		String query = "Select userRight.right From Analysis analysis inner join analysis.userRights userRight where analysis.id = :idAnalysis and userRight.user.id = :idUser";
-		AnalysisRight analysisRight = (AnalysisRight) createQueryWithCache(query).setParameter("idAnalysis", analysisId).setParameter("idUser", userId).uniqueResultOptional()
+		AnalysisRight analysisRight = (AnalysisRight) createQueryWithCache(query).setParameter("idAnalysis", analysisId)
+				.setParameter("idUser", userId).uniqueResultOptional()
 				.orElse(null);
 		return analysisRight == null ? false : analysisRight.ordinal() <= right.ordinal();
 	}
@@ -90,12 +91,16 @@ public class DAOUserAnalysisRightImpl extends DAOHibernate implements DAOUserAna
 	@Override
 	public boolean isUserAuthorized(Integer idAnalysis, String username, AnalysisRight right) {
 		String query = "Select userRight.right, analysis.archived From Analysis analysis inner join analysis.userRights userRight where analysis.id = :idAnalysis and userRight.user.login = :login";
-		Object[] data = (Object[]) createQueryWithCache(query).setParameter("idAnalysis", idAnalysis).setParameter("login", username).uniqueResultOptional().orElse(null);
-		User user = createQueryWithCache("FROM User as user where user.login = :username", User.class).setParameter("username", username).uniqueResultOptional().orElse(null);
-		Boolean isProfile = createQueryWithCache("Select analysis.profile From Analysis as analysis where analysis.id = :id", Boolean.class).setParameter("id", idAnalysis)
+		Object[] data = (Object[]) createQueryWithCache(query).setParameter("idAnalysis", idAnalysis)
+				.setParameter("login", username).uniqueResultOptional().orElse(null);
+		User user = createQueryWithCache("FROM User as user where user.login = :username", User.class)
+				.setParameter("username", username).uniqueResultOptional().orElse(null);
+		boolean isProfile = createQueryWithCache(
+				"Select analysis.profile From Analysis as analysis where analysis.id = :id", Boolean.class)
+				.setParameter("id", idAnalysis)
 				.uniqueResultOptional().orElse(false);
 		if (data == null) {
-			if (isProfile) {
+			if (isProfile && user != null) {
 				if (user.isAutorised(RoleType.ROLE_CONSULTANT))
 					data = new Object[] { AnalysisRight.ALL, false };
 				else
@@ -140,7 +145,8 @@ public class DAOUserAnalysisRightImpl extends DAOHibernate implements DAOUserAna
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<UserAnalysisRight> getAllFromAnalysis(Integer analysisid) {
-		return (List<UserAnalysisRight>) createQueryWithCache("select userRight From Analysis analysis inner join analysis.userRights userRight WHERE analysis.id = :analysis")
+		return (List<UserAnalysisRight>) createQueryWithCache(
+				"select userRight From Analysis analysis inner join analysis.userRights userRight WHERE analysis.id = :analysis")
 				.setParameter("analysis", analysisid).getResultList();
 	}
 
@@ -153,7 +159,8 @@ public class DAOUserAnalysisRightImpl extends DAOHibernate implements DAOUserAna
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<UserAnalysisRight> getAllFromAnalysis(Analysis analysis) {
-		return (List<UserAnalysisRight>) createQueryWithCache("select userRight From Analysis analysis inner join analysis.userRights userRight WHERE analysis = :analysis")
+		return (List<UserAnalysisRight>) createQueryWithCache(
+				"select userRight From Analysis analysis inner join analysis.userRights userRight WHERE analysis = :analysis")
 				.setParameter("analysis", analysis).getResultList();
 	}
 
@@ -166,7 +173,9 @@ public class DAOUserAnalysisRightImpl extends DAOHibernate implements DAOUserAna
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<UserAnalysisRight> getAllFromUser(String login) {
-		return (List<UserAnalysisRight>) createQueryWithCache("select userRight From Analysis analysis inner join analysis.userRights userRight where userRight.user.login = :user").setParameter("user", login)
+		return (List<UserAnalysisRight>) createQueryWithCache(
+				"select userRight From Analysis analysis inner join analysis.userRights userRight where userRight.user.login = :user")
+				.setParameter("user", login)
 				.getResultList();
 	}
 
@@ -179,7 +188,8 @@ public class DAOUserAnalysisRightImpl extends DAOHibernate implements DAOUserAna
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<UserAnalysisRight> getAllFromUser(User user) {
-		return (List<UserAnalysisRight>) createQueryWithCache("select userRight From Analysis analysis inner join analysis.userRights userRight WHERE userRight.user = :user")
+		return (List<UserAnalysisRight>) createQueryWithCache(
+				"select userRight From Analysis analysis inner join analysis.userRights userRight WHERE userRight.user = :user")
 				.setParameter("user", user).getResultList();
 	}
 
@@ -229,46 +239,54 @@ public class DAOUserAnalysisRightImpl extends DAOHibernate implements DAOUserAna
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<UserAnalysisRight> getAllFromIdenfierExceptAnalysisIdAndRightNotRead(String identifier, int analysisId) {
+	public List<UserAnalysisRight> getAllFromIdenfierExceptAnalysisIdAndRightNotRead(String identifier,
+			int analysisId) {
 		return createQueryWithCache(
-						"select userRight From Analysis as analysis inner join analysis.userRights as userRight where analysis.identifier = :identifier and analysis.archived = :archived and analysis.id <> :idAnalysis and userRight.right <>'READ'")
+				"select userRight From Analysis as analysis inner join analysis.userRights as userRight where analysis.identifier = :identifier and analysis.archived = :archived and analysis.id <> :idAnalysis and userRight.right <>'READ'")
 				.setParameter("identifier", identifier).setParameter("idAnalysis", analysisId).getResultList();
 	}
 
 	@Override
 	public boolean isUserAuthorizedOrOwner(String identifier, String version, User owner, AnalysisRight right) {
 		AnalysisRight analysisRight = createQueryWithCache(
-						"Select userRight.right From Analysis analysis inner join analysis.userRights userRight where analysis.identifier = :identifier and analysis.version = :version and userRight.user = :owner",
-						AnalysisRight.class)
-				.setParameter("identifier", identifier).setParameter("version", version).setParameter("owner", owner).uniqueResultOptional().orElse(null);
+				"Select userRight.right From Analysis analysis inner join analysis.userRights userRight where analysis.identifier = :identifier and analysis.version = :version and userRight.user = :owner",
+				AnalysisRight.class)
+				.setParameter("identifier", identifier).setParameter("version", version).setParameter("owner", owner)
+				.uniqueResultOptional().orElse(null);
 		if (!(analysisRight == null || right == null) && analysisRight.ordinal() <= right.ordinal())
 			return true;
 		else
-			return (boolean) createQueryWithCache("Select count(*)>0 From Analysis analysis where analysis.identifier = :identifier and  analysis.version = :version and analysis.owner = :owner")
-					.setParameter("identifier", identifier).setParameter("version", version).setParameter("owner", owner).getSingleResult();
+			return (boolean) createQueryWithCache(
+					"Select count(*)>0 From Analysis analysis where analysis.identifier = :identifier and  analysis.version = :version and analysis.owner = :owner")
+					.setParameter("identifier", identifier).setParameter("version", version)
+					.setParameter("owner", owner).getSingleResult();
 	}
 
 	@Override
 	public boolean hasRightOrOwner(int idAnalysis, String username, AnalysisRight right) {
 		return (boolean) createQueryWithCache(
-						"select count(analysis) > 0 From Analysis analysis inner join analysis.userRights userRight WHERE analysis.id = :idAnalysis and (analysis.owner.login = :username or userRight.user.login = :username and userRight.right in (:rights))")
-				.setParameter("idAnalysis", idAnalysis).setParameter("username", username).setParameterList("rights", AnalysisRight.highRightFrom(right)).getSingleResult();
+				"select count(analysis) > 0 From Analysis analysis inner join analysis.userRights userRight WHERE analysis.id = :idAnalysis and (analysis.owner.login = :username or userRight.user.login = :username and userRight.right in (:rights))")
+				.setParameter("idAnalysis", idAnalysis).setParameter("username", username)
+				.setParameterList("rights", AnalysisRight.highRightFrom(right)).getSingleResult();
 	}
 
 	@Override
 	public void deleteByUser(User user) {
-		createQueryWithCache("Delete from UserAnalysisRight where user = :user").setParameter("user", user).executeUpdate();
+		createQueryWithCache("Delete from UserAnalysisRight where user = :user").setParameter("user", user)
+				.executeUpdate();
 	}
 
 	@Override
 	public boolean isUserAuthorized(int idAnalysis, String username, List<AnalysisRight> rights) {
 		return (boolean) createQueryWithCache(
-						"select count(analysis) > 0 From Analysis analysis inner join analysis.userRights userRight WHERE analysis.id = :idAnalysis and userRight.user.login = :username and userRight.right in (:rights)")
-				.setParameter("idAnalysis", idAnalysis).setParameter("username", username).setParameterList("rights", rights).getSingleResult();
+				"select count(analysis) > 0 From Analysis analysis inner join analysis.userRights userRight WHERE analysis.id = :idAnalysis and userRight.user.login = :username and userRight.right in (:rights)")
+				.setParameter("idAnalysis", idAnalysis).setParameter("username", username)
+				.setParameterList("rights", rights).getSingleResult();
 	}
 
 	private boolean isAuthorised(AnalysisRight accessRight, AnalysisRight current, boolean archived) {
-		return archived ? current == AnalysisRight.READ && accessRight.ordinal() <= AnalysisRight.READ.ordinal() : accessRight.ordinal() <= current.ordinal();
+		return archived ? current == AnalysisRight.READ && accessRight.ordinal() <= AnalysisRight.READ.ordinal()
+				: accessRight.ordinal() <= current.ordinal();
 	}
 
 	@Override
@@ -278,26 +296,32 @@ public class DAOUserAnalysisRightImpl extends DAOHibernate implements DAOUserAna
 
 	private Boolean canDeleteAnalysis(Integer idAnalysis, String username) {
 		return createQueryWithCache(
-						"select count(analysis) > 0 From Analysis analysis inner join analysis.userRights userRight WHERE analysis.id = :idAnalysis and analysis.profile = false and (analysis.owner.login = :username or analysis.archived = false and userRight.user.login = :username and userRight.right in (:rights))",
-						Boolean.class)
-				.setParameter("idAnalysis", idAnalysis).setParameter("username", username).setParameterList("rights", AnalysisRight.highRightFrom(AnalysisRight.ALL))
+				"select count(analysis) > 0 From Analysis analysis inner join analysis.userRights userRight WHERE analysis.id = :idAnalysis and analysis.profile = false and (analysis.owner.login = :username or analysis.archived = false and userRight.user.login = :username and userRight.right in (:rights))",
+				Boolean.class)
+				.setParameter("idAnalysis", idAnalysis).setParameter("username", username)
+				.setParameterList("rights", AnalysisRight.highRightFrom(AnalysisRight.ALL))
 				.getSingleResult();
 	}
 
 	private Boolean canDeleteProfile(Integer idAnalysis, String username) {
-		return createQueryWithCache("select count(*) > 0 From User user inner join user.roles role where user.login = :username and role.type in (:roles)", Boolean.class)
-				.setParameter("username", username).setParameterList("roles", RoleType.greaterRoles(RoleType.ROLE_CONSULTANT)).getSingleResult()
-				&& createQueryWithCache("select count(*) > 0 From Analysis analysis where analysis.id = :idAnalysis and analysis.profile = true and  analysis.defaultProfile = false",
-								Boolean.class)
+		return createQueryWithCache(
+				"select count(*) > 0 From User user inner join user.roles role where user.login = :username and role.type in (:roles)",
+				Boolean.class)
+				.setParameter("username", username)
+				.setParameterList("roles", RoleType.greaterRoles(RoleType.ROLE_CONSULTANT)).getSingleResult()
+				&& createQueryWithCache(
+						"select count(*) > 0 From Analysis analysis where analysis.id = :idAnalysis and analysis.profile = true and  analysis.defaultProfile = false",
+						Boolean.class)
 						.setParameter("idAnalysis", idAnalysis).getSingleResult();
 	}
 
 	@Override
 	public boolean hasManagementPermission(Integer idAnalysis, String username) {
 		return createQueryWithCache(
-						"select count(analysis) > 0 From Analysis analysis inner join analysis.userRights userRight WHERE analysis.id = :idAnalysis and analysis.archived = false and (analysis.owner.login = :username or userRight.user.login = :username and userRight.right in (:rights))",
-						Boolean.class)
-				.setParameter("idAnalysis", idAnalysis).setParameter("username", username).setParameterList("rights", AnalysisRight.highRightFrom(AnalysisRight.ALL))
+				"select count(analysis) > 0 From Analysis analysis inner join analysis.userRights userRight WHERE analysis.id = :idAnalysis and analysis.archived = false and (analysis.owner.login = :username or userRight.user.login = :username and userRight.right in (:rights))",
+				Boolean.class)
+				.setParameter("idAnalysis", idAnalysis).setParameter("username", username)
+				.setParameterList("rights", AnalysisRight.highRightFrom(AnalysisRight.ALL))
 				.getSingleResult();
 	}
 }

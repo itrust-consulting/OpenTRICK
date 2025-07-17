@@ -375,34 +375,12 @@ public class CustomDelete {
 		if (asset == null)
 			throw new TrickException("error.asset.not_found", "Asset cannot be found");
 
-		final Set<AssetNode> nodes = new HashSet<>();
-
-		analysis.getAssetNodes().removeIf(e -> asset.equals(e.getAsset()) && nodes.add(e));
-
-		final Set<AssetEdge> edges = analysis.getAssetNodes().stream()
-				.flatMap(n -> nodes.stream().map(c -> n.getEdges().remove(c))).filter(Objects::nonNull)
-				.collect(Collectors.toSet());
-
-		nodes.forEach(e -> {
-			edges.addAll(e.getEdges().values());
-			e.getEdges().clear();
-		});
-
-		daoAssetEdge.delete(edges);
-
-		daoAssetNode.delete(nodes);
-
-		deleteActionPlanAndScenarioOrAssetDependencies(analysis, analysis.removeAssessment(asset),
-				analysis.removeRiskProfile(asset));
-
-		analysis.removeFromScenario(asset).forEach(scenario -> daoScenario.saveOrUpdate(scenario));
-
 		final List<AssetMeasure> assetMeasures = analysis.getAnalysisStandards().values().stream()
 				.filter(e -> e.isAnalysisOnly() && e.getStandard().getType() == StandardType.ASSET)
 				.flatMap(e -> e.getMeasures().stream())
-				.filter(m -> m instanceof AssetMeasure && ((AssetMeasure) m).getMeasureAssetValues().stream()
+				.filter(m -> (m instanceof AssetMeasure ma) && ma.getMeasureAssetValues().stream()
 						.anyMatch(av -> av.getAsset().equals(asset)))
-				.map(m -> (AssetMeasure) m).collect(Collectors.toList());
+				.map(m -> (AssetMeasure) m).toList();
 
 		final var measureOption = assetMeasures.stream().filter(e -> e.getMeasureAssetValues().size() == 1).findFirst();
 
@@ -427,6 +405,30 @@ public class CustomDelete {
 
 		
 		}
+
+		final Set<AssetNode> nodes = new HashSet<>();
+
+		analysis.getAssetNodes().removeIf(e -> asset.equals(e.getAsset()) && nodes.add(e));
+
+		final Set<AssetEdge> edges = analysis.getAssetNodes().stream()
+				.flatMap(n -> nodes.stream().map(c -> n.getEdges().remove(c))).filter(Objects::nonNull)
+				.collect(Collectors.toSet());
+
+		nodes.forEach(e -> {
+			edges.addAll(e.getEdges().values());
+			e.getEdges().clear();
+		});
+
+		daoAssetEdge.delete(edges);
+
+		daoAssetNode.delete(nodes);
+
+		deleteActionPlanAndScenarioOrAssetDependencies(analysis, analysis.removeAssessment(asset),
+				analysis.removeRiskProfile(asset));
+
+		analysis.removeFromScenario(asset).forEach(scenario -> daoScenario.saveOrUpdate(scenario));
+
+		
 
 		analysis.getAssets().remove(asset);
 

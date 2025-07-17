@@ -65,15 +65,18 @@ function manageStandard() {
 					if (response["error"] != undefined)
 						showDialog("error", response["error"]);
 					else {
-						var $forms = $("#section_manage_standards", new DOMParser().parseFromString(response, "text/html"));
+						let $forms = $("#section_manage_standards", new DOMParser().parseFromString(response, "text/html"));
 						if (!$forms.length)
 							showError($("#error-standard-modal", $standardModal)[0],
 								MessageResolver("error.unknown.load.data", "An unknown error occurred during loading data"));
 						else
 							$("#section_manage_standards").replaceWith($forms);
 
-						var $tabs = $standardModal.find("#menu_manage_standards a[data-toggle='tab']"), $cancelBtn = $standardModal.find(".modal-footer button[name='cancel']"), $backBtn = $standardModal
-							.find(".modal-footer a.btn"), $saveBtn = $standardModal.find(".modal-footer button[name='save']"), $importBtn = $standardModal.find(".modal-footer button[name='import']");
+						let $tabs = $standardModal.find("#menu_manage_standards a[data-toggle='tab']");
+						let $cancelBtn = $standardModal.find(".modal-footer button[name='cancel']");
+						let $backBtn = $standardModal.find(".modal-footer a.btn");
+						let $saveBtn = $standardModal.find(".modal-footer button[name='save']");
+						let $importBtn = $standardModal.find(".modal-footer button[name='import']");
 
 						$saveBtn.on("click", saveStandard);
 
@@ -164,11 +167,11 @@ function updateImportFileForm(e) {
  * @returns {boolean} Returns false.
  */
 function importStandardFromFile(e) {
-	var $uploadFile = $("#upload-file-info",$standardModal), $progress = $("#loading-indicator");
+	let $uploadFile = $("#upload-file-info", $standardModal), $progress = $("#loading-indicator");
 	if (!$uploadFile.length)
 		return false;
 	else if ($uploadFile.val() == "") {
-		showError($("#error-standard-modal", $standardModal)[0],MessageResolver("error.import.standard.no_select.file", "Please select file to import"));
+		showError($("#error-standard-modal", $standardModal)[0], MessageResolver("error.import.standard.no_select.file", "Please select file to import"));
 		return false;
 	}
 	let $importBtn = $(e.currentTarget).prop('disabled', true);
@@ -181,7 +184,7 @@ function importStandardFromFile(e) {
 		contentType: false,
 		processData: false,
 		success: function (response) {
-			if (response.success){
+			if (response.success) {
 				application["standard-change"] = true;
 				showDialog("#success-dialog", response.success);
 				reloadStandardTable();
@@ -195,7 +198,7 @@ function importStandardFromFile(e) {
 
 	}).complete(function () {
 		$progress.hide();
-		$importBtn.prop('disabled',false);
+		$importBtn.prop('disabled', false);
 	});
 	return false;
 }
@@ -210,7 +213,7 @@ function importStandardFromFile(e) {
 function importStandardFromKb(e) {
 	if ($(e.currentTarget).parent().hasClass("disabled"))
 		return false;
-	var $progress = $("#loading-indicator").show();
+	let $progress = $("#loading-indicator").show();
 	$standardModal.find(".label-dander").remove();
 	$.ajax({
 		url: context + "/Analysis/Standard/Available",
@@ -218,15 +221,15 @@ function importStandardFromKb(e) {
 		contentType: "application/json;charset=UTF-8",
 		async: false,
 		success: function (response) {
-			var $content = $(new DOMParser().parseFromString(response, "text/html")).find("#importStandardTable");
+			let $content = $(new DOMParser().parseFromString(response, "text/html")).find("#importStandardTable");
 			if (!$content.length) {
 				showDialog("error", MessageResolver("error.unknown.occurred", "An unknown error occurred"));
 				e.preventDefault();
 			} else {
-				var $tableStandard = $standardModal.find("#table_current_standard");
+				let $tableStandard = $standardModal.find("#table_current_standard");
 				$("#importStandardTable", $standardModal).replaceWith($content);
 				$content.find("button.btn").on("click", function () {
-					var $this = $(this), $tr = $this.closest("tr"), $tbodySource = $tr.closest("tbody");
+					let $this = $(this), $tr = $this.closest("tr"), $tbodySource = $tr.closest("tbody");
 					$progress.show();
 					$.ajax({
 						url: context + "/Analysis/Standard/Add/" + $tr.attr("data-trick-id"),
@@ -266,13 +269,13 @@ function importStandardFromKb(e) {
  * @returns {boolean} Returns false to prevent the default form submission behavior.
  */
 function reloadStandardTable() {
-	var $progress = $("#loading-indicator").show();
+	let $progress = $("#loading-indicator").show();
 	$.ajax({
 		url: context + "/Analysis/Standard/Manage",
 		type: "get",
 		contentType: "application/json;charset=UTF-8",
 		success: function (response) {
-			var $table = $(new DOMParser().parseFromString(response, "text/html")).find("#section_manage_standards table.table");
+			let $table = $(new DOMParser().parseFromString(response, "text/html")).find("#section_manage_standards table.table");
 			if ($table.length) {
 				$("#section_manage_standards table.table").replaceWith($table);
 				updateMenu(undefined, '#section_manage_standards', '#menu_manage_standards');
@@ -298,9 +301,9 @@ function reloadStandardTable() {
 function editStandard(e) {
 	if ($(e.currentTarget).parent().hasClass("disabled"))
 		return false;
-	var $tr = $("#section_manage_standards tbody>tr[data-trick-analysisOnly='true'] :checked").closest("tr"), $form = $("#standard_form"), id = $tr.attr("data-trick-id");
-	var label = $tr.find("td[data-name='label']").text(), description = $tr.find("td[data-name='description']").text(), type = $tr.attr("data-trick-type");
-	var name = $tr.find("td[data-name='name']").text(), computable = $tr.attr("data-trick-computable");
+	let $tr = $("#section_manage_standards tbody>tr[data-trick-analysisOnly='true'] :checked").closest("tr"), $form = $("#standard_form"), id = $tr.attr("data-trick-id");
+	let label = $tr.find("td[data-name='label']").text(), description = $tr.find("td[data-name='description']").text(), type = $tr.attr("data-trick-type");
+	let name = $tr.find("td[data-name='name']").text(), computable = $tr.attr("data-trick-computable");
 	$("#standard_formId", $form).val(id);
 	$("#standard_name", $form).val(name);
 	$("#standard_label", $form).val(label);
@@ -324,7 +327,7 @@ function editStandard(e) {
 function addStandard(e) {
 	if ($(e.currentTarget).parent().hasClass("disabled"))
 		return false;
-	var $form = $("#standard_form")
+	let $form = $("#standard_form")
 	$("#standard_formId", $form).prop("value", "0");
 	$("#standard_name", $form).prop("value", "");
 	$("#standard_label", $form).prop("value", "");
@@ -342,7 +345,7 @@ function addStandard(e) {
  * @param {Event} e - The event object.
  */
 function saveStandard(e) {
-	var $btn = $(e.currentTarget).prop("disabled", true), $progress = $("#loading-indicator").show(), $form = $("#standard_form");
+	let $btn = $(e.currentTarget).prop("disabled", true), $progress = $("#loading-indicator").show(), $form = $("#standard_form");
 	$(".label-danger,.alert-danger", $standardModal).remove();
 	$.ajax({
 		url: context + "/Analysis/Standard/Save",
@@ -350,8 +353,8 @@ function saveStandard(e) {
 		data: serializeForm($form),
 		contentType: "application/json;charset=UTF-8",
 		success: function (response, textStatus, jqXHR) {
-			for (var error in response) {
-				var $errorElement = $("<label class='label label-danger' />").text(response[error]);
+			for (let error in response) {
+				let $errorElement = $("<label class='label label-danger' />").text(response[error]);
 				switch (error) {
 					case "label":
 						$errorElement.appendTo($form.find("#standard_label").parent());
@@ -381,14 +384,14 @@ function saveStandard(e) {
  * @returns {boolean} Returns false if no standard is selected, otherwise returns true.
  */
 function removeStandard() {
-	var selectedStandard = $("#section_manage_standards :checked");
+	let selectedStandard = $("#section_manage_standards :checked");
 	if (selectedStandard.length != 1)
 		return false;
 	selectedStandard = findTrickID(selectedStandard[0]);
 	$deleteModal.find(".modal-body").text(MessageResolver("confirm.delete.analysis.norm", "Are you sure, you want to remove this standard from this analysis?"));
 	$deleteModal.find("#deletestandardbuttonYes").one("click.delete", function () {
 		$(".label-danger", $standardModal).remove();
-		var $progress = $("#loading-indicator").show();
+		let $progress = $("#loading-indicator").show();
 		$.ajax({
 			url: context + "/Analysis/Standard/Delete/" + selectedStandard,
 			type: "POST",
@@ -408,6 +411,20 @@ function removeStandard() {
 	});
 	$deleteModal.modal("show");
 	return false;
+}
+
+/**
+ * Exports the selected standard to a file.
+ * 
+ * @returns {boolean} Returns false if no standard is selected, otherwise returns the download link for the standard.
+ */
+function exportStandard() {
+	if (isAnalysisOnlyStandard('#section_manage_standards')) {
+		let selectedStandard = $("#section_manage_standards :checked");
+		if (selectedStandard.length == 1)
+			download(context + "/Analysis/Standard/Export/" + findTrickID(selectedStandard[0]));
+	}
+	return false
 }
 
 /**
@@ -447,13 +464,13 @@ function editMeasure(element, idStandard, idMeasure) {
  * @returns {boolean} - Returns false to prevent the default form submission behavior.
  */
 function manageMeasure(url) {
-	var $progress = $("#loading-indicator").show();
+	let $progress = $("#loading-indicator").show();
 	$.ajax({
 		url: url,
 		type: "get",
 		contentType: "application/json;charset=UTF-8",
 		success: function (response, textStatus, jqXHR) {
-			var $content = $(new DOMParser().parseFromString(response, "text/html")).find("#modalMeasureForm");
+			let $content = $(new DOMParser().parseFromString(response, "text/html")).find("#modalMeasureForm");
 			if ($content.length) {
 				$content.appendTo($("#widgets"));
 				setupMeasureManager($content).modal("show").on("hidden.bs.modal", function () {
@@ -477,14 +494,14 @@ function manageMeasure(url) {
  */
 function setupMeasureManager($content) {
 	$content.find("#measure_form_tabs").tab();
-	var $assetTab = $content.find("#tab_asset");
+	let $assetTab = $content.find("#tab_asset");
 	if ($assetTab.length) {
-		var onSelectedAsset = function (asset) {
-			var $asset = $(asset), id = $asset.attr("data-trick-id");
+		let onSelectedAsset = function (asset) {
+			let $asset = $(asset), id = $asset.attr("data-trick-id");
 			$('<input name="assets" value="' + id + '" hidden="hidden">').appendTo($asset);
 			$asset.appendTo($assetTab.find("ul.asset-measure[data-trick-type='measure']")).attr("data-trick-selected", true);
 			if (application.analysisType.isQuantitative()) {
-				var $header = $('<th data-trick-class="MeasureAssetValue" data-trick-asset-id="' + id + '" >' + $(asset).text() + '</th>'), $data = $('<td data-trick-class="MeasureAssetValue" data-trick-asset-id="'
+				let $header = $('<th data-trick-class="MeasureAssetValue" data-trick-asset-id="' + id + '" >' + $(asset).text() + '</th>'), $data = $('<td data-trick-class="MeasureAssetValue" data-trick-asset-id="'
 					+ id
 					+ '" ><input type="range" id="asset_slider_'
 					+ id
@@ -502,14 +519,14 @@ function setupMeasureManager($content) {
 				$data.appendTo($content.find("#sliders"));
 				$value.appendTo($content.find("#values"));
 				$data.find("input[type='range']").on('change', function (event) {
-					event.currentTarget.title=event.target.value;
+					event.currentTarget.title = event.target.value;
 					$value.find("input").val(event.currentTarget.value);
 				});
 			}
 		};
 
-		var onDeselectedAsset = function (asset) {
-			var $asset = $(asset);
+		let onDeselectedAsset = function (asset) {
+			let $asset = $(asset);
 			$asset.find("input").remove();
 			$asset.appendTo($assetTab.find("ul.asset-measure[data-trick-type='available']")).attr("data-trick-selected", false);
 			if (application.analysisType.isQuantitative())
@@ -525,7 +542,7 @@ function setupMeasureManager($content) {
 			});
 		});
 
-		var updateAssetUI = function (selected) {
+		let updateAssetUI = function (selected) {
 			if (selected === 'ALL')
 				$assetTab.find("li[data-trick-type]").show();
 			else {
@@ -544,7 +561,7 @@ function setupMeasureManager($content) {
 	if (application.analysisType.isQuantitative()) {
 		$content.find("input[type='range']").each(function () {
 			$(this).on("change", function (event) {
-				event.currentTarget.title=event.target.value;
+				event.currentTarget.title = event.target.value;
 				$content.find("#values input[name='" + event.currentTarget.name + "']").val(event.target.value);
 			});
 		});
@@ -560,7 +577,7 @@ function setupMeasureManager($content) {
  * @returns {boolean} - Returns false to prevent the default form submission behavior.
  */
 function saveMeasure(form, callback) {
-	var data = {}, $form = $(form), $modalMeasureForm = $form.closest(".modal"), $genearal = $("#tab_general", $form), properties = $("#tab_properties #values", $form)
+	let data = {}, $form = $(form), $modalMeasureForm = $form.closest(".modal"), $genearal = $("#tab_general", $form), properties = $("#tab_properties #values", $form)
 		.serializeJSON(), $assetTab = $("#tab_asset", $form);
 	if ($genearal.length)
 		data = $genearal.serializeJSON();
@@ -599,15 +616,15 @@ function saveMeasure(form, callback) {
 	data.properties = properties;
 	data.computable = data.computable === "on";
 
-	var $progress = $("#loading-indicator").show();
+	let $progress = $("#loading-indicator").show();
 	$.ajax({
 		url: context + "/Analysis/Standard/Measure/Save",
 		type: "post",
 		data: JSON.stringify(data),
 		contentType: "application/json;charset=UTF-8",
 		success: function (response, textStatus, jqXHR) {
-			for (var error in response.errors) {
-				var $errorElement = $("<label class='label label-danger'/>").text(response.errors[error]);
+			for (let error in response.errors) {
+				let $errorElement = $("<label class='label label-danger'/>").text(response.errors[error]);
 				switch (error) {
 					case "reference":
 					case "computable":
@@ -657,7 +674,7 @@ function deleteMeasure(measureId, idStandard) {
 	if (idStandard == null || idStandard == undefined)
 		return false;
 
-	var selectedMeasures = [];
+	let selectedMeasures = [];
 
 	if (measureId == null || measureId == undefined) {
 		selectedMeasures = findSelectItemIdBySection("section_standard_" + idStandard);
@@ -666,10 +683,10 @@ function deleteMeasure(measureId, idStandard) {
 	} else
 		selectedMeasures.push(measureId);
 
-	var standard = $("#section_standard_" + idStandard + " #menu_standard_" + idStandard + " li:first-child").text();
+	let standard = $("#section_standard_" + idStandard + " #menu_standard_" + idStandard + " li:first-child").text();
 
 	if (selectedMeasures.length == 1) {
-		var measure = $("#section_standard_" + idStandard + " tr[data-trick-id='" + selectedMeasures[0] + "'] td:not(:first-child)");
+		let measure = $("#section_standard_" + idStandard + " tr[data-trick-id='" + selectedMeasures[0] + "'] td:not(:first-child)");
 		reference = $(measure[0]).text();
 		$("#confirm-dialog .modal-body").html(
 			MessageResolver("label.measure.question.delete", "Are you sure that you want to delete the measure with the Reference: <strong>" + reference
@@ -683,7 +700,7 @@ function deleteMeasure(measureId, idStandard) {
 
 	$("#confirm-dialog .btn-danger").click(function () {
 		$("#confirm-dialog").modal("hide");
-		var $progress = $("#loading-indicator").show();
+		let $progress = $("#loading-indicator").show();
 		while (selectedMeasures.length) {
 			if ($progress.is(":hidden"))
 				break;
@@ -704,7 +721,7 @@ function deleteMeasure(measureId, idStandard) {
  * @param {boolean} last - Indicates whether it is the last measure.
  */
 function deleteSingleMeasure($progress, idStandard, idMeasure, last) {
-	var error = false;
+	let error = false;
 	$.ajax({
 		url: context + "/Analysis/Standard/" + idStandard + "/Measure/Delete/" + idMeasure,
 		type: "POST",
@@ -736,15 +753,15 @@ function deleteSingleMeasure($progress, idStandard, idMeasure, last) {
  * @returns {boolean} Returns false.
  */
 function manageSOA() {
-	var idAnalysis = 0;
+	let idAnalysis = 0;
 	if (userCan(idAnalysis = findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
-		var $progress = $("#loading-indicator").show();
+		let $progress = $("#loading-indicator").show();
 		$.ajax({
 			url: context + "/Analysis/Standard/SOA/Manage",
 			type: "get",
 			contentType: "application/json;charset=UTF-8",
 			success: function (response, textStatus, jqXHR) {
-				var $content = $(new DOMParser().parseFromString(response, "text/html")).find("#manageSAOModel");
+				let $content = $(new DOMParser().parseFromString(response, "text/html")).find("#manageSAOModel");
 				if ($content.length) {
 					if ($("#manageSAOModel").length)
 						$("#manageSAOModel").replaceWith($content);
@@ -752,9 +769,9 @@ function manageSOA() {
 						$content.appendTo($("#widgets"));
 					$content.modal("show");
 					$content.find("[name='save']").on("click", function () {
-						var data = [];
+						let data = [];
 						$content.find(".form-group[data-trick-id][data-default-value]").each(function () {
-							var $this = $(this), newState = $this.find("input[type='radio']:checked").val(), oldState = $this.attr("data-default-value");
+							let $this = $(this), newState = $this.find("input[type='radio']:checked").val(), oldState = $this.attr("data-default-value");
 							if (newState != oldState) {
 								data.push({
 									"id": $this.attr('data-trick-id'),
@@ -813,7 +830,7 @@ function manageSOA() {
  */
 function validateSOAState(idStandard, idMeasure) {
 	$("tr[data-trick-id='" + idMeasure + "']>td[data-trick-field!='soaReference'][data-trick-field]", "#table_SOA_" + idStandard).each(function () {
-		var $this = $(this);
+		let $this = $(this);
 		if ($this.text().trim() == "")
 			$this.addClass("warning");
 		else

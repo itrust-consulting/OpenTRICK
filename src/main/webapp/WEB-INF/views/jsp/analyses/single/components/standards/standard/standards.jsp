@@ -56,14 +56,14 @@
 		<spring:eval expression="T(lu.itrust.business.ts.component.MeasureManager).getStandard(standards, standard)" var="selectedStandard" />
 		<c:set var="standardType" value="${selectedStandard.type}" />
 		<c:set var="standardid" value="${selectedStandard.id}" />
-		<c:set var="analysisOnly" value="${selectedStandard.analysisOnly}" />
+		<c:set var="isAnalysisOnly" value="${selectedStandard.analysisOnly}" />
 		<c:url value="/Analysis/Standard/${selectedStandard.id}/Export/Measure" var="measureExportUrl" />
-		<div id="tab-standard-${standardid}" data-trick-id="${standardid}" data-trick-has-menu='${analysisOnly or isLinkedToProject}' data-targetable='true'
+		<div id="tab-standard-${standardid}" data-trick-id="${standardid}" data-trick-has-menu='${isAnalysisOnly or isLinkedToProject}' data-targetable='true'
 			data-trick-export-url='${measureExportUrl}' style="display: ${firstStandard == selectedStandard? '' : 'none'}">
 			<div id="section_standard_${standardid}" data-trick-id="${standardid}" data-trick-label="${standard}">
-				<c:if test="${isLinkedToProject and (isEditable or not(isEditable or isNoClientTicketing)) or analysisOnly and isEditable}">
+				<c:if test="${isLinkedToProject and (isEditable or not(isEditable or isNoClientTicketing)) or isAnalysisOnly and isEditable}">
 					<ul class="nav nav-pills bordered-bottom" id="menu_standard_${standardid}">
-						<c:if test="${analysisOnly and isEditable}">
+						<c:if test="${isAnalysisOnly and isEditable}">
 							<li data-trick-ignored="true"><a onclick="return addMeasure(this,${standardid});" href="#"><span class="glyphicon glyphicon-plus primary"></span> <spring:message
 										code="label.action.add" /></a></li>
 							<li data-trick-check="isEditable()" data-trick-selectable="true" class="disabled"><a onclick="return editMeasure(this,${standardid});" href="#"><span
@@ -107,7 +107,7 @@
 								</c:otherwise>
 							</c:choose>
 						</c:if>
-						<c:if test="${analysisOnly and isEditable}">
+						<c:if test="${isAnalysisOnly and isEditable}">
 							<li style="display: none;" class="dropdown-header"><spring:message code="label.menu.advanced" /></li>
 							<li data-trick-check="isEditable()" data-trick-selectable="multi" class="disabled pull-right"><a onclick="return deleteMeasure(null,${standardid});" class="text-danger"
 								href="#"><span class="glyphicon glyphicon-remove"></span> <spring:message code="label.action.delete" /></a></li>
@@ -117,7 +117,7 @@
 				<table class="table table-hover table-fixed-header-analysis table-condensed" id="table_Measure_${standardid}" lang="${language}">
 					<thead>
 						<tr>
-							<c:if test="${isLinkedToProject or analysisOnly and isEditable}">
+							<c:if test="${isLinkedToProject or isAnalysisOnly and isEditable}">
 								<th width="1%"><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'standard_${standardid}')"></th>
 							</c:if>
 							<th width="2%" title='<spring:message code="label.reference" />'><spring:message code="label.measure.ref" /></th>
@@ -175,7 +175,7 @@
 							<c:set var="measureDescriptionText" value="${measure.measureDescription.getMeasureDescriptionTextByAlpha2(language)}" />
 							<c:set var="dblclickaction">
 								<c:if
-									test="${isEditable and ( analysisOnly or type.quantitative and measure.measureDescription.computable && selectedStandard.computable && selectedStandard.type!='MATURITY')}">
+									test="${isEditable and ( isAnalysisOnly or type.quantitative and measure.measureDescription.computable && selectedStandard.computable && selectedStandard.type!='MATURITY')}">
 									ondblclick="return editMeasure(this,${standardid},${measure.id});"
 								</c:if>
 							</c:set>
@@ -191,8 +191,8 @@
 									<tr data-trick-computable="false" data-trick-reference='${measure.measureDescription.reference}' onclick="selectElement(this)" data-trick-class="Measure"
 										class='active' data-trick-id="${measure.id}" data-is-linked='${hasTicket}' data-trick-callback="reloadMeasureRow('${measure.id}','${standardid}');"
 										${dblclickaction}>
-										<c:if test="${isLinkedToProject or analysisOnly and isEditable}">
-											<td><input type="checkbox" ${not analysisOnly?'disabled':''} class="checkbox"
+										<c:if test="${isLinkedToProject or isAnalysisOnly and isEditable}">
+											<td><input type="checkbox" ${not isAnalysisOnly?'disabled':''} class="checkbox"
 												onchange="return updateMenu(this,'#section_standard_${standardid}','#menu_standard_${standardid}');"></td>
 										</c:if>
 										<td><c:choose>
@@ -241,13 +241,13 @@
 									</tr>
 								</c:when>
 								<c:otherwise>
-									<tr ${analysisOnly?dblclickaction:''} data-trick-computable="true" data-trick-description="${measureDescriptionText.description}" onclick="selectElement(this)"
+									<tr ${isAnalysisOnly?dblclickaction:''} data-trick-computable="true" data-trick-description="${measureDescriptionText.description}" onclick="selectElement(this)"
 										data-trick-class="Measure" data-is-linked='${hasTicket}' data-trick-id="${measure.id}" data-trick-callback="reloadMeasureRow('${measure.id}','${standardid}');">
-										<c:if test="${isLinkedToProject or  analysisOnly and isEditable}">
+										<c:if test="${isLinkedToProject or  isAnalysisOnly and isEditable}">
 											<td><input type="checkbox" ${measure.status eq 'NA' || measure.status eq 'EX' ?'disabled':''} class="checkbox"
 												onchange="return updateMenu(this,'#section_standard_${standardid}','#menu_standard_${standardid}');"></td>
 										</c:if>
-										<td ${not analysisOnly ?dblclickaction:''}><c:choose>
+										<td ${not isAnalysisOnly ?dblclickaction:''}><c:choose>
 												<c:when test="${hasTicket}">
 													<c:choose>
 														<c:when test="${isNoClientTicketing}"><span style="white-space: nowrap;"><i class="fa fa-paper-plane" style="font-size: 8px;" aria-hidden="true"></i> <spring:message text="${measure.measureDescription.reference}" /></span></c:when>

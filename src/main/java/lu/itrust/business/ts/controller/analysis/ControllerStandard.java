@@ -2,6 +2,7 @@ package lu.itrust.business.ts.controller.analysis;
 
 import static lu.itrust.business.ts.constants.Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8;
 
+import java.io.IOException;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -15,8 +16,10 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -30,11 +33,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lu.itrust.business.ts.component.ChartGenerator;
 import lu.itrust.business.ts.component.CustomDelete;
@@ -535,6 +540,32 @@ public class ControllerStandard extends AbstractController {
 		return new ImportCustomStandard(type, name, filename).importStandard(idAnalysis, principal.getName(), locale);
 	}
 
+	@GetMapping(value = "/Export/{idStandard}", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).MODIFY)")
+	public void exportStandard(@PathVariable int idStandard, HttpSession session, Principal principal,
+			HttpServletResponse response, Locale locale) throws TrickException, Docx4JException, IOException {
+		final Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+		if (idAnalysis == null)
+			throw new TrickException("error.analysis.not_found", "Analysis not found");
+		if (!serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.READ))
+			throw new AccessDeniedException(
+					messageSource.getMessage("error.action.not_authorise", null, "Action does not authorised", locale));
+
+		final Standard standard = serviceStandard.get(idStandard);
+		if (standard == null)
+			throw new ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND,
+					messageSource.getMessage("error.standard.not_found", null, "Standard not found", locale));
+
+		if (!standard.isAnalysisOnly())
+			throw new ResponseStatusException(org.springframework.http.HttpStatus.FORBIDDEN,
+					messageSource.getMessage("error.export.standard.analysis_only", null,
+							"This standard can only be exported from the knowledge base.", locale));
+
+		if (!measureManager.exportStandard(idStandard, response, principal.getName()))
+			throw new ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND,
+					messageSource.getMessage("error.standard.not_found", null, "Standard not found", locale));
+	}
+
 	/**
 	 * getSingleMeasure: <br>
 	 * Description
@@ -548,7 +579,7 @@ public class ControllerStandard extends AbstractController {
 	 */
 	@RequestMapping(value = "/{idStandard}/SingleMeasure/{elementID}", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'Measure', #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).READ)")
-	public String getSingleMeasure(@PathVariable int elementID, Model model, HttpSession session, Principal principal) {
+	public String loadSingleMeasure(@PathVariable int elementID, Model model, HttpSession session, Principal principal) {
 		final OpenMode mode = (OpenMode) session.getAttribute(Constant.OPEN_MODE);
 		final Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		final Analysis analysis = serviceAnalysis.get(idAnalysis);
@@ -679,6 +710,10 @@ public class ControllerStandard extends AbstractController {
 	public String manageForm(HttpSession session, Principal principal, Model model, RedirectAttributes attributes,
 			Locale locale) {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+
+		model.addAttribute("canExport",
+				serviceUserAnalysisRight.isUserAuthorized(idAnalysis, principal.getName(), AnalysisRight.EXPORT));
+
 		model.addAttribute("currentStandards", serviceStandard.getAllFromAnalysis(idAnalysis));
 		return "jsp/analyses/single/components/standards/standard/form/manage";
 	}
