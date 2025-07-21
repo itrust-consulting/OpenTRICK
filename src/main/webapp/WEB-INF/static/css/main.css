@@ -132,13 +132,6 @@ body {
 	padding-left: 15px;
 }
 
-.nav-analysis>li,
-.nav-analysis>li:hover,
-.nav-tab>li,
-.nav-tab>li:hover {
-	margin-bottom: -1.5px;
-}
-
 .nav-analysis li[data-role='analysis-menu-control']>a {
 	padding-top: 5.5px;
 	padding-bottom: 5.5px;
@@ -187,7 +180,6 @@ body {
 
 .progress-info {
 	color: #333;
-	display: inline-block;
 	margin-top: -17px;
 	float: left;
 	text-align: center;
@@ -229,7 +221,6 @@ table.dataTable tr.even td.sorting_1 {
 	height: 500px;
 	overflow: auto;
 	display: block;
-	margin-bottom: 0px;
 	margin: 0;
 	padding: 0;
 }
@@ -288,7 +279,6 @@ table.dataTable tr.even td.sorting_1 {
 	background-image: -o-linear-gradient(top, #0088cc, #0077b3);
 	background-image: linear-gradient(to bottom, #0088cc, #0077b3);
 	background-repeat: repeat-x;
-	color: #fff;
 }
 
 .tt-suggestion.tt-is-under-cursor a {
@@ -413,11 +403,9 @@ ul.asset-measure>li {
 	max-width: 95%;
 	margin-top: 10px;
 	margin-bottom: -15px;
-	margin-top: 10px;
 }
 
 ul#task-manager {
-	padding: 0;
 	min-width: 450px;
 	padding: 10px;
 	max-height: 250px;

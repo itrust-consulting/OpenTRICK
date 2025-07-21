@@ -3,6 +3,7 @@
  */
 package lu.itrust.business.ts.database.dao;
 
+import java.util.Date;
 import java.util.List;
 
 import lu.itrust.business.ts.model.general.LogAction;
@@ -48,4 +49,10 @@ public interface DAOTrickLog {
 	List<LogType> getDistinctType();
 
 	List<LogAction> getDistinctAction();
+
+    long countByDateBefore(Date date);
+
+    void deleteByDateBefore(Date date);
+
+    void deleteByDateBefore(Date date, int page, int size);
 }

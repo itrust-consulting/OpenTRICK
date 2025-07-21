@@ -3,6 +3,7 @@
  */
 package lu.itrust.business.ts.database.dao.impl;
 
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -53,7 +54,8 @@ public class DAOTrickLogImpl extends DAOHibernate implements DAOTrickLog {
 
 	@Override
 	public Long countByLevel(LogLevel level) {
-		return (Long) createQueryWithCache("Select count(*) From TrickLog where level = :level").setParameter("level", level).getSingleResult();
+		return (Long) createQueryWithCache("Select count(*) From TrickLog where level = :level")
+				.setParameter("level", level).getSingleResult();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -65,7 +67,8 @@ public class DAOTrickLogImpl extends DAOHibernate implements DAOTrickLog {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<TrickLog> getAllByLevel(LogLevel level, int page, int size) {
-		return createQueryWithCache("From TrickLog where level = :level").setParameter("level", level).setFirstResult((page - 1) * size).setMaxResults(size).getResultList();
+		return createQueryWithCache("From TrickLog where level = :level").setParameter("level", level)
+				.setFirstResult((page - 1) * size).setMaxResults(size).getResultList();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -77,7 +80,8 @@ public class DAOTrickLogImpl extends DAOHibernate implements DAOTrickLog {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<TrickLog> getAll(int page, int size) {
-		return createQueryWithCache("From TrickLog").setFirstResult((page - 1) * size).setMaxResults(size).getResultList();
+		return createQueryWithCache("From TrickLog").setFirstResult((page - 1) * size).setMaxResults(size)
+				.getResultList();
 	}
 
 	@Override
@@ -121,7 +125,8 @@ public class DAOTrickLogImpl extends DAOHibernate implements DAOTrickLog {
 			predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("action"), filter.getAction())));
 		if (!predicates.isEmpty())
 			criteria.where(predicates.toArray(new Predicate[predicates.size()]));
-		return getSession().createQuery(criteria).setHint("org.hibernate.cacheable", true).setFirstResult((page - 1) * filter.getSize()).setMaxResults(filter.getSize()).getResultList();
+		return getSession().createQuery(criteria).setHint("org.hibernate.cacheable", true)
+				.setFirstResult((page - 1) * filter.getSize()).setMaxResults(filter.getSize()).getResultList();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -146,5 +151,37 @@ public class DAOTrickLogImpl extends DAOHibernate implements DAOTrickLog {
 	@Override
 	public List<LogAction> getDistinctAction() {
 		return createQueryWithCache("Select distinct action From TrickLog order by action").getResultList();
+	}
+
+	@Override
+	public long countByDateBefore(Date date) {
+		return createQuery("select count(*) from TrickLog where created < :date", Long.class)
+				.setParameter("date", date).getSingleResult();
+	}
+
+	/** 
+	 * Deletes TrickLogs created before the specified date.
+	 * 
+	 * @param date the date before which TrickLogs will be deleted
+	 */
+	@Override
+	public void deleteByDateBefore(Date date) {
+		createQuery("delete from TrickLog where created < :date")
+				.setParameter("date", date)
+				.executeUpdate();
+	}
+
+	/** 
+	 * Deletes TrickLogs created before the specified date, with pagination support.
+	*/
+	@Override
+	public void deleteByDateBefore(Date date, int page, int size) {
+		int offset = (page - 1) * size;
+		createQuery("From TrickLog where created < :date", TrickLog.class)
+				.setParameter("date", date)
+				.setFirstResult(offset)
+				.setMaxResults(size)
+				.list()
+				.forEach(this::delete);
 	}
 }
