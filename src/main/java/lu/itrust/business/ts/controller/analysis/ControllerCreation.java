@@ -669,14 +669,14 @@ public class ControllerCreation {
 
 			serviceAnalysis.saveOrUpdate(analysis);
 
-			return JsonMessage.Success(messageSource.getMessage("success.analysis_custom.create", null,
+			return JsonMessage.success(messageSource.getMessage("success.analysis_custom.create", null,
 					"Your analysis has been successfully created", locale));
 		} catch (TrickException e) {
 			TrickLogManager.persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			return JsonMessage.error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			TrickLogManager.persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.unknown.create.analysis", null,
+			return JsonMessage.error(messageSource.getMessage("error.unknown.create.analysis", null,
 					"An unknown error occurred while saving analysis", locale));
 		}
 	}

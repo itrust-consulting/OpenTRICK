@@ -190,10 +190,10 @@ public class ControllerCustomer {
 				throw new AccessDeniedException(
 						messageSource.getMessage("error.customer.not_exist", null, "Customer does not exist", locale));
 			customDelete.deleteCustomer(customerId, principal.getName());
-			return JsonMessage.Success(messageSource.getMessage("success.customer.delete.successfully", null,
+			return JsonMessage.success(messageSource.getMessage("success.customer.delete.successfully", null,
 					"Customer was deleted successfully", locale));
 		} catch (TrickException e) {
-			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			return JsonMessage.error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		}
 	}
 
@@ -256,7 +256,7 @@ public class ControllerCustomer {
 			}
 
 			if (template == null)
-				return JsonMessage.Error(
+				return JsonMessage.error(
 						messageSource.getMessage("error.template.not_exist", null, "Template does not exist", locale));
 
 			template.setVersion(templateForm.getVersion());
@@ -337,8 +337,8 @@ public class ControllerCustomer {
 				template.setCreated(new Timestamp(System.currentTimeMillis()));
 				serviceCustomer.saveOrUpdate(customer);
 				return templateForm.getId() > 0
-						? JsonMessage.Success(messageSource.getMessage("success.report.template.update", null, locale))
-						: JsonMessage.Success(messageSource.getMessage("success.report.template.save", null, locale));
+						? JsonMessage.success(messageSource.getMessage("success.report.template.update", null, locale))
+						: JsonMessage.success(messageSource.getMessage("success.report.template.save", null, locale));
 			}
 		}
 
@@ -364,7 +364,7 @@ public class ControllerCustomer {
 			serviceCustomer.saveOrUpdate(customer);
 			serviceTrickTemplate.delete(templates.values());
 		}
-		return JsonMessage.Success(
+		return JsonMessage.success(
 				messageSource.getMessage("success.report.template.delete", new Object[] { ids.size() }, locale));
 	}
 

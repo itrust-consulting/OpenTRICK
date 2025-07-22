@@ -97,7 +97,7 @@
 				<tfoot>
 					<tr class="panel-footer" style="font-weight: bold;">
 						<spring:eval expression="T(lu.itrust.business.ts.component.AssessmentAndRiskProfileManager).ComputeTotalALE(scenarioALE)" var="ale" />
-						<td colspan="4"><spring:message code="label.total.ale" /></td>
+						<td colspan="${isEditable? 4: 3}"><spring:message code="label.total.ale" /></td>
 						<c:choose>
 							<c:when test="${show_uncertainty}">
 								<td title="<fmt:formatNumber value="${fct:round(ale[0].value,0)}"  /> &euro;"><fmt:formatNumber value="${fct:round(ale[0].value*0.001,1)}" /></td>
@@ -108,7 +108,7 @@
 								<td title="<fmt:formatNumber value="${fct:round(ale[1].value,0)}"  /> &euro;"><fmt:formatNumber value="${fct:round(ale[1].value*0.001,1)}" /></td>
 							</c:otherwise>
 						</c:choose>
-						<td colspan="${isILR? 2 : 1}"></td>
+						<td colspan="${isILR? 3 : 2}"></td>
 					</tr>
 				</tfoot>
 			</c:if>

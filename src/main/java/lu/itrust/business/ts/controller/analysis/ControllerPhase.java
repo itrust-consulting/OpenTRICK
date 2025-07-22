@@ -110,7 +110,7 @@ public class ControllerPhase {
 			final Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 			// check if phase can be deleted
 			if (!servicePhase.canBeDeleted(id))
-				return JsonMessage.Error(messageSource.getMessage("error.phase.in_used", null, "Phase is in used", locale));
+				return JsonMessage.error(messageSource.getMessage("error.phase.in_used", null, "Phase is in used", locale));
 
 			final Analysis analysis = serviceAnalysis.get(idAnalysis);
 
@@ -121,7 +121,7 @@ public class ControllerPhase {
 
 			// first phases cannot be deleted (0 and 1)
 			if (phases.size() < 2)
-				return JsonMessage.Error(messageSource.getMessage("error.phase.on_required", null, "This phase cannot be deleted", locale));
+				return JsonMessage.error(messageSource.getMessage("error.phase.on_required", null, "This phase cannot be deleted", locale));
 
 			// iterate through phases
 			final Iterator<Phase> iterator = phases.iterator();
@@ -147,12 +147,12 @@ public class ControllerPhase {
 
 			serviceAnalysis.saveOrUpdate(analysis);
 			// return result
-			return JsonMessage.Success(messageSource.getMessage("success.delete.phase", null, "Phase was successfully deleted", locale));
+			return JsonMessage.success(messageSource.getMessage("success.delete.phase", null, "Phase was successfully deleted", locale));
 		} catch (TrickException e) {
-			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			return JsonMessage.error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			TrickLogManager.persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.phase.unknown", null, "An unknown error occurred while phase deleting", locale));
+			return JsonMessage.error(messageSource.getMessage("error.phase.unknown", null, "An unknown error occurred while phase deleting", locale));
 		}
 	}
 
@@ -239,7 +239,7 @@ public class ControllerPhase {
 			}
 			// update analysis with phases
 			serviceAnalysis.saveOrUpdate(analysis);
-			return errors.isEmpty() ? JsonMessage.Success(messageSource.getMessage("success.phase.save.update", new Object[] { form.getId() }, null, locale)) : errors;
+			return errors.isEmpty() ? JsonMessage.success(messageSource.getMessage("success.phase.save.update", new Object[] { form.getId() }, null, locale)) : errors;
 
 		} catch (TrickException e) {
 			TrickLogManager.persist(e);

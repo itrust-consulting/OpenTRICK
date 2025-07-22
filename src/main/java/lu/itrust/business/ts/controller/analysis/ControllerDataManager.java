@@ -836,7 +836,7 @@ public class ControllerDataManager {
 					throw new AccessDeniedException(
 							messageSource.getMessage("error.permission_denied", null, "Permission denied!", locale));
 			} else if (form.getFile() == null)
-				return JsonMessage.Error(
+				return JsonMessage.error(
 						messageSource.getMessage("error.export.report.file.empty", null, "No file selected", locale));
 
 			if (AnalysisType.isQualitative(serviceAnalysis.getAnalysisTypeById(analysisId))
@@ -847,10 +847,10 @@ public class ControllerDataManager {
 			if (!form.isInternal()) {
 				final long maxSize = Math.min(maxUploadFileSize, maxRefurbishReportSize);
 				if (form.getFile().getSize() > maxSize)
-					return JsonMessage.Error(messageSource.getMessage("error.file.too.large", new Object[] { maxSize },
+					return JsonMessage.error(messageSource.getMessage("error.file.too.large", new Object[] { maxSize },
 							"File is to large", locale));
 				if (!DefaultTemplateLoader.isDocx(form.getFile().getInputStream()))
-					return JsonMessage.Error(
+					return JsonMessage.error(
 							messageSource.getMessage("error.file.no.docx", null, "Docx file is excepted", locale));
 			}
 
@@ -858,7 +858,7 @@ public class ControllerDataManager {
 			final Worker worker = new WorkerExportWordReport(analysisId, form.getTemplate(), principal.getName(),
 					exportAnalysisReport);
 			if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale))
-				return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null,
+				return JsonMessage.error(messageSource.getMessage("error.task_manager.too.many", null,
 						"Too many tasks running in background", locale));
 			if (!form.isInternal()) {
 				((Docx4jReportImpl) exportAnalysisReport).setFile(serviceStorage.createTmpFile());
@@ -866,16 +866,16 @@ public class ControllerDataManager {
 				exportAnalysisReport.getFile().deleteOnExit();
 			}
 			executor.execute(worker);
-			return JsonMessage.Success(
+			return JsonMessage.success(
 					messageSource.getMessage("success.analysis.report.exporting", null, "Exporting report", locale));
 		} catch (TrickException e) {
 			TrickLogManager.persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			return JsonMessage.error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			TrickLogManager.persist(e);
 			if (e instanceof AccessDeniedException)
 				throw e;
-			return JsonMessage.Error(
+			return JsonMessage.error(
 					messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
 		}
 	}
@@ -1013,11 +1013,11 @@ public class ControllerDataManager {
 		final Locale analysisLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha2());
 		final Worker worker = new WorkerExportRiskRegister(analysisId, principal.getName());
 		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale))
-			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null,
+			return JsonMessage.error(messageSource.getMessage("error.task_manager.too.many", null,
 					"Too many tasks running in background", analysisLocale));
 		// execute task
 		executor.execute(worker);
-		return JsonMessage.Success(messageSource.getMessage("success.start.export.risk_register", null,
+		return JsonMessage.success(messageSource.getMessage("success.start.export.risk_register", null,
 				"Start to export risk register", analysisLocale));
 	}
 
@@ -1081,11 +1081,11 @@ public class ControllerDataManager {
 		Locale analysisLocale = new Locale(serviceAnalysis.getLanguageOfAnalysis(analysisId).getAlpha2());
 		Worker worker = new WorkerExportRiskSheet(cssfExportForm, analysisId, principal.getName());
 		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale))
-			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null,
+			return JsonMessage.error(messageSource.getMessage("error.task_manager.too.many", null,
 					"Too many tasks running in background", analysisLocale));
 		// execute task
 		executor.execute(worker);
-		return JsonMessage.Success(messageSource.getMessage("success.start.export.risk_sheet", null,
+		return JsonMessage.success(messageSource.getMessage("success.start.export.risk_sheet", null,
 				"Start to export risk sheet", analysisLocale));
 	}
 
@@ -1180,11 +1180,11 @@ public class ControllerDataManager {
 		final Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		final Worker worker = new WorkerSOAExport(principal.getName(), idAnalysis);
 		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale))
-			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null,
+			return JsonMessage.error(messageSource.getMessage("error.task_manager.too.many", null,
 					"Too many tasks running in background", locale));
 		// execute task
 		executor.execute(worker);
-		return JsonMessage.Success(messageSource.getMessage("success.start.exporting.soa", null,
+		return JsonMessage.success(messageSource.getMessage("success.start.exporting.soa", null,
 				"SOA exporting was successfully started", locale));
 	}
 
@@ -1210,11 +1210,11 @@ public class ControllerDataManager {
 		if (serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale)) {
 			executor.execute(worker);
 			// return success message
-			return JsonMessage.Success(messageSource.getMessage("success.start.export.analysis", null,
+			return JsonMessage.success(messageSource.getMessage("success.start.export.analysis", null,
 					"Analysis export was started successfully", locale));
 		} else
 			// return error message
-			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null,
+			return JsonMessage.error(messageSource.getMessage("error.task_manager.too.many", null,
 					"Too many tasks running in background", locale));
 	}
 
@@ -1259,10 +1259,10 @@ public class ControllerDataManager {
 		if (!serviceCustomer.hasAccess(principal.getName(), idCustomer))
 			throw new AccessDeniedException("access denied");
 		if (form.getFile().isEmpty())
-			return JsonMessage.Error(messageSource.getMessage("error.customer_or_file.import.analysis", null,
+			return JsonMessage.error(messageSource.getMessage("error.customer_or_file.import.analysis", null,
 					"Customer or file are not set or empty!", locale));
 		else if (form.getFile().getSize() > maxUploadFileSize)
-			return JsonMessage.Error(messageSource.getMessage("error.file.too.large",
+			return JsonMessage.error(messageSource.getMessage("error.file.too.large",
 					new Object[] { maxUploadFileSize }, "File is to large", locale));
 		// the file to import
 		final String filename = principal.getName() + "_" + System.nanoTime() + ".tsdb";
@@ -1270,13 +1270,13 @@ public class ControllerDataManager {
 		Worker worker = new WorkerAnalysisImport(filename, idCustomer, principal.getName());
 		// register worker to tasklist
 		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale))
-			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null,
+			return JsonMessage.error(messageSource.getMessage("error.task_manager.too.many", null,
 					"Too many tasks running in background", locale));
 		// transfer form file to java file
 		serviceStorage.store(form.getFile(), filename);
 		// execute task
 		executor.execute(worker);
-		return JsonMessage.Success(messageSource.getMessage("sucess.analysis.importing", null,
+		return JsonMessage.success(messageSource.getMessage("sucess.analysis.importing", null,
 				"Please wait while importing your analysis", locale));
 	}
 
@@ -1347,11 +1347,11 @@ public class ControllerDataManager {
 		final Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		final Worker worker = new WorkerImportMeasureData(principal.getName(), idAnalysis, filename);
 		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale))
-			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null,
+			return JsonMessage.error(messageSource.getMessage("error.task_manager.too.many", null,
 					"Too many tasks running in background", locale));
 		serviceStorage.store(file, filename);
 		executor.execute(worker);
-		return JsonMessage.Success(messageSource.getMessage("success.start.import.measure.data", null,
+		return JsonMessage.success(messageSource.getMessage("success.start.import.measure.data", null,
 				"Importing of security measures data", locale));
 	}
 
@@ -1364,11 +1364,11 @@ public class ControllerDataManager {
 		final Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		final Worker worker = new WorkerImportRiskInformation(idAnalysis, principal.getName(), filename, overwrite);
 		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale))
-			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null,
+			return JsonMessage.error(messageSource.getMessage("error.task_manager.too.many", null,
 					"Too many tasks running in background", locale));
 		serviceStorage.store(file, filename);
 		executor.execute(worker);
-		return JsonMessage.Success(messageSource.getMessage("success.start.import.risk.information", null,
+		return JsonMessage.success(messageSource.getMessage("success.start.import.risk.information", null,
 				"Importing of risk information", locale));
 	}
 
@@ -1381,11 +1381,11 @@ public class ControllerDataManager {
 		final Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		final Worker worker = new WorkerImportItemInformation(idAnalysis, principal.getName(), filename, overwrite);
 		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale))
-			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null,
+			return JsonMessage.error(messageSource.getMessage("error.task_manager.too.many", null,
 					"Too many tasks running in background", locale));
 		serviceStorage.store(file, filename);
 		executor.execute(worker);
-		return JsonMessage.Success(messageSource.getMessage("success.start.import.item.information", null,
+		return JsonMessage.success(messageSource.getMessage("success.start.import.item.information", null,
 				"Importing of item information", locale));
 	}
 
@@ -1439,30 +1439,29 @@ public class ControllerDataManager {
 			Principal principal, Locale locale) {
 		try {
 			if (rrfForm.getAnalysis() < 1)
-				return JsonMessage.Error(
+				return JsonMessage.error(
 						messageSource.getMessage("error.import_rrf.no_analysis", null, "No analysis selected", locale));
 			else if (rrfForm.getStandards() == null || rrfForm.getStandards().isEmpty())
 				return JsonMessage
-						.Error(messageSource.getMessage("error.import_rrf.norm", null, "No standard", locale));
+						.error(messageSource.getMessage("error.import_rrf.norm", null, "No standard", locale));
 			if (!(serviceAnalysis.isProfile(rrfForm.getAnalysis())
 					|| serviceUserAnalysisRight.isUserAuthorized(rrfForm.getAnalysis(), principal.getName(),
 							AnalysisRight.highRightFrom(AnalysisRight.MODIFY))))
-				return JsonMessage.Error(messageSource.getMessage("error.action.not_authorise", null,
+				return JsonMessage.error(messageSource.getMessage("error.action.not_authorise", null,
 						"Action does not authorised", locale));
 			else if (!rrfForm.getStandards().stream()
 					.allMatch(idStandard -> serviceStandard.belongsToAnalysis(rrfForm.getAnalysis(), idStandard)))
-				return JsonMessage.Error(messageSource.getMessage("error.action.not_authorise", null,
+				return JsonMessage.error(messageSource.getMessage("error.action.not_authorise", null,
 						"Action does not authorised", locale));
 			measureManager.importRRFFromStandard((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS), rrfForm);
-			return JsonMessage.Success(messageSource.getMessage("success.import_rrf", null,
+			return JsonMessage.success(messageSource.getMessage("success.import_rrf", null,
 					"Measure characteristics has been successfully imported", locale));
 		} catch (TrickException e) {
 			TrickLogManager.persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			return JsonMessage.error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			TrickLogManager.persist(e);
-			return JsonMessage
-					.Error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
+			return JsonMessage.error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 		}
 
 	}
@@ -2169,26 +2168,25 @@ public class ControllerDataManager {
 			Model model, HttpSession session, Principal principal,
 			Locale locale) throws Exception {
 		if (file.isEmpty())
-			return JsonMessage
-					.Error(messageSource.getMessage("error.file.empty", null, "File cannot be empty", locale));
+			return JsonMessage.error(messageSource.getMessage("error.file.empty", null, "File cannot be empty", locale));
 		if (file.getSize() > maxUploadFileSize)
-			return JsonMessage.Error(messageSource.getMessage("error.file.too.large",
+			return JsonMessage.error(messageSource.getMessage("error.file.too.large",
 					new Object[] { maxUploadFileSize }, "File is to large", locale));
 		final String filename = ServiceStorage.RandoomFilename();
 		final Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		final Worker worker = new WorkerImportEstimation(idAnalysis, principal.getName(), filename, asset, scenario);
 		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale))
-			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null,
+			return JsonMessage.error(messageSource.getMessage("error.task_manager.too.many", null,
 					"Too many tasks running in background", locale));
 		serviceStorage.store(file, filename);
 		executor.execute(worker);
 		return asset
-				? JsonMessage.Success(messageSource.getMessage("success.start.import.asset", null,
+				? JsonMessage.success(messageSource.getMessage("success.start.import.asset", null,
 						"Importing of assets data", locale))
 				: scenario
-						? JsonMessage.Success(messageSource.getMessage("success.start.import.risk.scenario", null,
+						? JsonMessage.success(messageSource.getMessage("success.start.import.risk.scenario", null,
 								"Importing of risk scenarios data", locale))
-						: JsonMessage.Success(messageSource.getMessage("success.start.risk.estimation", null,
+						: JsonMessage.success(messageSource.getMessage("success.start.risk.estimation", null,
 								"Importing of risk estimations data", locale));
 	}
 

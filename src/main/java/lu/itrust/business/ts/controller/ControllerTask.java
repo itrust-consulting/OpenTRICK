@@ -130,7 +130,7 @@ public class ControllerTask {
 	@ResponseBody
 	public String stop(@PathVariable String id, Principal principal, Locale locale) {
 		serviceTaskFeedback.unregisterTask(principal.getName(), id);
-		return JsonMessage.Info(messageSource.getMessage("success.task.done", null, "Task was done successfully", locale));
+		return JsonMessage.info(messageSource.getMessage("success.task.done", null, "Task was done successfully", locale));
 	}
 
 	/**

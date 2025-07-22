@@ -178,11 +178,11 @@ public class ControllerProfile {
 			Integer selectedAnalysis = (Integer) session.getAttribute(SELECTED_ANALYSIS);
 			if (selectedAnalysis != null && selectedAnalysis == analysisId)
 				session.removeAttribute(SELECTED_ANALYSIS);
-			return JsonMessage.Success(messageSource.getMessage("success.analysis.delete.successfully", null, "Analysis was deleted successfully", locale));
+			return JsonMessage.success(messageSource.getMessage("success.analysis.delete.successfully", null, "Analysis was deleted successfully", locale));
 		} catch (Exception e) {
 			// return error message
 			TrickLogManager.persist(e);
-			return JsonMessage.Error(messageSource.getMessage("failed.delete.analysis", null, "Analysis cannot be deleted!", locale));
+			return JsonMessage.error(messageSource.getMessage("failed.delete.analysis", null, "Analysis cannot be deleted!", locale));
 		}
 	}
 }

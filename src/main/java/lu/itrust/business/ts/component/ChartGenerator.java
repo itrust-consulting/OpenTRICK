@@ -885,10 +885,10 @@ public class ChartGenerator {
 			scenarios.forEach(scenario -> chart.getLabels().add(scenario.getName()));
 			return chart;
 		} catch (TrickException e) {
-			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			return JsonMessage.error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			TrickLogManager.persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.500.message", null, locale));
+			return JsonMessage.error(messageSource.getMessage("error.500.message", null, locale));
 		}
 
 	}
@@ -944,10 +944,10 @@ public class ChartGenerator {
 			return chart;
 		} catch (TrickException e) {
 			TrickLogManager.persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			return JsonMessage.error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			TrickLogManager.persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.500.message", null, e.getMessage(), locale));
+			return JsonMessage.error(messageSource.getMessage("error.500.message", null, e.getMessage(), locale));
 		}
 
 	}

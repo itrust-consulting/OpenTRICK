@@ -67,6 +67,8 @@ import lu.itrust.business.ts.model.ilr.AssetEdge;
 import lu.itrust.business.ts.model.ilr.AssetNode;
 import lu.itrust.business.ts.model.scenario.Scenario;
 import lu.itrust.business.ts.model.standard.AnalysisStandard;
+import lu.itrust.business.ts.model.standard.AssetStandard;
+import lu.itrust.business.ts.model.standard.NormalStandard;
 import lu.itrust.business.ts.model.standard.Standard;
 import lu.itrust.business.ts.model.standard.StandardType;
 import lu.itrust.business.ts.model.standard.measure.AbstractNormalMeasure;
@@ -87,6 +89,8 @@ import lu.itrust.business.ts.usermanagement.helper.UserDeleteHelper;
  */
 @Component
 public class CustomDelete {
+
+	private final AnalysisImpactManager analysisImpactManager;
 
 	@Autowired
 	private DAOAssessment daoAssessment;
@@ -166,6 +170,10 @@ public class CustomDelete {
 	@Autowired
 	private DAOIDS daoIDS;
 
+	CustomDelete(AnalysisImpactManager analysisImpactManager) {
+		this.analysisImpactManager = analysisImpactManager;
+	}
+
 	/**
 	 * Deletes all empty analyses associated with the given identifier.
 	 * An analysis is considered empty if it does not have any data.
@@ -175,7 +183,7 @@ public class CustomDelete {
 	 * @throws Exception if an error occurs during the deletion process
 	 */
 	@Transactional
-	public void customDeleteEmptyAnalysis(String identifier, String username) throws Exception {
+	public void customDeleteEmptyAnalysis(String identifier, String username) {
 		final List<Analysis> analyses = daoAnalysis.getAllByIdentifier(identifier);
 		if (analyses.stream().anyMatch(Analysis::hasData))
 			return;
@@ -185,57 +193,48 @@ public class CustomDelete {
 	}
 
 	/**
-	 * Deletes the action plan and measure associated with the given analyses,
-	 * measure description, and principal.
+	 * Deletes a measure description and breaks all links to analyses that contain
+	 * this measure description.
+	 * 
+	 * This method can only be used for MeasureDescription from Knowledge base.
 	 *
-	 * @param analyses           the list of analyses
-	 * @param measureDescription the measure description
-	 * @param principal          the principal
-	 * @throws Exception if an error occurs during the deletion process
+	 * @param analyses           The list of analyses containing the measure
+	 *                           description.
+	 * @param measureDescription The measure description to be deleted.
+	 * @param principal          The principal performing the deletion.
+	 * @throws TrickException if the measure description is not a knowledge base
+	 *                        measure description.
 	 */
-	private void deleteActionPlanAndMeasure(List<Analysis> analyses, MeasureDescription measureDescription,
-			Principal principal) throws Exception {
+	private void breakMeasureDescriptionLinks(List<Analysis> analyses, MeasureDescription measureDescription,
+			Principal principal) {
 		for (Analysis analysis : analyses) {
 			final AnalysisStandard analysisStandard = analysis.getAnalysisStandards().values().stream()
 					.filter(a -> a.getStandard().equals(measureDescription.getStandard()))
 					.findAny().orElse(null);
 			if (analysisStandard != null) {
 
-				analysis.getAnalysisStandards().values().stream()
-						.filter(standard -> standard.getStandard().is(Constant.STANDARD_27002))
-						.map(standard -> standard.getMeasures())
-						.findFirst().ifPresent(measures -> measures.forEach(
-								measure -> ((AbstractNormalMeasure) measure).getMeasurePropertyList().setSoaRisk("")));
+				if (analysisStandard.isAnalysisOnly())
+					throw new TrickException("error.measure.manage_analysis_measure",
+							"This measure cannot be managed from the knowledge base");
 
-				removeMeasureDependencies(measureDescription, analysis);
+				final Measure measure = removeMeasureByDescription(measureDescription, analysisStandard);
+				if (measure == null)
+					continue;
 
-				final Iterator<Measure> iterator = analysisStandard.getMeasures().iterator();
+				breakMeasureDependencies(measure, analysis);
+				daoMeasure.delete(measure);
 
-				while (iterator.hasNext()) {
-
-					final Measure measure = iterator.next();
-
-					if (measure.getMeasureDescription().equals(measureDescription)) {
-						iterator.remove();
-						daoMeasure.delete(measure);
-						/**
-						 * Log
-						 */
-						TrickLogManager.persist(LogLevel.WARNING, LogType.ANALYSIS, "log.delete.measure",
-								String.format("Analysis: %s, version: %s, target: Measure (%s) from: %s",
-										analysis.getIdentifier(), analysis.getVersion(),
-										measureDescription.getReference(), measureDescription.getStandard().getName()),
-								principal.getName(), LogAction.DELETE, analysis.getIdentifier(), analysis.getVersion(),
-								measureDescription.getReference(),
-								measureDescription.getStandard().getName());
-						break;
-					}
-				}
+				TrickLogManager.persist(LogLevel.WARNING, LogType.ANALYSIS, "log.delete.measure",
+						String.format("Analysis: %s, version: %s, target: Measure (%s) from: %s",
+								analysis.getIdentifier(), analysis.getVersion(),
+								measureDescription.getReference(), measureDescription.getStandard().getName()),
+						principal.getName(), LogAction.DELETE, analysis.getIdentifier(), analysis.getVersion(),
+						measureDescription.getReference(),
+						measureDescription.getStandard().getName());
 
 				daoAnalysis.saveOrUpdate(analysis);
 			}
 		}
-		daoMeasureDescription.delete(measureDescription);
 	}
 
 	/**
@@ -250,7 +249,7 @@ public class CustomDelete {
 	 *                   dependencies.
 	 */
 	private void deleteActionPlanAndScenarioOrAssetDependencies(Analysis analysis, List<Assessment> assessments,
-			List<RiskProfile> riskProfiles) throws Exception {
+			List<RiskProfile> riskProfiles) {
 		deleteAnalysisActionPlan(analysis);
 		deleteAssetOrScenarioDependencies(analysis, assessments, riskProfiles);
 	}
@@ -262,7 +261,9 @@ public class CustomDelete {
 	 * @param username the username of the user performing the deletion
 	 * @throws Exception if an error occurs during the deletion process
 	 */
-	protected void deleteAnalysis(Analysis analysis, String username) throws Exception {
+	protected void deleteAnalysis(Analysis analysis, String username) {
+		if (analysis == null)
+			throw new TrickException("error.analysis.not_found", "Analysis cannot be found");
 		deleteAnalysisProcess(analysis, username);
 		if (!daoAnalysis.hasData(analysis.getIdentifier()))
 			customDeleteEmptyAnalysis(analysis.getIdentifier(), username);
@@ -276,7 +277,7 @@ public class CustomDelete {
 	 * @throws Exception if an error occurs during the deletion process
 	 */
 	@Transactional
-	public void deleteAnalysis(int idAnalysis, String username) throws Exception {
+	public void deleteAnalysis(int idAnalysis, String username) {
 		deleteAnalysis(daoAnalysis.get(idAnalysis), username);
 	}
 
@@ -315,37 +316,105 @@ public class CustomDelete {
 			daoActionPlanSummary.delete(analysis.getSummaries().remove(0));
 	}
 
+	/**
+	 * Deletes a measure from the analysis by its ID, ensuring that it belongs to
+	 * the
+	 * specified standard.
+	 * This method is transactional and ensures that all changes are committed
+	 * together.
+	 *
+	 * @param analysisID The ID of the analysis containing the measure.
+	 * @param idStandard The ID of the standard to which the measure belongs.
+	 * @param idMeasure  The ID of the measure to be deleted.
+	 * @throws TrickException if the measure cannot be found or does not belong to
+	 *                        the specified standard.
+	 */
 	@Transactional
-	public void deleteAnalysisMeasure(Integer analysisID, Integer idStandard, Integer idMeasure) {
-
-		final Measure measure = daoMeasure.getFromAnalysisById(analysisID, idMeasure);
-
-		if (measure == null || measure.getMeasureDescription().getStandard().getId() != idStandard)
-			throw new TrickException("error.measure.not_found", "Measure cannot be found");
+	public void deleteMeasure(Integer analysisID, Integer idStandard, Integer idMeasure) {
 
 		final Analysis analysis = daoAnalysis.get(analysisID);
 
-		final MeasureDescription measureDescription = measure.getMeasureDescription();
+		if (analysis == null)
+			throw new TrickException("error.analysis.not_found", "Analysis cannot be found");
 
-		final AnalysisStandard analysisStandard = analysis.getAnalysisStandards()
-				.get(measureDescription.getStandard().getLabel());
+		final AnalysisStandard analysisStandard = analysis.getAnalysisStandards().values()
+				.stream().filter(e -> e.getStandard().getId() == idStandard).findAny()
+				.orElseThrow(() -> new TrickException("error.standard.not_found", "Standard cannot be found"));
 
 		if (!analysisStandard.isAnalysisOnly())
 			throw new TrickException("error.measure.manage_knowledgebase_measure",
 					"This measure can only be managed from the knowledge base");
 
-		removeMeasureDependencies(measureDescription, analysis);
+		final Measure measure = analysisStandard.getMeasures().stream()
+				.filter(m -> m.getId() == idMeasure).findAny()
+				.orElseThrow(() -> new TrickException("error.measure.not_found", "Measure cannot be found"));
 
 		analysisStandard.getMeasures().remove(measure);
 
+		breakMeasureDependencies(measure, analysis);
+
 		daoMeasure.delete(measure);
 
-		daoMeasureDescription.delete(measureDescription);
+		daoMeasureDescription.delete(measure.getMeasureDescription());
 
 		daoAnalysis.saveOrUpdate(analysis);
 	}
 
+	/**
+	 * Deletes a list of measures by their IDs, ensuring that they belong to the
+	 * specified standard and analysis.
+	 * This method is transactional and ensures that all changes are committed
+	 * together.
+	 *
+	 * @param ids        The list of measure IDs to be deleted.
+	 * @param idStandard The ID of the standard to which the measures belong.
+	 * @param analysisId The ID of the analysis containing the measures.
+	 * @return A list of IDs of the deleted measures.
+	 * @throws TrickException if the analysis or standard cannot be found, or if the
+	 *                        measures do not belong to the specified standard.
+	 */
+	@Transactional
+	public List<Integer> deleteMeasures(final List<Integer> ids,final int idStandard, final int analysisId ) {
+		// If the list of IDs is null or empty, return an empty list
+		if (ids == null || ids.isEmpty())
+			return Collections.emptyList();
+			
+		final Analysis analysis = daoAnalysis.get(analysisId);
+		if (analysis == null)
+			throw new TrickException("error.analysis.not_found", "Analysis cannot be found");
+		final AnalysisStandard analysisStandard = analysis.getAnalysisStandards().values().stream()
+				.filter(e -> e.getStandard().getId() == idStandard).findAny()
+				.orElseThrow(() -> new TrickException("error.standard.not_found", "Standard cannot be found"));
+		if (!analysisStandard.isAnalysisOnly())
+			throw new TrickException("error.measure.manage_knowledgebase_measure",
+					"This measure can only be managed from the knowledge base");
+
+		final List<Integer> deletedIds = ids.stream().filter(Objects::nonNull).map(idMeasure -> {
+			final Measure measure = removeMeasureById(idMeasure, analysisStandard);
+			if (measure == null)
+				return null;
+			breakMeasureDependencies(measure, analysis);
+			daoMeasure.delete(measure);
+			daoMeasureDescription.delete(measure.getMeasureDescription());
+			return idMeasure;
+		}).filter(Objects::nonNull).toList();
+
+		if (!deletedIds.isEmpty())
+			daoAnalysis.saveOrUpdate(analysis);
+		return deletedIds;
+	}
+
+	/**
+	 * Deletes the specified analysis and its associated data, including
+	 * subscribers,
+	 * invitations, and logs.
+	 *
+	 * @param analysis the analysis to be deleted
+	 * @param username the username of the user performing the deletion
+	 */
 	private void deleteAnalysisProcess(Analysis analysis, String username) {
+		if (analysis == null)
+			throw new TrickException("error.analysis.not_found", "Analysis cannot be found");
 		daoIDS.getByAnalysis(analysis).forEach(ids -> {
 			ids.getSubscribers().remove(analysis);
 			daoIDS.saveOrUpdate(ids);
@@ -363,18 +432,71 @@ public class CustomDelete {
 				analysis.getVersion());
 	}
 
+	/**
+	 * Deletes a list of assets by their IDs and analysis ID, breaking all links to
+	 * measures, nodes, and edges associated with the assets.
+	 *
+	 * @param ids        The list of asset IDs to be deleted.
+	 * @param analysisId The ID of the analysis containing the assets.
+	 * @return A list of IDs of the deleted assets.
+	 * @throws TrickException if the analysis cannot be found.
+	 */
 	@Transactional
-	public void deleteAsset(int idAsset, int idAnalysis) throws Exception {
+	public List<Integer> deleteAssets(final List<Integer> ids, final int analysisId) {
 
-		final Analysis analysis = daoAnalysis.get(idAnalysis);
+		if (ids == null || ids.isEmpty())
+			return Collections.emptyList();
+
+		final Analysis analysis = daoAnalysis.get(analysisId);
 		if (analysis == null)
 			throw new TrickException("error.analysis.not_found", "Analysis cannot be found");
 
-		final Asset asset = analysis.findAsset(idAsset);
+		final List<Integer> deletedIds = ids.stream().filter(Objects::nonNull).map(idAsset -> {
+			final Asset asset = analysis.findAsset(idAsset);
+			if (asset == null)
+				return null;
+			breakAssetLinks(asset, analysis);
+			analysis.getAssets().remove(asset);
+			daoAsset.delete(asset);
+			return idAsset;
+		}).filter(Objects::nonNull).toList();
 
+		if (!deletedIds.isEmpty())
+			daoAnalysis.saveOrUpdate(analysis);
+		return deletedIds;
+	}
+
+	/**
+	 * Deletes an asset by its ID and analysis ID, breaking all links to measures,
+	 * nodes, and edges associated with the asset.
+	 *
+	 * @param idAsset    The ID of the asset to be deleted.
+	 * @param idAnalysis The ID of the analysis containing the asset.
+	 * @throws TrickException if the analysis or asset cannot be found.
+	 */
+	@Transactional
+	public void deleteAsset(int idAsset, int idAnalysis) {
+		final Analysis analysis = daoAnalysis.get(idAnalysis);
+		if (analysis == null)
+			throw new TrickException("error.analysis.not_found", "Analysis cannot be found");
+		final Asset asset = analysis.findAsset(idAsset);
 		if (asset == null)
 			throw new TrickException("error.asset.not_found", "Asset cannot be found");
 
+		breakAssetLinks(asset, analysis);
+		analysis.getAssets().remove(asset);
+		daoAsset.delete(asset);
+		daoAnalysis.saveOrUpdate(analysis);
+	}
+
+	/**
+	 * Breaks the links between the specified asset and its associated measures,
+	 * nodes, and edges in the given analysis.
+	 *
+	 * @param asset    The asset to break links for.
+	 * @param analysis The analysis containing the asset.
+	 */
+	private void breakAssetLinks(final Asset asset, final Analysis analysis) {
 		final List<AssetMeasure> assetMeasures = analysis.getAnalysisStandards().values().stream()
 				.filter(e -> e.isAnalysisOnly() && e.getStandard().getType() == StandardType.ASSET)
 				.flatMap(e -> e.getMeasures().stream())
@@ -382,29 +504,13 @@ public class CustomDelete {
 						.anyMatch(av -> av.getAsset().equals(asset)))
 				.map(m -> (AssetMeasure) m).toList();
 
-		final var measureOption = assetMeasures.stream().filter(e -> e.getMeasureAssetValues().size() == 1).findFirst();
+		final List<MeasureAssetValue> assetValues = new ArrayList<>();
 
-		if (measureOption.isPresent()) {
+		assetMeasures
+				.forEach(measure -> measure.getMeasureAssetValues().removeIf(av -> av.getAsset().equals(asset) &&
+						assetValues.add(av)));
 
-			var measure = measureOption.get();
-
-			throw new TrickException("error.asset.measure.in_use",
-					"Asset cannot be deleted: please remove the asset from the measure first: "
-							+ measure.getMeasureDescription().getReference() + " from standard "
-							+ measure.getMeasureDescription().getStandard().getName(),
-					measure.getMeasureDescription().getReference(),
-					measure.getMeasureDescription().getStandard().getName());
-		} else {
-			final List<MeasureAssetValue> assetValues = new ArrayList<>();
-			// Remove the asset from all measures
-			assetMeasures
-					.forEach(measure -> measure.getMeasureAssetValues().removeIf(av -> av.getAsset().equals(asset) &&
-							assetValues.add(av)));
-
-			assetValues.forEach(daoMeasureAssetValue::delete);
-
-		
-		}
+		assetValues.forEach(daoMeasureAssetValue::delete);
 
 		final Set<AssetNode> nodes = new HashSet<>();
 
@@ -427,18 +533,18 @@ public class CustomDelete {
 				analysis.removeRiskProfile(asset));
 
 		analysis.removeFromScenario(asset).forEach(scenario -> daoScenario.saveOrUpdate(scenario));
-
-		
-
-		analysis.getAssets().remove(asset);
-
-		daoAsset.delete(asset);
-
-		daoAnalysis.saveOrUpdate(analysis);
 	}
 
+	/**
+	 * Deletes the dependencies of assets or scenarios associated with the given
+	 * analysis, assessments, and risk profiles.
+	 *
+	 * @param analysis     The analysis from which to delete dependencies.
+	 * @param assessments  The list of assessments to be deleted.
+	 * @param riskProfiles The list of risk profiles to be deleted.
+	 */
 	private void deleteAssetOrScenarioDependencies(Analysis analysis, List<Assessment> assessments,
-			List<RiskProfile> riskProfiles) throws Exception {
+			List<RiskProfile> riskProfiles) {
 		while (!analysis.getRiskRegisters().isEmpty())
 			daoRiskRegister.delete(analysis.getRiskRegisters().remove(0));
 		for (Assessment assessment : assessments)
@@ -446,8 +552,21 @@ public class CustomDelete {
 		riskProfiles.forEach(riskProfile -> daoRiskProfile.delete(riskProfile));
 	}
 
+	/**
+	 * Deletes a customer and all associated users, ensuring that the customer can
+	 * be
+	 * deleted (not a default customer and not in use).
+	 * This method is transactional and ensures that all changes are committed
+	 * together.
+	 *
+	 * @param idcustomer the ID of the customer to be deleted
+	 * @param username   the username of the user performing the deletion
+	 * @throws TrickException if the customer cannot be found, is a default
+	 *                        customer,
+	 *                        or has associated analyses
+	 */
 	@Transactional
-	public void deleteCustomer(int idcustomer, String username) throws Exception {
+	public void deleteCustomer(int idcustomer, String username) {
 		final Customer customer = daoCustomer.get(idcustomer);
 		if (customer == null)
 			throw new TrickException("error.customer.not_found", "Customer cannot be found");
@@ -478,22 +597,43 @@ public class CustomDelete {
 				customer.getOrganisation());
 	}
 
+	/**
+	 * Deletes duplicated and unused asset type values for a given analysis.
+	 * This method is transactional and ensures that all changes are committed
+	 * together.
+	 *
+	 * @param analysisId the ID of the analysis from which to delete asset type
+	 *                   values
+	 * @throws Exception if an error occurs during the deletion process
+	 */
 	@Transactional
-	public void deleteDuplicationAssetTypeValue(Integer analysisId) throws Exception {
+	public void deleteDuplicationAssetTypeValue(Integer analysisId) {
 		final Analysis analysis = daoAnalysis.get(analysisId);
 		for (Scenario scenario : analysis.getScenarios())
 			daoAssetTypeValue.delete(scenario.deleteDuplicatedAndUnsed());
 		daoAnalysis.saveOrUpdate(analysis);
 	}
 
+	/**
+	 * Deletes a scenario from the analysis by its ID.
+	 * This method is transactional and ensures that all changes are committed
+	 * together.
+	 *
+	 * @param idScenario the ID of the scenario to be deleted
+	 * @param idAnalysis the ID of the analysis from which the scenario is deleted
+	 * @throws TrickException if the analysis or scenario cannot be found
+	 */
 	@Transactional
-	public void deleteScenario(int idScenario, int idAnalysis) throws Exception {
-		final Scenario scenario = daoScenario.getFromAnalysisById(idAnalysis, idScenario);
+	public void deleteScenario(int idScenario, int idAnalysis) {
+
 		final Analysis analysis = daoAnalysis.get(idAnalysis);
 
 		if (analysis == null)
 			throw new TrickException("error.analysis.not_found", "Analysis cannot be found");
-		else if (scenario == null)
+
+		final Scenario scenario = analysis.findScenario(idScenario);
+
+		if (scenario == null)
 			throw new TrickException("error.scenario.not_found", "Scenario cannot be found");
 
 		deleteActionPlanAndScenarioOrAssetDependencies(analysis, analysis.removeAssessment(scenario),
@@ -504,31 +644,75 @@ public class CustomDelete {
 		daoAnalysis.saveOrUpdate(analysis);
 	}
 
+	/**
+	 * Deletes a list of scenarios from the analysis by their IDs.
+	 * This method is transactional and ensures that all changes are committed
+	 * together.
+	 *
+	 * @param ids        the list of scenario IDs to be deleted
+	 * @param idAnalysis the ID of the analysis from which the scenarios are deleted
+	 * @return a list of IDs of the deleted scenarios
+	 * @throws TrickException if the analysis cannot be found
+	 */
 	@Transactional
-	public void deleteStandard(Standard standard) throws Exception {
+	public List<Integer> deleteScenarios(final List<Integer> ids, final int idAnalysis) {
 
-		if (daoAnalysisStandard.getAllFromStandard(standard).size() > 0)
+		if (ids == null || ids.isEmpty())
+			return Collections.emptyList();
+
+		final Analysis analysis = daoAnalysis.get(idAnalysis);
+		if (analysis == null)
+			throw new TrickException("error.analysis.not_found", "Analysis cannot be found");
+
+		final List<Integer> deletedIds = ids.stream().filter(Objects::nonNull).map(idScenario -> {
+			final Scenario scenario = analysis.findScenario(idScenario);
+			if (scenario == null)
+				return null;
+			deleteActionPlanAndScenarioOrAssetDependencies(analysis, analysis.removeAssessment(scenario),
+					analysis.removeRiskProfile(scenario));
+			analysis.getScenarios().remove(scenario);
+			daoScenario.delete(scenario);
+			return idScenario;
+		}).filter(Objects::nonNull).toList();
+
+		// Save the analysis after deleting scenarios
+		if (!deletedIds.isEmpty())
+			daoAnalysis.saveOrUpdate(analysis);
+
+		return deletedIds;
+	}
+
+	/**
+	 * Deletes a standard and its associated measure descriptions and texts.
+	 * This method is transactional and ensures that all changes are committed
+	 * together.
+	 *
+	 * @param standard the standard to be deleted
+	 * @throws TrickException if the standard is used in analyses
+	 */
+	@Transactional
+	public void deleteStandard(Standard standard) {
+
+		if (daoAnalysisStandard.countByStandard(standard) > 0)
 			throw new TrickException("error.delete.norm.analyses_with_norm",
 					"Standard could not be deleted: it is used in analyses!");
 
-		final List<MeasureDescription> measureDescriptions = daoMeasureDescription.getAllByStandard(standard);
-
-		for (MeasureDescription measureDescription : measureDescriptions) {
-
-			final List<MeasureDescriptionText> measureDescriptionTexts = daoMeasureDescriptionText
-					.getAllFromMeasureDescription(measureDescription.getId());
-
-			for (MeasureDescriptionText measureDescriptiontext : measureDescriptionTexts)
-				daoMeasureDescriptionText.delete(measureDescriptiontext);
-
-			daoMeasureDescription.delete(measureDescription);
-		}
+		daoMeasureDescription.getAllByStandard(standard)
+				.forEach(measureDescription -> daoMeasureDescription.delete(measureDescription));
 
 		daoStandard.delete(standard);
 
 	}
 
-	protected void deleteUser(User user, String username) throws Exception {
+	/**
+	 * Deletes a user and their associated data, including reset passwords, word
+	 * reports, SQLite data, analysis rights, invitations, and email validation
+	 * requests.
+	 *
+	 * @param user     the user to be deleted
+	 * @param username the username of the user performing the deletion
+	 */
+	protected void deleteUser(User user, String username) {
 
 		final ResetPassword resetPassword = daoResetPassword.get(user);
 
@@ -550,6 +734,17 @@ public class CustomDelete {
 				user.getFirstName(), user.getLastName(), user.getLogin(), user.getEmail());
 	}
 
+	/**
+	 * Deletes a user and their associated analyses, switching ownership of analyses
+	 * if necessary.
+	 *
+	 * @param deleteHelper  the helper containing user deletion information
+	 * @param errors        a map to store any errors encountered during deletion
+	 * @param principal     the principal performing the deletion
+	 * @param messageSource the message source for localization
+	 * @param locale        the locale for error messages
+	 * @throws Exception if an error occurs during the deletion process
+	 */
 	@Transactional
 	public void deleteUser(UserDeleteHelper deleteHelper, Map<Object, String> errors, Principal principal,
 			MessageSource messageSource, Locale locale) throws Exception {
@@ -603,7 +798,7 @@ public class CustomDelete {
 				Collections.sort(analyses, new AnalysisComparator().reversed());
 
 				deleteHelper.getDeleteAnalysis().stream()
-						.filter(idAnalysis -> !analyses.stream().anyMatch(analysis -> analysis.getId() == idAnalysis))
+						.filter(idAnalysis -> analyses.stream().noneMatch(analysis -> analysis.getId() == idAnalysis))
 						.forEach(idAnalysis -> errors.put(idAnalysis, messageSource
 								.getMessage("error.action.not_authorise", null, "Action does not authorised", locale)));
 
@@ -647,12 +842,38 @@ public class CustomDelete {
 		}
 	}
 
+	/**
+	 * Deletes a measure description and its associated action plans and measures.
+	 * This method is transactional and ensures that all changes are committed
+	 * together.
+	 *
+	 * @param idMeasureDescription the ID of the measure description to be deleted
+	 * @param principal            the principal performing the deletion
+	 * @throws Exception if an error occurs during the deletion process
+	 */
 	@Transactional
-	public void forceDeleteMeasureDescription(int idMeasureDescription, Principal principal) throws Exception {
-		MeasureDescription measureDescription = daoMeasureDescription.get(idMeasureDescription);
-		deleteActionPlanAndMeasure(daoAnalysis.getAllContains(measureDescription), measureDescription, principal);
+	public void forceDeleteMeasureDescription(int idMeasureDescription, Principal principal) {
+		final MeasureDescription measureDescription = daoMeasureDescription.get(idMeasureDescription);
+		if (measureDescription == null)
+			throw new TrickException("error.measure.description.not_found", "Measure description cannot be found");
+		breakMeasureDescriptionLinks(daoAnalysis.getAllContains(measureDescription), measureDescription, principal);
+		daoMeasureDescription.delete(measureDescription);
+		TrickLogManager.persist(LogLevel.WARNING, LogType.ANALYSIS, "log.delete.measure.description",
+				String.format("Measure description: %s", measureDescription.getReference()), principal.getName(),
+				LogAction.DELETE, measureDescription.getReference());
 	}
 
+	/**
+	 * Removes a customer from a user and deletes the associated rights in analyses.
+	 * This method is transactional and ensures that all changes are committed
+	 * together.
+	 *
+	 * @param customerId    the ID of the customer to be removed
+	 * @param userName      the username of the user from whom the customer is being
+	 *                      removed
+	 * @param adminUsername the username of the admin performing this action
+	 * @return true if the customer was successfully removed, false otherwise
+	 */
 	@Transactional
 	public boolean removeCustomerByUser(int customerId, String userName, String adminUsername) {
 		final Customer customer = daoCustomer.get(customerId);
@@ -694,9 +915,65 @@ public class CustomDelete {
 	 * @param analysis
 	 * @see CustomDelete#deleteAnalysisActionPlan
 	 */
-	public void removeMeasureDependencies(MeasureDescription measureDescription, Analysis analysis) {
+	private void breakMeasureDependencies(Measure measure, Analysis analysis) {
 		deleteAnalysisActionPlan(analysis);
 		analysis.getRiskProfiles().stream().forEach(riskProfile -> riskProfile.getMeasures()
-				.removeIf(measure -> measure.getMeasureDescription().equals(measureDescription)));
+				.removeIf(m -> m.equals(measure)));
+	}
+
+	/**
+	 * Removes a measure from the analysis standard by its ID.
+	 * This method iterates through the measures in the analysis standard and
+	 * removes the one that matches the given measure ID.
+	 *
+	 * @param measureId        The ID of the measure to be removed.
+	 * @param analysisStandard The analysis standard from which to remove the
+	 *                         measure.
+	 * @return The removed measure, or null if no matching measure was found.
+	 */
+	private Measure removeMeasureById(final int measureId,
+			final AnalysisStandard analysisStandard) {
+
+		final Iterator<Measure> iterator = analysisStandard.getMeasures().iterator();
+
+		while (iterator.hasNext()) {
+
+			final Measure measure = iterator.next();
+
+			if (measure.getId() == measureId) {
+
+				iterator.remove();
+				return measure;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Removes a measure from the analysis standard by its description.
+	 * This method iterates through the measures in the analysis standard and
+	 * removes the one that matches the given measure description.
+	 *
+	 * @param measureDescription The description of the measure to be removed.
+	 * @param analysisStandard   The analysis standard from which to remove the
+	 *                           measure.
+	 * @return The removed measure, or null if no matching measure was found.
+	 */
+	private Measure removeMeasureByDescription(final MeasureDescription measureDescription,
+			final AnalysisStandard analysisStandard) {
+
+		final Iterator<Measure> iterator = analysisStandard.getMeasures().iterator();
+
+		while (iterator.hasNext()) {
+
+			final Measure measure = iterator.next();
+
+			if (measure.getMeasureDescription().equals(measureDescription)) {
+
+				iterator.remove();
+				return measure;
+			}
+		}
+		return null;
 	}
 }

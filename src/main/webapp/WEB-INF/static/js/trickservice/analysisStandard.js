@@ -683,11 +683,11 @@ function deleteMeasure(measureId, idStandard) {
 	} else
 		selectedMeasures.push(measureId);
 
-	let standard = $("#section_standard_" + idStandard + " #menu_standard_" + idStandard + " li:first-child").text();
+	let standard = $("#section_standard_" + idStandard).attr("data-trick-label");
 
 	if (selectedMeasures.length == 1) {
 		let measure = $("#section_standard_" + idStandard + " tr[data-trick-id='" + selectedMeasures[0] + "'] td:not(:first-child)");
-		reference = $(measure[0]).text();
+		let reference = $(measure[0]).text();
 		$("#confirm-dialog .modal-body").html(
 			MessageResolver("label.measure.question.delete", "Are you sure that you want to delete the measure with the Reference: <strong>" + reference
 				+ "</strong> from the standard <strong>" + standard
@@ -701,52 +701,39 @@ function deleteMeasure(measureId, idStandard) {
 	$("#confirm-dialog .btn-danger").click(function () {
 		$("#confirm-dialog").modal("hide");
 		let $progress = $("#loading-indicator").show();
-		while (selectedMeasures.length) {
-			if ($progress.is(":hidden"))
-				break;
-			deleteSingleMeasure($progress, idStandard, selectedMeasures.pop(), selectedMeasures.length == 0);
-		}
+		let hasChange = false;
+		$.ajax({
+			url: context + "/Analysis/Standard/" + idStandard + "/Measure/Delete",
+			type: "DELETE",
+			data: JSON.stringify(selectedMeasures),
+			contentType: "application/json;charset=UTF-8",
+			success: function (response, textStatus, jqXHR) {
+				let ids = response["ids"];
+				if (Array.isArray(ids)) {
+					ids.forEach(function (idMeasure) {
+						// Remove the measure from the table
+						hasChange |= $("tr[data-trick-id='" + idMeasure + "']", "#section_standard_" + idStandard).remove().length > 0;
+						forceUpdateMenu($("#section_standard_" + idStandard));
+						removeFromMeasureNavigation(idStandard, idMeasure);
+					});
+				} else if (response["error"] != undefined)
+					showDialog("#alert-dialog", response["error"]);
+				else
+					showDialog("#alert-dialog", MessageResolver("error.delete.measure.unkown", "Unknown error occoured while deleting the measure"));
+			},
+			error: unknowError
+		}).complete(function () {
+			$progress.hide();
+			if (hasChange)
+				reloadSection("section_standard_" + idStandard);
+		});
 		return false;
 	});
 	$("#confirm-dialog").modal("show");
 	return false;
 }
 
-/**
- * Deletes a single measure.
- *
- * @param {jQuery} $progress - The progress element.
- * @param {string} idStandard - The ID of the standard.
- * @param {string} idMeasure - The ID of the measure.
- * @param {boolean} last - Indicates whether it is the last measure.
- */
-function deleteSingleMeasure($progress, idStandard, idMeasure, last) {
-	let error = false;
-	$.ajax({
-		url: context + "/Analysis/Standard/" + idStandard + "/Measure/Delete/" + idMeasure,
-		type: "POST",
-		contentType: "application/json;charset=UTF-8",
-		success: function (response, textStatus, jqXHR) {
-			if ((error = response["success"] == undefined)) {
-				if (response["error"] != undefined)
-					showDialog("#alert-dialog", response["error"]);
-				else
-					showDialog("#alert-dialog", MessageResolver("error.delete.measure.unkown", "Unknown error occoured while deleting the measure"));
-			} else {
-				$("tr[data-trick-id='" + idMeasure + "']", "#section_standard_" + idStandard).remove();
-				forceUpdateMenu($("#section_standard_" + idStandard));
-				removeFromMeasureNavigation(idStandard, idMeasure);
-			}
-		},
-		error: unknowError
-	}).complete(function () {
-		if (error || last) {
-			$progress.hide();
-			if (error)
-				reloadSection("section_standard_" + idStandard);
-		}
-	});
-}
+
 
 /**
  * Manages the SOA (Service-Oriented Architecture).

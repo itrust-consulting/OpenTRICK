@@ -143,19 +143,19 @@ public class ControllerLanguage {
 		try {
 			Language language = serviceLanguage.get(languageId);
 			if (language == null)
-				return JsonMessage.Error(messageSource.getMessage("error.language.not_exist", null, "Language does not exist", locale));
+				return JsonMessage.error(messageSource.getMessage("error.language.not_exist", null, "Language does not exist", locale));
 			if (serviceLanguage.isUsed(language))
-				return JsonMessage.Error(messageSource.getMessage("error.language.in_use", null, "Language cannot be deleted, it is still used", locale));
+				return JsonMessage.error(messageSource.getMessage("error.language.in_use", null, "Language cannot be deleted, it is still used", locale));
 			serviceLanguage.delete(language);
 			/**
 			 * Log
 			 */
 			TrickLogManager.persist(LogLevel.WARNING, LogType.ANALYSIS, "log.language.delete", String.format("Language: %s", language.getAlpha3()), principal.getName(),
 					LogAction.DELETE, language.getAlpha3());
-			return JsonMessage.Success(messageSource.getMessage("success.language.delete.successfully", null, "Language was deleted successfully", locale));
+			return JsonMessage.success(messageSource.getMessage("success.language.delete.successfully", null, "Language was deleted successfully", locale));
 		} catch (Exception e) {
 			TrickLogManager.persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.language.in_use", null, "Language is still used.", locale));
+			return JsonMessage.error(messageSource.getMessage("error.language.in_use", null, "Language is still used.", locale));
 		}
 	}
 

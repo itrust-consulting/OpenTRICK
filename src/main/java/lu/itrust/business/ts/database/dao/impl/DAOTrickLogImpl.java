@@ -176,7 +176,7 @@ public class DAOTrickLogImpl extends DAOHibernate implements DAOTrickLog {
 	*/
 	@Override
 	public void deleteByDateBefore(Date date, int page, int size) {
-		int offset = (page - 1) * size;
+		final int offset = (page - 1) * size;
 		createQuery("From TrickLog where created < :date", TrickLog.class)
 				.setParameter("date", date)
 				.setFirstResult(offset)

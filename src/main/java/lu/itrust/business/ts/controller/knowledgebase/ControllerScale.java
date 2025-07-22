@@ -82,13 +82,13 @@ public class ControllerScale {
 		} else {
 			ScaleType persisted = serviceScaleType.findOne(scaleType.getId());
 			if (persisted == null)
-				return JsonMessage.Error(messageSource.getMessage("error.scale_type.not_found", null, "Scale type cannot be found", locale));
+				return JsonMessage.error(messageSource.getMessage("error.scale_type.not_found", null, "Scale type cannot be found", locale));
 			if (scaleType.getTranslations() != null)
 				scaleType.forEach((key, translate) -> persisted.put(key, translate));
 			scaleType = persisted;
 		}
 		serviceScaleType.saveOrUpdate(scaleType);
-		return JsonMessage.Success(messageSource.getMessage("success.save.scale_type", null, "Scale type has been successfully saved", locale));
+		return JsonMessage.success(messageSource.getMessage("success.save.scale_type", null, "Scale type has been successfully saved", locale));
 	}
 	
 	@RequestMapping(value = "/Delete", method = RequestMethod.POST, headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
@@ -99,7 +99,7 @@ public class ControllerScale {
 				serviceScaleType.delete(scaleType);
 		});
 
-		return JsonMessage.Success(messageSource.getMessage("success.delete.scale_type", null, "Scale type has been successfully deleted", locale));
+		return JsonMessage.success(messageSource.getMessage("success.delete.scale_type", null, "Scale type has been successfully deleted", locale));
 	}
 
 }

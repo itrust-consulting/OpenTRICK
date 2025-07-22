@@ -24,6 +24,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -196,14 +197,14 @@ public class ControllerStandard extends AbstractController {
 		try {
 			final Standard standard = serviceStandard.get(idStandard);
 			if (standard == null)
-				return JsonMessage.Error(messageSource.getMessage("error.analysis.add.standard.not_found", null,
+				return JsonMessage.error(messageSource.getMessage("error.analysis.add.standard.not_found", null,
 						"Unfortunately, selected standard does not exist", locale));
 			final Analysis analysis = serviceAnalysis.get(idAnalysis);
 			if (analysis.getAnalysisStandards().values().stream()
 					.anyMatch(a -> a.getStandard().getName().equalsIgnoreCase(standard.getName())
 							|| a.getStandard().getLabel().equalsIgnoreCase(standard.getLabel())))
 				return JsonMessage
-						.Error(messageSource.getMessage("error.analysis.add.standard.duplicate", null,
+						.error(messageSource.getMessage("error.analysis.add.standard.duplicate", null,
 								"Your analysis already has another version of the standard!", locale));
 			Measure measure = null;
 			AnalysisStandard analysisStandard = null;
@@ -250,14 +251,14 @@ public class ControllerStandard extends AbstractController {
 
 			serviceAnalysis.saveOrUpdate(analysis);
 
-			return JsonMessage.Success(messageSource.getMessage("success.analysis.add.standard", null,
+			return JsonMessage.success(messageSource.getMessage("success.analysis.add.standard", null,
 					"The standard was successfully added", locale));
 		} catch (TrickException e) {
 			return JsonMessage
-					.Success(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+					.success(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			TrickLogManager.persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.analysis.add.standard", null,
+			return JsonMessage.error(messageSource.getMessage("error.analysis.add.standard", null,
 					"An unknown error occurred during analysis saving", locale));
 		}
 	}
@@ -357,11 +358,11 @@ public class ControllerStandard extends AbstractController {
 						break;
 				}
 				serviceAnalysis.saveOrUpdate(analysis);
-				return JsonMessage.Success(messageSource.getMessage("success.analysis.create.standard", null,
+				return JsonMessage.success(messageSource.getMessage("success.analysis.create.standard", null,
 						"The standard was successfully created", locale));
 			} else {
 				serviceStandard.saveOrUpdate(standard);
-				return JsonMessage.Success(messageSource.getMessage("success.analysis.update.standard", null,
+				return JsonMessage.success(messageSource.getMessage("success.analysis.update.standard", null,
 						"The standard was successfully updated", locale));
 			}
 		} catch (TrickException e) {
@@ -385,27 +386,69 @@ public class ControllerStandard extends AbstractController {
 	 * @return
 	 * @
 	 */
-	@RequestMapping(value = "/{idStandard}/Measure/Delete/{idMeasure}", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@DeleteMapping(value = "/{idStandard}/Measure/Delete/{idMeasure}", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #idMeasure, 'Measure', #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String deleteMeasureDescription(@PathVariable("idStandard") int idStandard,
 			@PathVariable("idMeasure") int idMeasure, Locale locale, Principal principal,
 			HttpSession session) {
 		try {
-			customDelete.deleteAnalysisMeasure((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS), idStandard,
+			customDelete.deleteMeasure((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS), idStandard,
 					idMeasure);
 			// return success message
-			return JsonMessage.Success(messageSource.getMessage("success.measure.delete.successfully", null,
+			return JsonMessage.success(messageSource.getMessage("success.measure.delete.successfully", null,
 					"Measure was deleted successfully", locale));
 		} catch (Exception e) {
 			TrickLogManager.persist(e);
 			if (e instanceof TrickException)
-				return JsonMessage.Error(messageSource.getMessage(((TrickException) e).getCode(),
+				return JsonMessage.error(messageSource.getMessage(((TrickException) e).getCode(),
 						((TrickException) e).getParameters(), e.getMessage(), locale));
-			return JsonMessage.Error(messageSource.getMessage("error.measure.delete.failed", null,
+			return JsonMessage.error(messageSource.getMessage("error.measure.delete.failed", null,
 					"Measure deleting was failed: Standard might be in use", locale));
 		}
 	}
 
+	@DeleteMapping(value = "/{idStandard}/Measure/Delete", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).MODIFY)")
+	public @ResponseBody Map<String, Object> deleteMeasure(@PathVariable int idStandard, @RequestBody List<Integer> ids,
+			HttpSession session,
+			Principal principal, Locale locale) {
+		final Map<String, Object> results = new LinkedHashMap<>();
+		try {
+			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+			final List<Integer> deletedIds = customDelete.deleteMeasures(ids, idStandard, idAnalysis);
+			if (deletedIds.isEmpty()) {
+				JsonMessage.error(results, messageSource.getMessage("error.measure.delete.failed", null,
+						"Measure deleting was failed: Standard might be in use", locale));
+			} else {
+				JsonMessage.success(results,
+						messageSource.getMessage("success.measure.delete.successfully", null,
+								"Measure was deleted successfully", locale));
+				results.put("ids", deletedIds);
+			}
+		} catch (TrickException e) {
+			JsonMessage.error(results,
+					messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			TrickLogManager.persist(e);
+		} catch (Exception e) {
+			JsonMessage.error(results, messageSource.getMessage("error.measure.delete.failed", null,
+					"Measure deleting was failed: Standard might be in use", locale));
+			TrickLogManager.persist(e);
+		}
+		return results;
+	}
+
+	/**
+	 * editAssetMeasure: <br>
+	 * Description
+	 * 
+	 * @param idMeasure
+	 * @param locale
+	 * @param model
+	 * @param principal
+	 * @param session
+	 * @param attributes
+	 * @return
+	 */
 	@RequestMapping(value = "/Measure/{idMeasure}/Edit", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #idMeasure, 'Measure', #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).MODIFY)")
 	public String editAssetMeasure(@PathVariable("idMeasure") int idMeasure, Locale locale, Model model,
@@ -425,9 +468,7 @@ public class ControllerStandard extends AbstractController {
 
 			List<AssetType> analysisAssetTypes = serviceAssetType.getAllFromAnalysis(idAnalysis);
 
-			if (measure instanceof AssetMeasure) {
-
-				AssetMeasure assetMeasure = (AssetMeasure) measure;
+			if (measure instanceof AssetMeasure assetMeasure) {
 
 				List<Asset> availableAssets = serviceAsset.getAllFromAnalysisIdAndSelected(idAnalysis);
 
@@ -440,10 +481,10 @@ public class ControllerStandard extends AbstractController {
 						availableAssets.remove(assetValue.getAsset());
 				}
 
-			} else if (measure instanceof NormalMeasure) {
-				NormalMeasure normalMeasure = (NormalMeasure) measure;
+			} else if (measure instanceof NormalMeasure normalMeasure) {
+
 				List<AssetType> assetTypes = serviceAssetType.getAll();
-				Map<String, Boolean> assetTypesMapping = new LinkedHashMap<String, Boolean>();
+				Map<String, Boolean> assetTypesMapping = new LinkedHashMap<>();
 				for (AssetType assetType : assetTypes) {
 					if (!analysisAssetTypes.contains(assetType))
 						assetTypesMapping.put(assetType.getName(), false);
@@ -531,7 +572,7 @@ public class ControllerStandard extends AbstractController {
 				name = standard.getName();
 				type = standard.getType();
 			} else if (type == null || !StringUtils.hasLength(name)) {
-				return JsonMessage.Error(messageSource.getMessage("error.standard.not_found", null, locale));
+				return JsonMessage.error(messageSource.getMessage("error.standard.not_found", null, locale));
 			}
 		}
 		final Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
@@ -579,7 +620,8 @@ public class ControllerStandard extends AbstractController {
 	 */
 	@RequestMapping(value = "/{idStandard}/SingleMeasure/{elementID}", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #elementID, 'Measure', #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).READ)")
-	public String loadSingleMeasure(@PathVariable int elementID, Model model, HttpSession session, Principal principal) {
+	public String loadSingleMeasure(@PathVariable int elementID, Model model, HttpSession session,
+			Principal principal) {
 		final OpenMode mode = (OpenMode) session.getAttribute(Constant.OPEN_MODE);
 		final Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		final Analysis analysis = serviceAnalysis.get(idAnalysis);
@@ -612,10 +654,10 @@ public class ControllerStandard extends AbstractController {
 		Measure measure = serviceMeasure.get(idMeasure);
 		MeasureDescriptionText measureDescriptionText = measure.getMeasureDescription().findByAlph2(langue);
 		if (measureDescriptionText == null)
-			return JsonMessage.Error(messageSource.getMessage("error.measure.description.empty", null,
+			return JsonMessage.error(messageSource.getMessage("error.measure.description.empty", null,
 					"There is no other description for this security measure", locale));
 		else
-			return JsonMessage.Field("description", measureDescriptionText.getDescription());
+			return JsonMessage.field("description", measureDescriptionText.getDescription());
 	}
 
 	@RequestMapping(value = "/Measures", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
@@ -995,11 +1037,11 @@ public class ControllerStandard extends AbstractController {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		try {
 			measureManager.removeStandardFromAnalysis(idAnalysis, idStandard);
-			return JsonMessage.Success(messageSource.getMessage("success.analysis.norm.delete", null,
+			return JsonMessage.success(messageSource.getMessage("success.analysis.norm.delete", null,
 					"Standard was successfully removed from your analysis", locale));
 		} catch (Exception e) {
 			TrickLogManager.persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.analysis.norm.delete", null,
+			return JsonMessage.error(messageSource.getMessage("error.analysis.norm.delete", null,
 					"Standard could not be deleted!", locale));
 		}
 	}
@@ -1016,7 +1058,7 @@ public class ControllerStandard extends AbstractController {
 				serviceAnalysisStandard.saveOrUpdate(analysisStandard);
 			}
 		});
-		return JsonMessage.Success(
+		return JsonMessage.success(
 				messageSource.getMessage("success.update.soa", null, "SOA has been successfully updated", locale));
 	}
 
@@ -1182,7 +1224,7 @@ public class ControllerStandard extends AbstractController {
 		}
 		updateMeasureCost(externalSetupValue, internalSetupValue, lifetimeDefault, analysis);
 		serviceAnalysis.saveOrUpdate(analysis);
-		return JsonMessage.Success(messageSource.getMessage("success.measure.cost.update", null,
+		return JsonMessage.success(messageSource.getMessage("success.measure.cost.update", null,
 				"Measure cost has been successfully updated", locale));
 	}
 

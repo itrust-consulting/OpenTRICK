@@ -12,13 +12,12 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import jakarta.servlet.http.HttpSession;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,6 +27,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import jakarta.servlet.http.HttpSession;
 import lu.itrust.business.ts.component.AssessmentAndRiskProfileManager;
 import lu.itrust.business.ts.component.ChartGenerator;
 import lu.itrust.business.ts.component.CustomDelete;
@@ -44,7 +44,6 @@ import lu.itrust.business.ts.exception.TrickException;
 import lu.itrust.business.ts.helper.JsonMessage;
 import lu.itrust.business.ts.helper.NaturalOrderComparator;
 import lu.itrust.business.ts.model.analysis.Analysis;
-import lu.itrust.business.ts.model.analysis.AnalysisSetting;
 import lu.itrust.business.ts.model.analysis.AnalysisType;
 import lu.itrust.business.ts.model.assessment.Assessment;
 import lu.itrust.business.ts.model.asset.Asset;
@@ -94,9 +93,6 @@ public class ControllerScenario {
 	private AssessmentAndRiskProfileManager assessmentAndRiskProfileManager;
 
 	@Autowired
-	private ServiceAssessment serviceAssessment;
-
-	@Autowired
 	private ServiceAssetTypeValue serviceAssetTypeValue;
 
 	@Autowired
@@ -120,7 +116,7 @@ public class ControllerScenario {
 			// retrieve scenario
 			Scenario scenario = serviceScenario.get(elementID);
 			if (scenario == null)
-				return JsonMessage.Error(
+				return JsonMessage.error(
 						messageSource.getMessage("error.scenario.not_found", null, "Scenario cannot be found", locale));
 			// select or unselect scenario
 			if (scenario.isSelected())
@@ -128,13 +124,13 @@ public class ControllerScenario {
 			else
 				assessmentAndRiskProfileManager.selectScenario(scenario);
 			// return success message
-			return JsonMessage.Success(messageSource.getMessage("success.scenario.update.successfully", null,
+			return JsonMessage.success(messageSource.getMessage("success.scenario.update.successfully", null,
 					"Scenario was updated successfully", locale));
 		} catch (Exception e) {
 			// return error message
 			TrickLogManager.persist(e);
 			return JsonMessage
-					.Error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
+					.error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 		}
 	}
 
@@ -159,7 +155,7 @@ public class ControllerScenario {
 		try {
 			Integer analysisId = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 			if (!serviceScenario.belongsToAnalysis(analysisId, ids)) {
-				errors.add(JsonMessage.Error(messageSource.getMessage("label.unauthorized_scenario", null,
+				errors.add(JsonMessage.error(messageSource.getMessage("label.unauthorized_scenario", null,
 						"One of the scenarios does not belong to this analysis!", locale)));
 				return errors;
 			}
@@ -171,7 +167,7 @@ public class ControllerScenario {
 			// return error message
 			TrickLogManager.persist(e);
 			errors.add(JsonMessage
-					.Error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale)));
+					.error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale)));
 			return errors;
 		}
 	}
@@ -187,7 +183,7 @@ public class ControllerScenario {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/Delete/{idScenario}", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@DeleteMapping(value = "/Delete/{idScenario}", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #idScenario, 'Scenario', #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String delete(@PathVariable int idScenario, Principal principal, Locale locale,
 			HttpSession session) throws Exception {
@@ -196,17 +192,66 @@ public class ControllerScenario {
 			// try to delete assessment with this scenario
 			customDelete.deleteScenario(idScenario, idAnalysis);
 			// return success message
-			return JsonMessage.Success(messageSource.getMessage("success.scenario.delete.successfully", null,
+			return JsonMessage.success(messageSource.getMessage("success.scenario.delete.successfully", null,
 					"Scenario was deleted successfully", locale));
 		} catch (TrickException e) {
 			TrickLogManager.persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			return JsonMessage.error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			// return error message
 			TrickLogManager.persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.scenario.delete.failed", null,
+			return JsonMessage.error(messageSource.getMessage("error.scenario.delete.failed", null,
 					"Scenario cannot be deleted", locale));
 		}
+	}
+
+	/**
+	 * deleteMultiple: <br>
+	 * Description
+	 * 
+	 * @param ids
+	 * @param principal
+	 * @param locale
+	 * @param session
+	 * @return
+	 * @throws Exception
+	 */
+	@DeleteMapping(value = "/Delete", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).MODIFY)")
+	public @ResponseBody Map<String, Object> delete(@RequestBody List<Integer> ids, Principal principal,
+			Locale locale,
+			HttpSession session) {
+		// set error list
+		final Map<String, Object> results = new LinkedHashMap<>();
+		try {
+			final Integer analysisId = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+			if (!serviceScenario.belongsToAnalysis(analysisId, ids)) {
+				JsonMessage.error(results, messageSource.getMessage("label.unauthorized_scenario", null,
+						"One of the scenarios does not belong to this analysis!", locale));
+			} else {
+				final List<Integer> deletedIds = customDelete.deleteScenarios(ids, analysisId);
+				if (deletedIds.isEmpty())
+					JsonMessage.error(results, messageSource.getMessage("error.scenario.delete.failed", null,
+							"Scenarios cannot be deleted", locale));
+
+				else {
+					JsonMessage.success(results, messageSource.getMessage("success.scenario.delete.successfully", null,
+							"Scenarios were deleted successfully", locale));
+					results.put("ids", deletedIds);
+				}
+			}
+		} catch (TrickException e) {
+			TrickLogManager.persist(e);
+			JsonMessage.error(results,
+					messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+		} catch (Exception e) {
+			// return error message
+			TrickLogManager.persist(e);
+			JsonMessage.error(results, JsonMessage
+					.error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale)));
+
+		}
+		return results;
 	}
 
 	/**
@@ -274,11 +319,11 @@ public class ControllerScenario {
 			throws Exception {
 		try {
 			customDelete.deleteDuplicationAssetTypeValue((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS));
-			return JsonMessage.Success(messageSource.getMessage("success.delete.assettypevalue.duplication", null,
+			return JsonMessage.success(messageSource.getMessage("success.delete.assettypevalue.duplication", null,
 					"Duplication were successfully deleted", locale));
 		} catch (Exception e) {
 			TrickLogManager.persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.delete.assettypevalue.duplication", null,
+			return JsonMessage.error(messageSource.getMessage("error.delete.assettypevalue.duplication", null,
 					"Duplication cannot be deleted", locale));
 		}
 

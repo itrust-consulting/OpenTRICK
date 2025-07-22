@@ -284,7 +284,7 @@ public class ControllerMeasureCollection {
 		try {
 			Standard standard = serviceStandard.get(idStandard);
 			if (standard.isAnalysisOnly())
-				return JsonMessage.Error(messageSource.getMessage("error.norm.manage_analysis_standard", null,
+				return JsonMessage.error(messageSource.getMessage("error.norm.manage_analysis_standard", null,
 						"This standard can only be managed within the selected analysis where this standard belongs!",
 						locale));
 			// try to delete the standard
@@ -297,18 +297,18 @@ public class ControllerMeasureCollection {
 					principal.getName(), LogAction.DELETE, standard.getName(),
 					String.valueOf(standard.getVersion()), principal.getName());
 			// return success message
-			return JsonMessage.Success(messageSource.getMessage("success.norm.delete.successfully", null,
+			return JsonMessage.success(messageSource.getMessage("success.norm.delete.successfully", null,
 					"Standard was deleted successfully", locale));
 		} catch (TrickException e) {
 			TrickLogManager.persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			return JsonMessage.error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			// return error message
 			TrickLogManager.persist(e);
 			String[] parts = e.getMessage().split(":");
 			String code = parts[0];
 			String defaultmessage = parts[1];
-			return JsonMessage.Error(messageSource.getMessage(code, null, defaultmessage, locale));
+			return JsonMessage.error(messageSource.getMessage(code, null, defaultmessage, locale));
 		}
 	}
 
@@ -356,11 +356,11 @@ public class ControllerMeasureCollection {
 		final String filename = ServiceStorage.RandoomFilename();
 		final Worker worker = new WorkerImportStandard(filename);
 		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale))
-			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null,
+			return JsonMessage.error(messageSource.getMessage("error.task_manager.too.many", null,
 					"Too many tasks running in background", locale));
 		serviceStorage.store(file, filename);
 		executor.execute(worker);
-		return JsonMessage.Success(messageSource.getMessage("success.start.import.standard", null,
+		return JsonMessage.success(messageSource.getMessage("success.start.import.standard", null,
 				"Importing of measure collection", locale));
 	}
 
@@ -647,21 +647,20 @@ public class ControllerMeasureCollection {
 			// try to delete measure
 			final MeasureDescription measureDescription = serviceMeasureDescription.get(idMeasure);
 			if (measureDescription == null || measureDescription.getStandard().getId() != idStandard)
-				return JsonMessage.Error(
+				return JsonMessage.error(
 						messageSource.getMessage("error.measure.not_found", null, "Measure cannot be found", locale));
 			else if (serviceMeasureDescription.isUsed(measureDescription))
-				return JsonMessage.Error(messageSource.getMessage("error.measure.delete.failed", null,
+				return JsonMessage.error(messageSource.getMessage("error.measure.delete.failed", null,
 						"Measure deleting was failed: Standard might be in used", locale));
 			else
 				serviceMeasureDescription.delete(measureDescription);
 			// return success message
-			return JsonMessage.Success(messageSource.getMessage("success.measure.delete.successfully", null,
+			return JsonMessage.success(messageSource.getMessage("success.measure.delete.successfully", null,
 					"Measure was deleted successfully", locale));
 		} catch (Exception e) {
 			// return error
 			TrickLogManager.persist(e);
-			return JsonMessage
-					.Error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
+			return JsonMessage.error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 		}
 	}
 
@@ -682,15 +681,15 @@ public class ControllerMeasureCollection {
 			Principal principal, Locale locale) {
 		try {
 			if (!serviceMeasureDescription.exists(idMeasureDescription, idStandard))
-				return JsonMessage.Error(
+				return JsonMessage.error(
 						messageSource.getMessage("error.measure.not_found", null, "Measure cannot be found", locale));
 			customDelete.forceDeleteMeasureDescription(idMeasureDescription, principal);
-			return JsonMessage.Success(messageSource.getMessage("success.measure.delete.successfully", null,
+			return JsonMessage.success(messageSource.getMessage("success.measure.delete.successfully", null,
 					"Measure was deleted successfully", locale));
 		} catch (Exception e) {
 			// return error
 			TrickLogManager.persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.measure.delete.failed", null,
+			return JsonMessage.error(messageSource.getMessage("error.measure.delete.failed", null,
 					"Measure deleting was failed: Standard might be in used", locale));
 		}
 	}

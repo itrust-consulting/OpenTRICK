@@ -205,24 +205,24 @@ public class ControllerAnalysis extends AbstractController {
 		try {
 			Analysis analysis = serviceAnalysis.get(analysisId);
 			if (analysis.isProfile())
-				return JsonMessage.Success(messageSource.getMessage("error.archive.profile", null,
+				return JsonMessage.success(messageSource.getMessage("error.archive.profile", null,
 						"An analysis profile cannot be archived", locale));
 			else if (analysis.isArchived())
-				return JsonMessage.Success(messageSource.getMessage("error.archived.analysis", null,
+				return JsonMessage.success(messageSource.getMessage("error.archived.analysis", null,
 						"An analysis is already archived", locale));
 			analysis.setArchived(true);
 			serviceAnalysis.saveOrUpdate(analysis);
 			TrickLogManager.persist(LogType.ANALYSIS, "log.archive.analysis",
 					String.format("Analysis: %s, version: %s", analysis.getIdentifier(), analysis.getVersion()),
 					principal.getName(), LogAction.ARCHIVE, analysis.getIdentifier(), analysis.getVersion());
-			return JsonMessage.Success(messageSource.getMessage("success.analysis.archived", null,
+			return JsonMessage.success(messageSource.getMessage("success.analysis.archived", null,
 					"Analysis has been successfully archived", locale));
 		} catch (TrickException e) {
 			TrickLogManager.persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			return JsonMessage.error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			TrickLogManager.persist(e);
-			return JsonMessage.Error(
+			return JsonMessage.error(
 					messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
 		}
 	}
@@ -352,12 +352,12 @@ public class ControllerAnalysis extends AbstractController {
 			if (selectedAnalysis != null && selectedAnalysis == analysisId)
 				session.removeAttribute(SELECTED_ANALYSIS);
 			// return success message
-			return JsonMessage.Success(messageSource.getMessage("success.analysis.delete.successfully", null,
+			return JsonMessage.success(messageSource.getMessage("success.analysis.delete.successfully", null,
 					"Analysis was deleted successfully", locale));
 		} catch (Exception e) {
 			// return error message
 			TrickLogManager.persist(e);
-			return JsonMessage.Error(
+			return JsonMessage.error(
 					messageSource.getMessage("failed.delete.analysis", null, "Analysis cannot be deleted!", locale));
 		}
 	}
@@ -569,7 +569,7 @@ public class ControllerAnalysis extends AbstractController {
 
 		serviceAnalysis.saveOrUpdate(analysis);
 
-		return JsonMessage.Success(messageSource.getMessage("success.update.analysis.settings", null, locale));
+		return JsonMessage.success(messageSource.getMessage("success.update.analysis.settings", null, locale));
 	}
 
 	/**
@@ -818,19 +818,19 @@ public class ControllerAnalysis extends AbstractController {
 	public @ResponseBody String update(HttpSession session, Locale locale) throws Exception {
 		Integer idAnalysis = (Integer) session.getAttribute(SELECTED_ANALYSIS);
 		if (idAnalysis == null)
-			return JsonMessage.Error(messageSource.getMessage("error.analysis.no_selected", null,
+			return JsonMessage.error(messageSource.getMessage("error.analysis.no_selected", null,
 					"There is no selected analysis", locale));
 		try {
 			Analysis analysis = serviceAnalysis.get(idAnalysis);
 			AssessmentAndRiskProfileManager.UpdateAssetALE(analysis, null);
 			serviceAnalysis.saveOrUpdate(analysis);
-			return JsonMessage.Success(messageSource.getMessage("success.analysis.ale.update", null,
+			return JsonMessage.success(messageSource.getMessage("success.analysis.ale.update", null,
 					"ALE was successfully updated", locale));
 		} catch (TrickException e) {
-			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			return JsonMessage.error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			TrickLogManager.persist(e);
-			return JsonMessage.Error(
+			return JsonMessage.error(
 					messageSource.getMessage("error.analysis.ale.update", null, "ALE cannot be updated", locale));
 		}
 	}

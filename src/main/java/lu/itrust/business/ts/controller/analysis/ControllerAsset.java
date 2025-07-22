@@ -23,6 +23,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -146,7 +147,7 @@ public class ControllerAsset {
 	 *         operation.
 	 * @throws Exception If an error occurs during the delete operation.
 	 */
-	@PostMapping(value = "/Delete/{idAsset}", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@DeleteMapping(value = "/Delete/{idAsset}", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #idAsset, 'Asset', #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).MODIFY)")
 	public @ResponseBody String delete(@PathVariable int idAsset, Principal principal, Locale locale,
 			HttpSession session) throws Exception {
@@ -155,16 +156,65 @@ public class ControllerAsset {
 			// assets
 			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 			customDelete.deleteAsset(idAsset, idAnalysis);
-			return JsonMessage.Success(messageSource.getMessage("success.asset.delete.successfully", null,
+			return JsonMessage.success(messageSource.getMessage("success.asset.delete.successfully", null,
 					"Asset was deleted successfully", locale));
 		} catch (TrickException e) {
 			TrickLogManager.persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			return JsonMessage.error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			TrickLogManager.persist(e);
-			return JsonMessage.Error(
+			return JsonMessage.error(
 					messageSource.getMessage("error.asset.delete.failed", null, "Asset cannot be deleted", locale));
 		}
+	}
+
+	/**
+	 * Deletes multiple assets based on the provided IDs.
+	 *
+	 * @param ids       The list of asset IDs to delete.
+	 * @param principal The principal object representing the currently
+	 *                  authenticated user.
+	 * @param locale    The locale for message localization.
+	 * @param session   The HttpSession object.
+	 * @return A JSON response indicating the success or failure of the delete
+	 *         operation.
+	 * @throws Exception If an error occurs during the delete operation.
+	 */
+
+	@DeleteMapping(value = "/Delete", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
+	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).MODIFY)")
+	public @ResponseBody Object delete(@RequestBody List<Integer> ids, Principal principal, Locale locale,
+			HttpSession session) {
+		final Map<String, Object> results = new LinkedHashMap<>();
+		try {
+			// delete assets ( delete asset from from assessments) then from
+			// assets
+			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
+			if (!serviceAsset.belongsToAnalysis(idAnalysis, ids)) {
+				JsonMessage.error(results, messageSource.getMessage("label.unauthorized_asset", null,
+						"One of the assets does not belong to this analysis!", locale));
+			} else {
+				final var deletedIds = customDelete.deleteAssets(ids, idAnalysis);
+				if (deletedIds.isEmpty()) {
+					JsonMessage.error(results, messageSource.getMessage("error.asset.delete.failed", null,
+							"Assets cannot be deleted", locale));
+
+				} else {
+					JsonMessage.success(results, messageSource.getMessage("success.asset.delete.successfully", null,
+							"Assets were deleted successfully", locale));
+					results.put("ids", deletedIds);
+				}
+			}
+		} catch (TrickException e) {
+			TrickLogManager.persist(e);
+			JsonMessage.error(results,
+					messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+		} catch (Exception e) {
+			TrickLogManager.persist(e);
+			JsonMessage.error(results,
+					messageSource.getMessage("error.asset.delete.failed", null, "Assets cannot be deleted", locale));
+		}
+		return results;
 	}
 
 	/**
@@ -370,13 +420,13 @@ public class ControllerAsset {
 			// retrieve asset
 			assessmentAndRiskProfileManager.toggledAsset(elementID);
 			// return success message
-			return JsonMessage.Success(messageSource.getMessage("success.asset.update.successfully", null,
+			return JsonMessage.success(messageSource.getMessage("success.asset.update.successfully", null,
 					"Asset was updated successfully", locale));
 		} catch (Exception e) {
 			// return error message
 			TrickLogManager.persist(e);
 			return JsonMessage
-					.Error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
+					.error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 		}
 	}
 
@@ -398,7 +448,7 @@ public class ControllerAsset {
 		// init list of errors
 		final List<String> errors = new LinkedList<>();
 		if (!serviceAsset.belongsToAnalysis(integer, ids)) {
-			errors.add(JsonMessage.Error(messageSource.getMessage("label.unauthorized_asset", null,
+			errors.add(JsonMessage.error(messageSource.getMessage("label.unauthorized_asset", null,
 					"One of the assets does not belong to this analysis!", locale)));
 			return errors;
 		}

@@ -3,6 +3,10 @@
  */
 package lu.itrust.business.ts.helper;
 
+import java.util.Map;
+
+import org.springframework.lang.NonNull;
+
 import net.minidev.json.JSONObject;
 
 /**
@@ -11,27 +15,35 @@ import net.minidev.json.JSONObject;
  */
 public class JsonMessage {
 
-	public static String Error(String message) {
-		return Field("error", message);
+	public static String error(String message) {
+		return field("error", message);
 	}
 
-	public static String Info(String message) {
-		return Field("info", message);
+	public static String info(String message) {
+		return field("info", message);
 	}
 
-	public static String Success(String message) {
-		return Field("success", message);
+	public static String success(String message) {
+		return field("success", message);
 	}
 
-	public static String SuccessWithId(Integer id) {
+	public static String successWithId(Integer id) {
 		return String.format("{\"success\": true, \"id\": %d}", id);
 	}
 
-	public static String Warning(String message) {
-		return Field("warning", message);
+	public static String warning(String message) {
+		return field("warning", message);
 	}
 
-	public static String Field(String fieldName, String value) {
+	public static String field(String fieldName, String value) {
 		return String.format("{\"%s\": \"%s\"}", fieldName, JSONObject.escape(value));
+	}
+
+	public static void error(@NonNull Map<String, Object> messages, String text) {
+		messages.put("error", text);
+	}
+
+	public static void success(@NonNull Map<String, Object> messages, String text) {
+		messages.put("success", text);
 	}
 }
