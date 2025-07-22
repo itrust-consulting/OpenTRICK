@@ -212,7 +212,7 @@ public final class TrickLogManager {
 
 	}
 
-	@Scheduled(cron = "${app.log.retention.cron:0 * * * * ?}")
+	@Scheduled(cron = "${app.log.retention.cron:0 0 0 * * ?}")
 	public void applyLogRetention() {
 		Session session = null;
 		try {
