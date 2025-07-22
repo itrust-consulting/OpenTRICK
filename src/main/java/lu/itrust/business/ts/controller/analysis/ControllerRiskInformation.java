@@ -135,7 +135,7 @@ public class ControllerRiskInformation {
 		serviceRiskInformation.delete(riskInformationMap.values());
 		analysis.getRiskInformations().sort(new RiskInformationComparator());
 		serviceAnalysis.saveOrUpdate(analysis);
-		return JsonMessage.Success(messageSource.getMessage("success.update.risk_information", null, "Risk information has been successfully updated", locale));
+		return JsonMessage.success(messageSource.getMessage("success.update.risk_information", null, "Risk information has been successfully updated", locale));
 	}
 
 	@RequestMapping(value = "/Section/{type}", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)

@@ -122,7 +122,7 @@ function displayActionPlanAssets() {
 		success: function (response, textStatus, jqXHR) {
 			let $content = $(new DOMParser().parseFromString(response, "text/html")).find("#actionPlanAssets");
 			if ($content.length) {
-				var $oldView = $("#actionPlanAssets");
+				let $oldView = $("#actionPlanAssets");
 				if (!$oldView.length)
 					$content.appendTo($("#widgets"))
 				else

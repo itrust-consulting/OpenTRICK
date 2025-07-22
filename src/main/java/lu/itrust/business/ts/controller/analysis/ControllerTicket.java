@@ -83,16 +83,16 @@ public class ControllerTicket extends AbstractController {
 		if (!loadUserSettings(principal, analysis.getCustomer().getTicketingSystem(), null, null))
 			throw new ResourceNotFoundException();
 		if (ObjectUtils.isEmpty(idProject))
-			return JsonMessage.Error(
+			return JsonMessage.error(
 					messageSource.getMessage("error.project.not_found", null, "Project cannot be found", locale));
 		final String OldProject = serviceAnalysis.getProjectIdByIdentifier(analysis.getIdentifier());
 		if (!(OldProject == null || OldProject.equals(idProject)))
-			return JsonMessage.Error(
+			return JsonMessage.error(
 					messageSource.getMessage("error.analysis.linked.to.another.project", null,
 							"Another project is already linked to another version of this analysis", locale));
 		analysis.setProject(idProject);
 		serviceAnalysis.saveOrUpdate(analysis);
-		return JsonMessage.Success(messageSource.getMessage("success.link.analysis.project", null,
+		return JsonMessage.success(messageSource.getMessage("success.link.analysis.project", null,
 				"Analysis has been successfully linked to project", locale));
 	}
 
@@ -156,7 +156,7 @@ public class ControllerTicket extends AbstractController {
 					analysis.setProject(null);
 					serviceAnalysis.saveOrUpdate(analysis);
 				});
-		return JsonMessage.Success(ids.isEmpty()
+		return JsonMessage.success(ids.isEmpty()
 				? messageSource.getMessage("sucess.analysis.unlink.from.project", new String[] { name },
 						String.format("Analysis has been successfully unlinked from %s", name),
 						locale)
@@ -177,14 +177,14 @@ public class ControllerTicket extends AbstractController {
 		final Worker worker = new WorkerGenerateTickets(analysisId, null, form);
 		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale)) {
 			worker.cancel();
-			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null,
+			return JsonMessage.error(messageSource.getMessage("error.task_manager.too.many", null,
 					"Too many tasks running in background", locale));
 		} else {
 			if (!customer.getTicketingSystem().getType().isNoClient())
 				((WorkerGenerateTickets) worker)
 						.setClient(buildClient(principal.getName(), customer.getTicketingSystem()));
 			executor.execute(worker);
-			return JsonMessage.Success(messageSource.getMessage("success.starting.creating.tickets", null,
+			return JsonMessage.success(messageSource.getMessage("success.starting.creating.tickets", null,
 					"Please wait while creating tickets", locale));
 		}
 	}
@@ -448,9 +448,9 @@ public class ControllerTicket extends AbstractController {
 			}
 		});
 		if (measureIds.size() > 1)
-			return JsonMessage.Success(messageSource.getMessage("success.unlinked.measures.from.tickets", null,
+			return JsonMessage.success(messageSource.getMessage("success.unlinked.measures.from.tickets", null,
 					"Measures has been successfully unlinked from tickets", locale));
-		return JsonMessage.Success(messageSource.getMessage("success.unlinked.measure.from.ticket", null,
+		return JsonMessage.success(messageSource.getMessage("success.unlinked.measure.from.ticket", null,
 				"Measure has been successfully unlinked from a ticket", locale));
 
 	}
@@ -466,30 +466,29 @@ public class ControllerTicket extends AbstractController {
 		if (!loadUserSettings(principal, analysis.getCustomer().getTicketingSystem(), null, null))
 			throw new ResourceNotFoundException();
 		if (ObjectUtils.isEmpty(form.getIdTicket()))
-			return JsonMessage
-					.Error(messageSource.getMessage("error.ticket.not_found", null, "Ticket cannot be found", locale));
+			return JsonMessage.error(messageSource.getMessage("error.ticket.not_found", null, "Ticket cannot be found", locale));
 
 		if (!analysis.hasProject())
-			return JsonMessage.Error(messageSource.getMessage("error.analysis.no_project", null,
+			return JsonMessage.error(messageSource.getMessage("error.analysis.no_project", null,
 					"Please link your analysis to a project and try again", locale));
 		Measure measure = analysis.findMeasureById(form.getIdMeasure());
 		if (measure == null)
-			return JsonMessage.Error(
+			return JsonMessage.error(
 					messageSource.getMessage("error.measure.not_found", null, "Measure cannot be found", locale));
 		if (StringUtils.hasText(measure.getTicket())) {
 			return measure.getTicket().equals(form.getIdTicket())
-					? JsonMessage.Success(messageSource.getMessage("info.measure.already.link", null,
+					? JsonMessage.success(messageSource.getMessage("info.measure.already.link", null,
 							"Measure has been already linked to this ticket", locale))
-					: JsonMessage.Error(messageSource.getMessage("error.measure.already.link", null,
+					: JsonMessage.error(messageSource.getMessage("error.measure.already.link", null,
 							"Measure is already linked to another ticket", locale));
 		}
 		if (analysis.hasTicket(form.getIdTicket()))
-			return JsonMessage.Error(messageSource.getMessage("error.ticket.already.linked", null,
+			return JsonMessage.error(messageSource.getMessage("error.ticket.already.linked", null,
 					"Ticket is already linked to another measure", locale));
 
 		measure.setTicket(form.getIdTicket());
 		serviceMeasure.saveOrUpdate(measure);
-		return JsonMessage.Success(messageSource.getMessage("success.link.measure.to.ticket", null,
+		return JsonMessage.success(messageSource.getMessage("success.link.measure.to.ticket", null,
 				"Measure has been successfully linked to a ticket", locale));
 
 	}

@@ -47,8 +47,8 @@ import lu.itrust.ts.helper.TestConstant;
 import lu.itrust.business.ts.asynchronousWorkers.Worker;
 import lu.itrust.business.ts.asynchronousWorkers.WorkerImportStandard;
 import lu.itrust.business.ts.constants.Constant;
-import lu.itrust.business.ts.database.dao.hbm.DAOLanguageHBM;
-import lu.itrust.business.ts.database.dao.hbm.DAOStandardHBM;
+import lu.itrust.business.ts.database.dao.impl.DAOLanguageImpl;
+import lu.itrust.business.ts.database.dao.impl.DAOStandardImpl;
 import lu.itrust.business.ts.database.service.ServiceAnalysis;
 import lu.itrust.business.ts.database.service.ServiceCustomer;
 import lu.itrust.business.ts.database.service.ServiceLanguage;
@@ -334,7 +334,7 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 		Session session = null;
 		try {
 			session = sessionFactory.openSession();
-			Standard standard = new DAOStandardHBM(session).getStandardByLabelAndVersion(TEST_STANDARD, 2015);
+			Standard standard = new DAOStandardImpl(session).getStandardByLabelAndVersion(TEST_STANDARD, 2015);
 			notNull(standard, "Standard cannot be found");
 			put(TEST_STANDARD_ID, standard.getId());
 		} finally {
@@ -351,7 +351,7 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 		Session session = null;
 		try {
 			session = sessionFactory.openSession();
-			List<Language> languages = new DAOLanguageHBM(session).getAll();
+			List<Language> languages = new DAOLanguageImpl(session).getAll();
 			String domainAndDescription = "";
 			for (Language language : languages) {
 				domainAndDescription = String.format(
@@ -520,7 +520,7 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 		Session session = null;
 		try {
 			session = sessionFactory.openSession();
-			Standard standard = new DAOStandardHBM(session).getStandardByLabelAndVersion(STANDARD_FOR_TEST, 2015);
+			Standard standard = new DAOStandardImpl(session).getStandardByLabelAndVersion(STANDARD_FOR_TEST, 2015);
 			notNull(standard, "Standard cannot be found");
 			put(STANDARD_FOR_TEST, standard.getId());
 		} finally {

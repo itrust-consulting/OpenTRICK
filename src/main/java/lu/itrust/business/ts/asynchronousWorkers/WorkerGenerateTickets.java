@@ -17,12 +17,13 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.hibernate.Session;
 
 import lu.itrust.business.ts.asynchronousWorkers.helper.AsyncCallback;
 import lu.itrust.business.ts.component.TrickLogManager;
 import lu.itrust.business.ts.database.dao.DAOAnalysis;
-import lu.itrust.business.ts.database.dao.hbm.DAOAnalysisHBM;
+import lu.itrust.business.ts.database.dao.impl.DAOAnalysisImpl;
 import lu.itrust.business.ts.exception.TrickException;
 import lu.itrust.business.ts.form.TicketingForm;
 import lu.itrust.business.ts.helper.InstanceManager;
@@ -131,7 +132,7 @@ public class WorkerGenerateTickets extends WorkerImpl {
 	 * @throws InterruptedException If the execution of the task is interrupted.
 	 */
 	private void executeTask(Session session) throws InterruptedException {
-		final DAOAnalysis daoAnalysis = new DAOAnalysisHBM(session);
+		final DAOAnalysis daoAnalysis = new DAOAnalysisImpl(session);
 		session.beginTransaction();
 		final Analysis analysis = daoAnalysis.get(idAnalysis);
 		if (analysis.hasProject() || analysis.getCustomer().getTicketingSystem().getType().isNoClient()) {
@@ -239,11 +240,7 @@ public class WorkerGenerateTickets extends WorkerImpl {
 
 		final List<Measure> measures = new LinkedList<>(newMeasures);
 
-		final DecimalFormat decimalFormat = (DecimalFormat) NumberFormat.getInstance(Locale.FRANCE);
-
 		final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-
-		decimalFormat.setMaximumFractionDigits(2);
 
 		measures.addAll(updateMeasures);
 
@@ -257,39 +254,13 @@ public class WorkerGenerateTickets extends WorkerImpl {
 		handler.update("info.creating.email.tickets", "Creating tickets by email", min);
 
 		for (Measure measure : measures) {
-			final Map<String, Object> model = new HashMap<>();
+
 			final MeasureDescriptionText measureDescriptionText = measure.getMeasureDescription()
 					.getMeasureDescriptionTextByAlpha2(language);
 			final Email email = new Email();
 
 			email.getRecipients().add(new Recipient(template.getEmail(), RecipientType.TO));
-
-			model.put("Std", measure.getMeasureDescription().getStandard().getName());
-			model.put("Ref", measure.getMeasureDescription().getReference());
-			model.put("SecMeasure", measureDescriptionText.getDomain());
-			model.put("Desc", measureDescriptionText.getDescription());
-			model.put("ST", measure.getStatus());
-			model.put("IR", measure.getImplementationRateValue(valueFactory));
-			model.put("IW", measure.getInternalWL());
-			model.put("EW", measure.getExternalWL());
-			model.put("INV", decimalFormat.format(measure.getInvestment() * .001));
-			model.put("LT", measure.getLifetime());
-			model.put("IM", measure.getInternalMaintenance());
-			model.put("EM", measure.getExternalMaintenance());
-			model.put("RM", decimalFormat.format(measure.getRecurrentInvestment() * .001));
-			model.put("CS", decimalFormat.format(measure.getCost() * .001));
-			model.put("PH", measure.getPhase().getNumber());
-			model.put("PHB", dateFormat.format(measure.getPhase().getBeginDate()));
-			model.put("PHE", dateFormat.format(measure.getPhase().getEndDate()));
-			model.put("Imp", getImportance(measure));
-			model.put("Comment", measure.getComment());
-			model.put("ToDo", measure.getToDo());
-			model.put("Owner", measure.getResponsible());
-
-			if (measure instanceof AbstractNormalMeasure m)
-				model.put("ToCheck", m.getToCheck());
-			else
-				model.put("ToCheck", "N/A");
+			email.setHtml("html".equalsIgnoreCase(template.getFormat()));
 
 			switch (subject) {
 				case "securitymeasure", "domain":
@@ -307,12 +278,20 @@ public class WorkerGenerateTickets extends WorkerImpl {
 									+ measureDescriptionText.getDomain(), 998));
 					break;
 				default:
+					final Map<String, Object> model = initializeModel(valueFactory, template, dateFormat,
+							measure,
+							measureDescriptionText, email.isHtml());
 					email.setSubject(StringUtils.abbreviate(InstanceManager.getServiceEmailSender()
 							.processTemplateIntoString(template.getTitle().trim(), model), 998));
 
 			}
 
-			email.setHtml(template.isHtml());
+			final boolean escaping = email.isHtml() || template.getFormat() != null
+					&& template.getFormat().equalsIgnoreCase("json");
+
+			final Map<String, Object> model = initializeModel(valueFactory, template, dateFormat,
+					measure,
+					measureDescriptionText, escaping);
 
 			email.setBody(
 					InstanceManager.getServiceEmailSender().processTemplateIntoString(template.getTemplate(), model));
@@ -328,6 +307,54 @@ public class WorkerGenerateTickets extends WorkerImpl {
 			Thread.sleep(template.getInternalTime());
 		}
 		return false;
+	}
+
+	private Map<String, Object> initializeModel(ValueFactory valueFactory, final EmailTemplate template,
+			final SimpleDateFormat dateFormat, Measure measure,
+			final MeasureDescriptionText measureDescriptionText, boolean escaping) {
+
+		final Map<String, Object> model = new HashMap<>();
+
+		model.put("Std",
+				escape(measure.getMeasureDescription().getStandard().getName(), template.getFormat(), escaping));
+		model.put("Ref", escape(measure.getMeasureDescription().getReference(), template.getFormat(), escaping));
+		model.put("SecMeasure", escape(measureDescriptionText.getDomain(), template.getFormat(), escaping));
+		model.put("Desc", escape(measureDescriptionText.getDescription(), template.getFormat(), escaping));
+		model.put("ST", escape(measure.getStatus(), template.getFormat(), escaping));
+		model.put("IR", measure.getImplementationRateValue(valueFactory));
+		model.put("IW", measure.getInternalWL());
+		model.put("EW", measure.getExternalWL());
+		model.put("INV", measure.getInvestment() * .001);
+		model.put("LT", measure.getLifetime());
+		model.put("IM", measure.getInternalMaintenance());
+		model.put("EM", measure.getExternalMaintenance());
+		model.put("RM", measure.getRecurrentInvestment() * .001);
+		model.put("CS", measure.getCost() * .001);
+		model.put("PH", measure.getPhase().getNumber());
+		model.put("PHB", measure.getPhase().getBeginDate());
+		model.put("PHE", measure.getPhase().getEndDate());
+		model.put("Imp", escape(getImportance(measure), template.getFormat(), escaping));
+		model.put("Comment", escape(measure.getComment(), template.getFormat(), escaping));
+		model.put("ToDo", escape(measure.getToDo(), template.getFormat(), escaping));
+		model.put("Owner", escape(measure.getResponsible(), template.getFormat(), escaping));
+
+		if (measure instanceof AbstractNormalMeasure m)
+			model.put("ToCheck", escape(m.getToCheck(), template.getFormat(), escaping));
+		else
+			model.put("ToCheck", "N/A");
+		return model;
+	}
+
+	private String escape(String content, String format, boolean escaping) {
+		if (escaping) {
+			if ("html".equalsIgnoreCase(format)) {
+				return StringEscapeUtils.escapeHtml4(content).replace("\n", "<br/>")
+						.replace("\r", "");
+			} else if ("json".equalsIgnoreCase(format)) {
+				return StringEscapeUtils.escapeJson(content);
+			}
+		}
+		return content;
 	}
 
 	private String getImportance(Measure measure) {

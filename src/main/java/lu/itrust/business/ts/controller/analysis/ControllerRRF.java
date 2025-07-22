@@ -238,7 +238,7 @@ public class ControllerRRF {
 		for (AnalysisStandard standard : standards) {
 			if (standard.getStandard().getId() == measureFilter.getIdStandard() && standard.getStandard().getType() != StandardType.MATURITY) {
 				if (measureFilter.getIdMeasure() < 1 && standard.getStandard().getType() == StandardType.ASSET)
-					return JsonMessage.Error(messageSource.getMessage("error.rrf.standard.standardtype_invalid", null,
+					return JsonMessage.error(messageSource.getMessage("error.rrf.standard.standardtype_invalid", null,
 							"This standard type permits only to see RRF by single measure (Select a single measure of this standard)", locale));
 
 				for (Measure measure : standard.getMeasures()) {
@@ -396,7 +396,7 @@ public class ControllerRRF {
 		for (Integer idChild : idMeasureChilds) {
 			Measure child = serviceMeasure.getFromAnalysisById(idAnalysis, idChild);
 			if (child == null)
-				return JsonMessage.Error(messageSource.getMessage("error.action.not_authorise", null, "Action does not authorised", locale));
+				return JsonMessage.error(messageSource.getMessage("error.action.not_authorise", null, "Action does not authorised", locale));
 			else {
 				measures.add(measure);
 				if (measure instanceof NormalMeasure) {
@@ -428,7 +428,7 @@ public class ControllerRRF {
 				serviceMeasure.saveOrUpdate(child);
 			}
 		}
-		return JsonMessage.Success(messageSource.getMessage("success.import_rrf", null, "Measure characteristics has been successfully imported", locale));
+		return JsonMessage.success(messageSource.getMessage("success.import_rrf", null, "Measure characteristics has been successfully imported", locale));
 	}
 
 }

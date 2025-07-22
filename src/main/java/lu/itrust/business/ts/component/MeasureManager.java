@@ -1,5 +1,13 @@
 package lu.itrust.business.ts.component;
 
+import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.findSheet;
+import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.findTable;
+import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.getOrCreateRow;
+import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.getWorksheetPart;
+import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.setValue;
+
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -9,31 +17,52 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
+import org.docx4j.openpackaging.exceptions.Docx4JException;
+import org.docx4j.openpackaging.packages.SpreadsheetMLPackage;
+import org.docx4j.openpackaging.parts.SpreadsheetML.TablePart;
+import org.docx4j.openpackaging.parts.SpreadsheetML.WorkbookPart;
+import org.docx4j.openpackaging.parts.SpreadsheetML.WorksheetPart;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.xlsx4j.sml.CTTable;
+import org.xlsx4j.sml.CTTableColumn;
+import org.xlsx4j.sml.Cell;
+import org.xlsx4j.sml.Row;
+import org.xlsx4j.sml.SheetData;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lu.itrust.business.ts.constants.Constant;
 import lu.itrust.business.ts.database.dao.DAOAnalysis;
 import lu.itrust.business.ts.database.dao.DAOAnalysisStandard;
 import lu.itrust.business.ts.database.dao.DAOAssetType;
 import lu.itrust.business.ts.database.dao.DAOAssetTypeValue;
+import lu.itrust.business.ts.database.dao.DAOLanguage;
 import lu.itrust.business.ts.database.dao.DAOMeasure;
 import lu.itrust.business.ts.database.dao.DAOMeasureDescription;
-import lu.itrust.business.ts.database.dao.hbm.DAOHibernate;
+import lu.itrust.business.ts.database.dao.DAOStandard;
+import lu.itrust.business.ts.database.dao.impl.DAOHibernate;
+import lu.itrust.business.ts.database.service.ServiceStorage;
 import lu.itrust.business.ts.exception.TrickException;
+import lu.itrust.business.ts.exportation.word.impl.docx4j.helper.AddressRef;
 import lu.itrust.business.ts.form.ImportRRFForm;
+import lu.itrust.business.ts.helper.NaturalOrderComparator;
 import lu.itrust.business.ts.model.analysis.Analysis;
 import lu.itrust.business.ts.model.asset.AssetType;
 import lu.itrust.business.ts.model.general.AssetTypeValue;
+import lu.itrust.business.ts.model.general.Language;
 import lu.itrust.business.ts.model.general.LogAction;
 import lu.itrust.business.ts.model.general.LogLevel;
 import lu.itrust.business.ts.model.general.LogType;
 import lu.itrust.business.ts.model.general.Phase;
+import lu.itrust.business.ts.model.general.helper.Utils;
 import lu.itrust.business.ts.model.parameter.IMaturityParameter;
 import lu.itrust.business.ts.model.parameter.IParameter;
 import lu.itrust.business.ts.model.parameter.helper.ValueFactory;
@@ -50,7 +79,6 @@ import lu.itrust.business.ts.model.standard.measure.helper.Chapter;
 import lu.itrust.business.ts.model.standard.measure.helper.MeasureComparator;
 import lu.itrust.business.ts.model.standard.measure.impl.AssetMeasure;
 import lu.itrust.business.ts.model.standard.measure.impl.MaturityMeasure;
-import lu.itrust.business.ts.model.standard.measure.impl.MeasureAssetValue;
 import lu.itrust.business.ts.model.standard.measure.impl.MeasureProperties;
 import lu.itrust.business.ts.model.standard.measure.impl.NormalMeasure;
 import lu.itrust.business.ts.model.standard.measuredescription.MeasureDescription;
@@ -86,7 +114,19 @@ public class MeasureManager {
 	private CustomDelete customDelete;
 
 	@Autowired
+	private ServiceStorage serviceStorage;
+
+	@Autowired
+	private DAOStandard daoStandard;
+
+	@Autowired
+	private DAOLanguage daoLanguage;
+
+	@Autowired
 	private DAOMeasureDescription daoMeasureDescription;
+
+	@Value("${app.settings.standard.template.path}")
+	private String template;
 
 	public static Standard getStandard(List<Standard> standards, String standardname) {
 		for (Standard standard : standards)
@@ -172,14 +212,14 @@ public class MeasureManager {
 	 * @return
 	 */
 	public static Map<Chapter, List<Measure>> splitByChapter(List<Measure> measures) {
-		Map<Chapter, List<Measure>> chapters = new LinkedHashMap<Chapter, List<Measure>>();
-		Map<String, Chapter> chapterMapping = new LinkedHashMap<String, Chapter>();
+		Map<Chapter, List<Measure>> chapters = new LinkedHashMap<>();
+		Map<String, Chapter> chapterMapping = new LinkedHashMap<>();
 
 		Comparator<Measure> cmp = new MeasureComparator();
 
 		Map<String, List<Measure>> splittedmeasures = MeasureManager.splitByStandard(measures);
 
-		List<Measure> allmeasures = new ArrayList<Measure>();
+		List<Measure> allmeasures = new ArrayList<>();
 
 		for (String key : splittedmeasures.keySet()) {
 			List<Measure> tmpMeasures = splittedmeasures.get(key);
@@ -195,15 +235,15 @@ public class MeasureManager {
 				chapterMapping.put(standard.getName() + "|-|" + reference, chapter = new Chapter(standard, reference));
 			List<Measure> measures2 = chapters.get(chapter);
 			if (measures2 == null)
-				chapters.put(chapter, measures2 = new ArrayList<Measure>());
+				chapters.put(chapter, measures2 = new ArrayList<>());
 			measures2.add(measure);
 		}
 
 		List<Chapter> keys = chapters.entrySet().stream().filter(
-				entry -> !entry.getValue().stream().anyMatch(measure -> measure.getMeasureDescription().isComputable()))
+				entry -> entry.getValue().stream().noneMatch(measure -> measure.getMeasureDescription().isComputable()))
 				.map(Entry::getKey).collect(Collectors.toList());
 
-		keys.forEach(key -> chapters.remove(key));
+		keys.forEach(chapters::remove);
 
 		return chapters;
 	}
@@ -239,7 +279,7 @@ public class MeasureManager {
 				measure = new AssetMeasure();
 				((AssetMeasure) measure).setMeasurePropertyList(new MeasureProperties());
 				implementationRate = 0D;
-				((AssetMeasure) measure).setMeasureAssetValues(new ArrayList<MeasureAssetValue>());
+				((AssetMeasure) measure).setMeasureAssetValues(new ArrayList<>());
 			}
 			Phase phase = analysis.findPhaseByNumber(Constant.PHASE_DEFAULT);
 			if (phase == null) {
@@ -266,7 +306,7 @@ public class MeasureManager {
 	}
 
 	@Transactional
-	public void importStandard(Integer idAnalysis, ImportRRFForm rrfForm) throws Exception {
+	public void importRRFFromStandard(Integer idAnalysis, ImportRRFForm rrfForm) throws Exception {
 		for (Integer idStandard : rrfForm.getStandards()) {
 			Map<String, Measure> profileMeasures = daoMeasure.mappingAllFromAnalysisAndStandard(rrfForm.getAnalysis(),
 					idStandard);
@@ -288,22 +328,24 @@ public class MeasureManager {
 
 	@Transactional
 	public void patchMeasureAssetypeValueDuplicated() throws Exception {
-		int count = daoMeasure.countNormalMeasure(), pageSize = 30;
+		int count = daoMeasure.countNormalMeasure();
+		int pageSize = 30;
 		if (count == 0)
 			return;
 		else if (count < pageSize)
 			count = pageSize;
 		int pageCount = (int) Math.ceil(count / (double) pageSize) + 1;
-		for (int pageIndex = 1; pageIndex < pageCount; pageIndex++)
+		for (int pageIndex = 1; pageIndex < pageCount; pageIndex++) {
 			for (NormalMeasure normalMeasure : daoMeasure.getAllNormalMeasure(pageIndex, pageSize))
 				removeDuplicationAssetypeValue(normalMeasure);
+		}
 	}
 
 	@Transactional
 	public void removeDuplicationAssetypeValue(NormalMeasure measure) throws Exception {
 		if (measure.getAssetTypeValues() == null || measure.getAssetTypeValues().isEmpty())
 			return;
-		Map<Integer, AssetTypeValue> indexAsssetType = new LinkedHashMap<Integer, AssetTypeValue>();
+		Map<Integer, AssetTypeValue> indexAsssetType = new LinkedHashMap<>();
 		Iterator<AssetTypeValue> iterator = measure.getAssetTypeValues().iterator();
 		boolean saveRequired = false;
 		while (iterator.hasNext()) {
@@ -347,6 +389,149 @@ public class MeasureManager {
 
 		if (standard.isAnalysisOnly() && (astandards == null || astandards.isEmpty()))
 			customDelete.deleteStandard(standard);
+	}
+
+	@Transactional(readOnly = true)
+	public boolean exportStandard(int standardId,  HttpServletResponse response,
+			String username) throws TrickException, Docx4JException, IOException {
+		final Standard standard = daoStandard.get(standardId);
+
+		if (standard == null)
+			return true;
+		final File workFile = serviceStorage.createTmpFile();
+		try {
+
+			serviceStorage.copy(template, workFile.getName());
+
+			SpreadsheetMLPackage mlPackage = SpreadsheetMLPackage.load(workFile);
+
+			WorkbookPart workbook = mlPackage.getWorkbookPart();
+
+			SheetData sheet = findSheet(workbook, "NormInfo");
+
+			TablePart tablePart = findTable(sheet, "TableNormInfo");
+			tablePart.getContents().getRef();
+			AddressRef address = AddressRef.parse(tablePart.getContents().getRef());
+			int row = address.getBegin().getRow() + 1;
+			int nameCol = address.getBegin().getCol();
+			int labelCol = nameCol + 1;
+			int versionCol = labelCol + 1;
+			int descCol = versionCol + 1;
+			// standard name
+			Cell cell = sheet.getRow().get(row).getC().get(nameCol);
+			setValue(cell, standard.getName());
+			// standard label
+			cell = sheet.getRow().get(row).getC().get(labelCol);
+			setValue(cell, standard.getLabel());
+			// standard version
+			cell = sheet.getRow().get(row).getC().get(versionCol);
+			setValue(cell, standard.getVersion());
+			// standard description
+			cell = sheet.getRow().get(row).getC().get(descCol);
+			setValue(cell, standard.getDescription());
+			// standard computable
+			cell = sheet.getRow().get(row).getC().get(address.getEnd().getCol());
+			setValue(cell, standard.isComputable());
+
+			/**
+			 * Measures
+			 */
+
+			sheet = findSheet(workbook, "NormData");
+			final List<Language> languages = daoLanguage.getAll();
+			final List<MeasureDescription> measuredescriptions = daoMeasureDescription
+					.getAllByStandard(standard.getId());
+
+			measuredescriptions
+					.sort((m1, m2) -> NaturalOrderComparator.compareTo(m1.getReference(), m2.getReference()));
+
+			int index = 0;
+			int referenceCol = 0;
+			int computableCol = 1;
+			int colSize = (languages.size() + 1) * 2;
+
+			sheet.getRow().clear();
+			Row sheetRow = getOrCreateRow(sheet, 0, colSize);
+			setValue(sheetRow.getC().get(index++), "Reference");
+			setValue(sheetRow.getC().get(index++), "Computable");
+			tablePart = findTable(sheet, "TableNormData");
+			address = AddressRef.parse(tablePart.getContents().getRef());
+			CTTable table = tablePart.getContents();
+			while (table.getTableColumns().getTableColumn().size() > index)
+				table.getTableColumns().getTableColumn().remove(index);
+
+			for (Language language : languages) {
+				var columnDomain = new CTTableColumn();
+				var columnDesc = new CTTableColumn();
+				table.getTableColumns().getTableColumn().add(columnDomain);
+				table.getTableColumns().getTableColumn().add(columnDesc);
+				columnDomain.setName("Domain_" + language.getAlpha3());
+				columnDesc.setName("Description_" + language.getAlpha3());
+				setValue(sheetRow.getC().get(index++), columnDomain.getName());
+				setValue(sheetRow.getC().get(index++), columnDesc.getName());
+			}
+
+			for (int i = 0; i < colSize; i++)
+				table.getTableColumns().getTableColumn().get(i).setId(i + 1l);
+
+			address.getEnd().setCol(colSize - 1);
+			address.getEnd().setRow(measuredescriptions.size());
+
+			table.setRef(address.toString());
+
+			if (table.getAutoFilter() != null)
+				table.getAutoFilter().setRef(table.getRef());
+
+			final WorksheetPart worksheetPart = getWorksheetPart(sheet);
+
+			if (worksheetPart.getContents().getDimension() != null)
+				worksheetPart.getContents().getDimension().setRef(table.getRef());
+
+			row = 1;
+
+			for (MeasureDescription measuredescription : measuredescriptions) {
+
+				sheetRow = getOrCreateRow(sheet, row++, colSize);
+
+				setValue(sheetRow.getC().get(referenceCol), measuredescription.getReference());
+
+				setValue(sheetRow.getC().get(computableCol), measuredescription.isComputable());
+
+				int domainCol = computableCol + 1;
+
+				for (Language language : languages) {
+					MeasureDescriptionText measureDescriptionText = measuredescription.findByLanguage(language);
+					if (measureDescriptionText != null) {
+						setValue(sheetRow.getC().get(domainCol), measureDescriptionText.getDomain());
+						setValue(sheetRow.getC().get(domainCol + 1), measureDescriptionText.getDescription());
+					}
+					domainCol += 2;
+				}
+			}
+
+			final String filename = String.format(Constant.ITR_FILE_NAMING,
+					"R5xx_STA_TSE",
+					"KB",
+					Utils.cleanUpFileName(standard.getLabel()), "MeasureCollection", standard.getVersion(),
+					"xlsx");
+
+			response.setContentType("xlsx");
+			response.setHeader("Content-Disposition",
+					"attachment; filename=\"" + filename + "\"");
+			mlPackage.save(response.getOutputStream());
+			/**
+			 * Log
+			 */
+			TrickLogManager.persist(LogLevel.WARNING, LogType.KNOWLEDGE_BASE, "log.export.standard",
+					String.format("Standard: %s, version: %d", standard.getLabel(), standard.getVersion()),
+					username, LogAction.EXPORT, standard.getLabel(),
+					String.valueOf(standard.getVersion()));
+
+			return false; // no error
+		} finally {
+			serviceStorage.delete(workFile.getName());
+		}
+
 	}
 
 	public static Measure create(StandardType standardType) throws TrickException {
@@ -428,7 +613,8 @@ public class MeasureManager {
 			if (!(measure instanceof MaturityMeasure))
 				continue;
 			String[] chapters = measure.getMeasureDescription().getReference().replace("M.", "").split("[.]");
-			boolean[] complainces = smls.computeIfAbsent(chapters[0], k -> new boolean[] { true, true, true, true, true });
+			boolean[] complainces = smls.computeIfAbsent(chapters[0],
+					k -> new boolean[] { true, true, true, true, true });
 			if (!measure.getMeasureDescription().isComputable() || chapters.length < 2)
 				continue;
 			MeasureDescriptionText descriptionText = measure.getMeasureDescription().findByAlph3("eng");
@@ -453,7 +639,8 @@ public class MeasureManager {
 				case "5":
 					complainces[4] &= implementation >= maturityMeasure.getSMLLevel5();
 					break;
-				default: break;
+				default:
+					break;
 			}
 		}
 

@@ -3,13 +3,13 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>lu.itrust</groupId>
 	<artifactId>opentrick</artifactId>
-	<version>2.18j</version>
+	<version>2.18k</version>
 	<packaging>war</packaging>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<org.apache.directory.server.version>2.0.0.AM26</org.apache.directory.server.version>
 		<module.image.name>opentrick.eu/docker</module.image.name>
-		<spring-boot.version>3.4.3</spring-boot.version>
+		<spring-boot.version>3.4.4</spring-boot.version>
 		<java.version>17</java.version>
 	</properties>
 
@@ -176,17 +176,20 @@
 			<groupId>com.zaxxer</groupId>
 			<artifactId>HikariCP</artifactId>
 		</dependency>
+<<<<<<< HEAD
 
 		<!--<dependency>
 			<groupId>org.apache.tomcat</groupId>
 			<artifactId>tomcat-dbcp</artifactId>
 			<version>10.1.26</version>
 		</dependency>-->
+=======
+>>>>>>> dev-2025-07
 
 		<dependency>
 			<groupId>jakarta.servlet.jsp.jstl</groupId>
 			<artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
-			<version>3.0.0</version>
+			<version>3.0.2</version>
 		</dependency>
 
 		<dependency>
@@ -550,7 +553,6 @@
 					<layers>
 						<enabled>true</enabled>
 					</layers>
-					<!--<imageName>opentrick.eu/docker</imageName>-->
 					<imageName>${module.image.name}</imageName>
 				</configuration>
 				<executions>
@@ -575,7 +577,6 @@
 					<argLine>-Dspring.config.additional-location=classpath:/deployment-ldap.properties,classpath:/deployment.properties</argLine>
 					<suiteXmlFiles>
 						<suiteXmlFile>src/test/resources/scenarios/Controller.xml</suiteXmlFile>
-						<!-- <suiteXmlFile>src/test/resources/scenarios/UI.xml</suiteXmlFile> -->
 					</suiteXmlFiles>
 				</configuration>
 			</plugin>

@@ -145,10 +145,10 @@ public class RRFExportImport {
 							analysis.getVersion()),
 					username, LogAction.IMPORT,
 					analysis.getIdentifier(), analysis.getVersion());
-			return JsonMessage.Success(messageSource.getMessage("success.import.raw.rrf", null,
+			return JsonMessage.success(messageSource.getMessage("success.import.raw.rrf", null,
 					"RRF was been successfully update from raw data", locale));
 		} catch (TrickException e) {
-			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			return JsonMessage.error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		}
 	}
 

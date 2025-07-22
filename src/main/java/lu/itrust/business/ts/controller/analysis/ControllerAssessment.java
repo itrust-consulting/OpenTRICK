@@ -296,9 +296,9 @@ public class ControllerAssessment {
 
 			serviceAnalysis.saveOrUpdate(analysis);
 		} catch (TrickException e) {
-			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			return JsonMessage.error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		}
-		return JsonMessage.Success(messageSource.getMessage("success.compute.risk_profile_measure", null,
+		return JsonMessage.success(messageSource.getMessage("success.compute.risk_profile_measure", null,
 				"Risk Estimation measures had been computed successfully", locale));
 
 	}
@@ -345,7 +345,7 @@ public class ControllerAssessment {
 					"Assessments were successfully refreshed", locale) + "\"}");
 		} catch (TrickException e) {
 			TrickLogManager.persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			return JsonMessage.error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			// return error
 			TrickLogManager.persist(e);
@@ -397,7 +397,7 @@ public class ControllerAssessment {
 		Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		RiskProfile riskProfile = serviceRiskProfile.getByAssetAndScanrio(idAsset, idScenario);
 		if (riskProfile == null)
-			return JsonMessage.Error(messageSource.getMessage("error.risk_profile.not_found", null,
+			return JsonMessage.error(messageSource.getMessage("error.risk_profile.not_found", null,
 					"Risk profile cannot be found", locale));
 		Map<Integer, Measure> measures = serviceMeasure.getByIdAnalysisAndIds(idAnalysis, measureIds).stream()
 				.collect(Collectors.toMap(Measure::getId, Function.identity()));
@@ -405,7 +405,7 @@ public class ControllerAssessment {
 		riskProfile.getMeasures().forEach(measure -> measures.remove(measure.getId()));
 		riskProfile.getMeasures().addAll(measures.values());
 		serviceRiskProfile.saveOrUpdate(riskProfile);
-		return JsonMessage.Success(messageSource.getMessage("success.save.risk_profile", null,
+		return JsonMessage.success(messageSource.getMessage("success.save.risk_profile", null,
 				"Risk profile has been successfully save", locale));
 	}
 
@@ -436,7 +436,7 @@ public class ControllerAssessment {
 			return new String("{\"success\":\"" + messageSource.getMessage("success.assessment.ale.update", null,
 					"Assessments ale were successfully updated", locale) + "\"}");
 		} catch (TrickException e) {
-			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			return JsonMessage.error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			// return error
 			TrickLogManager.persist(e);
@@ -471,7 +471,7 @@ public class ControllerAssessment {
 					"Assessments were successfully updated", locale) + "\"}");
 		} catch (TrickException e) {
 			TrickLogManager.persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			return JsonMessage.error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			// return error
 			TrickLogManager.persist(e);

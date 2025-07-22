@@ -87,7 +87,7 @@ public class TestSessionFactoryConfig {
         properties.getProperties().put("hibernate.dialect", env.getProperty("jdbc.dialect"));
         properties.getProperties().put("hibernate.show_sql", env.getProperty("jdbc.show_sql"));
         properties.getProperties().put("hibernate.jdbc.time_zone", env.getProperty("jdbc.time_zone"));
-        properties.getProperties().put("hibernate.hbm2ddl.auto", env.getProperty("jdbc.hbm2ddl.auto"));
+        properties.getProperties().put("hibernate.Impl2ddl.auto", env.getProperty("jdbc.Impl2ddl.auto"));
         properties.getProperties().put("hibernate.javax.cache.missing_cache_strategy",
                 env.getProperty("jdbc.cache.missing_cache_strategy"));
         properties.getProperties().put("hibernate.javax.cache.provider",

@@ -92,7 +92,7 @@ public class CleanerDate {
 		return "CleanerDate [year=" + year + ", month=" + month + ", day=" + day + ", hour=" + hour + ", minute=" + minute + ", second=" + second + "]";
 	}
 
-	public final static CleanerDate parse(String data) {
+	public static final  CleanerDate parse(String data) {
 		CleanerDate date = new CleanerDate();
 		if (data == null)
 			return date;

@@ -35,7 +35,7 @@ import lu.itrust.business.ts.component.AssessmentAndRiskProfileManager;
 import lu.itrust.business.ts.component.ChartGenerator;
 import lu.itrust.business.ts.component.TrickLogManager;
 import lu.itrust.business.ts.constants.Constant;
-import lu.itrust.business.ts.database.dao.hbm.DAOHibernate;
+import lu.itrust.business.ts.database.dao.impl.DAOHibernate;
 import lu.itrust.business.ts.database.service.ServiceActionPlan;
 import lu.itrust.business.ts.database.service.ServiceAnalysis;
 import lu.itrust.business.ts.database.service.ServiceAssessment;
@@ -229,11 +229,11 @@ public class ControllerFieldEditor {
 			// retrieve phase
 			Integer number = (Integer) FieldValue(fieldEditor);
 			if (number == null)
-				return JsonMessage.Error(
+				return JsonMessage.error(
 						messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 			Phase phase = servicePhase.getFromAnalysisByPhaseNumber(idAnalysis, number);
 			if (phase == null)
-				return JsonMessage.Error(
+				return JsonMessage.error(
 						messageSource.getMessage("error.phase.not_found", null, "Phase cannot be found", locale));
 
 			// set new phase value of measure
@@ -243,16 +243,16 @@ public class ControllerFieldEditor {
 			serviceMeasure.saveOrUpdate(ape.getMeasure());
 
 			// return success message
-			return JsonMessage.Success(messageSource.getMessage("success.ationplan.updated", null,
+			return JsonMessage.success(messageSource.getMessage("success.ationplan.updated", null,
 					"ActionPlan entry was successfully updated", locale));
 
 		} catch (TrickException e) {
 			TrickLogManager.persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			return JsonMessage.error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			// return error
 			TrickLogManager.persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null,
+			return JsonMessage.error(messageSource.getMessage("error.unknown.edit.field", null,
 					"An unknown error occurred while updating field", locale));
 		}
 	}
@@ -274,7 +274,7 @@ public class ControllerFieldEditor {
 		int idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		Result result = updateAssessment(fieldEditor, serviceAssessment.getFromAnalysisById(idAnalysis, elementID),
 				idAnalysis, locale, false);
-		return result.isError() ? JsonMessage.Error(result.getMessage()) : JsonMessage.Success(result.getMessage());
+		return result.isError() ? JsonMessage.error(result.getMessage()) : JsonMessage.success(result.getMessage());
 	}
 
 	@PostMapping(value = "/Asset/{elementID}", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
@@ -291,7 +291,7 @@ public class ControllerFieldEditor {
 			if (validator == null)
 				serviceDataValidation.register(validator = new AssetValidator());
 			if (!validator.isEditable(fieldEditor.getFieldName()))
-				return JsonMessage.Error(messageSource.getMessage("error.field.not.support.live.edition", null,
+				return JsonMessage.error(messageSource.getMessage("error.field.not.support.live.edition", null,
 						"Field does not support editing on the fly", locale));
 
 			Object value = FieldValue(fieldEditor);
@@ -299,26 +299,26 @@ public class ControllerFieldEditor {
 			String error = serviceDataValidation.validate(asset, fieldEditor.getFieldName(), value);
 
 			if (error != null)
-				return JsonMessage.Error(serviceDataValidation.ParseError(error, messageSource, locale));
+				return JsonMessage.error(serviceDataValidation.ParseError(error, messageSource, locale));
 
 			Field field = findField(Asset.class, fieldEditor.getFieldName());
 			// check if field is a phase
 			if (!setFieldValue(asset, field, value))
 				JsonMessage
-						.Error(messageSource.getMessage("error.edit.save.field", null, "Data cannot be saved", locale));
+						.error(messageSource.getMessage("error.edit.save.field", null, "Data cannot be saved", locale));
 
 			// update measure
 			serviceAsset.saveOrUpdate(asset);
 			// return success message
-			return JsonMessage.Success(
+			return JsonMessage.success(
 					messageSource.getMessage("success.asset.updated", null, "Asset was successfully updated", locale));
 		} catch (TrickException e) {
 			TrickLogManager.persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			return JsonMessage.error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			// return error
 			TrickLogManager.persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null,
+			return JsonMessage.error(messageSource.getMessage("error.unknown.edit.field", null,
 					"An unknown error occurred while updating field", locale));
 		}
 	}
@@ -370,7 +370,7 @@ public class ControllerFieldEditor {
 			HttpSession session, Locale locale, Principal principal) throws Exception {
 		try {
 			if (fieldEditor.getFieldName().equals("acronym"))
-				return JsonMessage.Error(messageSource.getMessage("error.field.not.support.live.edition", null,
+				return JsonMessage.error(messageSource.getMessage("error.field.not.support.live.edition", null,
 						"Field does not support editing on the fly", locale));
 			// retrieve analysis id
 			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
@@ -385,11 +385,11 @@ public class ControllerFieldEditor {
 			String error = serviceDataValidation.validate(parameter, fieldEditor.getFieldName(), value);
 			// return error validation
 			if (error != null)
-				return JsonMessage.Error(serviceDataValidation.ParseError(error, messageSource, locale));
+				return JsonMessage.error(serviceDataValidation.ParseError(error, messageSource, locale));
 			// set field
 			Field field = findField(ImpactParameter.class, fieldEditor.getFieldName());
 			if (field == null)
-				return JsonMessage.Error(
+				return JsonMessage.error(
 						messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 			field.setAccessible(true);
 			// set field data
@@ -416,20 +416,20 @@ public class ControllerFieldEditor {
 						break;
 				}
 				// return success message
-				return JsonMessage.Success(messageSource.getMessage("success.impact.update", null,
+				return JsonMessage.success(messageSource.getMessage("success.impact.update", null,
 						"Impact was successfully update", locale));
 			} else
 				// return error message
-				return JsonMessage.Error(
+				return JsonMessage.error(
 						messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 
 		} catch (TrickException e) {
 			TrickLogManager.persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			return JsonMessage.error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			// return error
 			TrickLogManager.persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null,
+			return JsonMessage.error(messageSource.getMessage("error.unknown.edit.field", null,
 					"An unknown error occurred while updating field", locale));
 		}
 	}
@@ -462,7 +462,7 @@ public class ControllerFieldEditor {
 			String error = serviceDataValidation.validate(history, fieldEditor.getFieldName(), value);
 			// return errors on validation fail
 			if (error != null)
-				return JsonMessage.Error(serviceDataValidation.ParseError(error, messageSource, locale));
+				return JsonMessage.error(serviceDataValidation.ParseError(error, messageSource, locale));
 
 			// set field
 			Field field = findField(History.class, fieldEditor.getFieldName());
@@ -474,20 +474,20 @@ public class ControllerFieldEditor {
 				serviceHistory.saveOrUpdate(history);
 
 				// return success message
-				return JsonMessage.Success(messageSource.getMessage("success.history.updated", null,
+				return JsonMessage.success(messageSource.getMessage("success.history.updated", null,
 						"History was successfully updated", locale));
 			} else
 
 				// return error rmessage
-				return JsonMessage.Error(
+				return JsonMessage.error(
 						messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 		} catch (TrickException e) {
 			TrickLogManager.persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			return JsonMessage.error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			// return error
 			TrickLogManager.persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null,
+			return JsonMessage.error(messageSource.getMessage("error.unknown.edit.field", null,
 					"An unknown error occurred while updating field", locale));
 		}
 	}
@@ -517,19 +517,19 @@ public class ControllerFieldEditor {
 				// update iteminformation
 				serviceItemInformation.saveOrUpdate(itemInformation);
 				// return success message
-				return JsonMessage.Success(messageSource.getMessage("success.item_information.updated", null,
+				return JsonMessage.success(messageSource.getMessage("success.item_information.updated", null,
 						"Item information was successfully updated", locale));
 			} else
 				// return error message
-				return JsonMessage.Error(
+				return JsonMessage.error(
 						messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 		} catch (TrickException e) {
 			TrickLogManager.persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			return JsonMessage.error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			// return error
 			TrickLogManager.persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null,
+			return JsonMessage.error(messageSource.getMessage("error.unknown.edit.field", null,
 					"An unknown error occurred while updating field", locale));
 		}
 	}
@@ -550,7 +550,7 @@ public class ControllerFieldEditor {
 			HttpSession session, Locale locale, Principal principal) throws Exception {
 		try {
 			if (fieldEditor.getFieldName().equals("acronym"))
-				return JsonMessage.Error(messageSource.getMessage("error.field.not.support.live.edition", null,
+				return JsonMessage.error(messageSource.getMessage("error.field.not.support.live.edition", null,
 						"Field does not support editing on the fly", locale));
 			// retrieve analysis id
 			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
@@ -565,12 +565,12 @@ public class ControllerFieldEditor {
 			String error = serviceDataValidation.validate(parameter, fieldEditor.getFieldName(), value);
 			// return error validation
 			if (error != null)
-				return JsonMessage.Error(serviceDataValidation.ParseError(error, messageSource, locale));
+				return JsonMessage.error(serviceDataValidation.ParseError(error, messageSource, locale));
 			// set field
 			Field field = findField(LikelihoodParameter.class, fieldEditor.getFieldName());
 
 			if (field == null)
-				return JsonMessage.Error(
+				return JsonMessage.error(
 						messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 			field.setAccessible(true);
 
@@ -586,20 +586,20 @@ public class ControllerFieldEditor {
 					serviceLikelihoodParameter.saveOrUpdate(parameter);
 
 				// return success message
-				return JsonMessage.Success(messageSource.getMessage("success.likelihood.update", null,
+				return JsonMessage.success(messageSource.getMessage("success.likelihood.update", null,
 						"Likelihood was successfully update", locale));
 			} else
 				// return error message
-				return JsonMessage.Error(
+				return JsonMessage.error(
 						messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 
 		} catch (TrickException e) {
 			TrickLogManager.persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			return JsonMessage.error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			// return error
 			TrickLogManager.persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null,
+			return JsonMessage.error(messageSource.getMessage("error.unknown.edit.field", null,
 					"An unknown error occurred while updating field", locale));
 		}
 	}
@@ -654,13 +654,13 @@ public class ControllerFieldEditor {
 						serviceMeasure.saveOrUpdate(measure);
 
 						// return success message
-						return JsonMessage.Success(messageSource.getMessage("success.measure.updated", null,
+						return JsonMessage.success(messageSource.getMessage("success.measure.updated", null,
 								"Measure was successfully updated", locale));
 					}
 				}
 
 				// return error message
-				return JsonMessage.Error(
+				return JsonMessage.error(
 						messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 			} else
 
@@ -668,11 +668,11 @@ public class ControllerFieldEditor {
 				return measure(elementID, fieldEditor, session, locale, principal);
 		} catch (TrickException e) {
 			TrickLogManager.persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			return JsonMessage.error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			// return error
 			TrickLogManager.persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null,
+			return JsonMessage.error(messageSource.getMessage("error.unknown.edit.field", null,
 					"An unknown error occurred while updating field", locale));
 		}
 	}
@@ -684,7 +684,7 @@ public class ControllerFieldEditor {
 
 		try {
 			if (!smlPatten.matcher(fieldEditor.getFieldName()).matches())
-				return JsonMessage.Error(messageSource.getMessage("error.field.not.support.live.edition", null,
+				return JsonMessage.error(messageSource.getMessage("error.field.not.support.live.edition", null,
 						"Field does not support editing on the fly", locale));
 			// retrieve analysis id
 			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
@@ -699,7 +699,7 @@ public class ControllerFieldEditor {
 			// validate value
 			String error = serviceDataValidation.validate(parameter, fieldEditor.getFieldName(), value);
 			if (error != null)
-				return JsonMessage.Error(serviceDataValidation.ParseError(error, messageSource, locale));
+				return JsonMessage.error(serviceDataValidation.ParseError(error, messageSource, locale));
 			// create field
 			Field field = findField(MaturityParameter.class, fieldEditor.getFieldName());
 			// set value /100 to save as values between 0 and 1
@@ -708,19 +708,19 @@ public class ControllerFieldEditor {
 				// update field
 				serviceMaturityParameter.saveOrUpdate(parameter);
 				// return success message
-				return JsonMessage.Success(messageSource.getMessage("success.parameter.updated", null,
+				return JsonMessage.success(messageSource.getMessage("success.parameter.updated", null,
 						"Parameter was successfully updated", locale));
 			} else
 				// return error message
-				return JsonMessage.Error(
+				return JsonMessage.error(
 						messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 		} catch (TrickException e) {
 			TrickLogManager.persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			return JsonMessage.error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			// return error
 			TrickLogManager.persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null,
+			return JsonMessage.error(messageSource.getMessage("error.unknown.edit.field", null,
 					"An unknown error occurred while updating field", locale));
 		}
 	}
@@ -757,11 +757,11 @@ public class ControllerFieldEditor {
 					Integer number = null;
 					number = (Integer) FieldValue(fieldEditor);
 					if (number == null)
-						return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null,
+						return JsonMessage.error(messageSource.getMessage("error.edit.type.field", null,
 								"Data cannot be updated", locale));
 					Phase phase = servicePhase.getFromAnalysisByPhaseNumber(idAnalysis, number);
 					if (phase == null)
-						return JsonMessage.Error(messageSource.getMessage("error.phase.not_found", null,
+						return JsonMessage.error(messageSource.getMessage("error.phase.not_found", null,
 								"Phase cannot be found", locale));
 
 					// set new phase number
@@ -772,7 +772,7 @@ public class ControllerFieldEditor {
 
 					Object value = FieldValue(fieldEditor);
 					if (value == null)
-						return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null,
+						return JsonMessage.error(messageSource.getMessage("error.edit.type.field", null,
 								"Data cannot be updated", locale));
 
 					// get validator
@@ -781,14 +781,14 @@ public class ControllerFieldEditor {
 
 					String error = serviceDataValidation.validate(measure, fieldEditor.getFieldName(), value);
 					if (error != null)
-						return JsonMessage.Error(serviceDataValidation.ParseError(error, messageSource, locale));
+						return JsonMessage.error(serviceDataValidation.ParseError(error, messageSource, locale));
 
 					if (fieldEditor.getFieldName().equals("implementationRate")) {
 						final List<String> acronyms = serviceLikelihoodParameter.findAcronymByAnalysisId(idAnalysis);
 						acronyms.addAll(serviceDynamicParameter.findAcronymByAnalysisId(idAnalysis));
 						if (!(new StringExpressionParser(value.toString(), StringExpressionParser.IMPLEMENTATION)
 								.isValid(acronyms)))
-							return JsonMessage.Error(messageSource.getMessage("error.edit.type.field.expression", null,
+							return JsonMessage.error(messageSource.getMessage("error.edit.type.field.expression", null,
 									"Invalid expression. Check the syntax and make sure that all used parameters exist.",
 									locale));
 						measure.setImplementationRate(value);
@@ -826,7 +826,7 @@ public class ControllerFieldEditor {
 
 						// check if field is a phase
 						if (!setFieldData(field, measure, fieldEditor))
-							return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null,
+							return JsonMessage.error(messageSource.getMessage("error.edit.type.field", null,
 									"Data cannot be updated", locale));
 
 						// update measure
@@ -879,7 +879,7 @@ public class ControllerFieldEditor {
 
 						// check if field is a phase
 						if (!setFieldData(field, measure, fieldEditor))
-							return JsonMessage.Error(messageSource.getMessage("error.edit.type.field", null,
+							return JsonMessage.error(messageSource.getMessage("error.edit.type.field", null,
 									"Data cannot be updated", locale));
 
 						// update measure
@@ -923,16 +923,16 @@ public class ControllerFieldEditor {
 				}
 			}
 			// return success message
-			return JsonMessage.Success(messageSource.getMessage("success.measure.updated", null,
+			return JsonMessage.success(messageSource.getMessage("success.measure.updated", null,
 					"Measure was successfully updated", locale));
 
 		} catch (TrickException e) {
 			TrickLogManager.persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			return JsonMessage.error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			// return error
 			TrickLogManager.persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null,
+			return JsonMessage.error(messageSource.getMessage("error.unknown.edit.field", null,
 					"An unknown error occurred while updating field", locale));
 		}
 	}
@@ -965,25 +965,25 @@ public class ControllerFieldEditor {
 			// validate value
 			String error = serviceDataValidation.validate(simpleParameter, fieldEditor.getFieldName(), value);
 			if (error != null)
-				return JsonMessage.Error(serviceDataValidation.ParseError(error, messageSource, locale));
+				return JsonMessage.error(serviceDataValidation.ParseError(error, messageSource, locale));
 			switch (simpleParameter.getTypeName()) {
 				case Constant.PARAMETERTYPE_TYPE_MAX_EFF_NAME:
 				case Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_LEVEL_PER_SML_NAME:
 				case Constant.PARAMETERTYPE_TYPE_IMPLEMENTATION_RATE_NAME:
 					if (((double) value) < 0 || ((double) value) > 100)
-						return JsonMessage.Error(messageSource.getMessage("error.parameter.value.out_of_bound",
+						return JsonMessage.error(messageSource.getMessage("error.parameter.value.out_of_bound",
 								new Object[] { value },
 								String.format("Invalid input: value (%f) should be between 0 and 100", value), locale));
 					break;
 				case Constant.PARAMETERTYPE_TYPE_SINGLE_NAME:
 					if (simpleParameter.getDescription().equals(Constant.PARAMETER_LIFETIME_DEFAULT)) {
 						if (((double) value) <= 0)
-							return JsonMessage.Error(messageSource.getMessage("error.edit.parameter.default_lifetime",
+							return JsonMessage.error(messageSource.getMessage("error.edit.parameter.default_lifetime",
 									null, "Default lifetime has to be > 0", locale));
 					} else if (simpleParameter.getDescription().equals(Constant.PARAMETER_MAX_RRF)
 							|| simpleParameter.getDescription().equals(Constant.SOA_THRESHOLD)) {
 						if (((double) value) < 0 || ((double) value) > 100)
-							return JsonMessage.Error(messageSource.getMessage("error.parameter.value.out_of_bound",
+							return JsonMessage.error(messageSource.getMessage("error.parameter.value.out_of_bound",
 									new Object[] { value },
 									String.format("Invalid input: value (%f) should be between 0 and 100", value),
 									locale));
@@ -997,19 +997,19 @@ public class ControllerFieldEditor {
 				// update field
 				serviceSimpleParameter.saveOrUpdate(simpleParameter);
 				// return success message
-				return JsonMessage.Success(messageSource.getMessage("success.parameter.updated", null,
+				return JsonMessage.success(messageSource.getMessage("success.parameter.updated", null,
 						"SimpleParameter was successfully updated", locale));
 			} else
 				// return error message
-				return JsonMessage.Error(
+				return JsonMessage.error(
 						messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 		} catch (TrickException e) {
 			TrickLogManager.persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			return JsonMessage.error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			// return error
 			TrickLogManager.persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null,
+			return JsonMessage.error(messageSource.getMessage("error.unknown.edit.field", null,
 					"An unknown error occurred while updating field", locale));
 		}
 	}
@@ -1043,16 +1043,16 @@ public class ControllerFieldEditor {
 			// update phase
 			servicePhase.saveOrUpdate(phase);
 			// return success message
-			return JsonMessage.Success(
+			return JsonMessage.success(
 					messageSource.getMessage("success.phase.updated", null, "Phase was successfully updated", locale));
 
 		} catch (TrickException e) {
 			TrickLogManager.persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			return JsonMessage.error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			// return error
 			TrickLogManager.persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null,
+			return JsonMessage.error(messageSource.getMessage("error.unknown.edit.field", null,
 					"An unknown error occurred while updating field", locale));
 		}
 	}
@@ -1130,24 +1130,24 @@ public class ControllerFieldEditor {
 			// set field data
 			if (fieldEditor.getFieldName().equals("color")
 					&& !hexColor.matcher(fieldEditor.getValue().toString()).matches())
-				return JsonMessage.Success(messageSource.getMessage("error.hex.color.excepted", null, locale));
+				return JsonMessage.success(messageSource.getMessage("error.hex.color.excepted", null, locale));
 			if (setFieldData(field, simpleParameter, fieldEditor)) {
 				// update field
 				serviceRiskAcceptanceParameter.saveOrUpdate(simpleParameter);
 				// return success message
-				return JsonMessage.Success(messageSource.getMessage("success.parameter.updated", null,
+				return JsonMessage.success(messageSource.getMessage("success.parameter.updated", null,
 						"Parameter was successfully updated", locale));
 			} else
 				// return error message
-				return JsonMessage.Error(
+				return JsonMessage.error(
 						messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 		} catch (TrickException e) {
 			TrickLogManager.persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			return JsonMessage.error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			// return error
 			TrickLogManager.persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null,
+			return JsonMessage.error(messageSource.getMessage("error.unknown.edit.field", null,
 					"An unknown error occurred while updating field", locale));
 		}
 	}
@@ -1175,24 +1175,24 @@ public class ControllerFieldEditor {
 			// set field data
 			if (fieldEditor.getFieldName().equals("color")
 					&& !hexColor.matcher(fieldEditor.getValue().toString()).matches())
-				return JsonMessage.Success(messageSource.getMessage("error.hex.color.excepted", null, locale));
+				return JsonMessage.success(messageSource.getMessage("error.hex.color.excepted", null, locale));
 			if (setFieldData(field, simpleParameter, fieldEditor)) {
 				// update field
 				serviceIlrSoaScaleParameter.saveOrUpdate(simpleParameter);
 				// return success message
-				return JsonMessage.Success(messageSource.getMessage("success.parameter.updated", null,
+				return JsonMessage.success(messageSource.getMessage("success.parameter.updated", null,
 						"Parameter was successfully updated", locale));
 			} else
 				// return error message
-				return JsonMessage.Error(
+				return JsonMessage.error(
 						messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 		} catch (TrickException e) {
 			TrickLogManager.persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			return JsonMessage.error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			// return error
 			TrickLogManager.persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null,
+			return JsonMessage.error(messageSource.getMessage("error.unknown.edit.field", null,
 					"An unknown error occurred while updating field", locale));
 		}
 	}
@@ -1211,23 +1211,23 @@ public class ControllerFieldEditor {
 				serviceDataValidation.register(validatorField = new RiskInformationValidator());
 			String error = validatorField.validate(riskInformation, fieldEditor.getFieldName(), fieldEditor.getValue());
 			if (error != null)
-				return JsonMessage.Error(serviceDataValidation.ParseError(error, messageSource, locale));
+				return JsonMessage.error(serviceDataValidation.ParseError(error, messageSource, locale));
 			field.setAccessible(true);
 			if (!setFieldData(field, riskInformation, fieldEditor, null))
-				return JsonMessage.Error(
+				return JsonMessage.error(
 						messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 			// update phase
 			serviceRiskInformation.saveOrUpdate(riskInformation);
 			// return success message
-			return JsonMessage.Success(messageSource.getMessage("success.risk_information.updated", null,
+			return JsonMessage.success(messageSource.getMessage("success.risk_information.updated", null,
 					"Risk information was successfully updated", locale));
 		} catch (TrickException e) {
 			TrickLogManager.persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			return JsonMessage.error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			// return error
 			TrickLogManager.persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null,
+			return JsonMessage.error(messageSource.getMessage("error.unknown.edit.field", null,
 					"An unknown error occurred while updating field", locale));
 		}
 	}
@@ -1249,7 +1249,7 @@ public class ControllerFieldEditor {
 		int idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 		Result result = updateRiskProfile(fieldEditor, serviceRiskProfile.getFromAnalysisById(idAnalysis, elementID),
 				idAnalysis, locale);
-		return result.isError() ? JsonMessage.Error(result.getMessage()) : JsonMessage.Success(result.getMessage());
+		return result.isError() ? JsonMessage.error(result.getMessage()) : JsonMessage.success(result.getMessage());
 	}
 
 	/**
@@ -1296,7 +1296,7 @@ public class ControllerFieldEditor {
 				if (error == null)
 					field.set(scenario, fieldEditor.getValue());
 				else
-					return JsonMessage.Error(serviceDataValidation.ParseError(error, messageSource, locale));
+					return JsonMessage.error(serviceDataValidation.ParseError(error, messageSource, locale));
 			} else {
 				if (Scenario.isCategoryKey(fieldEditor.getFieldName()))
 					scenario.setCategoryValue(fieldEditor.getFieldName(), (Integer) fieldEditor.getValue());
@@ -1307,23 +1307,23 @@ public class ControllerFieldEditor {
 					if (assetData != null)
 						assetData.setValue((Integer) fieldEditor.getValue());
 					else
-						return JsonMessage.Error(messageSource.getMessage("error.field.not.support.live.edition", null,
+						return JsonMessage.error(messageSource.getMessage("error.field.not.support.live.edition", null,
 								"Field does not support editing on the fly", locale));
 				}
 			}
 
 			serviceScenario.saveOrUpdate(scenario);
 			// return success message
-			return JsonMessage.Success(messageSource.getMessage("success.scenario.updated", null,
+			return JsonMessage.success(messageSource.getMessage("success.scenario.updated", null,
 					"Scenario was successfully updated", locale));
 
 		} catch (TrickException e) {
 			TrickLogManager.persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			return JsonMessage.error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			// return error
 			TrickLogManager.persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null,
+			return JsonMessage.error(messageSource.getMessage("error.unknown.edit.field", null,
 					"An unknown error occurred while updating field", locale));
 		}
 	}
@@ -1356,7 +1356,7 @@ public class ControllerFieldEditor {
 
 			// check if field is a phase
 			if (!setFieldData(field, mesprep, fieldEditor))
-				return JsonMessage.Error(
+				return JsonMessage.error(
 						messageSource.getMessage("error.edit.type.field", null, "Data cannot be updated", locale));
 
 			measure.setMeasurePropertyList(mesprep);
@@ -1365,16 +1365,16 @@ public class ControllerFieldEditor {
 			serviceMeasure.saveOrUpdate(measure);
 
 			// return success message
-			return JsonMessage.Success(messageSource.getMessage("success.measure.updated", null,
+			return JsonMessage.success(messageSource.getMessage("success.measure.updated", null,
 					"Measure was successfully updated", locale));
 
 		} catch (TrickException e) {
 			TrickLogManager.persist(e);
-			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			return JsonMessage.error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			// return error
 			TrickLogManager.persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.unknown.edit.field", null,
+			return JsonMessage.error(messageSource.getMessage("error.unknown.edit.field", null,
 					"An unknown error occurred while updating field", locale));
 		}
 	}

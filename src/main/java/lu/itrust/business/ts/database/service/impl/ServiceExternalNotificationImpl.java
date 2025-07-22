@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import lu.itrust.business.ts.database.dao.DAOExternalNotification;
-import lu.itrust.business.ts.database.dao.hbm.DAOExternalNotificationHBM;
+import lu.itrust.business.ts.database.dao.impl.DAOExternalNotificationImpl;
 import lu.itrust.business.ts.database.service.ServiceExternalNotification;
 import lu.itrust.business.ts.model.externalnotification.ExternalNotification;
 
@@ -30,7 +30,7 @@ public class ServiceExternalNotificationImpl implements ServiceExternalNotificat
 	}
 
 	public ServiceExternalNotificationImpl(Session session) {
-		this.daoExternalNotification = new DAOExternalNotificationHBM(session);
+		this.daoExternalNotification = new DAOExternalNotificationImpl(session);
 	}
 
 	/** {@inheritDoc} */

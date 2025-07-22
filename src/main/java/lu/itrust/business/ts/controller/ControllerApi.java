@@ -203,14 +203,21 @@ public class ControllerApi {
 
 			assessmentAndRiskProfileManager.build(asset, idAnalysis);
 
-			return JsonMessage.SuccessWithId(asset.getId());
+			return JsonMessage.successWithId(asset.getId());
 		} catch (final TrickException e) {
 			TrickLogManager.persist(e);
+<<<<<<< HEAD
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (final Exception e) {
 			TrickLogManager.persist(e);
 			return JsonMessage
 					.Error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
+=======
+			return JsonMessage.error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+		} catch (final Exception e) {
+			TrickLogManager.persist(e);
+			return JsonMessage.error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
+>>>>>>> dev-2025-07
 		}
 	}
 
@@ -221,14 +228,21 @@ public class ControllerApi {
 			final Principal principal, final Locale locale) {
 		try {
 			customDelete.deleteAsset(idAsset, idAnalysis);
-			return JsonMessage.Success(messageSource.getMessage("success.asset.delete.successfully", null,
+			return JsonMessage.success(messageSource.getMessage("success.asset.delete.successfully", null,
 					"Asset was deleted successfully", locale));
 		} catch (final TrickException e) {
 			TrickLogManager.persist(e);
+<<<<<<< HEAD
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (final Exception e) {
 			TrickLogManager.persist(e);
 			return JsonMessage.Error(
+=======
+			return JsonMessage.error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+		} catch (final Exception e) {
+			TrickLogManager.persist(e);
+			return JsonMessage.error(
+>>>>>>> dev-2025-07
 					messageSource.getMessage("error.asset.delete.failed", null, "Asset cannot be deleted", locale));
 		}
 	}
@@ -264,14 +278,21 @@ public class ControllerApi {
 
 			assessmentAndRiskProfileManager.build(asset, idAnalysis);
 
-			return JsonMessage.SuccessWithId(asset.getId());
+			return JsonMessage.successWithId(asset.getId());
 		} catch (final TrickException e) {
 			TrickLogManager.persist(e);
+<<<<<<< HEAD
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (final Exception e) {
 			TrickLogManager.persist(e);
 			return JsonMessage
 					.Error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
+=======
+			return JsonMessage.error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+		} catch (final Exception e) {
+			TrickLogManager.persist(e);
+			return JsonMessage.error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
+>>>>>>> dev-2025-07
 		}
 	}
 
@@ -339,7 +360,7 @@ public class ControllerApi {
 			final Locale locale) throws IOException {
 
 		if (file.getSize() > maxUploadFileSize)
-			return JsonMessage.Error(messageSource.getMessage("error.file.too.large",
+			return JsonMessage.error(messageSource.getMessage("error.file.too.large",
 					new Object[] { maxUploadFileSize }, "File is to large", locale));
 
 		final Analysis analysis = serviceAnalysis.get(idAnalysis);
@@ -662,14 +683,21 @@ public class ControllerApi {
 				}
 			}
 			serviceAssessment.save(assessment);
-			return JsonMessage.Success(messageSource.getMessage("success.assessment.refresh", null,
+			return JsonMessage.success(messageSource.getMessage("success.assessment.refresh", null,
 					"Assessments were successfully refreshed", locale));
 		} catch (final TrickException e) {
 			TrickLogManager.persist(e);
+<<<<<<< HEAD
 			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (final Exception e) {
 			TrickLogManager.persist(e);
 			return JsonMessage.Error(
+=======
+			return JsonMessage.error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+		} catch (final Exception e) {
+			TrickLogManager.persist(e);
+			return JsonMessage.error(
+>>>>>>> dev-2025-07
 					messageSource.getMessage("error.asset.delete.failed", null, "Asset cannot be deleted", locale));
 		}
 	}

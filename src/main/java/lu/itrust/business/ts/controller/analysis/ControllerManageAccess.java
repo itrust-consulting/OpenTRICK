@@ -131,12 +131,12 @@ public class ControllerManageAccess {
 			Customer customer = serviceCustomer.findByAnalysisId(rightsForm.getAnalysisId());
 			rightsForm.getUserRights().keySet().removeIf(idUser -> !serviceCustomer.hasAccess(idUser, customer));
 			manageAnalysisRight.updateAnalysisRights(principal, rightsForm);
-			return JsonMessage.Success(messageSource.getMessage("success.update.analysis.right", null, "Analysis access rights were successfully updated!", locale));
+			return JsonMessage.success(messageSource.getMessage("success.update.analysis.right", null, "Analysis access rights were successfully updated!", locale));
 		} catch (Exception e) {
 			TrickLogManager.persist(e);
 			if (e instanceof TrickException)
-				return JsonMessage.Error(messageSource.getMessage(((TrickException) e).getCode(), ((TrickException) e).getParameters(), e.getMessage(), locale));
-			return JsonMessage.Error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
+				return JsonMessage.error(messageSource.getMessage(((TrickException) e).getCode(), ((TrickException) e).getParameters(), e.getMessage(), locale));
+			return JsonMessage.error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 		}
 	}
 

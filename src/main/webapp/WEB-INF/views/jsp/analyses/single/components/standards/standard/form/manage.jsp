@@ -7,13 +7,18 @@
 <%@ taglib uri="jakarta.tags.functions" prefix="fn"%>
 <div id="section_manage_standards" class="tab-pane active" style="height: 510px; overflow-y: auto; overflow-x: hidden; margin-top: -10px">
 	<ul id="menu_manage_standards" class="nav nav-pills bordered-bottom">
-		<li data-trick-ignored="true" ><a href="#importFromKb" data-toggle="tab" role='import-kb'><span class="glyphicon glyphicon-import"></span> <spring:message code="label.action.import.knowledge_base" /></a></li>
-		<li data-trick-ignored="true" ><a href="#importFromFile" data-toggle="tab" role='import-file'><span class="glyphicon glyphicon-file"></span> <spring:message code="label.action.import.file" /></a></li>
-		<li data-trick-ignored="true"><a href="#standard_form_container" data-toggle="tab" role='add'><span class="glyphicon glyphicon-plus primary"></span> <spring:message code="label.action.add" /></a></li>
+		<li data-trick-ignored="true" ><a href="#importFromKb" data-toggle="tab" role='import-kb'><span class="glyphicon glyphicon-plus"></span> <spring:message code="label.action.add" /></a></li>
+		<li data-trick-ignored="true"><a href="#standard_form_container" data-toggle="tab" role='add'><span class="glyphicon glyphicon-pencil primary"></span> <spring:message code="label.action.create" /></a></li>
+		<li data-trick-ignored="true" ><a href="#importFromFile" data-toggle="tab" role='import-file'><span class="glyphicon glyphicon-import"></span> <spring:message code="label.action.import" /></a></li>
 		<li data-trick-selectable="true" data-trick-check="isAnalysisOnlyStandard('#section_manage_standards')" class="disabled"><a href="#standard_form_container" data-toggle="tab"
 			role='edit'><span class="glyphicon glyphicon-edit primary"></span> <spring:message code="label.action.edit" /></a></li>
 		<li data-trick-selectable="true" data-trick-check="isAnalysisOnlyStandard('#section_manage_standards')" class="disabled"><a href="#importFromFile" data-toggle="tab"
 			role='import-file-update'><span class="glyphicon glyphicon-refresh primary"></span> <spring:message code="label.action.update" /></a></li>
+		<c:if test="${canExport}">
+			<li data-trick-selectable="true" data-trick-check="isAnalysisOnlyStandard('#section_manage_standards')" class="disabled" ><a href="#" onclick="return exportStandard();" role='export-file'><span class="glyphicon glyphicon-export"></span> <spring:message code="label.action.export" /></a></li>
+		</c:if>
+		
+		
 		<li data-trick-selectable="true" class="disabled pull-right"><a onclick="return removeStandard();" class="text-danger" href="#"><span class="glyphicon glyphicon-remove"></span>&nbsp;<spring:message
 					code="label.action.remove" /></a></li>
 	</ul>

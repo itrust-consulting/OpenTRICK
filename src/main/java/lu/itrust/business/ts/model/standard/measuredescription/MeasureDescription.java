@@ -103,7 +103,6 @@ public class MeasureDescription implements Cloneable {
 	public MeasureDescription(String reference, Standard standard, boolean computable) {
 		this.standard = standard;
 		this.reference = reference;
-		//this.level = level;
 		this.computable = computable;
 	}
 
@@ -218,6 +217,12 @@ public class MeasureDescription implements Cloneable {
 	public MeasureDescription(MeasureDescriptionText measureDescriptionText) {
 		measureDescriptionTexts.add(measureDescriptionText);
 	}
+
+	public MeasureDescription(Standard standard, MeasureDescriptionText measureDescriptionText) {
+		this.standard = standard;
+		this.measureDescriptionTexts.add(measureDescriptionText);
+	}
+	
 
 	/**
 	 * getId: <br>

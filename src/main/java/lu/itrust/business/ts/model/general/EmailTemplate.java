@@ -21,32 +21,55 @@ import lu.itrust.business.ts.model.general.helper.EmailTemplateForm;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class EmailTemplate {
 
+    /**
+     * Unique identifier for the email template.
+     */
     @Id
     @Column(name = "idEmailTemplate")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+    /**
+     * Email address associated with this email template.
+     * This is the email address that will be used to send the email.
+     */
     @Column(name = "dtEmail", nullable = false)
     private String email;
 
+    /**
+     * Title of the email template.
+     * This is the subject line of the email that will be sent.
+     */
     @Column(name = "dtTitle", nullable = false)
     private String title;
 
+    /**
+     * Template content of the email.
+     * This is the body of the email that will be sent.
+     */
     @Column(name = "dtTemplate", nullable = false)
     private String template;
 
-    @Column(name = "dtHtml", nullable = false)
-    private boolean html = true;
+    /**
+     * Format of the email template.
+     * This can be either "TEXT", "HTML" or "JSON".
+     */
+    @Column(name = "dtFormat", nullable = false)
+    private String format = "TEXT";
 
+    /**
+     * Internal time for the email template.
+     * This is used to determine the time interval for sending the email.
+     */
     @Column(name = "dtInternalTime", nullable = false)
     private long internalTime = 1000;
 
     public EmailTemplate() {
     }
 
-    public EmailTemplate(String email, String title, String template, boolean html) {
+    public EmailTemplate(String email, String title, String template, String format) {
         this.email = email;
-        this.html = html;
+        this.format = format;
         this.title = title;
         this.template = template;
     }
@@ -93,24 +116,6 @@ public class EmailTemplate {
      */
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    /**
-     * Checks if the email template is in HTML format.
-     *
-     * @return true if the email template is in HTML format, false otherwise.
-     */
-    public boolean isHtml() {
-        return html;
-    }
-
-    /**
-     * Sets whether the email template is in HTML format.
-     *
-     * @param html true if the email template is in HTML format, false otherwise
-     */
-    public void setHtml(boolean html) {
-        this.html = html;
     }
 
     /**
@@ -174,7 +179,7 @@ public class EmailTemplate {
      */
     public void update(EmailTemplate emailTemplate) {
         this.email = emailTemplate.email;
-        this.html = emailTemplate.html;
+        this.format = emailTemplate.format;
         this.title = emailTemplate.title;
         this.internalTime = emailTemplate.internalTime;
         this.template = emailTemplate.template;
@@ -187,10 +192,28 @@ public class EmailTemplate {
      */
     public void update(EmailTemplateForm form) {
         this.email = form.getEmail();
-        this.html = form.isHtml();
+        this.format = form.getFormat();
         this.title = form.getTitle();
         this.internalTime = form.getInternalTime();
         this.template = form.getTemplate();
+    }
+
+    /**
+     * Returns the format of the email template.
+     *
+     * @return the format of the email template
+     */
+    public String getFormat() {
+        return format;
+    }
+
+    /**
+     * Sets the format of the email template.
+     *
+     * @param format the format to set
+     */
+    public void setFormat(String format) {
+        this.format = format;
     }
 
 }

@@ -111,16 +111,16 @@ public class ControllerIDS {
 			if (ids.getId() > 0) {
 				IDS persisted = serviceIDS.get(ids.getId());
 				if (persisted == null)
-					return JsonMessage.Error(messageSource.getMessage("error.ids.not_found", null, "IDS cannot be found", locale));
+					return JsonMessage.error(messageSource.getMessage("error.ids.not_found", null, "IDS cannot be found", locale));
 				if (!persisted.getPrefix().equals(ids.getPrefix()) && serviceIDS.existByPrefix(ids.getPrefix()))
-					return JsonMessage.Field("prefix", messageSource.getMessage("error.ids.prefix.used", null, "Name is already in used", locale));
+					return JsonMessage.field("prefix", messageSource.getMessage("error.ids.prefix.used", null, "Name is already in used", locale));
 				persisted.setPrefix(ids.getPrefix());
 				persisted.setDescription(ids.getDescription());
 				persisted.setEnable(ids.isEnable());
 				ids = persisted;
 			} else {
 				if (serviceIDS.existByPrefix(ids.getPrefix()))
-					return JsonMessage.Field("prefix", messageSource.getMessage("error.ids.prefix.used", null, "Name is already in used", locale));
+					return JsonMessage.field("prefix", messageSource.getMessage("error.ids.prefix.used", null, "Name is already in used", locale));
 				do {
 					ids.setToken(Sha512DigestUtils.shaHex(UUID.randomUUID().toString() + ids.getPrefix() + System.nanoTime()));
 				} while (serviceIDS.exists(ids.getToken()));
@@ -135,13 +135,13 @@ public class ControllerIDS {
 				TrickLogManager.persist(LogLevel.WARNING, LogType.ADMINISTRATION, "log.update.ids", String.format("Prefix: %s", ids.getLogin()), principal.getName(),
 						LogAction.UPDATE, ids.getLogin());
 
-			return JsonMessage.Success(messageSource.getMessage("success.save.ids", null, "IDS has been successfully saved", locale));
+			return JsonMessage.success(messageSource.getMessage("success.save.ids", null, "IDS has been successfully saved", locale));
 		} catch (Exception e) {
 			TrickLogManager.persist(e);
 			if (e instanceof TrickException)
-				return JsonMessage.Error(messageSource.getMessage(((TrickException) e).getCode(), ((TrickException) e).getParameters(), e.getMessage(), locale));
+				return JsonMessage.error(messageSource.getMessage(((TrickException) e).getCode(), ((TrickException) e).getParameters(), e.getMessage(), locale));
 			else
-				return JsonMessage.Error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
+				return JsonMessage.error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 		}
 	}
 
@@ -157,14 +157,14 @@ public class ControllerIDS {
 							LogAction.DELETE, ids.getLogin());
 				}
 			});
-			return JsonMessage.Success(IDs.size() > 1 ? messageSource.getMessage("success.delete.multi.ids", null, "IDSs have been successfully deleted", locale)
+			return JsonMessage.success(IDs.size() > 1 ? messageSource.getMessage("success.delete.multi.ids", null, "IDSs have been successfully deleted", locale)
 					: messageSource.getMessage("success.delete.single.ids", null, "IDS has been successfully deleted", locale));
 		} catch (Exception e) {
 			TrickLogManager.persist(e);
 			if (e instanceof TrickException)
-				return JsonMessage.Error(messageSource.getMessage(((TrickException) e).getCode(), ((TrickException) e).getParameters(), e.getMessage(), locale));
+				return JsonMessage.error(messageSource.getMessage(((TrickException) e).getCode(), ((TrickException) e).getParameters(), e.getMessage(), locale));
 			else
-				return JsonMessage.Error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
+				return JsonMessage.error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 		}
 	}
 
@@ -190,9 +190,9 @@ public class ControllerIDS {
 		} catch (Exception e) {
 			TrickLogManager.persist(e);
 			if (e instanceof TrickException)
-				return JsonMessage.Error(messageSource.getMessage(((TrickException) e).getCode(), ((TrickException) e).getParameters(), e.getMessage(), locale));
+				return JsonMessage.error(messageSource.getMessage(((TrickException) e).getCode(), ((TrickException) e).getParameters(), e.getMessage(), locale));
 			else
-				return JsonMessage.Error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
+				return JsonMessage.error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 		}
 	}
 
@@ -231,7 +231,7 @@ public class ControllerIDS {
 	public @ResponseBody String saveManagement(@PathVariable Integer id, @RequestBody Map<Integer, Boolean> subscriptions, Principal principal, Locale locale) {
 		Analysis analysis = serviceAnalysis.get(id);
 		if (analysis.getType() == AnalysisType.QUALITATIVE)
-			return JsonMessage.Error(messageSource.getMessage("error.action.not_authorise", null, "Action does not authorised", locale));
+			return JsonMessage.error(messageSource.getMessage("error.action.not_authorise", null, "Action does not authorised", locale));
 		Map<Integer, IDS> analysisSubscriptions = serviceIDS.getByAnalysisId(id).stream().collect(Collectors.toMap(IDS::getId, Function.identity()));
 		subscriptions.forEach((IDSId, status) -> {
 			IDS ids = analysisSubscriptions.get(IDSId);
@@ -254,6 +254,6 @@ public class ControllerIDS {
 						principal.getName(), LogAction.REMOVE_ACCESS, analysis.getIdentifier(), analysis.getVersion(), ids.getLogin());
 			}
 		});
-		return JsonMessage.Success(messageSource.getMessage("success.update.analysis.subscription", null, "Analysis subscriptions have been successfully updated", locale));
+		return JsonMessage.success(messageSource.getMessage("success.update.analysis.subscription", null, "Analysis subscriptions have been successfully updated", locale));
 	}
 }

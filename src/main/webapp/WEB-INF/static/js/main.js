@@ -3,7 +3,7 @@
  * Represents the application object.
  * @type {Application}
  */
-var application = new Application();
+let application = new Application();
 
 function Application() {
 	this.modal = {};
@@ -59,7 +59,7 @@ function Application() {
  * @property {number} READ.value - The value of the "READ" analysis right.
  * @property {string} READ.name - The name of the "READ" analysis right.
  */
-var ANALYSIS_RIGHT = {
+let ANALYSIS_RIGHT = {
 	ALL: {
 		value: 0,
 		name: "ALL"
@@ -100,7 +100,7 @@ var ANALYSIS_RIGHT = {
  * @property {function} isReadOnly - Checks if the given mode is read-only.
  * @property {function} valueOf - Returns the open mode object based on the given value.
  */
-var OPEN_MODE = {
+let OPEN_MODE = {
 	READ: {
 		value: "read-only",
 		name: "READ"
@@ -124,11 +124,11 @@ var OPEN_MODE = {
 	isReadOnly: function (mode) {
 		if (mode === undefined)
 			return application.openMode && application.openMode.value.startsWith("read-only");
-		var openMode = this.valueOf(mode);
+		let openMode = this.valueOf(mode);
 		return openMode && openMode.value.startsWith("read-only");
 	},
 	valueOf: function (value) {
-		for (var key in OPEN_MODE) {
+		for (let key in OPEN_MODE) {
 			if (key == "valueOf" || key == "isReadOnly")
 				continue;
 			else if (OPEN_MODE[key] == value || OPEN_MODE[key].value == value || OPEN_MODE[key].name == value)
@@ -148,7 +148,7 @@ var OPEN_MODE = {
  * @property {string[]} names - The names or identifiers associated with the notification.
  * @type {Object.<string, NotificationType>}
  */
-var NOTIFICATION_TYPE = {
+let NOTIFICATION_TYPE = {
 	ERROR: {
 		type: "danger",
 		icon: "glyphicon glyphicon-warning-sign",
@@ -175,7 +175,7 @@ var NOTIFICATION_TYPE = {
 		names: ["#download-dialog", "download-dialog", "download"]
 	},
 	valueOf: function (value) {
-		for (var key in NOTIFICATION_TYPE) {
+		for (let key in NOTIFICATION_TYPE) {
 			if (key == "valueOf")
 				continue;
 			else if (NOTIFICATION_TYPE[key] == value || NOTIFICATION_TYPE[key].type == value || NOTIFICATION_TYPE[key].names.indexOf(value) != -1)
@@ -209,7 +209,7 @@ var NOTIFICATION_TYPE = {
  * @property {Function} isQuantitative - Checks if the analysis type is quantitative.
  * @property {Function} isQualitative - Checks if the analysis type is qualitative.
  */
-var ANALYSIS_TYPE = {
+let ANALYSIS_TYPE = {
 	QUANTITATIVE: {
 		type: "QUANTITATIVE",
 		isQualitative: () => false,
@@ -229,7 +229,7 @@ var ANALYSIS_TYPE = {
 		isSupported: type => type == "QUALITATIVE" || type == "HYBRID"
 	},
 	valueOf: value => {
-		for (var key in ANALYSIS_TYPE) {
+		for (let key in ANALYSIS_TYPE) {
 			if (typeof key === "function")
 				continue;
 			if (ANALYSIS_TYPE[key] === value || ANALYSIS_TYPE[key].type === value)
@@ -238,7 +238,7 @@ var ANALYSIS_TYPE = {
 		return undefined;
 	},
 	isSupported: (typeName, value) => {
-		var type = ANALYSIS_TYPE.valueOf(typeName);
+		let type = ANALYSIS_TYPE.valueOf(typeName);
 		return type && type.isSupported(value);
 	},
 	isHybrid: value => value === 'HYBRID',
@@ -262,7 +262,7 @@ if (!String.prototype.startsWith) {
 
 if (!Array.prototype.removeIf) {
 	Array.prototype.removeIf = function (callback) {
-		var i = this.length;
+		let i = this.length;
 		while (i--) {
 			if (callback(this[i], i)) {
 				this.splice(i, 1);
@@ -278,18 +278,18 @@ if (!Array.prototype.removeIf) {
  * @returns {boolean} - Returns `true` if the value is a function, else `false`.
  */
 function isFunction(value) {
-	var getType = {};
+	let getType = {};
 	return value && getType.toString.call(value) === '[object Function]';
 }
 
 if (!String.prototype.endsWith) {
 	String.prototype.endsWith = function (searchString, position) {
-		var subjectString = this.toString();
+		let subjectString = this.toString();
 		if (typeof position !== 'number' || !isFinite(position) || Math.floor(position) !== position || position > subjectString.length) {
 			position = subjectString.length;
 		}
 		position -= searchString.length;
-		var lastIndex = subjectString.indexOf(searchString, position);
+		let lastIndex = subjectString.indexOf(searchString, position);
 		return lastIndex !== -1 && lastIndex === position;
 	};
 }
@@ -301,11 +301,11 @@ if (!String.prototype.endsWith) {
  * @returns {Object|null} - The RGB object with properties r, g, and b representing the red, green, and blue values respectively. Returns null if the input is not a valid hexadecimal color code.
  */
 function hexToRgb(hex) {
-	var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+	let shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
 	hex = hex.replace(shorthandRegex, function (m, r, g, b) {
 		return r + r + g + g + b + b;
 	});
-	var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+	let result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
 	return result ? {
 		r: parseInt(result[1], 16),
 		g: parseInt(result[2], 16),
@@ -320,7 +320,7 @@ function hexToRgb(hex) {
  * @returns {boolean} - Returns true if the email is valid, false otherwise.
  */
 function validateEmail(email) {
-	var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+	let re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 	return re.test(email);
 }
 
@@ -335,8 +335,8 @@ function validateEmail(email) {
  * @returns {boolean} - Returns true if the value has a valid extension, false otherwise.
  */
 function checkExtention(value, extention, button, optionnal) {
-	var extentions = extention.split(","), match = false;
-	for (var i = 0; i < extentions.length; i++)
+	let extentions = extention.split(","), match = false;
+	for (let i = 0; i < extentions.length; i++)
 		match |= value.endsWith(extentions[i]);
 	if (button && !optionnal)
 		$(button).prop("disabled", !match);
@@ -363,7 +363,7 @@ function switchLangueTo(url) {
 function triggerCaller($target) {
 	try {
 		if ($target.attr("data-update-required") == "true") {
-			var trigger = $target.attr("data-trigger"), parameters = $target.attr("data-parameters");
+			let trigger = $target.attr("data-trigger"), parameters = $target.attr("data-parameters");
 			if (parameters == undefined)
 				window[trigger].apply();
 			else
@@ -381,9 +381,9 @@ function triggerCaller($target) {
  */
 function callBackCaller($target) {
 	try {
-		var callback = $target.attr("data-callback");
+		let callback = $target.attr("data-callback");
 		if (window[callback] != undefined) {
-			var data = $target.attr("data-callback-data");
+			let data = $target.attr("data-callback-data");
 			if (data == undefined)
 				window[callback].apply();
 			else
@@ -406,9 +406,9 @@ function callBackCaller($target) {
  * @returns {object} - The dialog or notification object.
  */
 function showDialog(dialog, message, title, url, onClose, placement) {
-	var notificationType = NOTIFICATION_TYPE.valueOf(dialog);
+	let notificationType = NOTIFICATION_TYPE.valueOf(dialog);
 	if (notificationType == undefined) {
-		var $dialog = $(dialog), $modalBody = $dialog.find(".modal-body").text(message);
+		let $dialog = $(dialog), $modalBody = $dialog.find(".modal-body").text(message);
 		return $dialog.modal("show");
 	} else {
 		return showNotifcation(notificationType.type, message, notificationType.icon, url, title, onClose, placement);
@@ -426,9 +426,9 @@ function showDialog(dialog, message, title, url, onClose, placement) {
  * @returns {jQuery} - The jQuery object representing the displayed dialog or notification.
  */
 function showStaticDialog(dialog, message, title, url, onClose) {
-	var notificationType = NOTIFICATION_TYPE.valueOf(dialog);
+	let notificationType = NOTIFICATION_TYPE.valueOf(dialog);
 	if (notificationType == undefined) {
-		var $dialog = $(dialog), $modalBody = $dialog.find(".modal-body").text(message);
+		let $dialog = $(dialog), $modalBody = $dialog.find(".modal-body").text(message);
 		return $dialog.modal("show");
 	} else {
 		return showStaticNotifcation(notificationType.type, message, notificationType.icon, title, url, onClose);
@@ -483,7 +483,7 @@ function showNotifcation(type, message, icon, url, title, onClose, placement) {
  * @returns {object} - The notification object.
  */
 function showStaticNotifcation(type, message, icon, title, url, onClose) {
-	var $notification = $.notify({
+	let $notification = $.notify({
 		title: title ? title : undefined,
 		icon: icon,
 		message: message,
@@ -513,16 +513,16 @@ function showStaticNotifcation(type, message, icon, title, url, onClose) {
  * @param {Function} callback - The callback function to be executed when an element with the specified class is inserted.
  */
 function onElementInserted(elementClass, callback) {
-	var onMutationsObserved = function (mutations) {
+	let onMutationsObserved = function (mutations) {
 		mutations.forEach(function (mutation) {
-			for (var i = 0; i < mutation.addedNodes.length; i++) {
-				var element = mutation.addedNodes[i];
+			for (let i = 0; i < mutation.addedNodes.length; i++) {
+				let element = mutation.addedNodes[i];
 				if (element.classList && element.classList.contains(elementClass))
 					callback(element);
 			}
 		});
 	};
-	var MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
+	let MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
 	new MutationObserver(onMutationsObserved).observe(document, { childList: true, subtree: true });
 }
 
@@ -575,23 +575,23 @@ function unknowError(jqXHR, textStatus, errorThrown) {
  * @returns {number} The width of the scrollbar in pixels.
  */
 function getScrollbarWidth() {
-	var outer = document.createElement("div");
+	let outer = document.createElement("div");
 	outer.style.visibility = "hidden";
 	outer.style.width = "100px";
 	outer.style.msOverflowStyle = "scrollbar"; // needed for WinJS apps
 
 	document.body.appendChild(outer);
 
-	var widthNoScroll = outer.offsetWidth;
+	let widthNoScroll = outer.offsetWidth;
 	// force scrollbars
 	outer.style.overflow = "scroll";
 
 	// add innerdiv
-	var inner = document.createElement("div");
+	let inner = document.createElement("div");
 	inner.style.width = "100%";
 	outer.appendChild(inner);
 
-	var widthWithScroll = inner.offsetWidth;
+	let widthWithScroll = inner.offsetWidth;
 
 	// remove divs
 	outer.parentNode.removeChild(outer);
@@ -606,7 +606,7 @@ function getScrollbarWidth() {
  * @returns {boolean} - Returns true if the analysis type is supported for the section, otherwise returns false.
  */
 function isAnalysisType(type, section) {
-	var analysisType = ANALYSIS_TYPE.valueOf(type), trType = $("table>tbody>tr[data-trick-type]>td>input:checked", section ? section : "#section_analysis").closest("tr").attr("data-trick-type");
+	let analysisType = ANALYSIS_TYPE.valueOf(type), trType = $("table>tbody>tr[data-trick-type]>td>input:checked", section ? section : "#section_analysis").closest("tr").attr("data-trick-type");
 	return analysisType && analysisType.isSupported(trType);
 }
 
@@ -687,7 +687,7 @@ function download(url) {
  * @returns {boolean} - Returns false to prevent default behavior.
  */
 function switchTab(tabName) {
-	var $tab = $(tabName ? "a[href='#" + tabName + "']" : "a[data-toggle='tab']:first", ".nav-tab,.nav-analysis");
+	let $tab = $(tabName ? "a[href='#" + tabName + "']" : "a[data-toggle='tab']:first", ".nav-tab,.nav-analysis");
 	if ($tab.parent().css("display") != "none")
 		$tab.tab("show");
 	return false;
@@ -713,7 +713,7 @@ function hasScrollBar(element) {
  */
 function sortTable(type, element, number) {
 	const sorter = natsort({ insensitive: true });
-	var previousIndexes = [], $table = $(element).closest("table"), $tbody = $("tbody", $table), $trs = $("tr", $tbody), order = element == undefined ? undefined : element.getAttribute("data-order") == "0" ? -1 : 1, selector = "td[data-trick-field='" + type + "']";
+	let previousIndexes = [], $table = $(element).closest("table"), $tbody = $("tbody", $table), $trs = $("tr", $tbody), order = element == undefined ? undefined : element.getAttribute("data-order") == "0" ? -1 : 1, selector = "td[data-trick-field='" + type + "']";
 	if ($trs.length && order !== undefined) {
 		$trs.each((i, e) => previousIndexes[e] = i);
 		$trs.sort((a, b) => {
@@ -722,7 +722,7 @@ function sortTable(type, element, number) {
 			let result = (number ? sorter(value1.replace(/\s+/g, ""), value2.replace(/\s+/g, "")) : sorter(value1, value2)) * order;
 			return !result ? oldA > oldB ? 1 : -1 : result;
 		}).detach().appendTo($tbody);
-		var $tr = $(element).closest("tr"), $thead = $tr.closest("thead");
+		let $tr = $(element).closest("tr"), $thead = $tr.closest("thead");
 		if ($thead.length)
 			$thead.find("a[data-order]>.fa").remove();
 		else $tr.find("a[data-order]>.fa").remove();
@@ -758,7 +758,7 @@ $.fn.removeAttributes = function (only, except) {
 		}
 	}
 	return this.each(function () {
-		var attributes;
+		let attributes;
 		if (!only) {
 			attributes = $.map(this.attributes, function (item) {
 				return item.name.toString().toLowerCase();
@@ -771,7 +771,7 @@ $.fn.removeAttributes = function (only, except) {
 		} else {
 			attributes = only;
 		}
-		var handle = $(this);
+		let handle = $(this);
 		$.each(attributes, function (index, item) {
 			handle.removeAttr(item);
 		});
@@ -785,10 +785,10 @@ $.fn.removeAttributes = function (only, except) {
  */
 
 $.fn.serializeJSON = function () {
-	var json = {};
-	var form = $(this);
+	let json = {};
+	let form = $(this);
 	form.find('input, select, textarea').each(function () {
-		var val;
+		let val;
 		if (!this.name)
 			return;
 		if ('radio' === this.type) {
@@ -849,13 +849,13 @@ function permissionError() {
  * @returns {Object|undefined} - The analysis right object if found, otherwise undefined.
  */
 function findRight(idAnalysis) {
-	var right = $("*[data-trick-id='" + idAnalysis + "'][data-trick-rights-id]");
+	let right = $("*[data-trick-id='" + idAnalysis + "'][data-trick-rights-id]");
 	if (!right.length)
 		return undefined;
-	var idRight = $(right).attr('data-trick-rights-id');
+	let idRight = $(right).attr('data-trick-rights-id');
 	if (!$.trim(idRight).length)
 		return undefined;
-	for (var key in ANALYSIS_RIGHT)
+	for (let key in ANALYSIS_RIGHT)
 		if (ANALYSIS_RIGHT[key].value == idRight)
 			return ANALYSIS_RIGHT[key];
 	return undefined;
@@ -869,7 +869,7 @@ function findRight(idAnalysis) {
  * @returns {boolean} - Returns true if the user has the specified action right, otherwise false.
  */
 function userCan(idAnalysis, action) {
-	var right = findRight(idAnalysis);
+	let right = findRight(idAnalysis);
 	if (right != undefined && action.value != undefined) {
 		if (application.openMode === OPEN_MODE.READ)
 			return action == ANALYSIS_RIGHT.READ
@@ -959,14 +959,14 @@ function resolveMessage(code, text, params) {
  */
 function MessageResolver(code, defaulttext, params) {
 
-	var uniqueCode = generateMessageUniqueCode(code, params);
+	let uniqueCode = generateMessageUniqueCode(code, params);
 
 	if (application.localesMessages[uniqueCode] != undefined)
 		return application.localesMessages[uniqueCode];
 	else
 		application.localesMessages[uniqueCode] = defaulttext;
 
-	var data = {
+	let data = {
 		code: code,
 		message: defaulttext,
 		parameters: []
@@ -1011,9 +1011,9 @@ function fixTableHeader(items) {
  * @returns {HTMLElement} - The created error element.
  */
 function showError(parent, text) {
-	var error = document.createElement("div");
-	var close = document.createElement("a");
-	var content = document.createElement("p");
+	let error = document.createElement("div");
+	let close = document.createElement("a");
+	let content = document.createElement("p");
 	close.setAttribute("class", "close");
 	close.setAttribute("href", "#");
 	close.setAttribute("data-dismiss", "alert");
@@ -1036,9 +1036,9 @@ function showError(parent, text) {
  * @returns {HTMLElement} - The created success message element.
  */
 function showSuccess(parent, text) {
-	var success = document.createElement("div");
-	var close = document.createElement("a");
-	var content = document.createElement("p");
+	let success = document.createElement("div");
+	let close = document.createElement("a");
+	let content = document.createElement("p");
 	close.setAttribute("class", "close");
 	close.setAttribute("href", "#");
 	close.setAttribute("data-dismiss", "alert");
@@ -1079,21 +1079,21 @@ function hasSelectedState(sectionName, state) {
  * Checks or unchecks a checkbox and updates the menu based on the checkbox state.
  * @param {HTMLElement} checkbox - The checkbox element.
  * @param {string} sectionName - The name of the section.
- * @param {string} appModalVar - The variable name of the application modal.
+ * @param {string} appModalVar - The letiable name of the application modal.
  * @returns {boolean} Returns false.
  */
 function checkControlChange(checkbox, sectionName, appModalVar) {
-	var items = (appModalVar == undefined || appModalVar == null) ? $("#section_" + sectionName + " tbody tr td:first-child input:not(:disabled)") : $(
+	let items = (appModalVar == undefined || appModalVar == null) ? $("#section_" + sectionName + " tbody tr td:first-child input:not(:disabled)") : $(
 		application[appModalVar].modal).find("tbody tr td:first-child input");
-	var multiSelectAllowed = ((appModalVar == undefined || appModalVar == null) ? $("#menu_" + sectionName + " li[data-trick-selectable='multi']") : $(
+	let multiSelectAllowed = ((appModalVar == undefined || appModalVar == null) ? $("#menu_" + sectionName + " li[data-trick-selectable='multi']") : $(
 		application[appModalVar].modal).find("#menu_" + sectionName + " li[data-trick-selectable='multi']")).length > 0, $checkbox = $(checkbox);
 	if (!multiSelectAllowed) {
 		$(checkbox).prop("disabled", true).prop("checked", false);
 		return false;
 	}
-	var isChecked = $checkbox.is(":checked");
-	for (var i = 0; i < items.length; i++) {
-		var $item = $(items[i]);
+	let isChecked = $checkbox.is(":checked");
+	for (let i = 0; i < items.length; i++) {
+		let $item = $(items[i]);
 		$item.prop("checked", isChecked);
 		if (isChecked)
 			$item.parent().parent().addClass("selected");
@@ -1110,13 +1110,13 @@ function checkControlChange(checkbox, sectionName, appModalVar) {
  * @param {string} sender - The sender of the update.
  * @param {string} idsection - The ID of the section.
  * @param {string} idMenu - The ID of the menu.
- * @param {string} appModalVar - The variable for the application modal.
+ * @param {string} appModalVar - The letiable for the application modal.
  * @param {Function} callback - The callback function to be invoked.
  * @returns {boolean} - Returns false.
  */
 function updateMenu(sender, idsection, idMenu, appModalVar, callback) {
 
-	var $section, $menu;
+	let $section, $menu;
 
 	if (!(appModalVar == undefined || appModalVar == null)) {
 		$section = $(application[appModalVar].modal);
@@ -1127,13 +1127,13 @@ function updateMenu(sender, idsection, idMenu, appModalVar, callback) {
 	}
 
 	if (sender) {
-		var $sender = $(sender), items = $("tbody :checked", $section);
+		let $sender = $(sender), items = $("tbody :checked", $section);
 		if ($sender.is(":checked")) {
 			$sender.closest("tr").addClass("selected")
-			var multiSelectNotAllowed = $("li[data-trick-selectable='multi']", $menu).length == 0;
+			let multiSelectNotAllowed = $("li[data-trick-selectable='multi']", $menu).length == 0;
 			if (multiSelectNotAllowed) {
-				for (var i = 0; i < items.length; i++) {
-					var $item = $(items[i]);
+				for (let i = 0; i < items.length; i++) {
+					let $item = $(items[i]);
 					if (sender == $item[0])
 						continue;
 					$item.prop("checked", false);
@@ -1144,10 +1144,10 @@ function updateMenu(sender, idsection, idMenu, appModalVar, callback) {
 			$sender.closest("tr").removeClass("selected")
 	}
 
-	var cachingChecker = {}, $lis = $("li", $menu), $selectedItems = $("tbody :checked", $section);
+	let cachingChecker = {}, $lis = $("li", $menu), $selectedItems = $("tbody :checked", $section);
 	if ($selectedItems.length > 1) {
-		for (var i = 0; i < $lis.length; i++) {
-			var $liSelected = $($lis[i]), checker = $liSelected.attr("data-trick-check");
+		for (let i = 0; i < $lis.length; i++) {
+			let $liSelected = $($lis[i]), checker = $liSelected.attr("data-trick-check");
 			if ($liSelected.attr("data-trick-selectable") === "multi" || $liSelected.attr("data-trick-ignored"))
 				$liSelected.removeClass("disabled");
 			else
@@ -1155,8 +1155,8 @@ function updateMenu(sender, idsection, idMenu, appModalVar, callback) {
 			updateMenuItemState(cachingChecker, $liSelected, checker);
 		}
 	} else if ($selectedItems.length == 1) {
-		for (var i = 0; i < $lis.length; i++) {
-			var $liSelected = $($lis[i]), singleChecker = $liSelected.attr("data-trick-single-check");
+		for (let i = 0; i < $lis.length; i++) {
+			let $liSelected = $($lis[i]), singleChecker = $liSelected.attr("data-trick-single-check");
 			if ($liSelected.attr("data-trick-selectable") != undefined || $liSelected.attr("data-trick-ignored"))
 				$liSelected.removeClass("disabled");
 			else
@@ -1168,8 +1168,8 @@ function updateMenu(sender, idsection, idMenu, appModalVar, callback) {
 				updateMenuItemState(cachingChecker, $liSelected, $liSelected.attr("data-trick-check"));
 		}
 	} else {
-		for (var i = 0; i < $lis.length; i++) {
-			var $liSelected = $($lis[i]);
+		for (let i = 0; i < $lis.length; i++) {
+			let $liSelected = $($lis[i]);
 			if ($liSelected.attr("data-trick-selectable") == undefined)
 				$liSelected.removeClass("disabled");
 			else
@@ -1180,7 +1180,7 @@ function updateMenu(sender, idsection, idMenu, appModalVar, callback) {
 	if (!(callback === undefined || callback === null))
 		invokeCallback(callback);
 
-	var menuCallBack = $menu.attr("data-trick-callback");
+	let menuCallBack = $menu.attr("data-trick-callback");
 
 	if (!(menuCallBack === undefined || menuCallBack === null))
 		invokeCallback(menuCallBack);
@@ -1214,7 +1214,7 @@ function invokeCallback(callback) {
  * @returns {boolean} Returns false to prevent default behavior.
  */
 function updateDropdown() {
-	var $menu = $(".nav-dropdown-menu"), $controller = $("a.dropdown-toggle", $menu), $lis = $('ul.dropdown-menu>li:not(.disabled)', $menu);
+	let $menu = $(".nav-dropdown-menu"), $controller = $("a.dropdown-toggle", $menu), $lis = $('ul.dropdown-menu>li:not(.disabled)', $menu);
 	if ($lis.length)
 		$controller.removeClass("disabled");
 	else $controller.addClass("disabled");
@@ -1246,7 +1246,7 @@ function updateMenuItemState(cachingChecker, $liSelected, checker) {
  * @returns {string} - The serialized form data as a JSON string.
  */
 function serializeForm(form) {
-	var $form = $(form);
+	let $form = $(form);
 	if (!$form.length)
 		$form = $("#" + form);
 	return JSON.stringify($form.serializeJSON());
@@ -1259,7 +1259,7 @@ function serializeForm(form) {
  * @returns {string} - The serialized form data in JSON format.
  */
 function serializeFormToJson(form) {
-	var $form = $(form);
+	let $form = $(form);
 	if (!$form.length)
 		$form = $("#" + form);
 	return JSON.stringify($form.serializeToJSON());
@@ -1304,8 +1304,8 @@ function log(msg) {
  * @returns {Array<number>|undefined} - An array of selected item IDs, or undefined if trickId is null or undefined.
  */
 function findSelectItemIdBySection(section, modal) {
-	var selectedItem = [], $items = (modal == null || modal == undefined) ? $("tbody>tr>td>:checked", "#" + section) : $("tbody>tr>td>:checked", modal);
-	for (var i = 0; i < $items.length; i++) {
+	let selectedItem = [], $items = (modal == null || modal == undefined) ? $("tbody>tr>td>:checked", "#" + section) : $("tbody>tr>td>:checked", modal);
+	for (let i = 0; i < $items.length; i++) {
 		trickId = findTrickID($items[i]);
 		if (trickId == null || trickId == undefined)
 			return undefined;
@@ -1332,7 +1332,7 @@ function findTrickID(element) {
  * @returns {Event} - The event object.
  */
 function toggleToolTip(e) {
-	var target = e.target, current = application["settings-open-tooltip"];
+	let target = e.target, current = application["settings-open-tooltip"];
 	if (!(current == undefined || current.$element == null)) {
 		if (target === current.$element[0])
 			return e;
@@ -1406,7 +1406,7 @@ function displayTimeoutNotification(notification, message, title) {
  * @param {number} counter - The initial counter value for the countdown.
  */
 function displayTimeoutWarning(counter) {
-	var message = MessageResolver("info.session.expire.in.x.seconds", "Your session will be expired in {0} seconds");
+	let message = MessageResolver("info.session.expire.in.x.seconds", "Your session will be expired in {0} seconds");
 	displayTimeoutNotification(NOTIFICATION_TYPE.WARNING, message.replace("{0}", counter))
 	application['sessionTimerId'] = setInterval(function () {
 		displayTimeoutNotification(NOTIFICATION_TYPE.WARNING, message.replace("{0}", (--counter)))
@@ -1439,7 +1439,7 @@ function generateHelper($selection, container) {
 		$selection = $("[data-helper-content]", container);
 	$selection
 		.each(function () {
-			var $this = $(this), placement = $this.attr("data-helper-placement"), title = $this.attr("data-helper-content"), $helper = $("<span data-trigger='hover focus' class='helper'><i class='fa fa-info'/></span>");
+			let $this = $(this), placement = $this.attr("data-helper-placement"), title = $this.attr("data-helper-content"), $helper = $("<span data-trigger='hover focus' class='helper'><i class='fa fa-info'/></span>");
 			$this.removeAttr("data-helper-content");
 			if (title == "" || title == undefined) {
 				title = $this.attr("title");
@@ -1462,8 +1462,8 @@ function generateHelper($selection, container) {
  */
 function updateUserGuideURL() {
 	try {
-		var $this = $("#footer a[data-base-url]"), baseURL = $this.attr("data-base-url");
-		var $container = $("[data-ug-root]"), $tabActive = $(".tab-pane.active", $container);
+		let $this = $("#footer a[data-base-url]"), baseURL = $this.attr("data-base-url");
+		let $container = $("[data-ug-root]"), $tabActive = $(".tab-pane.active", $container);
 		if (!$container.length || !$this.length)
 			return false;
 		baseURL += ("#" + $container.attr("data-ug-root"));
@@ -1479,7 +1479,7 @@ function updateUserGuideURL() {
 $(document)
 	.ready(
 		function () {
-			var token = $("meta[name='_csrf']").attr("content"), $bodyHtml = $('body,html'), header = $("meta[name='_csrf_header']").attr("content"), $tabNav = $("ul.nav-tab,ul.nav-analysis"), $window = $(window);
+			let token = $("meta[name='_csrf']").attr("content"), $bodyHtml = $('body,html'), header = $("meta[name='_csrf_header']").attr("content"), $tabNav = $("ul.nav-tab,ul.nav-analysis"), $window = $(window);
 
 			$(document).ajaxSend(function (e, xhr, options) {
 				if (options.url !== (context + '/IsAuthenticate'))
@@ -1527,7 +1527,7 @@ $(document)
 
 			if ($tabNav.length) {
 
-				var $tabContainer = $("#tab-container").length ? $("#tab-container") : $("#nav-container"), $option = $tabContainer.find("#menu-option");
+				let $tabContainer = $("#tab-container").length ? $("#tab-container") : $("#nav-container"), $option = $tabContainer.find("#menu-option");
 				$window.on("resize.window", function () {
 					$tabContainer.css({
 						"margin-top": $tabNav.height() + 10
@@ -1537,9 +1537,9 @@ $(document)
 				});
 
 				if ($option.length) {
-					var updateOption = function () {
-						var optionMenu = $tabContainer.find(".tab-pane.active ul.nav.nav-pills:visible");
-						var tableFloatingHeader = $tabContainer.find(".tab-pane.active table .tableFloatingHeader");
+					let updateOption = function () {
+						let optionMenu = $tabContainer.find(".tab-pane.active ul.nav.nav-pills:visible");
+						let tableFloatingHeader = $tabContainer.find(".tab-pane.active table .tableFloatingHeader");
 						if (!optionMenu.length || !tableFloatingHeader.length || !tableFloatingHeader.is(":visible"))
 							$option.fadeOut(function () {
 								$option.hide();
@@ -1547,12 +1547,12 @@ $(document)
 						else {
 							if (!$option.find("#" + optionMenu.prop("id")).length) {
 								$option.find("ul").remove();
-								var cloneOption = optionMenu.clone(), $subMenu = $("li.dropdown-submenu", cloneOption);
+								let cloneOption = optionMenu.clone(), $subMenu = $("li.dropdown-submenu", cloneOption);
 								$("li[data-role='title']", cloneOption).remove()
 								cloneOption.removeAttr("style");
 								if ($subMenu.length) {
 									$subMenu.each(function () {
-										var $this = $(this), text = $("a.dropdown-toggle", $this).text(), $lis = $("ul.dropdown-menu>li", $this);
+										let $this = $(this), text = $("a.dropdown-toggle", $this).text(), $lis = $("ul.dropdown-menu>li", $this);
 										$this.removeClass();
 										if ($this.closest("li").length)
 											$this.before("<li class='divider'></li>");
@@ -1562,7 +1562,7 @@ $(document)
 									});
 								} else {
 									$("li.dropdown-header", cloneOption).each(function () {
-										var $this = $(this), $closestli = $this.closest("li");
+										let $this = $(this), $closestli = $this.closest("li");
 										if ($closestli.length && !$closestli.hasClass("divider"))
 											$this.before("<li class='divider'></li>");
 										$this.show();
@@ -1607,23 +1607,23 @@ $(document)
 				});
 
 				$(".dropdown-submenu").on("hide.bs.dropdown", function (e) {
-					var $target = $(e.currentTarget);
+					let $target = $(e.currentTarget);
 					if ($target.find("li.active").length && !$target.hasClass("active"))
 						$target.addClass("active");
 				});
 
 				$('.dropdown-submenu a[data-toggle="tab"]', $tabNav).on('shown.bs.tab', function (e) {
-					var $parent = $(e.target).closest("li.dropdown-submenu");
+					let $parent = $(e.target).closest("li.dropdown-submenu");
 					if (!$parent.hasClass("active"))
 						$parent.addClass("active");
 				});
 
 				$("a[data-toggle='taskmanager']").on("click", function (e) { // task
 					// manager
-					var taksmanager = application['taskManager'];
+					let taksmanager = application['taskManager'];
 					if (taksmanager.isEmpty())
 						return false;
-					var $target = $(e.currentTarget), $parent = $target.parent();
+					let $target = $(e.currentTarget), $parent = $target.parent();
 					if ($parent.hasClass("open"))
 						taksmanager.Hide();
 					else
@@ -1633,7 +1633,7 @@ $(document)
 
 
 				$window.on('hashchange', function () {
-					var hash = window.location.hash;
+					let hash = window.location.hash;
 					application["no-update-hash"] = true;
 					switchTab(hash ? hash.split('#')[1] : hash);
 					application["no-update-hash"] = false;
@@ -1652,7 +1652,7 @@ $(document)
 
 				$('a[data-toggle="tab"]', $tabNav).on('shown.bs.tab', function (e) {
 					forceCloseToolTips();
-					var hash = e.target.getAttribute("href"), $target = $(hash);
+					let hash = e.target.getAttribute("href"), $target = $(hash);
 					callBackCaller($target);
 					triggerCaller($target);
 					if (!application["no-update-hash"])
@@ -1682,7 +1682,7 @@ $(document)
 
 			// load notification.
 			$("#controller-notifications div[data-notification-type]").each(function () {
-				var id = this.id, type = this.getAttribute("data-type");
+				let id = this.id, type = this.getAttribute("data-type");
 				if (type === null || type === undefined)
 					showDialog(this.getAttribute("data-notification-type"), this.innerText);
 				else {
@@ -1697,7 +1697,7 @@ $(document)
 
 			// Prevent click on disabled menus
 			$("li>a,a").on("click", (e) => {
-				var parent = e.currentTarget.closest("li");
+				let parent = e.currentTarget.closest("li");
 				if (e.currentTarget.classList.contains("disabled") || parent && parent.classList.contains("disabled")) {
 					e.preventDefault();
 					e.stopPropagation();

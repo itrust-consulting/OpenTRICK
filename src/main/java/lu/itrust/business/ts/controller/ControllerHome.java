@@ -152,12 +152,12 @@ public class ControllerHome {
 
 	@RequestMapping(value = "/Success", method = RequestMethod.GET, headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody String success(@ModelAttribute("success") String success) {
-		return JsonMessage.Success(success);
+		return JsonMessage.success(success);
 	}
 
 	@RequestMapping(value = "/Error", method = RequestMethod.GET, headers = Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody String error(@ModelAttribute("error") String error) {
-		return JsonMessage.Error(error);
+		return JsonMessage.error(error);
 	}
 
 	@RequestMapping(value = "/Unlock-account/{code}", method = RequestMethod.GET)

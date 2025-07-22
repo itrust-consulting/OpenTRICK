@@ -18,11 +18,11 @@ import lu.itrust.business.ts.database.dao.DAOAnalysisStandard;
 import lu.itrust.business.ts.database.dao.DAOAssetType;
 import lu.itrust.business.ts.database.dao.DAOMeasureDescription;
 import lu.itrust.business.ts.database.dao.DAOStandard;
-import lu.itrust.business.ts.database.dao.hbm.DAOAnalysisHBM;
-import lu.itrust.business.ts.database.dao.hbm.DAOAnalysisStandardHBM;
-import lu.itrust.business.ts.database.dao.hbm.DAOAssetTypeHBM;
-import lu.itrust.business.ts.database.dao.hbm.DAOMeasureDescriptionHBM;
-import lu.itrust.business.ts.database.dao.hbm.DAOStandardHBM;
+import lu.itrust.business.ts.database.dao.impl.DAOAnalysisImpl;
+import lu.itrust.business.ts.database.dao.impl.DAOAnalysisStandardImpl;
+import lu.itrust.business.ts.database.dao.impl.DAOAssetTypeImpl;
+import lu.itrust.business.ts.database.dao.impl.DAOMeasureDescriptionImpl;
+import lu.itrust.business.ts.database.dao.impl.DAOStandardImpl;
 import lu.itrust.business.ts.exception.TrickException;
 import lu.itrust.business.ts.messagehandler.MessageHandler;
 import lu.itrust.business.ts.messagehandler.TaskName;
@@ -203,11 +203,11 @@ public class WorkerSynchroniseMeasureCollectionAndAnalysis extends WorkerImpl {
 	 * @param session the session object used for database operations
 	 */
 	public void initialiseDAO(Session session) {
-		daoStandard = new DAOStandardHBM(session);
-		daoAnalysis = new DAOAnalysisHBM(session);
-		daoAssetType = new DAOAssetTypeHBM(session);
-		daoAnalysisStandard = new DAOAnalysisStandardHBM(session);
-		daoMeasureDescription = new DAOMeasureDescriptionHBM(session);
+		daoStandard = new DAOStandardImpl(session);
+		daoAnalysis = new DAOAnalysisImpl(session);
+		daoAssetType = new DAOAssetTypeImpl(session);
+		daoAnalysisStandard = new DAOAnalysisStandardImpl(session);
+		daoMeasureDescription = new DAOMeasureDescriptionImpl(session);
 	}
 
 	/**

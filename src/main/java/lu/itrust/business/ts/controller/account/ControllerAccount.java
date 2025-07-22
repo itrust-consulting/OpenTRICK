@@ -145,10 +145,10 @@ public class ControllerAccount {
 	public @ResponseBody String deleteReport(@PathVariable Long id, Principal principal, Locale locale) {
 		WordReport report = serviceWordReport.getByIdAndUser(id, principal.getName());
 		if (report == null)
-			return JsonMessage.Error(
+			return JsonMessage.error(
 					messageSource.getMessage("error.resource.not.found", null, "Resource cannot be found", locale));
 		serviceWordReport.delete(report);
-		return JsonMessage.Success(messageSource.getMessage("success.resource.deleted", null,
+		return JsonMessage.success(messageSource.getMessage("success.resource.deleted", null,
 				"Resource has been successfully deleted", locale));
 	}
 
@@ -157,10 +157,10 @@ public class ControllerAccount {
 			throws Exception {
 		UserSQLite userSQLite = serviceUserSqLite.getByIdAndUser(id, principal.getName());
 		if (userSQLite == null)
-			return JsonMessage.Error(
+			return JsonMessage.error(
 					messageSource.getMessage("error.resource.not.found", null, "Resource cannot be found", locale));
 		serviceUserSqLite.delete(userSQLite);
-		return JsonMessage.Success(messageSource.getMessage("success.resource.deleted", null,
+		return JsonMessage.success(messageSource.getMessage("success.resource.deleted", null,
 				"Resource has been successfully deleted", locale));
 	}
 
@@ -169,10 +169,10 @@ public class ControllerAccount {
 			throws Exception {
 		String token = serviceAnalysisShareInvitation.findTokenByIdAndUsername(id, principal.getName());
 		if (token == null)
-			return JsonMessage.Error(messageSource.getMessage("error.invitation.not.found", null,
+			return JsonMessage.error(messageSource.getMessage("error.invitation.not.found", null,
 					"Invitation has already been accepted or cancelled!", locale));
 		manageAnalysisRight.cancelInvitation(principal, token);
-		return JsonMessage.Success(messageSource.getMessage("success.cancel.invitation", null,
+		return JsonMessage.success(messageSource.getMessage("success.cancel.invitation", null,
 				"Invitation has been successfully rejected!", locale));
 	}
 
@@ -182,23 +182,22 @@ public class ControllerAccount {
 		try {
 			String token = serviceAnalysisShareInvitation.findTokenByIdAndUsername(id, principal.getName());
 			if (token == null)
-				return JsonMessage.Error(messageSource.getMessage("error.invitation.not.found", null,
+				return JsonMessage.error(messageSource.getMessage("error.invitation.not.found", null,
 						"Invitation has already been accepted or cancelled!", locale));
 			manageAnalysisRight.acceptInvitation(principal, token);
-			return JsonMessage.Success(messageSource.getMessage("success.accept.invitation", null,
+			return JsonMessage.success(messageSource.getMessage("success.accept.invitation", null,
 					"Access has been successfully granted", locale));
 		} catch (TrickException e) {// already logged
-			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			return JsonMessage.error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			TrickLogManager.persist(e);
-			return JsonMessage
-					.Error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
+			return JsonMessage.error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 		}
 	}
 
 	@GetMapping(value = "/Invitation/Count", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody String anvitationCount(Principal principal, Locale locale) throws Exception {
-		return JsonMessage.Field("count", serviceAnalysisShareInvitation.countByUsername(principal.getName()) + "");
+		return JsonMessage.field("count", serviceAnalysisShareInvitation.countByUsername(principal.getName()) + "");
 	}
 
 	/**
@@ -463,14 +462,13 @@ public class ControllerAccount {
 	public @ResponseBody String updateReportControl(@RequestBody FilterControl filterControl, HttpSession session,
 			Principal principal, Locale locale) throws Exception {
 		if (!filterControl.validate())
-			return JsonMessage.Error(messageSource.getMessage("error.invalid.data", null, "Invalid data", locale));
+			return JsonMessage.error(messageSource.getMessage("error.invalid.data", null, "Invalid data", locale));
 		User user = serviceUser.get(principal.getName());
 		if (user == null)
-			return JsonMessage
-					.Error(messageSource.getMessage("error.authentication", null, "Authentication failed", locale));
+			return JsonMessage.error(messageSource.getMessage("error.authentication", null, "Authentication failed", locale));
 		updateFilterControl(user, filterControl, FILTER_CONTROL_REPORT);
 		session.setAttribute("reportControl", filterControl);
-		return JsonMessage.Success(messageSource.getMessage("success.filter.control.updated", null,
+		return JsonMessage.success(messageSource.getMessage("success.filter.control.updated", null,
 				"Filter has been successfully updated", locale));
 	}
 
@@ -478,14 +476,13 @@ public class ControllerAccount {
 	public @ResponseBody String updateSqliteControl(@RequestBody FilterControl filterControl, HttpSession session,
 			Principal principal, Locale locale) throws Exception {
 		if (!filterControl.validate())
-			return JsonMessage.Error(messageSource.getMessage("error.invalid.data", null, "Invalid data", locale));
+			return JsonMessage.error(messageSource.getMessage("error.invalid.data", null, "Invalid data", locale));
 		User user = serviceUser.get(principal.getName());
 		if (user == null)
-			return JsonMessage
-					.Error(messageSource.getMessage("error.authentication", null, "Authentication failed", locale));
+			return JsonMessage.error(messageSource.getMessage("error.authentication", null, "Authentication failed", locale));
 		updateFilterControl(user, filterControl, FILTER_CONTROL_SQLITE);
 		session.setAttribute("sqliteControl", filterControl);
-		return JsonMessage.Success(messageSource.getMessage("success.filter.control.updated", null,
+		return JsonMessage.success(messageSource.getMessage("success.filter.control.updated", null,
 				"Filter has been successfully updated", locale));
 	}
 
@@ -493,14 +490,13 @@ public class ControllerAccount {
 	public @ResponseBody String updateInvitationControl(@RequestBody InvitationFilter filterControl,
 			HttpSession session, Principal principal, Locale locale) throws Exception {
 		if (!filterControl.validate())
-			return JsonMessage.Error(messageSource.getMessage("error.invalid.data", null, "Invalid data", locale));
+			return JsonMessage.error(messageSource.getMessage("error.invalid.data", null, "Invalid data", locale));
 		User user = serviceUser.get(principal.getName());
 		if (user == null)
-			return JsonMessage
-					.Error(messageSource.getMessage("error.authentication", null, "Authentication failed", locale));
+			return JsonMessage.error(messageSource.getMessage("error.authentication", null, "Authentication failed", locale));
 		updateFilterControl(user, filterControl, FILTER_CONTROL_INVITATION);
 		session.setAttribute("invitationControl", filterControl);
-		return JsonMessage.Success(messageSource.getMessage("success.filter.control.updated", null,
+		return JsonMessage.success(messageSource.getMessage("success.filter.control.updated", null,
 				"Filter has been successfully updated", locale));
 	}
 
@@ -514,7 +510,7 @@ public class ControllerAccount {
 		serviceEmailValidatingRequest.deleteByUser(user);
 		serviceEmailValidatingRequest.saveOrUpdate(validatingRequest);
 		serviceEmailSender.send(validatingRequest);
-		return JsonMessage.Success(messageSource.getMessage("success.send.email.validation", null, locale));
+		return JsonMessage.success(messageSource.getMessage("success.send.email.validation", null, locale));
 
 	}
 

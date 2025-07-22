@@ -912,6 +912,51 @@ function updateCustomerAccess(e, $view, $progress, customerID) {
 }
 
 /**
+ * Checks if the given HTML string is valid.
+ * 
+ * @param {string} html - The HTML string to validate.
+ * @param {function} [callback] - Optional callback function to handle the result.
+ * @return {boolean} - Returns true if the HTML is valid, false otherwise.
+ * */
+function isValidHTML(html, callback) {
+	let result = false;
+	try {
+		// Use XML parsing to detect well-formedness errors
+		const doc = new DOMParser().parseFromString(html, 'application/xhtml+xml');
+		result = !doc.querySelector('parsererror');
+	} catch (err) {
+		console.error("Error parsing HTML:", err);
+	}
+	if (typeof callback === "function") 
+		callback(result);
+	return result;
+
+}
+
+/**
+ * Checks if the given JSON string is valid.
+ * 
+ * @param {string} json - The JSON string to validate.
+ * @param {function} [callback] - Optional callback function to handle the result.
+ * @return {boolean} - Returns true if the JSON is valid, false otherwise.
+ * */
+function isValidJSON(json, callback) {
+	let result = false;
+	try {
+		result = JSON.parse(json) !== null;
+	} catch (err) {
+		console.error("Error parsing JSON:", err);
+	}
+	if (callback != undefined && typeof callback === "function")
+		callback(result);
+	return result;
+}
+
+function hideError(element) {
+	$(element).removeClass("has-error").parent().removeClass("has-error").find(".label-danger").remove();
+}
+
+/**
  * Edits the ticketing system email template for a given customer.
  * 
  * @param {number} customerID - The ID of the customer.
@@ -948,35 +993,74 @@ function editTicketingSystemEmailTemplate(customerID) {
 
 				$subjectInputEntry.attr("placeholder", $subjectInputEntry.val());
 
-				$subjectInputEntry.on("change", (e)=> {
+				$subjectInputEntry.on("change", (e) => {
 					$current = $subjectDatalist.find("option:contains('" + $subjectInputEntry.val() + "')");
 					if ($current.text() === $subjectInputEntry.val())
 						$subjectInput.val($current.attr("data-value"));
 					else $subjectInput.val($subjectInputEntry.val());
 				});
 
-				console.log(availableParameters);
+				$view.find('#email_template_template')
 
 				$view.find('#email_template_template').suggest('$', {
 					data: availableParameters,
-					filter : {
+					filter: {
 						casesensitive: false,
 						limit: availableParameters.length
 					},
-					map: function(parameter) {
-						console.log(parameter);
-					  return {
-						value: "{"+parameter.name+"}",
-						text: '<strong>'+parameter.name+'</strong>: <small>'+parameter.title+'</small>'
-					  }
+					map: function (parameter) {
+						return {
+							value: "{" + parameter.name + "}",
+							text: '<strong>' + parameter.name + '</strong>: <small>' + parameter.title + '</small>'
+						}
 					}
-				  });
+				}).on("blur", function (e) {
+					let format = $view.find("input[name='format']:checked").val();
+					let $element = $view.find("#email_template_template");
+					if (format === "HTML") {
+						isValidHTML($element.val(), function (isValid) {
+							if (!isValid) {
+								if (!$element.parent().hasClass("has-error")) {
+									let $errorElement = $("<label class='label label-danger'/>").text(MessageResolver("label.email.template.html.error", "Invalid HTML format!"));
+									$errorElement.appendTo($element.parent());
+									$element.parent().addClass("has-error");
+								}
+							} else
+								hideError($element);
+						});
+					} else if (format === "JSON") {
+						isValidJSON($element.val(), function (isValid) {
+							if (!isValid) {
+								if (!$element.parent().hasClass("has-error")) {
+									let $errorElement = $("<label class='label label-danger'/>").text(MessageResolver("label.email.template.json.error", "Invalid JSON format!"));
+									$errorElement.appendTo($element.parent());
+									$element.parent().addClass("has-error");
+								}
+							} else
+								hideError($element);
+
+						});
+					} else if ($element.parent().hasClass("has-error")) {
+						hideError($element);
+					}
+
+				});
 
 				$view.appendTo("#widget").modal("show").on("hidden.bs.modal", () => $view.remove());
 
 				$("button[name='save']", $view).on("click", e => $("input[name='submit']", $view).click());
+
+
+				$view.find("input[name='format']").on("change", function (e) {
+					$view.find("#email_template_template").trigger("blur");
+				}).trigger("change");
+
 				$view.find("form").on("submit", e => {
 					e.preventDefault();
+					if ($view.find(".has-error").length) {
+						showDialog("#alert-dialog", MessageResolver("label.email.template.error", "Please correct the errors before saving!"));
+						return;
+					}
 					let $form = $(e.currentTarget)
 					$progress.show();
 					$.ajax({
@@ -990,7 +1074,7 @@ function editTicketingSystemEmailTemplate(customerID) {
 							else {
 								for (let error in response.errors) {
 									switch (error) {
-										case "html":
+										case "format":
 										case "title":
 										case "email":
 										case "template":

@@ -88,33 +88,33 @@ function deleteAsset() {
 						assetname));
 		$("#confirm-dialog .btn-danger").one("click", function () {
 			$("#confirm-dialog").modal("hide");
-			var $progress = $("#loading-indicator").show(), hasChange = false;
-			while (selectedAsset.length) {
-				var assetId = selectedAsset.pop();
-				$.ajax({
-					url: context + "/Analysis/Asset/Delete/" + assetId,
-					type: "POST",
-					contentType: "application/json;charset=UTF-8",
-					success: function (response, textStatus, jqXHR) {
-						if (response["success"] != undefined) {
+			let $progress = $("#loading-indicator").show(), hasChange = false;
+			$.ajax({
+				url: context + "/Analysis/Asset/Delete",
+				type: "DELETE",
+				data: JSON.stringify(selectedAsset),
+				contentType: "application/json;charset=UTF-8",
+				success: function (response, textStatus, jqXHR) {
+					let deletedIds = response["ids"];
+					if (Array.isArray(deletedIds)) {
+						for (const assetId of deletedIds) {
+							// Remove the asset from the table
 							hasChange |= $("tr[data-trick-id='" + assetId + "']", "#section_asset").remove().length > 0;
+							// Remove the estimation for the asset
 							removeEstimation("asset", [assetId]);
 						}
-						else if (response["error"] != undefined)
-							showDialog("#alert-dialog", response["error"]);
-						else
-							showDialog("#alert-dialog", MessageResolver("error.delete.asset.unkown", "Unknown error occoured while deleting the asset"));
-					},
-					error: unknowError
-				}).complete(function () {
-					if (!selectedAsset.length) {
-						if (hasChange)
-							reloadSection("section_asset");
-						else
-							$progress.hide();
 					}
-				});
-			}
+					else if (response["error"] != undefined)
+						showDialog("#alert-dialog", response["error"]);
+					else
+						showDialog("#alert-dialog", MessageResolver("error.delete.asset.unkown", "Unknown error occoured while deleting the asset"));
+				},
+				error: unknowError
+			}).complete(function () {
+				$progress.hide();
+				if (hasChange)
+					reloadSection("section_asset");
+			});
 		});
 		$("#confirm-dialog").modal("show");
 	}
@@ -196,7 +196,7 @@ function saveAsset(form) {
 						case "relatedName":
 							$errorElement.appendTo($("#asset_relatedName", $form).parent());
 							break;
-							
+
 					}
 				} else
 					showError($form.parent()[0], response.errors[error]);

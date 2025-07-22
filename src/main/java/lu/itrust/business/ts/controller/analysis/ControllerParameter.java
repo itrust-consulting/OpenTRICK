@@ -128,14 +128,13 @@ public class ControllerParameter extends AbstractController {
 		try {
 			Integer idAnalysis = (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS);
 			return analysisImpactManager.manageImpactScaleSave(idAnalysis, impacts)
-					? JsonMessage.Success(messageSource.getMessage("success.analysis.update.impact_scale", null,
+					? JsonMessage.success(messageSource.getMessage("success.analysis.update.impact_scale", null,
 							"Impacts scales have been updated", locale))
-					: JsonMessage.Warning(messageSource.getMessage("warning.analysis.update.impact_scale", null,
+					: JsonMessage.warning(messageSource.getMessage("warning.analysis.update.impact_scale", null,
 							"Your analysis has not be updated", locale));
 		} catch (Exception e) {
 			TrickLogManager.persist(e);
-			return JsonMessage
-					.Error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
+			return JsonMessage.error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 		}
 	}
 
@@ -156,15 +155,14 @@ public class ControllerParameter extends AbstractController {
 			final Worker worker = new WorkerScaleLevelMigrator(idAnalysis, levels);
 			if (serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale)) {
 				executor.execute(worker);
-				return JsonMessage.Success(messageSource.getMessage("success.analysis.scale.level.migrating.start",
+				return JsonMessage.success(messageSource.getMessage("success.analysis.scale.level.migrating.start",
 						null, "Please wait while migrating scale level.", locale));
 			}
-			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null,
+			return JsonMessage.error(messageSource.getMessage("error.task_manager.too.many", null,
 					"Too many tasks running in background", locale));
 		} catch (Exception e) {
 			TrickLogManager.persist(e);
-			return JsonMessage
-					.Error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
+			return JsonMessage.error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 		}
 	}
 
@@ -333,16 +331,15 @@ public class ControllerParameter extends AbstractController {
 				analysis.getDynamicParameters().remove(parameter);
 				serviceAnalysis.saveOrUpdate(analysis);
 				serviceDynamicParameter.delete(parameter);
-				return JsonMessage.Success(messageSource.getMessage("success.delete.parameter", null,
+				return JsonMessage.success(messageSource.getMessage("success.delete.parameter", null,
 						"Parameter has been successfully deleted", locale));
 			}
-			return JsonMessage.Error(messageSource.getMessage("error.parameter.in_used", null,
+			return JsonMessage.error(messageSource.getMessage("error.parameter.in_used", null,
 					"Parameter cannot be deleted as it still in used", locale));
 
 		} catch (Exception e) {
 			TrickLogManager.persist(e);
-			return JsonMessage
-					.Error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
+			return JsonMessage.error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 		}
 	}
 
@@ -364,16 +361,15 @@ public class ControllerParameter extends AbstractController {
 								value));
 								
 				serviceAnalysis.saveOrUpdate(analysis);
-				return JsonMessage.Success(messageSource.getMessage("success.restore.parameter", null,
+				return JsonMessage.success(messageSource.getMessage("success.restore.parameter", null,
 						"Parameter has been successfully restored", locale));
 			}
-			return JsonMessage.Error(messageSource.getMessage("error.acronym.not_found", null,
+			return JsonMessage.error(messageSource.getMessage("error.acronym.not_found", null,
 					"Acronym does not exist!", locale));
 
 		} catch (Exception e) {
 			TrickLogManager.persist(e);
-			return JsonMessage
-					.Error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
+			return JsonMessage.error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 		}
 	}
 
@@ -414,16 +410,15 @@ public class ControllerParameter extends AbstractController {
 				serviceRiskAcceptanceParameter.delete(riskAcceptanceParameters.values());
 			}
 			serviceAnalysis.saveOrUpdate(analysis);
-			return JsonMessage.Success(messageSource.getMessage("success.update.risk_acceptance", null,
+			return JsonMessage.success(messageSource.getMessage("success.update.risk_acceptance", null,
 					"Risk acceptance has been successfully updated", locale));
 		} catch (Exception e) {
 			e.printStackTrace();
 			TrickLogManager.persist(e);
 			if (e instanceof TrickException e1)
-				return JsonMessage.Error(messageSource.getMessage(e1.getCode(),
+				return JsonMessage.error(messageSource.getMessage(e1.getCode(),
 						e1.getParameters(), e.getMessage(), locale));
-			return JsonMessage
-					.Error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
+			return JsonMessage.error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 		}
 	}
 
@@ -481,16 +476,15 @@ public class ControllerParameter extends AbstractController {
 				serviceIlrSoaScaleParameter.delete(ilrSoaScaleParameters.values());
 			}
 			serviceAnalysis.saveOrUpdate(analysis);
-			return JsonMessage.Success(messageSource.getMessage("success.update.ilr-soa-scale", null,
+			return JsonMessage.success(messageSource.getMessage("success.update.ilr-soa-scale", null,
 					"ILR SOA Scales had been successfully updated", locale));
 		} catch (Exception e) {
 			e.printStackTrace();
 			TrickLogManager.persist(e);
 			if (e instanceof TrickException)
-				return JsonMessage.Error(messageSource.getMessage(((TrickException) e).getCode(),
+				return JsonMessage.error(messageSource.getMessage(((TrickException) e).getCode(),
 						((TrickException) e).getParameters(), e.getMessage(), locale));
-			return JsonMessage
-					.Error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
+			return JsonMessage.error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 		}
 	}
 
@@ -501,8 +495,7 @@ public class ControllerParameter extends AbstractController {
 			Locale locale) {
 
 		if (!StringUtils.hasText(data.getDescription()))
-			return JsonMessage
-					.Error(messageSource.getMessage("error.parameter.invalid", null, "Invalid parameter", locale));
+			return JsonMessage.error(messageSource.getMessage("error.parameter.invalid", null, "Invalid parameter", locale));
 
 		final Analysis analysis = serviceAnalysis.get((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS));
 		final List<SimpleParameter> parameters = analysis.getSimpleParameters().stream()
@@ -551,7 +544,7 @@ public class ControllerParameter extends AbstractController {
 							&& p.getType().getName().equals(Constant.PARAMETERTYPE_TYPE_ILR_VULNERABILITY_SCALE_NAME))
 					.findAny().orElse(null);
 			if (parameter == null)
-				return JsonMessage.Error(
+				return JsonMessage.error(
 						messageSource.getMessage("error.parameter.not_found", null, "Parameter not found", locale));
 
 			analysis.getSimpleParameters().remove(parameter);
@@ -575,8 +568,7 @@ public class ControllerParameter extends AbstractController {
 
 		} catch (Exception e) {
 			TrickLogManager.persist(e);
-			return JsonMessage
-					.Error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
+			return JsonMessage.error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 		}
 	}
 

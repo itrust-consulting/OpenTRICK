@@ -49,16 +49,16 @@ import lu.itrust.business.ts.database.dao.DAOScaleType;
 import lu.itrust.business.ts.database.dao.DAOScenario;
 import lu.itrust.business.ts.database.dao.DAOUser;
 import lu.itrust.business.ts.database.dao.DAOWordReport;
-import lu.itrust.business.ts.database.dao.hbm.DAOAnalysisHBM;
-import lu.itrust.business.ts.database.dao.hbm.DAOAssessmentHBM;
-import lu.itrust.business.ts.database.dao.hbm.DAOAssetHBM;
-import lu.itrust.business.ts.database.dao.hbm.DAOAssetTypeHBM;
-import lu.itrust.business.ts.database.dao.hbm.DAOAssetTypeValueHBM;
-import lu.itrust.business.ts.database.dao.hbm.DAORiskProfileHBM;
-import lu.itrust.business.ts.database.dao.hbm.DAOScaleTypeHBM;
-import lu.itrust.business.ts.database.dao.hbm.DAOScenarioHBM;
-import lu.itrust.business.ts.database.dao.hbm.DAOUserHBM;
-import lu.itrust.business.ts.database.dao.hbm.DAOWordReportHBM;
+import lu.itrust.business.ts.database.dao.impl.DAOAnalysisImpl;
+import lu.itrust.business.ts.database.dao.impl.DAOAssessmentImpl;
+import lu.itrust.business.ts.database.dao.impl.DAOAssetImpl;
+import lu.itrust.business.ts.database.dao.impl.DAOAssetTypeImpl;
+import lu.itrust.business.ts.database.dao.impl.DAOAssetTypeValueImpl;
+import lu.itrust.business.ts.database.dao.impl.DAORiskProfileImpl;
+import lu.itrust.business.ts.database.dao.impl.DAOScaleTypeImpl;
+import lu.itrust.business.ts.database.dao.impl.DAOScenarioImpl;
+import lu.itrust.business.ts.database.dao.impl.DAOUserImpl;
+import lu.itrust.business.ts.database.dao.impl.DAOWordReportImpl;
 import lu.itrust.business.ts.exception.TrickException;
 import lu.itrust.business.ts.exportation.word.impl.docx4j.helper.AddressRef;
 import lu.itrust.business.ts.exportation.word.impl.docx4j.helper.CellRef;
@@ -1089,16 +1089,16 @@ public class WorkerImportEstimation extends WorkerImpl {
 	 * @param session the Hibernate session used for database operations
 	 */
 	private void initialiseDAO(Session session) {
-		setDaoAnalysis(new DAOAnalysisHBM(session));
-		setDaoWordReport(new DAOWordReportHBM(session));
-		setDaoAssessment(new DAOAssessmentHBM(session));
-		setDaoAsset(new DAOAssetHBM(session));
-		setDaoScenario(new DAOScenarioHBM(session));
-		setDaoRiskProfile(new DAORiskProfileHBM(session));
-		setDaoUser(new DAOUserHBM(session));
-		daoAssetType = new DAOAssetTypeHBM(session);
-		daoAssetTypeValue = new DAOAssetTypeValueHBM(session);
-		daoScaleType = new DAOScaleTypeHBM(session);
+		setDaoAnalysis(new DAOAnalysisImpl(session));
+		setDaoWordReport(new DAOWordReportImpl(session));
+		setDaoAssessment(new DAOAssessmentImpl(session));
+		setDaoAsset(new DAOAssetImpl(session));
+		setDaoScenario(new DAOScenarioImpl(session));
+		setDaoRiskProfile(new DAORiskProfileImpl(session));
+		setDaoUser(new DAOUserImpl(session));
+		daoAssetType = new DAOAssetTypeImpl(session);
+		daoAssetTypeValue = new DAOAssetTypeValueImpl(session);
+		daoScaleType = new DAOScaleTypeImpl(session);
 	}
 
 	/**

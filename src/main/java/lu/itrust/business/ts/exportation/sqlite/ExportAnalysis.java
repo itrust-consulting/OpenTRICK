@@ -18,7 +18,7 @@ import lu.itrust.business.ts.component.TrickLogManager;
 import lu.itrust.business.ts.constants.Constant;
 import lu.itrust.business.ts.database.DatabaseHandler;
 import lu.itrust.business.ts.database.dao.DAOAssetType;
-import lu.itrust.business.ts.database.dao.hbm.DAOAssetTypeHBM;
+import lu.itrust.business.ts.database.dao.impl.DAOAssetTypeImpl;
 import lu.itrust.business.ts.database.service.ServiceTaskFeedback;
 import lu.itrust.business.ts.exception.TrickException;
 import lu.itrust.business.ts.messagehandler.MessageHandler;
@@ -115,7 +115,7 @@ public class ExportAnalysis {
 
 	public ExportAnalysis(ServiceTaskFeedback serviceTaskFeedback, Session session, DatabaseHandler sqlite2,
 			Analysis analysis, String idTask) {
-		this.serviceAssetType = new DAOAssetTypeHBM(session);
+		this.serviceAssetType = new DAOAssetTypeImpl(session);
 		this.serviceTaskFeedback = serviceTaskFeedback;
 		this.sqlite = sqlite2;
 		this.analysis = analysis;

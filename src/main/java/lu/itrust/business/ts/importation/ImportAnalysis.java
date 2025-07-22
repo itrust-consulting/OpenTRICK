@@ -38,15 +38,15 @@ import lu.itrust.business.ts.database.dao.DAOParameterType;
 import lu.itrust.business.ts.database.dao.DAOScaleType;
 import lu.itrust.business.ts.database.dao.DAOStandard;
 import lu.itrust.business.ts.database.dao.DAOUserAnalysisRight;
-import lu.itrust.business.ts.database.dao.hbm.DAOAnalysisHBM;
-import lu.itrust.business.ts.database.dao.hbm.DAOAssetTypeHBM;
-import lu.itrust.business.ts.database.dao.hbm.DAOLanguageHBM;
-import lu.itrust.business.ts.database.dao.hbm.DAOMeasureDescriptionHBM;
-import lu.itrust.business.ts.database.dao.hbm.DAOMeasureDescriptionTextHBM;
-import lu.itrust.business.ts.database.dao.hbm.DAOParameterTypeHBM;
-import lu.itrust.business.ts.database.dao.hbm.DAOScaleTypeHBM;
-import lu.itrust.business.ts.database.dao.hbm.DAOStandardHBM;
-import lu.itrust.business.ts.database.dao.hbm.DAOUserAnalysisRightHBM;
+import lu.itrust.business.ts.database.dao.impl.DAOAnalysisImpl;
+import lu.itrust.business.ts.database.dao.impl.DAOAssetTypeImpl;
+import lu.itrust.business.ts.database.dao.impl.DAOLanguageImpl;
+import lu.itrust.business.ts.database.dao.impl.DAOMeasureDescriptionImpl;
+import lu.itrust.business.ts.database.dao.impl.DAOMeasureDescriptionTextImpl;
+import lu.itrust.business.ts.database.dao.impl.DAOParameterTypeImpl;
+import lu.itrust.business.ts.database.dao.impl.DAOScaleTypeImpl;
+import lu.itrust.business.ts.database.dao.impl.DAOStandardImpl;
+import lu.itrust.business.ts.database.dao.impl.DAOUserAnalysisRightImpl;
 import lu.itrust.business.ts.exception.TrickException;
 import lu.itrust.business.ts.helper.InstanceManager;
 import lu.itrust.business.ts.helper.NaturalOrderComparator;
@@ -646,15 +646,15 @@ public class ImportAnalysis {
 	}
 
 	protected void initialise() {
-		setDaoAnalysis(new DAOAnalysisHBM(session));
-		setDaoAssetType(new DAOAssetTypeHBM(session));
-		setDaoLanguage(new DAOLanguageHBM(session));
-		setDaoMeasureDescription(new DAOMeasureDescriptionHBM(session));
-		setDaoMeasureDescriptionText(new DAOMeasureDescriptionTextHBM(session));
-		setDaoStandard(new DAOStandardHBM(session));
-		setDaoParameterType(new DAOParameterTypeHBM(session));
-		setDaoUserAnalysisRight(new DAOUserAnalysisRightHBM(session));
-		setDaoScaleType(new DAOScaleTypeHBM(session));
+		setDaoAnalysis(new DAOAnalysisImpl(session));
+		setDaoAssetType(new DAOAssetTypeImpl(session));
+		setDaoLanguage(new DAOLanguageImpl(session));
+		setDaoMeasureDescription(new DAOMeasureDescriptionImpl(session));
+		setDaoMeasureDescriptionText(new DAOMeasureDescriptionTextImpl(session));
+		setDaoStandard(new DAOStandardImpl(session));
+		setDaoParameterType(new DAOParameterTypeImpl(session));
+		setDaoUserAnalysisRight(new DAOUserAnalysisRightImpl(session));
+		setDaoScaleType(new DAOScaleTypeImpl(session));
 	}
 
 	private void addImpactType(String name, String translate, String shortName, String prefix) {

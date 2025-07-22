@@ -165,60 +165,41 @@ function saveScenario(form) {
  */
 function deleteScenario(scenarioId) {
 	if (userCan(findAnalysisId(), ANALYSIS_RIGHT.MODIFY)) {
-		if (scenarioId == null || scenarioId == undefined) {
-			let selectedScenario = findSelectItemIdBySection(("section_scenario"));
-			if (!selectedScenario.length)
-				return false;
-			let $confirmDialog = showDialog("#confirm-dialog", selectedScenario.length == 1 ? MessageResolver("confirm.delete.scenario", "Are you sure, you want to delete this scenario") : MessageResolver(
-				"confirm.delete.selected.scenario", "Are you sure, you want to delete selected scenarios"));
-			$(".btn-danger", $confirmDialog).click(function () {
-				let $progress = $("#loading-indicator").show(), hasChange = false;
-				$confirmDialog.modal("hide");
-				while (selectedScenario.length) {
-					rowTrickId = selectedScenario.pop();
-					$.ajax({
-						url: context + "/Analysis/Scenario/Delete/" + rowTrickId,
-						type: 'POST',
-						contentType: "application/json;charset=UTF-8",
-						success: function (response, textStatus, jqXHR) {
-							if (response["success"] != undefined) {
-								hasChange |= $("tr[data-trick-id='" + rowTrickId + "']", "#section_scenario").remove().length > 0;
-								if (!application.isProfile)
-									removeEstimation("scenario", [rowTrickId]);
-							} else if (response["error"] != undefined)
-								showDialog("#alert-dialog", response["error"]);
-							else
-								showDialog("#alert-dialog", MessageResolver("error.delete.scenario.unkown", "Unknown error occoured while deleting scenario"));
-							return false;
-						},
-						error: unknowError
-					}).complete(function () {
-						if (!selectedScenario.length) {
-							if (hasChange)
-								reloadSection("section_scenario");
-							else
-								$progress.hide();
+		let selectedScenario = (scenarioId == null || scenarioId == undefined) ? findSelectItemIdBySection("section_scenario") : [scenarioId];
+		if (!selectedScenario.length)
+			return false;
+		let $confirmDialog = showDialog("#confirm-dialog", selectedScenario.length == 1 ? MessageResolver("confirm.delete.scenario", "Are you sure, you want to delete this scenario") : MessageResolver(
+			"confirm.delete.selected.scenario", "Are you sure, you want to delete selected scenarios"));
+		$(".btn-danger", $confirmDialog).click(function () {
+			let $progress = $("#loading-indicator").show();
+			let hasChange = false;
+			$confirmDialog.modal("hide");
+			$.ajax({
+				url: context + "/Analysis/Scenario/Delete",
+				type: 'DELETE',
+				data: JSON.stringify(selectedScenario),
+				contentType: "application/json;charset=UTF-8",
+				success: function (response) {
+					let deletedIds = response["ids"];
+					if (Array.isArray(deletedIds)) {
+						for (const scenarioId of deletedIds) {
+							hasChange |= $("tr[data-trick-id='" + scenarioId + "']", "#section_scenario").remove().length > 0;
+							if (!application.isProfile)
+								removeEstimation("scenario", [scenarioId]);
 						}
-					});
-				}
-
+					} else if (response["error"] != undefined)
+						showDialog("#alert-dialog", response["error"]);
+					else
+						showDialog("#alert-dialog", MessageResolver("error.delete.scenario.unkown", "Unknown error occoured while deleting scenario"));
+					return false;
+				},
+				error: unknowError
+			}).complete(function () {
+				if (hasChange)
+					reloadSection("section_scenario");
+				$progress.hide();
 			});
-		} else {
-			let $confirmDialog = showDialog("#confirm-dialog", MessageResolver("confirm.delete.scenario", "Are you sure, you want to delete this scenario"));
-			$(".btn-danger", $confirmDialog).one("click", function () {
-				$confirmDialog.modal("hide");
-				let $progress = $("#loading-indicator").show()
-				$.ajax({
-					url: context + "/Analysis/Scenario/Delete/" + scenarioId,
-					contentType: "application/json;charset=UTF-8",
-					success: function (reponse) {
-						reloadSection("section_scenario");
-						return false;
-					},
-					error: unknowError
-				}).complete(() => $progress.hide());
-			});
-		}
+		});
 	}
 	return false;
 }

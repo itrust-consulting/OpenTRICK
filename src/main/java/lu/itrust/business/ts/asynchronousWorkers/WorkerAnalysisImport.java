@@ -11,8 +11,8 @@ import org.hibernate.Session;
 import lu.itrust.business.ts.asynchronousWorkers.helper.AsyncCallback;
 import lu.itrust.business.ts.component.TrickLogManager;
 import lu.itrust.business.ts.database.DatabaseHandler;
-import lu.itrust.business.ts.database.dao.hbm.DAOCustomerHBM;
-import lu.itrust.business.ts.database.dao.hbm.DAOUserHBM;
+import lu.itrust.business.ts.database.dao.impl.DAOCustomerImpl;
+import lu.itrust.business.ts.database.dao.impl.DAOUserImpl;
 import lu.itrust.business.ts.exception.TrickException;
 import lu.itrust.business.ts.helper.InstanceManager;
 import lu.itrust.business.ts.importation.ImportAnalysis;
@@ -205,10 +205,10 @@ public class WorkerAnalysisImport extends WorkerImpl {
 			}
 			setStarted(new Timestamp(System.currentTimeMillis()));
 			session = getSessionFactory().openSession();
-			User user = new DAOUserHBM(session).get(username);
+			User user = new DAOUserImpl(session).get(username);
 			if (user == null)
 				throw new TrickException("error.user.cannot.found", String.format("User (%s) cannot be found", username), username);
-			Customer customer = new DAOCustomerHBM(session).get(customerId);
+			Customer customer = new DAOCustomerImpl(session).get(customerId);
 			if (customer == null)
 				throw new TrickException("error.customer.not_exist", "Customer does not exist");
 			int index = 1;

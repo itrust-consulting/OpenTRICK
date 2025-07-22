@@ -402,21 +402,21 @@ public class ControllerAdmin {
 		try {
 			Analysis analysis = serviceAnalysis.get(idAnalysis);
 			if (analysis == null || analysis.isProfile())
-				return JsonMessage.Error(messageSource.getMessage("error.action.not_authorise", null,
+				return JsonMessage.error(messageSource.getMessage("error.action.not_authorise", null,
 						"Action does not authorised", locale));
 			else if (analysis.getOwner().getId() == idOwner)
 				return JsonMessage
-						.Success(messageSource.getMessage("info.nothing.changed", null, "Nothing was changed", locale));
+						.success(messageSource.getMessage("info.nothing.changed", null, "Nothing was changed", locale));
 			User owner = serviceUser.get(idOwner);
 			if (owner == null)
-				return JsonMessage.Error(messageSource.getMessage("error.action.not_authorise", null,
+				return JsonMessage.error(messageSource.getMessage("error.action.not_authorise", null,
 						"Action does not authorised", locale));
 			new SwitchAnalysisOwnerHelper(serviceAnalysis).switchOwner(principal, analysis, owner);
-			return JsonMessage.Success(messageSource.getMessage("success.analysis.switch.owner", null,
+			return JsonMessage.success(messageSource.getMessage("success.analysis.switch.owner", null,
 					"Analysis owner was successfully updated", locale));
 		} catch (Exception e) {
 			TrickLogManager.persist(e);
-			return JsonMessage.Error(
+			return JsonMessage.error(
 					messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
 		}
 	}
@@ -482,11 +482,11 @@ public class ControllerAdmin {
 			user.setSetting(LOG_FILTER_SORT_DIRECTION, logFilter.getDirection());
 			session.setAttribute(TRICK_LOG_FILTER, logFilter);
 			serviceUser.saveOrUpdate(user);
-			return JsonMessage.Success(messageSource.getMessage("success.filter.updated", null,
+			return JsonMessage.success(messageSource.getMessage("success.filter.updated", null,
 					"Filter has been successfully updated", locale));
 		} catch (Exception e) {
 			TrickLogManager.persist(e);
-			return JsonMessage.Error(messageSource.getMessage("error.invalid.data", null, "Invalid data", locale));
+			return JsonMessage.error(messageSource.getMessage("error.invalid.data", null, "Invalid data", locale));
 		}
 	}
 
@@ -535,15 +535,14 @@ public class ControllerAdmin {
 			Locale locale) throws Exception {
 		try {
 			manageAnalysisRight.updateAnalysisRights(principal, rightsForm);
-			return JsonMessage.Success(messageSource.getMessage("success.update.analysis.right", null,
+			return JsonMessage.success(messageSource.getMessage("success.update.analysis.right", null,
 					"Analysis access rights were successfully updated!", locale));
 		} catch (Exception e) {
 			TrickLogManager.persist(e);
 			if (e instanceof TrickException)
-				return JsonMessage.Error(messageSource.getMessage(((TrickException) e).getCode(),
+				return JsonMessage.error(messageSource.getMessage(((TrickException) e).getCode(),
 						((TrickException) e).getParameters(), e.getMessage(), locale));
-			return JsonMessage
-					.Error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
+			return JsonMessage.error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 		}
 	}
 
@@ -562,16 +561,16 @@ public class ControllerAdmin {
 			throws Exception {
 		String identifier = serviceAnalysis.getIdentifierByIdAnalysis(idAnalysis);
 		if (identifier == null)
-			return JsonMessage.Error(
+			return JsonMessage.error(
 					messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
 		else if (serviceCustomer.isProfile(idCustomer))
-			return JsonMessage.Error(
+			return JsonMessage.error(
 					messageSource.getMessage("error.action.not_authorise", null, "Action does not authorised", locale));
 		else if (!serviceCustomer.exists(idCustomer))
-			return JsonMessage.Error(
+			return JsonMessage.error(
 					messageSource.getMessage("error.customer.not_found", null, "Customer cannot be found", locale));
 		customerManager.switchCustomer(identifier, idCustomer, principal.getName());
-		return JsonMessage.Success(
+		return JsonMessage.success(
 				messageSource.getMessage("success.analyses.updated", null, "Analyses have been updated", locale));
 	}
 
@@ -742,12 +741,12 @@ public class ControllerAdmin {
 		try {
 			customDelete.deleteUser(deleteHelper, errors, principal, messageSource, locale);
 			if (errors.isEmpty())
-				return JsonMessage.Success(
+				return JsonMessage.success(
 						messageSource.getMessage("success.delete.user", null, "User was successfully deleted", locale));
 		} catch (Exception e) {
 			TrickLogManager.persist(e);
 			if (errors.isEmpty())
-				return JsonMessage.Error(
+				return JsonMessage.error(
 						messageSource.getMessage("error.unknown.occurred", null, "An unknown error occurred", locale));
 		}
 		return errors;
@@ -807,13 +806,12 @@ public class ControllerAdmin {
 				} else
 					customDelete.removeCustomerByUser(customerID, user.getLogin(), principal.getName());
 			});
-			return JsonMessage.Success(messageSource.getMessage("label.customer.manage.users.success", null,
+			return JsonMessage.success(messageSource.getMessage("label.customer.manage.users.success", null,
 					"Customer users successfully updated!", locale));
 		} catch (Exception e) {
 			// return errors
 			TrickLogManager.persist(e);
-			return JsonMessage
-					.Error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
+			return JsonMessage.error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 		}
 	}
 
@@ -977,10 +975,10 @@ public class ControllerAdmin {
 			HttpServletRequest request, Locale locale) throws Exception {
 		try {
 			customDelete.deleteCustomer(customerId, principal.getName());
-			return JsonMessage.Success(messageSource.getMessage("success.customer.delete.successfully", null,
+			return JsonMessage.success(messageSource.getMessage("success.customer.delete.successfully", null,
 					"Customer was deleted successfully", locale));
 		} catch (TrickException e) {
-			return JsonMessage.Error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+			return JsonMessage.error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		}
 	}
 
@@ -1010,7 +1008,7 @@ public class ControllerAdmin {
 					messageSource.getMessage("error.customer.not_exist", null, "Customer does not exist", locale));
 		TrickTemplate template = serviceTrickTemplate.findByIdAndCustomer(templateForm.getId(), customerId);
 		if (template == null)
-			return JsonMessage.Error(
+			return JsonMessage.error(
 					messageSource.getMessage("error.customer.not_exist", null, "Customer does not exist", locale));
 		Map<String, Object> result = new LinkedHashMap<>();
 		try {
@@ -1039,7 +1037,7 @@ public class ControllerAdmin {
 			template.setEditable(false);
 			template.setCreated(new Timestamp(System.currentTimeMillis()));
 			serviceTrickTemplate.saveOrUpdate(template);
-			return JsonMessage.Success(messageSource.getMessage("success.report.template.update", null, locale));
+			return JsonMessage.success(messageSource.getMessage("success.report.template.update", null, locale));
 		}
 		return result;
 	}
@@ -1145,13 +1143,13 @@ public class ControllerAdmin {
 	@DeleteMapping(value = "/Notification/{id}/Delete", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody Object deleteNotification(@PathVariable String id, Locale locale) {
 		serviceMessageNotifier.remove(id);
-		return JsonMessage.Success(messageSource.getMessage("success.delete.message", null, locale));
+		return JsonMessage.success(messageSource.getMessage("success.delete.message", null, locale));
 	}
 
 	@DeleteMapping(value = "/Notification/Clear", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
 	public @ResponseBody Object clearNotification(Locale locale) {
 		serviceMessageNotifier.clear(null);
-		return JsonMessage.Success(messageSource.getMessage("success.clear.notification", null,
+		return JsonMessage.success(messageSource.getMessage("success.clear.notification", null,
 				"Notifications had been successfully cleared", locale));
 	}
 
@@ -1159,7 +1157,7 @@ public class ControllerAdmin {
 	public @ResponseBody Object saveNotification(@RequestBody NotificationForm form, Locale locale) {
 		Notification notification = form.getData();
 		if (!notification.update())
-			return JsonMessage.Error(messageSource.getMessage("error.notification.message.empty", null, locale));
+			return JsonMessage.error(messageSource.getMessage("error.notification.message.empty", null, locale));
 		else {
 			Notification old = serviceMessageNotifier.findById(notification.getId());
 			if (old != null) {

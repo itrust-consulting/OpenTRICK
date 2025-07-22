@@ -176,11 +176,11 @@ public class ControllerActionPlan extends AbstractController {
 		final Worker worker = new WorkerComputeActionPlan(analysisId, standards, uncertainty, reloadSection);
 
 		if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale))
-			return JsonMessage.Error(messageSource.getMessage("error.task_manager.too.many", null,
+			return JsonMessage.error(messageSource.getMessage("error.task_manager.too.many", null,
 					"Too many tasks running in background", locale));
 		// execute task
 		executor.execute(worker);
-		return JsonMessage.Success(messageSource.getMessage("success.start.compute.actionplan", null,
+		return JsonMessage.success(messageSource.getMessage("success.start.compute.actionplan", null,
 				"Action plan computation was started successfully", locale));
 
 	}

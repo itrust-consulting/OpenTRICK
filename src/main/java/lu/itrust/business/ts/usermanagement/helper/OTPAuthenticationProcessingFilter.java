@@ -28,7 +28,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.util.StringUtils;
 
 import lu.itrust.business.ts.constants.Constant;
-import lu.itrust.business.ts.database.dao.hbm.DAOUserHBM;
+import lu.itrust.business.ts.database.dao.impl.DAOUserImpl;
 import lu.itrust.business.ts.database.service.AccountLockerManager;
 import lu.itrust.business.ts.exception.TrickOtpException;
 import lu.itrust.business.ts.usermanagement.User;
@@ -97,7 +97,7 @@ public class OTPAuthenticationProcessingFilter extends AbstractAuthenticationPro
 			throw new TrickOtpException("error.otp.code.not_found");
 		Session session = null;
 		try {
-			User user = new DAOUserHBM(session = sessionFactory.openSession()).get(authentication.getName());
+			User user = new DAOUserImpl(session = sessionFactory.openSession()).get(authentication.getName());
 			request.setAttribute("username", user.getLogin());
 			Totp totp = (Totp) request.getSession().getAttribute(Constant.OTP_CHALLENGE_AUTHEN);
 			if (totp == null) {

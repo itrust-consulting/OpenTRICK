@@ -99,7 +99,7 @@ public class ControllerRiskEvolution {
 		boolean isFirst = user.getUserSettings().containsKey("risk-evolution-data");
 		user.setSetting("risk-evolution-data", value);
 		serviceUser.saveOrUpdate(user);
-		return isFirst ? isFirst : JsonMessage.Success(messageSource.getMessage("success.risk_evolution.setting.saved", null, "Your configuration was been updated", locale));
+		return isFirst ? isFirst : JsonMessage.success(messageSource.getMessage("success.risk_evolution.setting.saved", null, "Your configuration was been updated", locale));
 	}
 
 	@RequestMapping(value = "/Chart/Compliance", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)

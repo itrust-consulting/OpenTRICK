@@ -34,7 +34,7 @@ import lu.itrust.business.ts.asynchronousWorkers.helper.AsyncCallback;
 import lu.itrust.business.ts.component.TrickLogManager;
 import lu.itrust.business.ts.constants.Constant;
 import lu.itrust.business.ts.database.dao.DAOAnalysis;
-import lu.itrust.business.ts.database.dao.hbm.DAOAnalysisHBM;
+import lu.itrust.business.ts.database.dao.impl.DAOAnalysisImpl;
 import lu.itrust.business.ts.exception.TrickException;
 import lu.itrust.business.ts.exportation.word.impl.docx4j.helper.AddressRef;
 import lu.itrust.business.ts.messagehandler.MessageHandler;
@@ -138,7 +138,7 @@ public class WorkerImportMeasureData extends WorkerImpl {
 					new MessageHandler("info.initialise.data", null, "Initialising risk analysis data", 5));
 			session = getSessionFactory().openSession();
 			session.beginTransaction();
-			DAOAnalysis daoAnalysis = new DAOAnalysisHBM(session);
+			DAOAnalysis daoAnalysis = new DAOAnalysisImpl(session);
 			Analysis analysis = daoAnalysis.get(idAnalysis);
 			loadMeasures(analysis);
 			getServiceTaskFeedback().send(getId(),
