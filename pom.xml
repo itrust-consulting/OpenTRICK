@@ -176,15 +176,6 @@
 			<groupId>com.zaxxer</groupId>
 			<artifactId>HikariCP</artifactId>
 		</dependency>
-<<<<<<< HEAD
-
-		<!--<dependency>
-			<groupId>org.apache.tomcat</groupId>
-			<artifactId>tomcat-dbcp</artifactId>
-			<version>10.1.26</version>
-		</dependency>-->
-=======
->>>>>>> dev-2025-07
 
 		<dependency>
 			<groupId>jakarta.servlet.jsp.jstl</groupId>
