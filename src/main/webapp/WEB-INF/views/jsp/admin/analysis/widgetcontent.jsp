@@ -8,7 +8,7 @@
 <div class="modal fade" id="manageAnalysisAccessModel" tabindex="-1" role="dialog" data-aria-labelledby="manageAnalysisAccessModel" data-aria-hidden="true">
 	<div class="modal-dialog">
 		<div class="modal-content">
-			<div class="modal-header">
+			<div class="modal-header bg-primary">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title">
 					<spring:message code="label.analysis.manage.access" text="Manage Analysis Access Rights" />
@@ -29,7 +29,7 @@
 <div class="modal fade" id="deleteAnalysisModel" tabindex="-1" data-aria-hidden="true" data-aria-labelledby="deleteAnalysis" role="dialog" data-backdrop="static">
 	<div class="modal-dialog">
 		<div class="modal-content">
-			<div class="modal-header">
+			<div class="modal-header bg-danger">
 				<h4 class="modal-title" id="deleteAnalysisModel-title">
 					<spring:message code="label.title.delete.analysis" text="Delete an analysis" />
 				</h4>

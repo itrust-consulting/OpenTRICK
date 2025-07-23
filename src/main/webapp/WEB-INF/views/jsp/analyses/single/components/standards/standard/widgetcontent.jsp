@@ -8,7 +8,7 @@
 <div class="modal fade" id="standardModal" tabindex="-1" role="dialog" data-aria-labelledby="standardmodal" data-aria-hidden="true" data-backdrop="static">
 	<div class="modal-dialog" style="width: 800px;">
 		<div class="modal-content">
-			<div class="modal-header">
+			<div class="modal-header bg-primary">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<div class="modal-title">
 					<h4 class="col-xs-5" style="padding: 0; margin: 0">
@@ -47,7 +47,7 @@
 <div class="modal fade" id="deleteStandardModal" tabindex="-1" data-aria-hidden="true" data-aria-labelledby="deleteStandard" role="dialog" data-backdrop="false">
 	<div class="modal-dialog">
 		<div class="modal-content">
-			<div class="modal-header">
+			<div class="modal-header bg-danger">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title">
 					<spring:message code="label.title.analysis.manage_standard.delete" />

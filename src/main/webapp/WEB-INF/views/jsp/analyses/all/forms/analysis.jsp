@@ -8,7 +8,7 @@
 <div class="modal fade" id="deleteAnalysisModel" tabindex="-1" data-aria-hidden="true" data-aria-labelledby="deleteAnalysis" role="dialog" data-backdrop="static">
 	<div class="modal-dialog">
 		<div class="modal-content">
-			<div class="modal-header">
+			<div class="modal-header bg-danger">
 				<h4 class="modal-title" id="deleteAnalysisModel-title">
 					<spring:message code="label.title.delete.analysis" text="Delete an analysis" />
 				</h4>

@@ -10,7 +10,7 @@
 <div class="modal fade" id="modal-ticketing-project-linker" tabindex="-1" role="dialog" data-aria-labelledby="modalTicketingProjectLinker" data-aria-hidden="true" data-backdrop="static">
 	<div class="modal-dialog">
 		<div class="modal-content">
-			<div class="modal-header">
+			<div class="modal-header bg-primary">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="false">&times;</button>
 				<h3 class="modal-title">
 					<spring:message text="${analysis.label}, V.${analysis.version}" />

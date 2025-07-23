@@ -10,7 +10,7 @@
 <div class="modal fade" id="modal-ticketing-linker" tabindex="-1" role="dialog" data-aria-labelledby="modalTicketingLinker" data-aria-hidden="true" data-backdrop="static">
 	<div class="modal-dialog modal-lgx">
 		<div class="modal-content">
-			<div class="modal-header">
+			<div class="modal-header bg-primary">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="false">&times;</button>
 				<h3 class="modal-title">
 					<spring:message code='label.link.measures.to.project' text="Link measures to project" />

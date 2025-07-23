@@ -8,7 +8,7 @@
 <div class="modal fade" id="buildAnalysisModal" tabindex="-1" role="dialog" data-aria-labelledby="buildAnalysisModal" data-aria-hidden="true" data-backdrop="static">
 	<div class="modal-dialog" style="width: 840px;">
 		<div class="modal-content" style="height: 100%">
-			<div class="modal-header">
+			<div class="modal-header bg-primary">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title">
 					<spring:message code="label.title.build.analysis" text="Build an analysis" />

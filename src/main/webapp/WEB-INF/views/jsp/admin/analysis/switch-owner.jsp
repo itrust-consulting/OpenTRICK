@@ -8,7 +8,7 @@
 <div class="modal fade" id="switchOwnerModal" tabindex="-1" role="dialog" data-aria-labelledby="switchOwnerModal" data-aria-hidden="true" data-backdrop="static">
 	<div class="modal-dialog">
 		<div class="modal-content">
-			<div class="modal-header" style="margin-bottom: 0px">
+			<div class="modal-header bg-primary" style="margin-bottom: 0px">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title">
 					<spring:message code="label.title.analysis.switch.owner" text="Switch owner" />

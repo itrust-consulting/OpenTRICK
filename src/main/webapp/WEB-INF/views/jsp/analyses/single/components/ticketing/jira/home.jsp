@@ -26,7 +26,7 @@
 		<c:otherwise>
 			<div class="modal-dialog" style="width: 800px;">
 				<div class="modal-content">
-					<div class="modal-header">
+					<div class="modal-header bg-primary">
 						<button type="button" class="close" data-dismiss="modal" data-aria-hidden="false">&times;</button>
 						<h3 class="modal-title">
 							<spring:message text="${first.type} #${first.id}" />

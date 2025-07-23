@@ -8,7 +8,7 @@
 <div id="analysis-export-dialog" class="modal fade" role="dialog" tabindex="-1" data-aria-hidden="true" data-backdrop="static">
 	<div class="modal-dialog modal-sml">
 		<div class="modal-content">
-			<div class="modal-header">
+			<div class="modal-header bg-primary">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title">
 					<spring:message code="label.title.analysis.export.report" text="Exporting analysis word report" />

@@ -18,7 +18,7 @@
 <div class="modal fade" id="riskProfileMeasureManager" tabindex="-1" data-aria-hidden="true" data-aria-labelledby="probaScaleModal" data-keyboard="false">
 	<div class="modal-dialog modal-lg">
 		<div class="modal-content">
-			<div class="modal-header">
+			<div class="modal-header bg-primary">
 				<div id='risk-profile-measure-manager-header'>
 					<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 					<h4 class="modal-title">

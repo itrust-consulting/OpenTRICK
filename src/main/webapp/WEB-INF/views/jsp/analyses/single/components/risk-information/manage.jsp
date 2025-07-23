@@ -10,7 +10,7 @@
 <div class="modal fade" id="modal-manage-brainstorming" tabindex="-1" role="dialog" data-aria-labelledby="modal-manage-brainstorming" data-aria-hidden="true" data-backdrop="static">
 	<div class="modal-dialog" style="width: 800px;">
 		<div class="modal-content">
-			<div class="modal-header">
+			<div class="modal-header bg-primary">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<div class="modal-title">
 					<h4 class="col-xs-5" style="padding: 0; margin: 0">

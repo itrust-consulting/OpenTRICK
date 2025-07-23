@@ -7,7 +7,7 @@
 <div class="modal fade" id="addStandardModel" tabindex="-1" role="dialog" data-aria-labelledby="addNewStandard" data-aria-hidden="true">
 	<div class="modal-dialog modal-md">
 		<div class="modal-content">
-			<div class="modal-header">
+			<div class="modal-header bg-primary">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title" id="addStandardModel-title">
 					<spring:message code="label.title.add.norm" text="Add new Standard" />
@@ -78,7 +78,7 @@
 <div class="modal fade" id="deleteStandardModel" tabindex="-1" data-aria-hidden="true" data-aria-labelledby="deleteStandard" role="dialog">
 	<div class="modal-dialog">
 		<div class="modal-content">
-			<div class="modal-header">
+			<div class="modal-header bg-danger">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title" id="deleteStandardModel-title">
 					<spring:message code="label.title.delete.norm" text="Delete a standard" />

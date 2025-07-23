@@ -11,7 +11,7 @@
 <div class="modal fade" id="actionPlanAssets" tabindex="-1" role="dialog" data-aria-labelledby="actionPlanAssets" data-aria-hidden="true" data-backdrop="static">
 	<div class="modal-dialog" style="width: 98%;">
 		<div class="modal-content" style="padding:0 5px 20px 5px">
-			<div class="modal-header" style="padding-bottom: 2px">
+			<div class="modal-header bg-primary" style="padding-bottom: 2px">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<div class="modal-title">
 					<h4>

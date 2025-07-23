@@ -8,7 +8,7 @@
 <div class="modal fade" id="manageSAOModel" tabindex="-1" role="dialog" data-aria-labelledby="manageSAOModel" data-aria-hidden="true">
 	<div class="modal-dialog" style="width: 705px;">
 		<div class="modal-content">
-			<div class="modal-header">
+			<div class="modal-header bg-primary">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title" id="manageSAOModel-title">
 					<spring:message code="label.title.manage.soa" text="Manage SOA" />

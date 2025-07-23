@@ -178,6 +178,19 @@ body {
 	margin-right: auto;
 }
 
+.modal-header { border-top-left-radius: 6px; border-top-right-radius: 6px; padding-top: 10px; padding-bottom: 10px;}
+
+.modal-footer { border-top-left-radius: 6px; border-top-right-radius: 6px; padding-top: 10px; padding-bottom: 10px;}
+
+.nav-tabs > li{
+	margin-bottom: -2px;
+}
+
+.nav-tabs > li.active > a { 
+  border-top: 4px solid #337ab7 !important;  
+}
+
+
 .progress-info {
 	color: #333;
 	margin-top: -17px;
@@ -722,6 +735,7 @@ table.rrf-values th {
 	border-style: solid none solid solid;
 	border-width: 1px 0px 1px 1px;
 	border-radius: 4px 0px 0px 4px;
+	border-left: 4px solid #337ab7;
 }
 
 .table>tbody>tr:hover>td.warning,
@@ -761,9 +775,7 @@ table>tbody>tr.selected.info,
 table>tbody>tr.selected.succes,
 table>tbody>tr.selected.warning,
 table>tbody>tr.selected.danger,
-table>tbody>tr.selected.info,
 table>tbody>tr.selected.active td:not(.selected),
-table>tbody>tr.selected.info td:not(.selected),
 table>tbody>tr.selected.succes td:not(.selected),
 table>tbody>tr.selected.warning td:not(.selected),
 table>tbody>tr.selected.danger td:not(.selected),
@@ -775,13 +787,11 @@ tr.selected:HOVER,
 table>tbody>tr.selected:HOVER,
 table>tbody>tr.editable:HOVER>td.statistic,
 table>tbody>tr.selected.active:HOVER,
-table>tbody>tr.selected.info:HOVER,
 table>tbody>tr.selected.succes:HOVER,
 table>tbody>tr.selected.warning:HOVER,
 table>tbody>tr.selected.danger:HOVER,
 table>tbody>tr.selected.info:HOVER,
 table>tbody>tr.selected.active:HOVER td:not(.selected),
-table>tbody>tr.selected.info:HOVER td:not(.selected),
 table>tbody>tr.selected.succes:HOVER td:not(.selected),
 table>tbody>tr.selected.warning:HOVER td:not(.selected),
 table>tbody>tr.selected.danger:HOVER td:not(.selected),

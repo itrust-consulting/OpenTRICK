@@ -9,7 +9,7 @@
 	data-backdrop="static" data-keyboard="true">
 	<div class="modal-dialog modal-mdl">
 		<div class="modal-content">
-			<div class="modal-header">
+			<div class="modal-header bg-primary">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title">
 					<spring:message code="label.tile.manage.ilr_soa_scale" />

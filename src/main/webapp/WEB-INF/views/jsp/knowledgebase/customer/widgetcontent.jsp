@@ -7,7 +7,7 @@
 <div class="modal fade" id="addCustomerModel" tabindex="-1" role="dialog" data-aria-labelledby="addNewCustomer" data-aria-hidden="true">
 	<div class="modal-dialog customer-modal">
 		<div class="modal-content">
-			<div class="modal-header">
+			<div class="modal-header bg-primary">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title" id="addCustomerModel-title">
 					<spring:message code="label.title.add.customer" text="Add new customer" />
@@ -106,7 +106,7 @@
 <div class="modal fade" id="manageCustomerUserModel" tabindex="-1" role="dialog" data-aria-labelledby="manageCustomerUserModel" data-aria-hidden="true">
 	<div class="modal-dialog">
 		<div class="modal-content">
-			<div class="modal-header">
+			<div class="modal-header bg-primary">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title" id="addCustomerModel-title">
 					<spring:message code="label.menu.manage.access.user_customer" text="Manage customer users" />
@@ -127,7 +127,7 @@
 <div class="modal fade" id="deleteCustomerModel" tabindex="-1" data-aria-hidden="true" data-aria-labelledby="deleteCustomer" role="dialog">
 	<div class="modal-dialog">
 		<div class="modal-content">
-			<div class="modal-header">
+			<div class="modal-header bg-danger">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title" id="deleteCustomerModel-title">
 					<spring:message code="label.title.delete.customer" text="Delete a customer" />

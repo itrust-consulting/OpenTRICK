@@ -7,7 +7,7 @@
 <div class="modal fade" id="phase-modal-form" tabindex="-1" role="dialog" data-aria-labelledby="phase-modal-form" data-aria-hidden="true" data-backdrop="static">
 	<div class="modal-dialog">
 		<div class="modal-content">
-			<div class="modal-header">
+			<div class="modal-header bg-primary">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<div class="modal-title">
 					<h4 id="phaseNewModal-title" class="col-md-6">

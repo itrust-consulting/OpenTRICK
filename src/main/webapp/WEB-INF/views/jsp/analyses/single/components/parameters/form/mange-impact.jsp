@@ -9,7 +9,7 @@
 	data-keyboard="true">
 	<div class="modal-dialog modal-md">
 		<div class="modal-content">
-			<div class="modal-header">
+			<div class="modal-header bg-primary">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true" data-loading-text='&times;'>&times;</button>
 				<h4 class="modal-title">
 					<spring:message code="label.title.manage.analysis.impact_scale" text="Manage analysis impact scale" />

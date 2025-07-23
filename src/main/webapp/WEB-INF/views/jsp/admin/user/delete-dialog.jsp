@@ -7,7 +7,7 @@
 <div class="modal fade" id="deleteUserModal" tabindex="-1" data-aria-hidden="true" data-aria-labelledby="deleteUser" role="dialog">
 	<div class="modal-dialog modal-md">
 		<div class="modal-content">
-			<div class="modal-header">
+			<div class="modal-header bg-danger">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title"><spring:message code="label.title.delete.user" text="Delete user" /></h4>
 			</div>

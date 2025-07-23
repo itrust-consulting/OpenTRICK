@@ -8,7 +8,7 @@
 <div class="modal fade" id="credential-modal-form" tabindex="-1" role="dialog" data-aria-labelledby="credential-modal-form" data-aria-hidden="true" data-backdrop="static">
 	<div class="modal-dialog">
 		<div class="modal-content">
-			<div class="modal-header">
+			<div class="modal-header bg-primary">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title">
 					<spring:message code="label.title.${form.customer> 1? 'edit' : 'add' }.credential" />

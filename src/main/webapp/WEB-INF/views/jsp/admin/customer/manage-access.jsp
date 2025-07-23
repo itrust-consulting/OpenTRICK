@@ -8,7 +8,7 @@
 <div class="modal fade" id="manageCustomerUserModel" tabindex="-1" role="dialog" data-aria-labelledby="manageCustomerUserModel" data-aria-hidden="true">
 	<div class="modal-dialog">
 		<div class="modal-content" style="width: 705px;">
-			<div class="modal-header">
+			<div class="modal-header bg-primary">
 				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
 				<h4 class="modal-title">
 					<spring:message code="label.customer.manage.users" text="Manage customer users" />

@@ -11,7 +11,7 @@
 	<spring:message var="category" text="${fn:toLowerCase(categoryRiskInformation)}" />
 	<div class="tab-pane" id="tab-risk-information-${category}">
 		<div class='section' id="section_risk-information_${category}">
-			<div class="page-header tab-content-header table-condensed">
+			<div class="page-header tab-content-header">
 				<div class="container">
 					<div class="row-fluid">
 						<h3>
