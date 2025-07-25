@@ -115,8 +115,8 @@ public class AppConfig {
 	@Bean
 	public DataSource dataSource(Environment environment) {
 		var dataSourceBuilder = DataSourceBuilder.create();
-		System.setProperty("app.settings.level.cache",
-				environment.getProperty("app.settings.level.cache", "/tmp/ot-cache"));
+		System.setProperty("app.settings.hibernate.cache.second_level_cache.path",
+				environment.getProperty("app.settings.hibernate.cache.second_level_cache.path", "/tmp/ot-cache"));
 		dataSourceBuilder.driverClassName(environment.getRequiredProperty("spring.datasource.driver-class-name"));
 		dataSourceBuilder.url(environment.getRequiredProperty("spring.datasource.url"));
 		dataSourceBuilder.username(environment.getRequiredProperty("spring.datasource.username"));

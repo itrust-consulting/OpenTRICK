@@ -86,7 +86,7 @@ public class SessionFactoryConfig {
 	@Primary
 	@ConfigurationProperties("app.jpa.first")
 	public JpaProperties firstJpaProperties(Environment env, ResourceLoader resourceLoader) throws IOException {
-		final String path = "classpath:/persistence/ehcache-" + env.getProperty("jdbc.cache.storage.type")
+		final String path = "classpath:/persistence/ehcache-" + env.getProperty("app.settings.hibernate.cache.second_level_cache.type")
 				+ ".xml";
 		final JpaProperties properties = new JpaProperties();
 		final Resource resource = resourceLoader.getResource(path);

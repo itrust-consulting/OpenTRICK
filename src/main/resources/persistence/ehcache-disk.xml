@@ -1,62 +1,55 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<config xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' 
-        xmlns='http://www.ehcache.org/v3' 
-        xmlns:jsr107='http://www.ehcache.org/v3/jsr107'
-        xsi:schemaLocation="http://www.ehcache.org/v3 http://www.ehcache.org/schema/ehcache-core-3.9.xsd
-                            http://www.ehcache.org/v3/jsr107 http://www.ehcache.org/schema/ehcache-107-ext-3.9.xsd">
+<config xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+	xmlns='http://www.ehcache.org/v3'
+	xmlns:jsr107='http://www.ehcache.org/v3/jsr107' xsi:schemaLocation="http://www.ehcache.org/v3 http://www.ehcache.org/schema/ehcache-core-3.10.xsd 
+                        http://www.ehcache.org/v3/jsr107 http://www.ehcache.org/schema/ehcache-107-ext-3.10.xsd">
 
 	<service>
-		<jsr107:defaults default-template="defaultCache" enable-management="true" enable-statistics="true" jmx-domain="app.ehcache.disk"/>
+		<jsr107:defaults default-template="defaultCache" enable-management="true" enable-statistics="true"/>
 	</service>
 
-	<persistence directory="${app.settings.level.cache}" />
+	<persistence directory="${app.settings.hibernate.cache.second_level_cache.path}" />
 
-	<!-- High-Concurrency Thread Pool -->
-	<thread-pools>
-		<thread-pool alias="pool-disk" min="8" max="16"/>
-	</thread-pools>
-
-	<!-- Disk Optimization Template -->
-	<cache-template name="diskOptimizedTemplate">
+	<!-- Base Template -->
+	<cache-template name="defaultCache">
+		<expiry>
+			<ttl unit="days">45</ttl>
+		</expiry>
+		<heap unit="entries">1000</heap>
 		<disk-store-settings thread-pool="pool-disk" writer-concurrency="12" disk-segments="64"/>
 	</cache-template>
 
-	<!-- Base Template -->
-	<cache-template name="defaultCache" extends="diskOptimizedTemplate">
-		<expiry>
-			<ttl unit="days">45</ttl>			<!-- Reduced from 90 -->
-		</expiry>
-		<heap unit="entries">1000</heap>		<!-- Smaller heap footprint -->
-	</cache-template>
-
 	<!-- Entity Template -->
-	<cache-template name="entityDefaultCache" extends="diskOptimizedTemplate">
+	<cache-template name="entityDefaultCache">
 		<expiry>
-			<ttl unit="days">90</ttl>			<!-- Reduced from 160 -->
+			<ttl unit="days">90</ttl>
 		</expiry>
 		<resources>
-			<disk persistent="true" unit="GB">2</disk>			<!-- Increased + persistent -->
+			<disk unit="GB" persistent="true">2</disk>
 		</resources>
+		<disk-store-settings thread-pool="pool-disk" writer-concurrency="12" disk-segments="64"/>
 	</cache-template>
 
 	<!-- Collection Template -->
-	<cache-template name="collectionDefaultCache" extends="diskOptimizedTemplate">
+	<cache-template name="collectionDefaultCache">
 		<expiry>
-			<ttl unit="days">60</ttl>			<!-- Reduced from 120 -->
+			<ttl unit="days">60</ttl>
 		</expiry>
 		<resources>
-			<disk persistent="true" unit="GB">3</disk>			<!-- Increased storage -->
+			<disk unit="GB" persistent="true">3</disk>
 		</resources>
+		<disk-store-settings thread-pool="pool-disk" writer-concurrency="12" disk-segments="64"/>
 	</cache-template>
 
 	<!-- Force Disk Template -->
-	<cache-template name="forceDiskdefaultCache" extends="diskOptimizedTemplate">
+	<cache-template name="forceDiskdefaultCache">
 		<expiry>
-			<ttl unit="days">120</ttl>			<!-- Reduced from 200 -->
+			<ttl unit="days">120</ttl>
 		</expiry>
 		<resources>
-			<disk persistent="true" unit="GB">5</disk>
+			<disk unit="GB" persistent="true">5</disk>
 		</resources>
+		<disk-store-settings thread-pool="pool-disk" writer-concurrency="12" disk-segments="64"/>
 	</cache-template>
 
 	<!-- Region Definitions -->
@@ -64,11 +57,8 @@
 
 	<cache alias="default-query-results-region" uses-template="defaultCache">
 		<expiry>
-			<tti unit="seconds">120</tti>			<!-- Reduced from 300 -->
+			<tti unit="seconds">120</tti>
 		</expiry>
-		<loader-writer>
-			<class>com.app.QueryCacheLoader</class>
-		</loader-writer>
 	</cache>
 
 	<!-- Entities -->

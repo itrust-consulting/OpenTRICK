@@ -45,7 +45,7 @@ public class ServiceStorageImpl implements ServiceStorage {
 
 	private Path root;
 
-	@Value("${app.settings.data.folder}")
+	@Value("${app.settings.data.path}")
 	private String classPathResourceDir;
 
 	@Autowired
@@ -125,7 +125,7 @@ public class ServiceStorageImpl implements ServiceStorage {
 		}
 	}
 
-	@Value("${app.setting.storage.upload.folder:ot-data}")
+	@Value("${app.setting.storage.upload.path:ot-data}")
 	public void setStorage(String storage) {
 		this.root = Paths.get(storage);
 		File file = this.root.toFile();

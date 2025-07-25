@@ -4,7 +4,6 @@
 package lu.itrust.business.ts.exportation.word.impl.docx4j;
 
 import java.io.File;
-import java.io.IOException;
 import java.math.BigInteger;
 import java.text.DecimalFormat;
 import java.time.ZoneOffset;
