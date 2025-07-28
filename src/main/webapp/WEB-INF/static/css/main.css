@@ -26,53 +26,56 @@ body {
 }
 
 /** Begin Material Design Switch */
-.material-switch > input[type="checkbox"] {
-    display: none;   
+.material-switch>input[type="checkbox"] {
+	display: none;
 }
 
-.material-switch > label {
-    cursor: pointer;
-    height: 0px;
-    position: relative; 
-    width: 40px;  
+.material-switch>label {
+	cursor: pointer;
+	height: 0px;
+	position: relative;
+	width: 40px;
 }
 
-.material-switch > label::before {
-    background: rgb(0, 0, 0);
-    box-shadow: inset 0px 0px 10px rgba(0, 0, 0, 0.5);
-    border-radius: 8px;
-    content: '';
-    height: 16px;
-    margin-top: -8px;
-    position:absolute;
-    opacity: 0.3;
-    transition: all 0.4s ease-in-out;
-    width: 40px;
-}
-.material-switch > label::after {
-    background: rgb(255, 255, 255);
-    border-radius: 16px;
-    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.3);
-    content: '';
-    height: 24px;
-    left: -4px;
-    margin-top: -8px;
-    position: absolute;
-    top: -4px;
-    transition: all 0.3s ease-in-out;
-    width: 24px;
-}
-.material-switch > input[type="checkbox"]:checked + label::before {
-    background: inherit;
-    opacity: 0.5;
-}
-.material-switch > input[type="checkbox"]:checked + label::after {
-    background: inherit;
-    left: 20px;
+.material-switch>label::before {
+	background: rgb(0, 0, 0);
+	box-shadow: inset 0px 0px 10px rgba(0, 0, 0, 0.5);
+	border-radius: 8px;
+	content: '';
+	height: 16px;
+	margin-top: -8px;
+	position: absolute;
+	opacity: 0.3;
+	transition: all 0.4s ease-in-out;
+	width: 40px;
 }
 
-.material-switch > input[type="checkbox"]:disabled + label {
-    opacity: 0.5;
+.material-switch>label::after {
+	background: rgb(255, 255, 255);
+	border-radius: 16px;
+	box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.3);
+	content: '';
+	height: 24px;
+	left: -4px;
+	margin-top: -8px;
+	position: absolute;
+	top: -4px;
+	transition: all 0.3s ease-in-out;
+	width: 24px;
+}
+
+.material-switch>input[type="checkbox"]:checked+label::before {
+	background: inherit;
+	opacity: 0.5;
+}
+
+.material-switch>input[type="checkbox"]:checked+label::after {
+	background: inherit;
+	left: 20px;
+}
+
+.material-switch>input[type="checkbox"]:disabled+label {
+	opacity: 0.5;
 }
 
 /** End of Material Design Switch **/
@@ -85,7 +88,7 @@ body {
 
 #main_menu_brand>img {
 	margin: -10px -5px 0px 0px;
-  	height: 40px;
+	height: 40px;
 }
 
 #main_menu_brand>img.brand-white {
@@ -178,13 +181,57 @@ body {
 	margin-right: auto;
 }
 
-.modal-header { border-top-left-radius: 6px; border-top-right-radius: 6px; padding-top: 10px; padding-bottom: 10px;}
-
-.modal-footer { border-top-left-radius: 6px; border-top-right-radius: 6px; padding-top: 10px; padding-bottom: 10px;}
-
-.nav-tabs > li.active > a { 
-  border-top: 4px solid #337ab7 !important;  
+.modal-header {
+	border-top-left-radius: 6px;
+	border-top-right-radius: 6px;
+	padding-top: 10px;
+	padding-bottom: 10px;
 }
+
+.modal-footer {
+	border-top-left-radius: 6px;
+	border-top-right-radius: 6px;
+	padding-top: 10px;
+	padding-bottom: 10px;
+}
+
+
+/**
+
+ * Custom styles for the application
+ * 
+ * These styles are used across the application to maintain a consistent look and feel.
+ */
+
+.nav-tabs>li>a:hover,
+.nav-chapter>div.list-group>a:not(.active):hover,
+.nav[id^=menu]>li:not(.disabled)>a:hover {
+	background-color: #e9f7fe;
+	border-color: #dee2e6;
+}
+
+.nav-tabs>li>a.text-warning:hover,
+.nav[id^=menu]>li:not(.disabled)>a.text-warning:hover {
+	background-color: #fef3e9;
+	border-color: #dee2e6;
+}
+
+.nav-tabs>li>a.text-danger:hover,
+.nav[id^=menu]>li:not(.disabled)>a.text-danger:hover {
+	background-color: #fee9e9;
+	border-color: #dee2e6;
+}
+
+.nav-tabs>li.active>a,
+.nav-tabs>li.active>a:hover,
+.nav-tabs>li.active>a:focus {
+	color: #337ab7;
+	background-color: #fff;
+	border: 1px solid #e9ecef;
+	border-bottom-color: transparent;
+	box-shadow: inset 0 3px 0 #337ab7;
+}
+
 
 
 .progress-info {
@@ -592,7 +639,7 @@ input[type="range"][orient="vertical"] {
 	height: 198px;
 }
 
-#control_rrf_measure input[type="range"]{
+#control_rrf_measure input[type="range"] {
 	height: 180px;
 }
 
@@ -725,13 +772,13 @@ table.rrf-values th {
 }
 
 .nav-chapter a.list-group-item.active {
-	color: #333;
-	background-color: window;
+	color: #337ab7;
+	background-color: #fff;
 	border-color: #ddd;
 	border-style: solid none solid solid;
-	border-width: 1px 0px 1px 1px;
-	border-radius: 4px 0px 0px 4px;
-	border-left: 4px solid #337ab7;
+	border-width: 1px 0 1px;
+	border-radius: 4px 0 0 4px;
+	box-shadow: inset 3px 0 0 #337ab7;
 }
 
 .table>tbody>tr:hover>td.warning,
@@ -1095,15 +1142,15 @@ input[type=date]:disabled {
 	margin-left: 5px;
 }
 
-.home-logo img{
-	height: 250px; 
+.home-logo img {
+	height: 250px;
 	margin-bottom: -125px;
 }
 
-.home-logo+hr{
-  border-top-color: #3e3e3e;
-  margin-top: 14px;
-  z-index: -1;
+.home-logo+hr {
+	border-top-color: #3e3e3e;
+	margin-top: 14px;
+	z-index: -1;
 }
 
 @media (min-width: 768px) {

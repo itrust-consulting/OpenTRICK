@@ -9,7 +9,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<org.apache.directory.server.version>2.0.0.AM26</org.apache.directory.server.version>
 		<module.image.name>opentrick.eu/docker</module.image.name>
-		<spring-boot.version>3.4.4</spring-boot.version>
+		<spring-boot.version>3.5.4</spring-boot.version>
 		<java.version>17</java.version>
 	</properties>
 
