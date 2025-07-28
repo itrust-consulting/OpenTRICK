@@ -32,7 +32,7 @@ let DataManagerExport = {
 		setup: ($view, $tab) => DataManagerExport["default"].setup($view, $tab),
 		process: ($view, $tab) => DataManagerExport["default"].process($view, $tab)
 	},
-	"item-information":{
+	"item-information": {
 		setup: ($view, $tab) => DataManagerExport["default"].setup($view, $tab),
 		process: ($view, $tab) => DataManagerExport["default"].process($view, $tab)
 	},
@@ -42,56 +42,48 @@ let DataManagerExport = {
 	},
 	"risk-estimation": {
 		setup: ($view, $tab) => {
-			if (application['isILR']) {
-				let $currentUI = $("[data-view-content-name='risk-estimation']", $tab);
-				$("button[name='export']", $view).prop("disabled", !$currentUI.length);
-				if (!$currentUI.length) {
-					let $progress = $("#loading-indicator").show(), url = $tab.attr("data-view-url"), $btnExport = $("button[name='export']", $view).prop("disabled", true), $oldContent = $("[data-view-content-name='risk-estimation']", $tab);
-					$.ajax({
-						url: context + url,
-						type: "GET",
-						contentType: "application/json;charset=UTF-8",
-						success: function (response, textStatus, jqXHR) {
-							let $content = $("[data-view-content-name='risk-estimation']", new DOMParser().parseFromString(response, "text/html"));
-							if ($content.length) {
-								if ($oldContent.length)
-									$oldContent.replaceWith($content);
-								else $content.appendTo($tab);
+			let $currentUI = $("[data-view-content-name='risk-estimation']", $tab);
+			$("button[name='export']", $view).prop("disabled", !$currentUI.length);
+			if (!$currentUI.length) {
+				let $progress = $("#loading-indicator").show(), url = $tab.attr("data-view-url"), $btnExport = $("button[name='export']", $view).prop("disabled", true), $oldContent = $("[data-view-content-name='risk-estimation']", $tab);
+				$.ajax({
+					url: context + url,
+					type: "GET",
+					contentType: "application/json;charset=UTF-8",
+					success: function (response, textStatus, jqXHR) {
+						let $content = $("[data-view-content-name='risk-estimation']", new DOMParser().parseFromString(response, "text/html"));
+						if ($content.length) {
+							if ($oldContent.length)
+								$oldContent.replaceWith($content);
+							else $content.appendTo($tab);
 
-								let $ilrMappingFile = $("#extrasFormula-cvs-file", $tab), $ilrMappingInfo = $("#extrasFormula-cvs-file-info", $tab), $ilrMappingbrowsebtn = $("#extrasFormula-cvs-file-browse-button", $tab);
-								setupBrowseButton($ilrMappingFile, $ilrMappingInfo, $ilrMappingbrowsebtn, $btnExport, ".csv", () => { }, true);
+							let $ilrMappingFile = $("#extrasFormula-cvs-file", $tab), $ilrMappingInfo = $("#extrasFormula-cvs-file-info", $tab), $ilrMappingbrowsebtn = $("#extrasFormula-cvs-file-browse-button", $tab);
+							setupBrowseButton($ilrMappingFile, $ilrMappingInfo, $ilrMappingbrowsebtn, $btnExport, ".csv", () => { }, true);
 
-								$("form", $content).on("submit", (e) => downloadProgress($progress, $content.attr("data-view-token"), () => $view.modal("hide")));
+							$("form", $content).on("submit", (e) => downloadProgress($progress, $content.attr("data-view-token"), () => $view.modal("hide")));
 
-								DataManagerExport["default"].postSetup($view, $tab);
-							}
-							else {
-								if (response["error"] != undefined)
-									showDialog("#alert-dialog", response["error"]);
-								else
-									unknowError();
-
-								$tab.empty();
-							}
-
-							$btnExport.prop("disabled", false);
-						},
-						error: (jqXHR, textStatus, errorThrown) => {
-							$tab.empty();
-							unknowError(jqXHR, textStatus, errorThrown);
+							DataManagerExport["default"].postSetup($view, $tab);
 						}
-					}).complete(() => $progress.hide());
-				}
+						else {
+							if (response["error"] != undefined)
+								showDialog("#alert-dialog", response["error"]);
+							else
+								unknowError();
+
+							$tab.empty();
+						}
+
+						$btnExport.prop("disabled", false);
+					},
+					error: (jqXHR, textStatus, errorThrown) => {
+						$tab.empty();
+						unknowError(jqXHR, textStatus, errorThrown);
+					}
+				}).complete(() => $progress.hide());
 			}
-			else {
-				DataManagerExport["default"].setup($view, $tab);
-			}
+
 		},
-		process: ($view, $tab) => {
-			if (application['isILR'])
-				$("button[type='submit']", $tab).trigger("click");
-			else DataManagerExport["default"].process($view, $tab);
-		}
+		process: ($view, $tab) => $("button[type='submit']", $tab).trigger("click")
 	},
 	"scenario": {
 		setup: ($view, $tab) => DataManagerExport["default"].setup($view, $tab),
@@ -124,9 +116,9 @@ let DataManagerExport = {
 
 							let $ilrMappingFile = $("#mapping-cvs-file", $tab), $ilrMappingInfo = $("#mapping-cvs-file-info", $tab), $ilrMappingbrowsebtn = $("#mapping-cvs-file-browse-button", $tab);
 
-							setupBrowseButton($ilrDataFile, $ilrDataInfo, $ilrDatabrowsebtn, $btnExport, ".json", () => {});
+							setupBrowseButton($ilrDataFile, $ilrDataInfo, $ilrDatabrowsebtn, $btnExport, ".json", () => { });
 
-							setupBrowseButton($ilrMappingFile, $ilrMappingInfo, $ilrMappingbrowsebtn, $btnExport, ".csv", () => {});
+							setupBrowseButton($ilrMappingFile, $ilrMappingInfo, $ilrMappingbrowsebtn, $btnExport, ".csv", () => { });
 
 							$("form", $content).on("submit", (e) => downloadProgress($progress, $content.attr("data-view-token"), () => $view.modal("hide")));
 
@@ -333,7 +325,9 @@ let DataManagerExport = {
 				DataManagerExport["report"].updateStatus($view, $tabs.length ? $tabs : $currentUI);
 			}
 			else {
-				let $progress = $("#loading-indicator").show(), url = $tab.attr("data-view-url"), $btnExport = $("button[name='export']", $view).prop("disabled", true), $selectedTab = $("ul.nav>li.active>a", $tab);
+				let $progress = $("#loading-indicator").show(), url = $tab.attr("data-view-url");
+				let $selectedTab = $("ul.nav>li.active>a", $tab);
+				$("button[name='export']", $view).prop("disabled", true);
 				$.ajax({
 					url: context + url,
 					contentType: "application/json;charset=UTF-8",

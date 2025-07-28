@@ -447,13 +447,9 @@ public class ControllerDataManager {
 		items.add(new DataManagerItem("word-report", "/Analysis/Data-manager/Report/Export-form",
 				ANALYSIS_DATA_MANAGER_REPORT_EXPORT_PROCESS, null));
 		if (!analysis.getAssessments().isEmpty()) {
-			if (isILR)
-				items.add(new DataManagerItem("risk-estimation",
-						"/Analysis/Data-manager/Risk-estimation/Export-form",
-						ANALYSIS_DATA_MANAGER_RISK_ESTIMATION_EXPORT_PROCESS, ".csv"));
-			else
-				items.add(new DataManagerItem("risk-estimation",
-						ANALYSIS_DATA_MANAGER_RISK_ESTIMATION_EXPORT_PROCESS));
+			items.add(new DataManagerItem("risk-estimation",
+					"/Analysis/Data-manager/Risk-estimation/Export-form",
+					ANALYSIS_DATA_MANAGER_RISK_ESTIMATION_EXPORT_PROCESS, ".csv"));
 		}
 		if (analysis.isQualitative()) {
 			if (!analysis.getRiskRegisters().isEmpty())
@@ -621,7 +617,7 @@ public class ControllerDataManager {
 
 			serviceAnalysis.saveOrUpdate(analysis);
 
-			final Map<String, String> extrasColumns = loadExtrasColumns(extrasFormula, isILR);
+			final Map<String, String> extrasColumns = loadExtrasColumns(extrasFormula);
 
 			final List<ScaleType> scales = analysis.findImpacts();
 
@@ -1461,7 +1457,8 @@ public class ControllerDataManager {
 			return JsonMessage.error(messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
 		} catch (Exception e) {
 			TrickLogManager.persist(e);
-			return JsonMessage.error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
+			return JsonMessage
+					.error(messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
 		}
 
 	}
@@ -1609,8 +1606,8 @@ public class ControllerDataManager {
 	/// Import part.
 	///
 
-	private Map<String, String> loadExtrasColumns(MultipartFile multipartFile, boolean isILR) {
-		if (!isILR || multipartFile == null || multipartFile.isEmpty())
+	private Map<String, String> loadExtrasColumns(MultipartFile multipartFile) {
+		if (multipartFile == null || multipartFile.isEmpty())
 			return Collections.emptyMap();
 		final File file = InstanceManager.getServiceStorage().createTmpFile();
 		try {
@@ -2168,7 +2165,8 @@ public class ControllerDataManager {
 			Model model, HttpSession session, Principal principal,
 			Locale locale) throws Exception {
 		if (file.isEmpty())
-			return JsonMessage.error(messageSource.getMessage("error.file.empty", null, "File cannot be empty", locale));
+			return JsonMessage
+					.error(messageSource.getMessage("error.file.empty", null, "File cannot be empty", locale));
 		if (file.getSize() > maxUploadFileSize)
 			return JsonMessage.error(messageSource.getMessage("error.file.too.large",
 					new Object[] { maxUploadFileSize }, "File is to large", locale));

@@ -182,10 +182,6 @@ body {
 
 .modal-footer { border-top-left-radius: 6px; border-top-right-radius: 6px; padding-top: 10px; padding-bottom: 10px;}
 
-.nav-tabs > li{
-	margin-bottom: -2px;
-}
-
 .nav-tabs > li.active > a { 
   border-top: 4px solid #337ab7 !important;  
 }
