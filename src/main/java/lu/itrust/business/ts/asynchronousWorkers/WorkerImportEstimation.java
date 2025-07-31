@@ -1332,7 +1332,7 @@ public class WorkerImportEstimation extends WorkerImpl {
 	 *                      uncertainty information
 	 * @return the list of generated columns
 	 */
-	public final static List<Column> generateColumns(List<ScaleType> scales, boolean qualitative, boolean isILR,
+	public static final  List<Column> generateColumns(List<ScaleType> scales, boolean qualitative, boolean isILR,
 			boolean hiddenComment,
 			boolean rowColumn, boolean uncertainty) {
 		List<Column> columns = new ArrayList<>();
@@ -1370,12 +1370,16 @@ public class WorkerImportEstimation extends WorkerImpl {
 			columns.add(new Column(PROBABILITY));
 			columns.add(new Column("Impact"));
 		}
+
 		if (uncertainty)
 			columns.add(new Column("Uncertainty"));
+
 		if (isILR) {
 			columns.add(new Column("Risk"));
 			columns.add(new Column("Residual risk"));
 		}
+
+
 		columns.add(new Column("Owner"));
 		columns.add(new Column("Comment"));
 		if (hiddenComment)

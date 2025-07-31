@@ -21,6 +21,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.docx4j.openpackaging.packages.SpreadsheetMLPackage;
 import org.docx4j.openpackaging.parts.SpreadsheetML.WorkbookPart;
 import org.docx4j.openpackaging.parts.SpreadsheetML.WorksheetPart;
@@ -138,7 +139,7 @@ public class RRFExportImport {
 			final Analysis analysis = serviceAnalysis.get(idAnalysis);
 			final SpreadsheetMLPackage mlPackage = SpreadsheetMLPackage.load(file.getInputStream());
 			loadScenarios(analysis.getScenarios(), analysis.getAssets(), mlPackage.getWorkbookPart(), formatter);
-			loadStandards(analysis.getAnalysisStandards().values(), mlPackage.getWorkbookPart(), formatter);
+			loadStandards(analysis, mlPackage.getWorkbookPart(), formatter);
 			serviceAnalysis.saveOrUpdate(analysis); // Log
 			TrickLogManager.persist(LogLevel.INFO, LogType.ANALYSIS, "log.analysis.import.raw.rrf",
 					String.format("Analysis: %s, version: %s, type: Raw RRF", analysis.getIdentifier(),
@@ -173,7 +174,7 @@ public class RRFExportImport {
 		return colIndex;
 	}
 
-	private void loadMeasureData(AssetMeasure measure, Row row, Integer index, Map<Integer, String> columnMapper,
+	private void loadMeasureData(AssetMeasure measure,final Map<String,Asset> assets, Row row, Integer index, Map<Integer, String> columnMapper,
 			DataFormatter formatter) {
 		Map<String, MeasureAssetValue> measureAssetValues = measure.getMeasureAssetValues().stream()
 				.collect(Collectors.toMap(assetValue -> assetValue.getAsset().getName(), Function.identity()));
@@ -181,19 +182,27 @@ public class RRFExportImport {
 		for (int i = 0; i < row.getC().size(); i++) {
 			if (i == index)
 				continue;
-			String nameField = columnMapper.get(i);
+			final String nameField = columnMapper.get(i);
 			if (nameField != null) {
 				double value = getDouble(row, i, formatter);
 				if (measureAssetValues.containsKey(nameField))
 					measureAssetValues.get(nameField).setValue((int) value);
-				else
-					updateMeasureProperties(properties, nameField, value);
+				else{
+					final var asset = assets.get(nameField);
+					if(asset == null)
+						updateMeasureProperties(properties, nameField, value);
+					else {
+						final var assetValue = new MeasureAssetValue(asset, (int) value);
+						measureAssetValues.put(asset.getName(), assetValue);
+						measure.addAnMeasureAssetValue(assetValue);
+					}
+				}
 			}
 		}
 		measure.setMeasurePropertyList(properties);
 	}
 
-	private void loadMeasureData(NormalMeasure measure, Row row, Integer index, Map<Integer, String> columnMapper,
+	private void loadMeasureData(NormalMeasure measure,final Map<String,AssetType> assetTypes, Row row, Integer index, Map<Integer, String> columnMapper,
 			DataFormatter formatter) {
 		Map<String, AssetTypeValue> assetValues = measure.getAssetTypeValues().stream()
 				.collect(Collectors.toMap(assetValue -> assetValue.getAssetType().getName(), Function.identity()));
@@ -206,8 +215,16 @@ public class RRFExportImport {
 				double value = getDouble(row, i, formatter);
 				if (assetValues.containsKey(nameField))
 					assetValues.get(nameField).setValue((int) value);
-				else
-					updateMeasureProperties(properties, nameField, value);
+				else{
+					final var assetType = assetTypes.get(nameField);
+					if(assetType == null)
+						updateMeasureProperties(properties, nameField, value);
+					else {
+						final var assetValue = new AssetTypeValue(assetType, (int) value);
+						assetValues.put(assetType.getName(), assetValue);
+						measure.addAnAssetTypeValue(assetValue);
+					}
+				}
 			}
 		}
 		measure.setMeasurePropertyList(properties);
@@ -325,7 +342,7 @@ public class RRFExportImport {
 		toDeletedsTypeValues.stream().filter(e -> e.getId() > 0).forEach(e -> serviceAssetTypeValue.delete(e));
 	}
 
-	private void loadStandard(AssetStandard analysisStandard, SheetData sheet, DataFormatter formatter) {
+	private void loadStandard(AssetStandard analysisStandard, final Map<String,Asset> assets, SheetData sheet, DataFormatter formatter) {
 
 		if (sheet.getRow().isEmpty())
 			throw new TrickException("error.import.raw.rrf.standard", "Standard cannot be loaded");
@@ -345,11 +362,11 @@ public class RRFExportImport {
 				continue;
 			AssetMeasure measure = mappingMeasures.get(value);
 			if (measure != null)
-				loadMeasureData(measure, row, index, columnMapper, formatter);
+				loadMeasureData(measure,assets, row, index, columnMapper, formatter);
 		}
 	}
 
-	private void loadStandard(NormalStandard analysisStandard, SheetData sheet, DataFormatter formatter) {
+	private void loadStandard(NormalStandard analysisStandard, final Map<String,AssetType> assetTypes, SheetData sheet, DataFormatter formatter) {
 		if (sheet.getRow().isEmpty())
 			throw new TrickException("error.import.raw.rrf.standard", "Standard cannot be loaded");
 		final Map<Integer, String> columnMapper = new LinkedHashMap<>();
@@ -358,6 +375,7 @@ public class RRFExportImport {
 		if (index == null)
 			throw new TrickException("error.import.raw.rrf.standard.reference",
 					"Standard reference column cannot be found");
+
 		final Map<String, NormalMeasure> mappingMeasures = analysisStandard.getMeasures().stream()
 				.collect(Collectors.toMap(measure -> measure.getMeasureDescription().getReference(),
 						NormalMeasure.class::cast));
@@ -368,21 +386,27 @@ public class RRFExportImport {
 				continue;
 			final NormalMeasure measure = mappingMeasures.get(value);
 			if (measure != null)
-				loadMeasureData(measure, row, index, columnMapper, formatter);
+				loadMeasureData(measure,assetTypes, row, index, columnMapper, formatter);
 		}
 	}
 
-	private void loadStandards(Collection<AnalysisStandard> analysisStandards, WorkbookPart workbookPart,
-			DataFormatter formatter) throws Exception {
-		for (AnalysisStandard analysisStandard : analysisStandards) {
+	private void loadStandards(Analysis analysis, WorkbookPart workbookPart,
+			DataFormatter formatter) throws Docx4JException{
+		final Map<String,AssetType> assetTypes = serviceAssetType.getAll().stream()
+				.collect(Collectors.toMap(assetType -> assetType.getName(), Function.identity()));
+
+		final Map<String, Asset> assets = analysis.getAssets().stream()
+				.collect(Collectors.toMap(asset -> asset.getName(), Function.identity()));
+		
+		for (AnalysisStandard analysisStandard : analysis.getAnalysisStandards().values()) {
 			if (analysisStandard instanceof MaturityStandard)
 				continue;
 			final SheetData sheet = findSheet(workbookPart, analysisStandard.getStandard().getName());
 			if (sheet != null) {
-				if (analysisStandard instanceof AssetStandard)
-					loadStandard((AssetStandard) analysisStandard, sheet, formatter);
-				else if (analysisStandard instanceof NormalStandard)
-					loadStandard((NormalStandard) analysisStandard, sheet, formatter);
+				if (analysisStandard instanceof AssetStandard assetStandard)
+					loadStandard(assetStandard, assets, sheet, formatter);
+				else if (analysisStandard instanceof NormalStandard normalStandard)
+					loadStandard(normalStandard,assetTypes, sheet, formatter);
 			}
 		}
 	}

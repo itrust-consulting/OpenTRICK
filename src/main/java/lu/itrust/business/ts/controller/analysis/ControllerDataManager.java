@@ -137,6 +137,7 @@ import lu.itrust.business.ts.model.asset.Asset;
 import lu.itrust.business.ts.model.asset.AssetType;
 import lu.itrust.business.ts.model.cssf.RiskProbaImpact;
 import lu.itrust.business.ts.model.cssf.RiskProfile;
+import lu.itrust.business.ts.model.cssf.RiskRegisterItem;
 import lu.itrust.business.ts.model.cssf.RiskStrategy;
 import lu.itrust.business.ts.model.cssf.helper.CSSFFilter;
 import lu.itrust.business.ts.model.general.Customer;
@@ -608,7 +609,6 @@ public class ControllerDataManager {
 			final SheetData sheetData = worksheetPart.getContents().getSheetData();
 			final boolean isILR = Analysis.isILR(analysis);
 			final boolean hiddenComment = analysis.findSetting(AnalysisSetting.ALLOW_RISK_HIDDEN_COMMENT);
-			final boolean qualitative = analysis.isHybrid() || analysis.isQualitative();
 			final boolean rowColumn = analysis.findSetting(AnalysisSetting.ALLOW_RISK_ESTIMATION_RAW_COLUMN);
 			final boolean uncertainty = analysis.isUncertainty();
 			final ValueFactory factory = new ValueFactory(analysis.getParameters());
@@ -619,16 +619,11 @@ public class ControllerDataManager {
 
 			final Map<String, String> extrasColumns = loadExtrasColumns(extrasFormula);
 
+			System.out.println(extrasColumns);
+
 			final List<ScaleType> scales = analysis.findImpacts();
 
-			final Map<String, RiskProfile> riskProfiles = analysis.getRiskProfiles().stream()
-					.collect(Collectors.toMap(RiskProfile::getKey, Function.identity()));
-
-			final Map<AssetType, String> assetTypes = serviceAssetType.getAll().stream()
-					.collect(Collectors.toMap(Function.identity(), e -> messageSource
-							.getMessage("label.asset_type." + e.getName().toLowerCase(), null, e.getName(), locale)));
-
-			final String[] columns = createTableHeader(scales, extrasColumns.keySet(), qualitative, isILR,
+			final String[] columns = createTableHeader(scales, extrasColumns.keySet(), analysis.getType(), isILR,
 					hiddenComment,
 					rowColumn,
 					uncertainty);
@@ -649,9 +644,8 @@ public class ControllerDataManager {
 				return v;
 			});
 
-			generateRiskEstimation(analysis, sheetData, hiddenComment, qualitative, isILR, rowColumn, uncertainty,
-					extrasColumns, scales,
-					riskProfiles, assetTypes, columns);
+			generateRiskEstimation(analysis, sheetData, hiddenComment, isILR, rowColumn, uncertainty,
+					extrasColumns, scales, columns, locale);
 
 			ExcelHelper.applyHeaderAndFooter(headerFooterSheetName, "Risk estimation", mlPackage);
 
@@ -1442,11 +1436,10 @@ public class ControllerDataManager {
 						.error(messageSource.getMessage("error.import_rrf.norm", null, "No standard", locale));
 			if (!(serviceAnalysis.isProfile(rrfForm.getAnalysis())
 					|| serviceUserAnalysisRight.isUserAuthorized(rrfForm.getAnalysis(), principal.getName(),
-							AnalysisRight.highRightFrom(AnalysisRight.MODIFY))))
-				return JsonMessage.error(messageSource.getMessage("error.action.not_authorise", null,
-						"Action does not authorised", locale));
-			else if (!rrfForm.getStandards().stream()
-					.allMatch(idStandard -> serviceStandard.belongsToAnalysis(rrfForm.getAnalysis(), idStandard)))
+							AnalysisRight.highRightFrom(AnalysisRight.MODIFY))
+					|| rrfForm.getStandards().stream()
+							.allMatch(idStandard -> serviceStandard.belongsToAnalysis(rrfForm.getAnalysis(),
+									idStandard))))
 				return JsonMessage.error(messageSource.getMessage("error.action.not_authorise", null,
 						"Action does not authorised", locale));
 			measureManager.importRRFFromStandard((Integer) session.getAttribute(Constant.SELECTED_ANALYSIS), rrfForm);
@@ -1527,13 +1520,26 @@ public class ControllerDataManager {
 	}
 
 	private void generateRiskEstimation(final Analysis analysis, final SheetData sheetData, final boolean hiddenComment,
-			final boolean qualitative, boolean isILR, final boolean rowColumn, final boolean uncertainty,
+			boolean isILR, final boolean rowColumn, final boolean uncertainty,
 			final Map<String, String> extrasColumns, final List<ScaleType> scales,
-			final Map<String, RiskProfile> riskProfiles, final Map<AssetType, String> assetTypes,
-			final String[] columns) {
-		int rowIndex = 1;
+			final String[] columns, Locale locale) {
+		final boolean qualitative = analysis.isQualitative();
+
+		final Map<String, RiskProfile> riskProfiles = analysis.getRiskProfiles().stream()
+				.collect(Collectors.toMap(RiskProfile::getKey, Function.identity()));
+
+		final Map<String, RiskRegisterItem> riskRegisters = analysis.getRiskRegisters().stream()
+				.collect(Collectors.toMap(RiskRegisterItem::getKey, Function.identity()));
+
+		final Map<AssetType, String> assetTypes = serviceAssetType.getAll().stream()
+				.collect(Collectors.toMap(Function.identity(), e -> messageSource
+						.getMessage("label.asset_type." + e.getName().toLowerCase(), null, e.getName(), locale)));
+
 		if (isILR)
 			DependencyGraphManager.computeImpact(analysis.getAssetNodes());
+
+		int rowIndex = 1;
+
 		for (Assessment assessment : analysis.getAssessments()) {
 			int cellIndex = 0;
 			Row row = getOrCreateRow(sheetData, rowIndex++, columns.length);
@@ -1585,6 +1591,24 @@ public class ControllerDataManager {
 				setValue(row, cellIndex++, value);
 				setValue(row, cellIndex++, profile.getActionPlan());
 			}
+
+			if (analysis.isHybrid()) {
+				var riskRegister = riskRegisters
+						.get(RiskRegisterItem.key(assessment.getAsset(), assessment.getScenario()));
+
+				if (rowColumn) {
+					setValue(row, cellIndex++,
+							riskRegister == null || riskRegister.getRawEvaluation() == null ? null
+									: riskRegister.getRawEvaluation().getImportance() * 0.001);
+				}
+
+				setValue(row, cellIndex++, assessment.getALE() * 0.001);
+				setValue(row, cellIndex++,
+						riskRegister == null || riskRegister.getExpectedEvaluation() == null ? null
+								: riskRegister.getExpectedEvaluation().getImportance() * 0.001);
+
+			}
+
 			setFormula(setValue(row, cellIndex++, assetTypes.get(assessment.getAsset().getAssetType())),
 					"VLOOKUP(Risk_estimation[[#This Row],[Asset]],Assets[[#All],[Name]:[Value]],2,FALSE)");
 			setFormula(setValue(row, cellIndex++, assessment.getAsset().isSelected()),
@@ -1594,7 +1618,7 @@ public class ControllerDataManager {
 					"VLOOKUP(Risk_estimation[[#This Row],[Scenario]],Scenarios[[Name]:[Selected]],4,FALSE)");
 
 			for (String formula : extrasColumns.values()) {
-				if (formula.startsWith("VLOOKUP"))
+				if (formula.contains("VLOOKUP"))
 					setFormula(setValue(row, cellIndex++, ""), formula);
 				else
 					setFormula(getOrCreateCell(row, cellIndex++), formula);
@@ -1602,30 +1626,42 @@ public class ControllerDataManager {
 		}
 	}
 
-	///
-	/// Import part.
-	///
+	/**
+	 * Parse the extras columns from the file.
+	 * The file should contain lines in the format: column_name;[@[column]] or [@column]
+	 * @param multipartFile
+	 * @return
+	 */
 
 	private Map<String, String> loadExtrasColumns(MultipartFile multipartFile) {
 		if (multipartFile == null || multipartFile.isEmpty())
 			return Collections.emptyMap();
 		final File file = InstanceManager.getServiceStorage().createTmpFile();
 		try {
-			final Pattern p1 = Pattern.compile("\\[@(\\w+)\\]");// replace [@column] by [[#This Row],[column]]
-			final Pattern p2 = Pattern.compile("\\[@(\\[\\w.*\\])");// replace [@[column]] by [[#This
-																	// Row],[column]]
 			InstanceManager.getServiceStorage().store(multipartFile, file.getAbsolutePath());
-			try (Stream<String> stream = Files.lines(file.toPath())) {
-				return stream.map(String::trim).map(e -> e.split(";", 2)).filter(e -> e.length == 2)
-						.collect(Collectors.toMap(e -> e[0].trim(),
-								e -> p2.matcher(p1.matcher(e[1].trim().replace(";", ","))
-										.replaceAll(m -> "[[#This Row],[%s]]".formatted(m.group(1))))
-										.replaceAll(m -> "[[#This Row],%s".formatted(m.group(1)))
+			final Pattern p2 = Pattern.compile("\\[@\\[([^\\]]+)\\]\\]"); // Handle [@[column]] first
+			final Pattern p1 = Pattern.compile("\\[@([^\\]]+)\\]"); // Then handle [@column]
 
-								,
+			try (Stream<String> stream = Files.lines(file.toPath())) {
+				return stream.map(String::trim)
+						.map(e -> e.split(";", 2))
+						.filter(e -> e.length == 2)
+						.collect(Collectors.toMap(
+								e -> e[0].trim(),
+								e -> {
+									String valueStr = e[1].replace(";", ",").trim();
+									// Process structured references
+									valueStr = p2.matcher(valueStr)
+											.replaceAll(m -> "[[#This Row],[" + m.group(1) + "]]");
+									valueStr = p1.matcher(valueStr)
+											.replaceAll(m -> "[[#This Row],[" + m.group(1) + "]]");
+
+									return valueStr;
+								},
 								(e1, e2) -> e1,
 								LinkedHashMap::new));
 			}
+
 		} catch (Exception e) {
 			TrickLogManager.persist(e);
 			return Collections.emptyMap();
@@ -1729,12 +1765,22 @@ public class ControllerDataManager {
 		ExcelHelper.applyHeaderAndFooter(headerFooterSheetName, "Dependency", mlPackage);
 	}
 
-	private String[] createTableHeader(List<ScaleType> scales, Collection<String> extrasColumns, boolean qualitative,
+	private String[] createTableHeader(List<ScaleType> scales, Collection<String> extrasColumns, AnalysisType type,
 			boolean isILR,
 			boolean hiddenComment, boolean rowColumn, boolean uncertainty) {
-		List<Column> columns = WorkerImportEstimation.generateColumns(scales, qualitative, isILR, hiddenComment,
+		List<Column> columns = WorkerImportEstimation.generateColumns(scales, type.isQualitative() || type.isHybrid(),
+				isILR,
+				hiddenComment,
 				rowColumn,
 				uncertainty);
+
+		if (type.isHybrid()) {
+			if (rowColumn)
+				columns.add(new Column("RAW ALE"));
+			columns.add(new Column("ALE"));
+			columns.add(new Column("Residual ALE"));
+		}
+
 		columns.add(new Column("Asset type"));
 		columns.add(new Column("Asset selected"));
 		columns.add(new Column("Scenario selected"));
