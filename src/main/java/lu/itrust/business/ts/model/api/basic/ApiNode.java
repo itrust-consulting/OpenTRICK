@@ -1,22 +1,20 @@
 package lu.itrust.business.ts.model.api.basic;
 
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 
 import lu.itrust.business.ts.model.ilr.AssetNode;
-import lu.itrust.business.ts.model.ilr.Position;
 
 /**
  * Represents an API node.
- * This class is used to store information about an API node, including its data and position.
+ * This class is used to store information about an API node, including its data
+ * and position.
  */
 public class ApiNode {
 
     public static final String TRICK_ID = "trickId";
     public static final String DISABLED = "disabled";
+    public static final String COMMENT = "comment";
     public static final String TYPE = "type";
     public static final String NAME = "name";
     public static final String ID = "id";
@@ -41,9 +39,10 @@ public class ApiNode {
     public ApiNode(AssetNode node) {
         data.put(ID, getId(node));
         data.put(NAME, node.getAsset().getName());
-        data.put(TYPE, node.getAsset().getAssetType().getName());
-        data.put(DISABLED, !node.getAsset().isSelected());
         data.put(TRICK_ID, node.getAsset().getId());
+        data.put(COMMENT, node.getAsset().getComment());
+        data.put(DISABLED, !node.getAsset().isSelected());
+        data.put(TYPE, node.getAsset().getAssetType().getName());
 
         if (node.getPosition() != null) {
             position.put(POSITION_X, node.getPosition().getX());
