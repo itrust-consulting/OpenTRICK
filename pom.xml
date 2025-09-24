@@ -604,8 +604,9 @@
 						**/WEB-INF/static/js/bootstrap/*.js,
 						**/WEB-INF/static/js/bootstrap/locales/*.js
 					</warSourceExcludes>
+					<!-- Dont exclude the views/templates -->
 					<packagingExcludes>
-						**/WEB-INF/tmp/*,**css,**js,**/WEB-INF/classes/**-example.properties,**/WEB-INF/classes/deployment**.properties,**/WEB-INF/views/**
+						**/WEB-INF/tmp/*,**css,**js,**/WEB-INF/classes/**-example.properties,**/WEB-INF/classes/deployment**.properties
 					</packagingExcludes>
 					<webXml>${project.build.directory}/web.xml</webXml>
 				</configuration>

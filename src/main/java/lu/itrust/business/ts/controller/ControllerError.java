@@ -23,7 +23,7 @@ public class ControllerError implements ErrorController {
 	public ModelAndView handleError(HttpServletRequest request, HttpServletResponse response) {
 		if (response.isCommitted())
 			return null;
-		final ModelAndView modelAndView = new ModelAndView("jsp/errors/404");
+		final ModelAndView modelAndView = new ModelAndView("templates/errors/404");
 		final Object status = request.getAttribute(RequestDispatcher.ERROR_STATUS_CODE);
 		if (status != null) {
 			final Integer statusCode = Integer.valueOf(status.toString());
@@ -37,10 +37,10 @@ public class ControllerError implements ErrorController {
 				case 500:
 				case 503:
 				case 504:
-					modelAndView.setViewName("jsp/errors/" + statusCode);
+					modelAndView.setViewName("templates/errors/" + statusCode);
 					break;
 				default:
-					modelAndView.setViewName("jsp/errors/404");
+					modelAndView.setViewName("templates/errors/404");
 			}
 		}
 		return modelAndView;
