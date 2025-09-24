@@ -234,7 +234,7 @@ public class ControllerScenario {
 		model.addAttribute("show_uncertainty", analysis.isUncertainty());
 		model.addAttribute("isILR", Analysis.isILR(analysis));
 		model.addAttribute("isProfile", analysis.isProfile());
-		return "jsp/analyses/single/components/scenario/scenario";
+		return "templates/analyses/single/components/scenario/scenario";
 	}
 
 	/**
@@ -596,6 +596,6 @@ public class ControllerScenario {
 		model.addAttribute("type", type);
 		model.addAttribute("assetTypeValues", assetTypeValues);
 		model.addAttribute("assetValues", assetValues);
-		return "jsp/analyses/single/components/scenario/form";
+		return "templates/analyses/single/components/scenario/form";
 	}
 }

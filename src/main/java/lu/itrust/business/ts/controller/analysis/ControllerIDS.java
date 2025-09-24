@@ -75,14 +75,14 @@ public class ControllerIDS {
 	@RequestMapping("/Admin/IDS/Section")
 	public String section(Model model) {
 		model.addAttribute("IDSs", serviceIDS.getAll());
-		return "jsp/admin/ids/home";
+		return "templates/admin/ids/home";
 	}
 
 	@PreAuthorize(Constant.ROLE_MIN_ADMIN)
 	@RequestMapping("/Admin/IDS/Add")
 	public String add(Model model, IDS ids) {
 		model.addAttribute("ids", ids);
-		return "jsp/admin/ids/form";
+		return "templates/admin/ids/form";
 	}
 
 	@PreAuthorize(Constant.ROLE_MIN_ADMIN)
@@ -92,7 +92,7 @@ public class ControllerIDS {
 		if (ids == null)
 			throw new AccessDeniedException("Access denied");
 		model.addAttribute("ids", ids);
-		return "jsp/admin/ids/form";
+		return "templates/admin/ids/form";
 	}
 
 	@PreAuthorize(Constant.ROLE_MIN_ADMIN)
@@ -223,7 +223,7 @@ public class ControllerIDS {
 		model.addAttribute("IDSs", IDSs);
 		model.addAttribute("analysis", analysis);
 		model.addAttribute("subscriptionsStates", subscriptionsStates);
-		return "jsp/analyses/all/forms/ids";
+		return "templates/analyses/all/forms/ids";
 	}
 
 	@RequestMapping(value = "/Analysis/Manage/IDS/{id}/Update", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)

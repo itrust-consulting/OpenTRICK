@@ -55,7 +55,7 @@ public class DAOActionPlanTypeHBM extends DAOHibernate implements DAOActionPlanT
 	@Override
 	public ActionPlanType getByName(String name)  {
 		return (ActionPlanType) getSession().createQuery("From ActionPlanType where name = :name").setParameter("name", name.trim()).uniqueResultOptional().orElse(null);
-	}
+}
 
 	/**
 	 * getAll: <br>
@@ -67,7 +67,7 @@ public class DAOActionPlanTypeHBM extends DAOHibernate implements DAOActionPlanT
 	@Override
 	public List<ActionPlanType> getAll()  {
 		return (List<ActionPlanType>) getSession().createQuery("From ActionPlanType").getResultList();
-	}
+}
 
 	/**
 	 * save: <br>
@@ -78,7 +78,7 @@ public class DAOActionPlanTypeHBM extends DAOHibernate implements DAOActionPlanT
 	@Override
 	public void save(ActionPlanType actionPlanType)  {
 		getSession().save(actionPlanType);
-	}
+}
 
 	/**
 	 * saveOrUpdate: <br>
@@ -86,10 +86,10 @@ public class DAOActionPlanTypeHBM extends DAOHibernate implements DAOActionPlanT
 	 * 
 	 * @see lu.itrust.business.ts.database.dao.DAOActionPlanType#saveOrUpdate(lu.itrust.business.ts.model.actionplan.ActionPlanType)
 	 */
-	@Override
+@Override
 	public void saveOrUpdate(ActionPlanType actionPlanType)  {
 		getSession().saveOrUpdate(actionPlanType);
-	}
+    }
 
 	/**
 	 * merge: <br>
@@ -111,5 +111,5 @@ public class DAOActionPlanTypeHBM extends DAOHibernate implements DAOActionPlanT
 	@Override
 	public void delete(ActionPlanType actionPlanType)  {
 		getSession().delete(actionPlanType);
-	}
+}
 }

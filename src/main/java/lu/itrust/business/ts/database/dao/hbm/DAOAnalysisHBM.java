@@ -59,31 +59,31 @@ public class DAOAnalysisHBM extends DAOHibernate implements DAOAnalysis {
 	}
 
 	@Override
-	public Long countByIdentifier(String identifier) {
+public Long countByIdentifier(String identifier) {
 		return ((Long) getSession()
 				.createQuery("Select count(analysis) From Analysis analysis where analysis.identifier = :identifier")
-				.setParameter("identifier", identifier)
+            .setParameter("identifier", identifier)
 				.getSingleResult());
-	}
+}
 
 	@Override
-	public int countNotEmpty() {
+public int countNotEmpty() {
 		return ((Long) getSession().createQuery("Select count(*) From Analysis where data = true").getSingleResult())
 				.intValue();
-	}
+}
 
-	public int countNotEmptyNoItemInformationAndRiskInformation() {
+public int countNotEmptyNoItemInformationAndRiskInformation() {
 		return ((Long) getSession()
-				.createQuery(
+        .createQuery(
 						"Select count(analysis) From Analysis analysis where analysis.data = true and (analysis.itemInformations IS EMPTY or analysis.riskInformations IS EMPTY)")
 				.getSingleResult()).intValue();
-	}
+}
 
-	@Override
-	public Long countNotProfileDistinctIdentifier() {
+@Override
+public Long countNotProfileDistinctIdentifier() {
 		return (Long) getSession().createQuery("Select count(distinct identifier) From Analysis where  profile = false")
-				.getSingleResult();
-	}
+        .getSingleResult();
+}
 
 	/**
 	 * remove: <br>
