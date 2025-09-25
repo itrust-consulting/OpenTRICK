@@ -1,0 +1,148 @@
+<div id="tab_properties" class="tab-pane measure-property" th:classappend="${not isAnalysisOnly ? ' active' : ''}" style="padding-top: 17px;">
+    <div style="overflow-x: auto; overflow-y: hidden;  scrollbar-width: thin;">
+        <table class="table">
+            <thead>
+                <tr id="slidersTitle" class="text-center">
+                    <th class="warning" th:text="#{label.rrf.measure.strength_measure}"></th>
+                    <th class="warning" th:text="#{label.rrf.measure.strength_sectoral}"></th>
+                    <th th:each="category : ${measureForm.properties.categories.keySet()}" class="info text-center" style="min-width:60px" 
+                        th:classappend="${not empty cssfExcludes[category] ? ' hidden' : ''}" 
+                        data-trick-class="Category" 
+                        data-trick-value="${category}">
+                        <span th:text="#{label.rrf.category.${category.toLowerCase().replace('_', '.')}}"></span>
+                    </th>
+                    <th class="success" th:text="#{label.rrf.measure.preventive}"></th>
+                    <th class="success" th:text="#{label.rrf.measure.detective}"></th>
+                    <th class="success" th:text="#{label.rrf.measure.limitative}"></th>
+                    <th class="success" th:text="#{label.rrf.measure.corrective}"></th>
+                    <th class="warning" th:text="#{label.rrf.measure.intentional}"></th>
+                    <th class="warning" th:text="#{label.rrf.measure.accidental}"></th>
+                    <th class="warning" th:text="#{label.rrf.measure.environmental}"></th>
+                    <th class="warning" th:text="#{label.rrf.measure.internal_threat}"></th>
+                    <th class="warning" th:text="#{label.rrf.measure.external_threat}"></th>
+                    <div th:switch="${measureForm.type}">
+                        <div th:case="'ASSET'">
+                            <th th:each="assetValue : ${measureForm.assetValues}" 
+                                data-trick-class="MeasureAssetValue" 
+                                data-trick-asset-id="${assetValue.id}">
+                                <span th:text="${assetValue.name}"></span>
+                            </th>
+                        </div>
+                        <div th:case="'NORMAL'">
+                            <th th:each="assetValue : ${measureForm.assetValues}" 
+                                th:classappend="${not empty hiddenAssetTypes[assetValue.type] ? ' hidden' : ''}">
+                                <span th:text="#{label.asset_type.${assetValue.name.toLowerCase()}}"></span>
+                            </th>
+                        </div>
+                    </div>
+                </tr>
+            </thead>
+            <tbody>
+                <tr id="sliders" class="slider-vertical" style="text-align: center;">
+                    <td class="warning" data-trick-class="MeasureProperties">
+                        <input type="range" orient="vertical" id="fmeasure" 
+                               th:value="${measureForm.properties.getFMeasure()}" 
+                               min="0" max="10" step="1" name="fmeasure" 
+                               orientation="vertical" selection="after" tooltip="show">
+                    </td>
+                    <td class="warning" data-trick-class="MeasureProperties">
+                        <input type="range" orient="vertical" id="fsectoral" 
+                               th:value="${measureForm.properties.getFSectoral()}" 
+                               min="0" max="4" step="1" name="fsectoral" 
+                               orientation="vertical" selection="after" tooltip="show">
+                    </td>
+                    <th th:each="category : ${measureForm.properties.categories.keySet()}" class="info" 
+                        th:classappend="${not empty cssfExcludes[category] ? ' hidden' : ''}" 
+                        data-trick-class="Category" 
+                        data-trick-value="${category}">
+                        <input type="range" orient="vertical" 
+                               th:id="${category.replace('_', '.')" }"
+                               th:value="${measureForm.properties.getCategoryValue(category)}" 
+                               min="0" max="4" step="1" 
+                               th:name="${category.toLowerCase().replace('_', '')}" 
+                               orientation="vertical" selection="after" tooltip="show">
+                    </th>
+                    <td class="success">
+                        <input type="range" id="preventive" orient="vertical" 
+                               th:value="${measureForm.properties.preventive}" 
+                               min="0" max="4" step="1" name="preventive" 
+                               orientation="vertical" selection="after" tooltip="show">
+                    </td>
+                    <td class="success">
+                        <input type="range" orient="vertical" id="detective" 
+                               th:value="${measureForm.properties.detective}" 
+                               min="0" max="4" step="1" name="detective" 
+                               orientation="vertical" selection="after" tooltip="show">
+                    </td>
+                    <td class="success">
+                        <input type="range" id="limitative" orient="vertical" 
+                               th:value="${measureForm.properties.limitative}" 
+                               min="0" max="4" step="1" name="limitative" 
+                               orientation="vertical" selection="after" tooltip="show">
+                    </td>
+                    <td class="success">
+                        <input type="range" orient="vertical" id="corrective" 
+                               th:value="${measureForm.properties.corrective}" 
+                               min="0" max="4" step="1" name="corrective" 
+                               orientation="vertical" selection="after" tooltip="show">
+                    </td>
+                    <td class="warning">
+                        <input type="range" orient="vertical" id="intentional" 
+                               th:value="${measureForm.properties.intentional}" 
+                               min="0" max="4" step="1" name="intentional" 
+                               orientation="vertical" selection="after" tooltip="show">
+                    </td>
+                    <td class="warning">
+                        <input type="range" orient="vertical" id="accidental" 
+                               th:value="${measureForm.properties.accidental}" 
+                               min="0" max="4" step="1" name="accidental" 
+                               orientation="vertical" selection="after" tooltip="show">
+                    </td>
+                    <td class="warning">
+                        <input type="range" orient="vertical" id="environmental" 
+                               th:value="${measureForm.properties.environmental}" 
+                               min="0" max="4" step="1" name="environmental" 
+                               orientation="vertical" selection="after" tooltip="show">
+                    </td>
+                    <td class="warning">
+                        <input type="range" orient="vertical" id="internalThreat" 
+                               th:value="${measureForm.properties.internalThreat}" 
+                               min="0" max="4" step="1" name="internalThreat" 
+                               orientation="vertical" selection="after" tooltip="show">
+                    </td>
+                    <td class="warning">
+                        <input type="range" orient="vertical" id="externalThreat" 
+                               th:value="${measureForm.properties.externalThreat}" 
+                               min="0" max="4" step="1" name="externalThreat" 
+                               orientation="vertical" selection="after" tooltip="show">
+                    </td>
+                    <div th:switch="${measureForm.type}">
+                        <div th:case="'ASSET'">
+                            <th th:each="assetValue : ${measureForm.assetValues}" 
+                                data-trick-class="MeasureAssetValue" 
+                                data-trick-asset-id="${assetValue.id}">
+                                <input type="range" orient="vertical" 
+                                       th:id="'asset_slider_' + ${assetValue.id}" 
+                                       th:value="${assetValue.value}" 
+                                       min="0" max="100" step="1" 
+                                       name="${assetValue.id}" 
+                                       orientation="vertical" selection="after" tooltip="show">
+                            </th>
+                        </div>
+                        <div th:case="'NORMAL'">
+                            <th th:each="assetValue : ${measureForm.assetValues}" 
+                                th:classappend="${not empty hiddenAssetTypes[assetValue.type] ? ' hidden' : ''}">
+                                <input type="range" orient="vertical" 
+                                       th:id="'asset_slider_' + ${assetValue.id}" 
+                                       th:value="${assetValue.value}" 
+                                       min="0" max="100" step="1" 
+                                       name="${assetValue.id}" 
+                                       orientation="vertical" selection="after" tooltip="show">
+                            </th>
+                        </div>
+                    </div>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

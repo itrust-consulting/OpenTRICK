@@ -1,8 +1,8 @@
 <div id="widgets">
     <!-- Replacing JSP includes with Thymeleaf -->
-    <th:block th:replace="~{./standards/measure/widgetcontent :: widget}"></th:block>
-    <th:block th:replace="~{./standards/standard/widgetcontent :: widget}"></th:block>
-    
+    <th:block th:replace="~{templates/analyses/single/components/standards/measure/widgetcontent :: widget}"></th:block>
+    <th:block th:replace="~{templates/analyses/single/components/standards/standard/widgetcontent :: widget}"></th:block>
+
     <!-- Modal -->
     <div class="modal fade" id="rrfEditor" tabindex="-1" role="dialog" 
          aria-labelledby="rrfEditor" aria-hidden="true" data-backdrop="static"></div>

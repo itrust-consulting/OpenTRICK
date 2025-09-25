@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="${locale.language}">
+<html lang="[[${locale.language}]]">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,25 +7,23 @@
 </head>
 <body>
     <div id="wrap">
-        <!-- ################################################################### Nav Menu ################################################################### -->
-        <th:block th:replace="../template/menu :: menu"></th:block>
+        
+        <th:block th:replace="~{templates/template/menu :: menu}" />
         <div class="container">
-            <th:block th:replace="../template/successErrors :: successErrors"></th:block>
+            <th:block th:replace="~{templates/template/successErrors :: successErrors}" />
             
-            <!-- #################################################################### Content ################################################################### -->
             <div class="page-header">
                 <h1>
                     <span th:text="#{title.error.500}">500: Internal Server Error</span>
                 </h1>
             </div>
             <div class="content" id="content" data-spy="scroll">
-                <span th:text="#{error.500.message}"></span>
+                <span th:text="#{error.500.message}">An unexpected error occurred.</span>
             </div>
         </div>
-        
-        <!-- ################################################################ Include Footer ################################################################ -->
-        <th:block th:replace="../template/footer :: footer"></th:block>
+
+        <th:block th:replace="~{templates/template/footer :: footer}" />
     </div>
-    <th:block th:replace="../template/scripts :: scripts"></th:block>
+    <th:block th:replace="~{templates/template/scripts :: scripts}" />
 </body>
 </html>

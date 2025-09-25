@@ -18,7 +18,7 @@
             </div>
             <div class="modal-body">
                 <!-- Include any error/success handling template -->
-                <div th:replace="~{../../../template/successErrors :: successErrors}"></div>
+                <div th:replace="~{templates/template/successErrors :: successErrors}"></div>
                 <form name="history"
                       th:action="@{'/History/Analysis/' + ${analysisId} + '/NewVersion/Save'}"
                       class="form-horizontal"

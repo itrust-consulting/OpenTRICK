@@ -1,0 +1,98 @@
+<div id="form_customer_template" class="tab-pane" style="height: 490px; overflow-y: auto; overflow-x: hidden;">
+    <form name="reportTemplate" class="form form-horizontal" id="reportTemplate-form" method="post" enctype="multipart/form-data">
+        <input type="hidden" value="0" name="id" id="reportTemplate.id">
+        <input type="hidden" value="${customer.id}" name="customer" id="reportTemplate.customer.id">
+
+        <div class="form-group">
+            <label class="control-label col-sm-3" data-helper-content="#{help.report.template.type}">#{label.category}</label>
+            <div class="col-sm-9 text-center" data-trick-info="analysisType">
+                <div class="btn-group" data-toggle="buttons">
+                    <th:block th:each="analysisType, status : ${analysisTypes}">
+                        <th:block th:set="analysisTypeValue=${#strings.toLowerCase(analysisType)}" />
+                        <label class="btn btn-default" th:classappend="${status.index == 0 ? 'active' : ''} ${customer.canBeUsed ? '' : 'disabled'}" data-trick-real-value="${analysisType}">
+                            <span th:text="#{label.analysis.type.{analysisTypeValue}}"></span>
+                            <div th:if="${customer.canBeUsed}">
+                                <input th:checked="${status.index == 0}" name="analysisType" type="radio" th:value="${analysisType}">
+                            </div>
+                        </label>
+                    </th:block>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="control-label col-sm-3" data-helper-content="#{help.template.type}">#{label.type}</label>
+            <div class="col-sm-9 text-center" data-trick-info="type">
+                <select class="form-control" name="type" th:disabled="${!customer.canBeUsed}">
+                    <option selected disabled>#{label.action.choose}</option>
+                    <th:block th:each="type, status : ${types}">
+                        <th:block th:set="typeValue=${#strings.toLowerCase(type)}" />
+                        <option th:value="${type}">#{label.template.type.{typeValue}}</option>
+                    </th:block>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="language" class="col-sm-3 control-label" data-helper-content="#{help.report.template.language}">#{label.language}</label>
+            <div class="col-sm-9" data-trick-info="language">
+                <select name="language" class="form-control" required="required" th:readonly="${!customer.canBeUsed}">
+                    <option value="0" selected="selected" disabled="disabled">#{label.action.choose}</option>
+                    <option value="-2" selected="selected">#{label.all}</option>
+                    <th:block th:each="language : ${languages}">
+                        <option th:value="${language.id}" th:text="${language.name}"></option>
+                    </th:block>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="label" class="col-sm-3 control-label" data-helper-content="#{help.report.template.label}">#{label.title}</label>
+            <div class="col-sm-9" data-trick-info="label">
+                <textarea th:readonly="${!customer.canBeUsed}" name="label" id="reportTemplate.label" class="form-control resize_vectical_only" rows="6" required="required" maxlength="255"></textarea>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="version" class="col-sm-3 control-label" data-helper-content="#{help.report.template.version}">#{label.version}</label>
+            <div class="col-sm-9" data-trick-info="version">
+                <input th:readonly="${!customer.canBeUsed}" name="version" list="dataListVersions" id="reportTemplate.version" class="form-control" type="text" required="required" size="255" placeholder="0.0.1" pattern="((\d+\.*)*([A-Za-z]+\.*)*(\d+\.*)*)+" />
+            </div>
+        </div>
+
+        <div th:switch="${maxFileSize}">
+            <div th:case="lessThan(1024)">
+                <span th:text="#{label.max.unit.data.byte}"></span>
+            </div>
+            <div th:case="lessThan(1048576)">
+                <span th:text="#{label.max.unit.data.kilo.byte}"></span>
+            </div>
+            <div th:case="default">
+                <span th:text="#{label.max.unit.data.mega.byte}"></span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="file" class="col-sm-3 control-label" data-helper-content="#{help.report.template.file}">#{label.report.template.file}</label>
+            <div class="col-sm-9" data-trick-info="file">
+                <div class="form-inline">
+                    <div class="input-group-btn">
+                        <input id="reportTemplate.file" type="file" accept=".docx" name="file" style="display: none;" maxlength="${maxFileSize}" />
+                        <input id="reportTemplate.file.info" style="width: 88%;" name="filename" class="form-control" placeholder="${maxSizeInfo}" readonly="readonly" required="required" />
+                        <button class="btn btn-primary" type="button" id="reportTemplate.file.browse.button" name="browse" style="margin-left: -5px;">
+                            #{label.action.browse}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <datalist style="display: none" id="dataListVersions">
+            <th:block th:each="version : ${versions}">
+                <option th:value="${version}"></option>
+            </th:block>
+        </datalist>
+
+        <button type="submit" name="submit" style="display: none;"></button>
+    </form>
+</div>

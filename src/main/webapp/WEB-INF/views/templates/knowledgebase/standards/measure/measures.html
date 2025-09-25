@@ -1,0 +1,6 @@
+<div class="tab-pane" id="tab-measure" data-trigger="showMeasures" data-update-required="true">
+    <div th:if="${not #lists.isEmpty(languages)}">
+        <div th:with="selectedLanguage=${languages[0]}" />
+    </div>
+    <th:block th:include="section :: section" />
+</div>

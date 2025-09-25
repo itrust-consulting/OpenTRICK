@@ -1,0 +1,51 @@
+<table class="table table-hover" id="importStandardTable">
+    <thead>
+        <tr>
+            <th th:text="#{label.norm.name}"></th>
+            <th th:text="#{label.norm.label}"></th>
+            <th th:text="#{label.norm.version}"></th>
+            <th width="40%" th:text="#{label.norm.description}"></th>
+            <th class="text-center" th:text="#{label.norm.computable}"></th>
+            <th class="text-center" th:text="#{label.norm.type}"></th>
+            <th class="text-center" th:text="#{label.actions}"></th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:each="standard : ${availableStandards}">
+            <span th:text="${standard.label}" th:utext="label"></span>
+            <tr th:ondblclick="return editStandard(this);" 
+                th:data-trick-name="${label}" 
+                th:data-trick-id="${standard.id}" 
+                th:data-trick-analysisOnly="${standard.analysisOnly}"
+                th:data-trick-type="${standard.type}" 
+                th:data-trick-computable="${standard.computable}">
+                <td hidden="hidden">
+                    <input type="checkbox" class="checkbox" 
+                        th:onclick="|return updateMenu(this, '#section_manage_standards', '#menu_manage_standards');|">
+                </td>
+                <td th:data-name="name" th:text="${standard.name}"></td>
+                <td th:data-name="label" th:text="${label}"></td>
+                <td th:data-name="version" th:text="${standard.version}"></td>
+                <td th:data-name="description" th:text="${standard.description}"></td>
+                <td th:data-name="computable" 
+                    th:data-real-value="${standard.computable}" 
+                    class="text-center" 
+                    th:text="#{label.${standard.computable ? 'yes' : 'no'}}"></td>
+                <td th:data-name="type" 
+                    th:data-real-value="${standard.type}" 
+                    class="text-center" 
+                    th:text="#{label.norm.standard_type.${standard.type.toLowerCase()}}"></td>
+                <td hidden="hidden" class="text-center" 
+                    th:text="#{label.${standard.analysisOnly ? 'yes' : 'no'}}"></td>
+                <td class="text-center">
+                    <button class="btn btn-xs btn-primary">
+                        <i class="fa fa-plus-circle"></i>
+                    </button>
+                </td>
+            </tr>
+        </tr>
+        <tr th:if="${#lists.isEmpty(availableStandards)}">
+            <td colspan="8" th:text="#{label.no_standards}"></td>
+        </tr>
+    </tbody>
+</table>

@@ -1,0 +1,10 @@
+<tr th:if="${measureDescription != null}" th:data-trick-id="${measureDescription.id}" th:ondblclick="|return editSingleMeasure('${measureDescription.id}','${standard.id}');|">
+    <td><input type="checkbox" class="checkbox" th:onclick="|return updateMenu('this','#section_measure_description','#menu_measure_description');|"></td>
+    <!-- <td colspan="2">${measureDescription.level}</td> -->
+    <td colspan="2" th:text="${measureDescription.reference}"></td>
+    <td colspan="10" th:text="${measureDescriptionText.domain != null ? measureDescriptionText.domain : '&nbsp;'}"></td>
+    <td colspan="10" th:text="${measureDescriptionText.description != null ? measureDescriptionText.description : '&nbsp;'}"></td>
+    <td colspan="2" th:data-trick-computable="${measureDescription.computable}">
+        <span th:text="#{label.yes_no.${measureDescription.computable}}"></span>
+    </td>
+</tr>

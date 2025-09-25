@@ -1,0 +1,55 @@
+<form name="standard" action="/Create" th:action="@{/Create}" th:method="post" class="form-horizontal" id="standard_form">
+    <input type="hidden" value="0" name="id" id="standard_formId">
+
+    <div class="form-group">
+        <label class="control-label col-sm-3" th:data-helper-content="#{help.norm.type}">
+            <span th:text="#{label.norm.standard_type}"></span>
+        </label>
+        <div class="col-sm-9 text-center">
+            <label class="radio-inline col-sm-offset-2 col-sm-4">
+                <input type="radio" name="type" value="NORMAL" />
+                <span th:text="#{label.norm.standard_type.normal}"></span>
+            </label>
+            <label class="radio-inline col-sm-4">
+                <input type="radio" name="type" value="ASSET" />
+                <span th:text="#{label.norm.standard_type.asset}"></span>
+            </label>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="name" class="col-sm-3 control-label" th:data-helper-content="#{help.norm.name}">
+            <span th:text="#{label.norm.name}"></span>
+        </label>
+        <div class="col-sm-9">
+            <input name="name" id="standard_name" class="form-control" type="text" />
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="label" class="col-sm-3 control-label" th:data-helper-content="#{help.norm.label}">
+            <span th:text="#{label.norm.label}"></span>
+        </label>
+        <div class="col-sm-9">
+            <input name="label" id="standard_label" class="form-control" type="text" />
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="computable" class="col-sm-3 control-label" th:data-helper-content="#{help.norm.computable}">
+            <span th:text="#{label.norm.computable}"></span>
+        </label>
+        <div class="col-sm-9" align="center">
+            <input name="computable" id="standard_computable" class="checkbox" type="checkbox" checked="checked" />
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="description" class="col-sm-3 control-label" th:data-helper-content="#{help.norm.description}">
+            <span th:text="#{label.norm.description}"></span>
+        </label>
+        <div class="col-sm-9">
+            <textarea name="description" id="standard_description" class="form-control resize_vectical_only" rows="16"></textarea>
+        </div>
+    </div>
+</form>

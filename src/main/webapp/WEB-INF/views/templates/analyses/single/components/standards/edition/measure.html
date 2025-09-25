@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Measure UI</title>
+</head>
+<body>
+    <div id="measure-ui" class="col-md-10 trick-ui" th:data-trick-id="${selectedMeasure.id}">
+        <div class="page-header tab-content-header hidden-xs">
+            <div class="container">
+                <div class="row-fluid">
+                    <h3>
+                        <div th:if="${isLinkedToProject and selectedMeasure.ticket != null}">
+                            <span th:with="ticketLink=${T(lu.itrust.business.ts.model.ticketing.builder.ClientBuilder).TicketLink(ticketingName.toLowerCase(), ticketingURL, selectedMeasure.ticket)}">
+                                <a th:href="${ticketLink}" target="_ticket_ts" class="btn-link">
+                                    <span th:text="#{measureDescription.reference} + ' - ' + ${measureDescriptionText.domain}"></span>
+                                    <i class="fa fa-external-link" aria-hidden="true"></i>
+                                </a>
+                            </span>
+                        </div>
+                        <div th:unless="${isLinkedToProject and selectedMeasure.ticket != null}">
+                            <span th:text="#{measureDescription.reference} + ' - ' + ${measureDescriptionText.domain}"></span>
+                        </div>
+                    </h3>
+                </div>
+            </div>
+        </div>
+
+        <div th:if="${selectedMeasure != null}">
+            <div th:with="rowSize=${isMaturity} ? 9 : 5"></div> 
+            <fieldset style="display: block; width: 100%; clear: left;">
+                <span th:text="${#messages['measureDescriptionText.description']}"></span>
+                <span th:text="${measureDescriptionText.language.alpha2}"></span>
+                    
+                <div th:if="${otherMeasureDescriptionText}">
+                    <span th:with="en_enabled=@{images/flags/en.png}, 
+                                 fr_enabled=@{images/flags/fr.png}, 
+                                 en_disabled=@{images/flags/en_disabled.png}, 
+                                 fr_disabled=@{images/flags/fr_disabled.png}">
+                            
+                            <div id="description-switch-language" class="btn-group pull-right">
+                            <button type="button" class="btn btn-xs btn-link" 
+                                    th:disabled="${lang == 'FR'}" 
+                                    lang="EN" 
+                                    th:data-flag-disabled="${en_disabled}" 
+                                    th:data-flag-enabled="${en_enabled}">
+                                <img alt="English" th:src="${lang == 'FR' ? en_enabled : en_disabled}" />
+                            </button>
+                            <button type="button" class="btn btn-xs btn-link" 
+                                    th:disabled="${lang != 'FR'}" 
+                                    lang="FR" 
+                                    th:data-flag-disabled="${fr_disabled}" 
+                                    th:data-flag-enabled="${fr_enabled}">
+                                <img alt="Français" th:src="${lang == 'FR' ? fr_disabled : fr_enabled}" />
+                            </button>
+                            </div>
+                    </span>
+                </div>    
+                <div id="description" class="well well-sm form-no-fill" 
+                         style="word-wrap: break-word; white-space: pre-wrap; resize: vertical; overflow: auto; height: 129px;">
+                    <span th:text="${description}"></span>
+                </div>
+            </fieldset> 
+            <fieldset>
+                <!-- Check if measureDescription.computable is true -->
+                <th:block th:if="${measureDescription.computable}">
+                    <!-- Format selectedMeasure values -->
+                    <span th:text="${#numbers.formatDecimal(selectedMeasure.internalWL, 0, 2)}" th:utext="${internalWL}"></span>
+                    <span th:text="${#numbers.formatDecimal(selectedMeasure.externalWL, 0, 2)}" th:utext="${externalWL}"></span>
+                    <span th:text="${#numbers.formatDecimal(fct.round(selectedMeasure.investment), 0, 0)}" th:utext="${investment}"></span>
+                    <span th:text="${#numbers.formatDecimal(fct.round(measure.investment * 0.001), 0, 0)}" th:utext="${kInvestment}"></span>
+                    <span th:text="${#numbers.formatDecimal(selectedMeasure.lifetime, 0, 2)}" th:utext="${lifetime}"></span>
+                    <span th:text="${#numbers.formatDecimal(selectedMeasure.internalMaintenance, 0, 2)}" th:utext="${internalMaintenance}"></span>
+                    <span th:text="${#numbers.formatDecimal(selectedMeasure.externalMaintenance, 0, 2)}" th:utext="${externalMaintenance}"></span>
+                    <span th:text="${#numbers.formatDecimal(fct.round(selectedMeasure.recurrentInvestment), 0, 0)}" th:utext="${recurrentInvestment}"></span>
+                    <span th:text="${#numbers.formatDecimal(fct.round(selectedMeasure.recurrentInvestment * 0.001), 0, 0)}" th:utext="${kRecurrentInvestment}"></span>
+                    <span th:text="${#numbers.formatDecimal(fct.round(selectedMeasure.cost), 0, 0)}" th:utext="${cost}"></span>
+                    <span th:text="${#numbers.formatDecimal(fct.round(selectedMeasure.cost * 0.001), 0, 0)}" th:utext="${kCost}"></span>
+
+                    <!-- Set implementationRate based on condition -->
+                    <div th:switch="${isMaturity}">
+                        <div th:case="true">
+                            <select name="implementationRate" class="form-control" th:data-trick-value="${selectedMeasure.implementationRate.id}" data-trick-type="integer">
+                                <option th:each="parameter : ${impscales}" th:value="${parameter.id}" th:selected="${selectedMeasure.implementationRate == parameter}">
+                                    <span th:text="${#numbers.formatDecimal(parameter.value, 0, 0)}"></span>
+                                </option>
+                            </select>
+                        </div>
+                        <div th:case="false">
+                            <span th:text="${#numbers.formatDecimal(selectedMeasure.implementationRate, 0, 0)}" th:utext="${implementationRateValue}"></span>
+                            <select name="implementationRate" class="form-control" th:data-trick-value="${implementationRateValue}" data-trick-type="double">
+                                <option th:each="implValue : ${#numbers.sequence(0, 100)}" th:value="${implValue}" th:selected="${implementationRateValue == implValue}">
+                                    <span th:text="${implValue}"></span>
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                </th:block>
+
+                <!-- Spring messages for different statuses -->
+                <span th:text="#{label.measure.status.m}" th:utext="${statusM}"></span>
+                <span th:text="#{label.measure.status.ap}" th:utext="${statusAP}"></span>
+                <span th:text="#{label.measure.status.op}" th:utext="${statusOP}"></span>
+                <span th:text="#{label.measure.status.ex}" th:utext="${statusEX}"></span>
+                <span th:text="#{label.measure.status.na}" th:utext="${statusNA}"></span>
+                <span th:text="#{label.title.measure.status.m}" th:utext="${titleStatusM}"></span>
+                <span th:text="#{label.title.measure.status.ap}" th:utext="${titleStatusAP}"></span>
+                <span th:text="#{label.title.measure.status.op}" th:utext="${titleStatusOP}"></span>
+                <span th:text="#{label.title.measure.status.ex}" th:utext="${titleStatusEX}"></span>
+                <span th:text="#{label.title.measure.status.na}" th:utext="${titleStatusNA}"></span>
+
+                <!-- Spring messages for importance values -->
+                <th:block th:each="impValue : ${#numbers.sequence(1, 3)}">
+                    <span th:text="#{label.measure.importance.value(${impValue})}" th:utext="${impValue}"></span>
+                    <span th:text="#{label.title.measure.importance.value(${impValue})}" th:utext="${impValue}"></span>
+                </th:block>
+
+                <!-- Spring messages for metrics -->
+                <span th:text="#{label.metric.year}" th:utext="${metricYear}"></span>
+                <span th:text="#{label.metric.euro}" th:utext="${metricEuro}"></span>
+                <span th:text="#{label.metric.keuro}" th:utext="${metricKEuro}"></span>
+                <span th:text="#{label.metric.man_day}" th:utext="${metricMd}"></span>
+                <div class='form-group'>
+                    <table class="table table-condensed form-no-fill">
+                        <thead>
+                            <tr class="form-group-fill">
+                                <th colspan="2" style="text-align: center;" th:text="#{label.actual.status}"></th>
+                                <th colspan="4" style="text-align: center;" th:text="#{label.initial.setup}"></th>
+                                <th colspan="3" style="text-align: center;" th:text="#{label.maintenance}"></th>
+                                <th colspan="4" style="text-align: center;" th:text="#{label.planning}"></th>
+                            </tr>
+                            <tr class="form-group-fill">
+                                <th title="#{label.title.measure.status}" style="width: 1%; min-width: 60px;" th:text="#{label.title.measure.status}"></th>
+                                <th title="#{label.title.measure.ir}" style="width: 1%; min-width: 50px; border-right: 1px solid #ddd" th:text="#{label.implement}"></th>
+                                <th title="#{label.title.measure.iw}" style="width: 1%; min-width: 60px;" th:text="#{label.title.measure.iw}"></th>
+                                <th title="#{label.title.measure.ew}" style="width: 1%; min-width: 60px;" th:text="#{label.title.measure.ew}"></th>
+                                <th title="#{label.title.measure.inv}" style="width: 1%; min-width: 60px;" th:text="#{label.title.measure.inv}"></th>
+                                <th title="#{label.title.measure.lt}" style="width: 1%; min-width: 60px; border-right: 1px solid #ddd" th:text="#{label.title.measure.lt}"></th>
+                                <th title="#{label.title.measure.im}" style="width: 1%; min-width: 60px;" th:text="#{label.internal}"></th>
+                                <th title="#{label.title.measure.em}" style="width: 1%; min-width: 60px;" th:text="#{label.external}"></th>
+                                <th title="#{label.title.measure.ri}" style="width: 1%; min-width: 60px; border-right: 1px solid #ddd" th:text="#{label.recurrent}"></th>
+                                <th title="#{label.title.measure.cost}" style="width: 1%; min-width: 60px;" th:text="#{label.title.measure.cost}"></th>
+                                <th title="#{label.title.measure.phase}" style="width: 1%; min-width: 60px;" th:text="#{label.title.measure.phase}"></th>
+                                <th title="#{label.title.measure.importance}" style="width: 1%; min-width: 60px;" th:text="#{label.title.measure.importance}"></th>
+                                <th title="#{label.title.measure.responsible}" style="width: 2%" th:text="#{label.title.measure.responsible}"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:if="${measureDescription.computable}">
+                                <td>
+                                    <select class='form-control' name="status" th:value="${selectedMeasure.status}" th:field="*{status}" data-trick-value="${selectedMeasure.status}" data-trick-type="string">
+                                        <option value="M" th:selected="${selectedMeasure.status == 'M'}" th:title="${titleStatusM}" th:text="${statusM}"></option>
+                                        <option value="AP" th:selected="${selectedMeasure.status == 'AP'}" th:title="${titleStatusAP}" th:text="${statusAP}"></option>
+                                        <option value="OP" th:selected="${selectedMeasure.status == 'OP'}" th:title="${titleStatusOP}" th:text="${statusOP}"></option>
+                                        <option value="EX" th:selected="${selectedMeasure.status == 'EX'}" th:title="${titleStatusEX}" th:text="${statusEX}"></option>
+                                        <option value="NA" th:selected="${selectedMeasure.status == 'NA'}" th:title="${titleStatusNA}" th:text="${statusNA}"></option>
+                                    </select>
+                                </td>
+                                <td style="border-right: 1px solid #ddd">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">%</span> <span th:text="${implementationRate}"></span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="input-group">
+                                        <span class="input-group-addon" th:text="${metricMd}"></span>
+                                        <input name="internalWL" th:value="${internalWL}" class="form-control numeric" placeholder="${internalWL}" data-trick-type="double">
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="input-group">
+                                        <span class="input-group-addon" th:text="${metricMd}"></span>
+                                        <input name="externalWL" th:value="${externalWL}" class="form-control numeric" placeholder="${externalWL}" data-trick-type="double">
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="input-group">
+                                        <span class="input-group-addon" th:text="${metricKEuro}"></span>
+                                        <input name="investment" th:value="${kInvestment}" th:title="${investment}${metricEuro}" class="form-control numeric" placeholder="${kInvestment}" data-trick-type="double">
+                                    </div>
+                                </td>
+                                <td style="border-right: 1px solid #ddd">
+                                    <div class="input-group" align="right">
+                                        <span class="input-group-addon" th:text="${metricYear}"></span>
+                                        <input name="lifetime" th:value="${lifetime}" class="form-control numeric" placeholder="${lifetime}" data-trick-type="double">
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="input-group">
+                                        <span class="input-group-addon" th:text="${metricMd}"></span>
+                                        <input name="internalMaintenance" th:value="${internalMaintenance}" class="form-control numeric" placeholder="${internalMaintenance}" data-trick-type="double">
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="input-group">
+                                        <span class="input-group-addon" th:text="${metricMd}"></span>
+                                        <input name="externalMaintenance" th:value="${externalMaintenance}" class="form-control numeric" placeholder="${externalMaintenance}" data-trick-type="double">
+                                    </div>
+                                </td>
+                                <td style="border-right: 1px solid #ddd">
+                                    <div class="input-group" align="right">
+                                        <span class="input-group-addon" th:text="${metricKEuro}"></span>
+                                        <input name="recurrentInvestment" th:value="${kRecurrentInvestment}" th:title="${recurrentInvestment}${metricEuro}" class="form-control numeric" placeholder="${kRecurrentInvestment}" data-trick-type="double">
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="input-group" th:classappend="${!(selectedMeasure.status == 'NA' or selectedMeasure.status == 'EX') and selectedMeasure.cost == 0 ? 'has-error' : ''}">
+                                        <span class="input-group-addon" th:text="${metricKEuro}"></span>
+                                        <input name="cost" th:value="${kCost}" readonly="readonly" th:title="${cost}${metricEuro}" class="form-control numeric">
+                                    </div>
+                                </td>
+                                <td>
+                                    <select name="phase" class="form-control" style="padding-left: 6px; padding-right: 6px" th:field="*{phase.id}" data-trick-value="${selectedMeasure.phase.id}" data-trick-type="integer">
+                                        <th:block th:each="phase : ${phases}">
+                                            <option th:value="${phase.id}" th:selected="${selectedMeasure.phase.number == phase.number}" th:text="${phase.number}"></option>
+                                        </th:block>
+                                    </select>
+                                </td>
+                                <td>
+                                    <select class="form-control" name="importance" data-trick-value="${selectedMeasure.importance}" data-trick-type="integer">
+                                        <option value="1" th:selected="${selectedMeasure.importance == 1}" th:title="${titleImp1}" th:text="${imp1}"></option>
+                                        <option value="2" th:selected="${selectedMeasure.importance == 2}" th:title="${titleImp2}" th:text="${imp2}"></option>
+                                        <option value="3" th:selected="${selectedMeasure.importance == 3}" th:title="${titleImp3}" th:text="${imp3}"></option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <span th:text="#{selectedMeasure.responsible}" var="responsible"></span>
+                                    <input name="responsible" class="form-control" th:value="${responsible}" placeholder="${responsible}" data-trick-type="string">
+                                </td>
+                            </tr>
+                            <tr th:unless="${measureDescription.computable}">
+                                <td>
+                                    <select class="form-control" name="status" disabled="disabled"></select>
+                                </td>
+                                <td style="border-right: 1px solid #ddd">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">%</span>
+                                        <select class="form-control" disabled="disabled"></select>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="input-group">
+                                        <span class="input-group-addon" th:text="${metricMd}"></span>
+                                        <input name="internalWL" class="form-control numeric" disabled="disabled">
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="input-group">
+                                        <span class="input-group-addon" th:text="${metricMd}"></span>
+                                        <input name="externalWL" class="form-control numeric" disabled="disabled">
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="input-group">
+                                        <span class="input-group-addon" th:text="${metricKEuro}"></span>
+                                        <input name="investment" class="form-control numeric" disabled="disabled">
+                                    </div>
+                                </td>
+                                <td style="border-right: 1px solid #ddd">
+                                    <div class="input-group" align="right">
+                                        <span class="input-group-addon" th:text="${metricYear}"></span>
+                                        <input name="lifetime" class="form-control numeric" disabled="disabled">
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="input-group">
+                                        <span class="input-group-addon" th:text="${metricMd}"></span>
+                                        <input name="internalMaintenance" class="form-control numeric" disabled="disabled">
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="input-group">
+                                        <span class="input-group-addon" th:text="${metricMd}"></span>
+                                        <input name="externalMaintenance" class="form-control numeric" disabled="disabled">
+                                    </div>
+                                </td>
+                                <td style="border-right: 1px solid #ddd">
+                                    <div class="input-group" align="right">
+                                        <span class="input-group-addon" th:text="${metricKEuro}"></span>
+                                        <input name="recurrentInvestment" class="form-control numeric" disabled="disabled">
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="input-group">
+                                        <span class="input-group-addon" th:text="${metricKEuro}"></span>
+                                        <input name="cost" readonly="readonly" class="form-control numeric" disabled="disabled">
+                                    </div>
+                                </td>
+                                <td>
+                                    <select name="phase" class="form-control" style="padding-left: 6px; padding-right: 6px" disabled="disabled"></select>
+                                </td>
+                                <td>
+                                    <select name="importance" class="form-control" style="padding-left: 6px; padding-right: 6px" disabled="disabled"></select>
+                                </td>
+                                <td>
+                                    <span th:text="#{selectedMeasure.responsible}" var="responsible"></span>
+                                    <input name="responsible" class="form-control" disabled="disabled">
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div th:if="${not isMaturity}" class="form-group form-group-fill">
+                    <span th:text="#{label.measure.tocheck}" th:utext="${selectedMeasure.toCheck}"></span>
+                    <label class="label-control form-group-fill" th:text="#{label.measure.tocheck}"></label>
+                    <textarea id="measure-tocheck" rows="${rowSize}" class="form-control" name="toCheck" 
+                              title="#{label.measure.tocheck}" style="resize: vertical;" 
+                              placeholder="${selectedMeasure.toCheck}" data-trick-type="string">
+                        ${selectedMeasure.toCheck}
+                    </textarea>
+                </div>
+                
+                <div class="form-group form-group-fill">
+                    <span th:text="#{label.comment}" th:utext="${selectedMeasure.comment}"></span>
+                    <label class="label-control" th:text="#{label.comment}"></label>
+                    <textarea id="measure-comment" rows="${rowSize}" class="form-control" name="comment" 
+                              title="#{label.comment}" style="resize: vertical;" 
+                              placeholder="${selectedMeasure.comment}" data-trick-type="string">
+                        ${selectedMeasure.comment}
+                    </textarea>
+                </div>
+                
+                <div class="form-group form-group-fill">
+                    <span th:text="#{label.measure.todo}" th:utext="${selectedMeasure.toDo}"></span>
+                    <label class="label-control" th:text="#{label.measure.todo}"></label>
+                    
+                    <div th:if="${showTodo}">
+                        <textarea id="measure-todo" rows="${rowSize}" class="form-control" name="toDo" 
+                                  title="#{label.measure.todo}" style="resize: vertical;" 
+                                  placeholder="${selectedMeasure.toDo}" data-trick-type="string">
+                            ${selectedMeasure.toDo}
+                        </textarea>
+                    </div>
+                    
+                    <div th:unless="${showTodo}">
+                        <textarea id="measure-todo" rows="${rowSize}" class="form-control" name="toDo" 
+                                  style="resize: vertical;" disabled="disabled"></textarea>
+                    </div>
+                </div>                                
+            </fieldset>          
+        </div>
+    </div>
+    
+</body>
+</html>

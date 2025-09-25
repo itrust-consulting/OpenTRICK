@@ -1,0 +1,98 @@
+<!-- Thymeleaf modal for Adding Standard -->
+<div class="modal fade" id="addStandardModel" tabindex="-1" role="dialog" aria-labelledby="addNewStandard" aria-hidden="true">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="addStandardModel-title" th:text="#{label.title.add.norm}">Add new Standard</h4>
+            </div>
+            <div class="modal-body">
+                <form th:action="@{/Save}" method="post" th:object="${standard}" class="form-horizontal" id="standard_form">
+                    <input type="hidden" name="id" value="0" id="standard_id"/>
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label" th:attr="data-helper-content=#{help.norm.kb.type}" th:text="#{label.norm.standard_type}">Standard Type</label>
+                        <div class="col-sm-9 text-center">
+                            <div class="btn-group" data-toggle="buttons">
+                                <label class="btn btn-sm btn-default active">
+                                    <input type="radio" name="type" value="NORMAL" checked="checked"/>
+                                    <span th:text="#{label.norm.standard_type.normal}">Normal</span>
+                                </label>
+                                <label class="btn btn-sm btn-default">
+                                    <input type="radio" name="type" value="MATURITY"/>
+                                    <span th:text="#{label.norm.standard_type.maturity}">Maturity</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="standard_name" class="col-sm-3 control-label" th:attr="data-helper-content=#{help.norm.name}" th:text="#{label.norm.name}">Display name</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="standard_name" th:field="*{name}" />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="standard_label" class="col-sm-3 control-label" th:attr="data-helper-content=#{help.norm.label}" th:text="#{label.norm.label}">Name</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="standard_label" th:field="*{label}" />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="standard_version" class="col-sm-3 control-label" th:attr="data-helper-content=#{help.norm.version}" th:text="#{label.norm.version}">Version</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="standard_version" th:field="*{version}" />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="standard_description" class="col-sm-3 control-label" th:attr="data-helper-content=#{help.norm.description}" th:text="#{label.norm.description}">Description</label>
+                        <div class="col-sm-9">
+                            <textarea rows="18" class="form-control resize_vectical_only" maxlength="2048" id="standard_description" th:field="*{description}"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label" th:attr="data-helper-content=#{help.norm.computable}" th:text="#{label.norm.computable}">Computable</label>
+                        <div class="col-sm-9" align="center">
+                            <div class="btn-group" data-toggle="buttons" id="standard_computable">
+                                <label class="btn btn-default active">
+                                    <span th:text="#{label.yes_no.yes}">Yes</span>
+                                    <input type="radio" th:field="*{computable}" value="true" checked="checked"/>
+                                </label>
+                                <label class="btn btn-default">
+                                    <span th:text="#{label.yes_no.no}">No</span>
+                                    <input type="radio" th:field="*{computable}" value="false"/>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button id="addstandardbutton" type="button" class="btn btn-primary" onclick="saveStandard('standard_form')" th:text="#{label.action.add.norm}">Add</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal" th:text="#{label.action.cancel}">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Standard Modal -->
+<div class="modal fade" id="deleteStandardModel" tabindex="-1" aria-hidden="true" aria-labelledby="deleteStandard" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="deleteStandardModel-title" th:text="#{label.title.delete.norm}">Delete a standard</h4>
+            </div>
+            <div id="deleteStandardBody" class="modal-body">Your question here...</div>
+            <div class="modal-footer">
+                <button id="deletestandardbuttonYes" type="button" class="btn btn-danger" data-dismiss="modal" th:text="#{label.action.confirm.yes}">Yes</button>
+                <button id="deletestandardbuttonCancel" type="button" class="btn btn-default" data-dismiss="modal" th:text="#{label.action.cancel}">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>

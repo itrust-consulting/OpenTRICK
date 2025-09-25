@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="${#locale.language}">
+<html xmlns:th="http://www.thymeleaf.org" 
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" 
+      lang="[[${#locale.language}]]">
 <head th:replace="~{templates/template/header :: header('label.title.register')}"></head>
-
 <body>
 <div class="container">
     <img class="center-block" th:alt="#{label.logo}" th:src="@{/images/brand.png}" style="height: 200px; margin-top: 50px;"/>
@@ -14,7 +15,7 @@
         <form id="registerform"
               name="registerform"
               class="form-horizontal"
-              th:action="@{/DoRegister(__${_csrf.parameterName}__=${_csrf.token})}"
+              th:action="@{/DoRegister}"
               method="post">
 
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
@@ -77,12 +78,12 @@
                     <select class="form-control" id="locale" name="locale">
                         <option value="en"
                                 class="list-group-item pull-left"
-                                style="margin-right: 5px;background: white url([[${'/images/flags/en.png'}]]) no-repeat 1%;border:1px solid white;padding:0px;padding-top:3px;padding-bottom:3px;padding-left: 25px;">
+                                th:style="'margin-right: 5px;background: white url(' + @{/images/flags/en.png} + ') no-repeat 1%;border:1px solid white;padding:0px;padding-top:3px;padding-bottom:3px;padding-left: 25px;'">
                             English
                         </option>
                         <option value="fr"
                                 class="list-group-item pull-left"
-                                style="margin-right: 5px;background: white url([[${'/images/flags/fr.png'}]]) no-repeat 1%;border:1px solid white;padding:0px;padding-top:3px;padding-bottom:3px;padding-left: 25px;">
+                                th:style="'margin-right: 5px;background: white url(' + @{/images/flags/fr.png} + ') no-repeat 1%;border:1px solid white;padding:0px;padding-top:3px;padding-bottom:3px;padding-left: 25px;'">
                             Français
                         </option>
                     </select>

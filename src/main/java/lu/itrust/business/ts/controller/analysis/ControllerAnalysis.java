@@ -146,14 +146,14 @@ public class ControllerAnalysis extends AbstractController {
 	private ServiceExternalNotification serviceExternalNotification;
 
 	/**
-	 * Retrieves the path to the JSP file for creating a new version of an analysis.
+	 * Retrieves the path to the templates file for creating a new version of an analysis.
 	 *
 	 * @param analysisId the ID of the analysis
 	 * @param model      the map containing the model data
 	 * @param principal  the principal object representing the currently
 	 *                   authenticated user
 	 * @param session    the HttpSession object
-	 * @return the path to the JSP file for creating a new version of an analysis
+	 * @return the path to the templates file for creating a new version of an analysis
 	 * @throws Exception if an error occurs during the retrieval of user data
 	 */
 	@RequestMapping(value = "/{analysisId}/NewVersion", method = RequestMethod.GET, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
@@ -166,7 +166,7 @@ public class ControllerAnalysis extends AbstractController {
 		model.put("oldVersion", serviceAnalysis.getVersionOfAnalysis(analysisId));
 		model.put("analysisId", analysisId);
 		model.put("author", user.getFirstName() + " " + user.getLastName());
-		return "jsp/analyses/all/forms/newVersion";
+		return "templates/analyses/all/forms/newVersion";
 	}
 
 	/**
@@ -440,7 +440,7 @@ public class ControllerAnalysis extends AbstractController {
 		}
 		// load all assets of analysis to model
 		model.addAttribute("settings", settings);
-		return "jsp/analyses/single/components/settings/form";
+		return "templates/analyses/single/components/settings/form";
 	}
 
 	// *****************************************************************
@@ -476,7 +476,7 @@ public class ControllerAnalysis extends AbstractController {
 		// add the analysis object
 		model.put("analysis", serviceAnalysis.get(analysisId));
 
-		return "jsp/analyses/all/forms/editAnalysis";
+		return "templates/analyses/all/forms/editAnalysis";
 	}
 
 	// *****************************************************************
@@ -774,7 +774,7 @@ public class ControllerAnalysis extends AbstractController {
 			throw new AccessDeniedException(
 					messageSource.getMessage("error.not_authorized", null, "Insufficient permissions!", locale));
 		}
-		return "jsp/analyses/single/home";
+		return "templates/analyses/single/home";
 	}
 
 	// *****************************************************************
@@ -908,7 +908,7 @@ public class ControllerAnalysis extends AbstractController {
 		model.addAttribute("customers", customers);
 		model.addAttribute("login", principal.getName());
 		model.addAttribute("allowIDS", serviceIDS.exists(true));
-		return "jsp/analyses/all/home";
+		return "templates/analyses/all/home";
 	}
 
 	/**

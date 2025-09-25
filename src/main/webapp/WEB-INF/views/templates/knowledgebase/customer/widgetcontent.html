@@ -1,0 +1,143 @@
+<div class="modal fade" id="addCustomerModel" tabindex="-1" role="dialog" data-aria-labelledby="addNewCustomer" data-aria-hidden="true">
+    <div class="modal-dialog customer-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="addCustomerModel-title">
+                    <span th:text="#{label.title.add.customer}">Add new customer</span>
+                </h4>
+            </div>
+            <div class="modal-body">
+                <form name="customer" th:action="@{Customer/Create(${_csrf.parameterName}=${_csrf.token})}" class="form-horizontal" id="customer_form">
+                    <fieldset>
+                        <legend style="font-size: 15px">
+                            <span th:text="#{label.contact}">Contact</span>
+                        </legend>
+                        <input type="hidden" name="id" value="0" id="customer_id">
+                        <div class="form-group">
+                            <label for="organisation" class="col-sm-3 control-label" th:data-helper-content="#{help.customer.organisation}">
+                                <span th:text="#{label.customer.organisation}">Company</span>
+                            </label>
+                            <div class="col-sm-9">
+                                <input name="organisation" id="customer_organisation" class="form-control" type="text" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="contactPerson" class="col-sm-3 control-label" th:data-helper-content="#{help.customer.contact_person}">
+                                <span th:text="#{label.customer.contact_person}">Contact person</span>
+                            </label>
+                            <div class="col-sm-9">
+                                <input name="contactPerson" id="customer_contactPerson" class="form-control" type="text" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="phoneNumber" class="col-sm-3 control-label" th:data-helper-content="#{help.customer.phone_number}">
+                                <span th:text="#{label.customer.phone_number}">Phone number</span>
+                            </label>
+                            <div class="col-sm-9">
+                                <input name="phoneNumber" id="customer_phoneNumber" class="form-control" type="text" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="email" class="col-sm-3 control-label" th:data-helper-content="#{help.customer.email}">
+                                <span th:text="#{label.customer.email}">Email address</span>
+                            </label>
+                            <div class="col-sm-9">
+                                <input name="email" id="customer_email" class="form-control" type="text" />
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset>
+                        <legend style="font-size: 15px">
+                            <span th:text="#{label.address}">Address</span>
+                        </legend>
+                        <div class="form-group">
+                            <label for="address" class="col-sm-3 control-label" th:data-helper-content="#{help.customer.address}">
+                                <span th:text="#{label.customer.address}">Address</span>
+                            </label>
+                            <div class="col-sm-9">
+                                <input name="address" id="customer_address" class="form-control" type="text" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="ZIPCode" class="col-sm-3 control-label" th:data-helper-content="#{help.customer.zip_code}">
+                                <span th:text="#{label.customer.zip_code}">Zip code</span>
+                            </label>
+                            <div class="col-sm-9">
+                                <input name="zipCode" id="customer_ZIPCode" class="form-control" type="text" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="city" class="col-sm-3 control-label" th:data-helper-content="#{help.customer.city}">
+                                <span th:text="#{label.customer.city}">City</span>
+                            </label>
+                            <div class="col-sm-9">
+                                <input name="city" id="customer_city" class="form-control" type="text" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="country" class="col-sm-3 control-label" th:data-helper-content="#{help.customer.country}">
+                                <span th:text="#{label.customer.country}">Country</span>
+                            </label>
+                            <div class="col-sm-9">
+                                <input name="country" id="customer_country" class="form-control" type="text" />
+                            </div>
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button id="addcustomerbutton" type="button" class="btn btn-primary" onclick="saveCustomer('customer_form')">
+                    <span th:text="#{label.action.add.customer}">Add Customer</span>
+                </button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <span th:text="#{label.action.cancel}">Cancel</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="manageCustomerUserModel" tabindex="-1" role="dialog" data-aria-labelledby="manageCustomerUserModel" data-aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="addCustomerModel-title">
+                    <span th:text="#{label.menu.manage.access.user_customer}">Manage customer users</span>
+                </h4>
+            </div>
+            <div class="modal-body" id="customerusersbody"></div>
+            <div class="modal-footer">
+                <button id="customerusersbutton" type="button" class="btn btn-primary" onclick="">
+                    <span th:text="#{label.action.update}">Update</span>
+                </button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <span th:text="#{label.action.cancel}">Cancel</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteCustomerModel" tabindex="-1" data-aria-hidden="true" data-aria-labelledby="deleteCustomer" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="deleteCustomerModel-title">
+                    <span th:text="#{label.title.delete.customer}">Delete a customer</span>
+                </h4>
+            </div>
+            <div id="deleteCustomerBody" class="modal-body">Your question here...</div>
+            <div class="modal-footer">
+                <button id="deletecustomerbuttonYes" type="button" class="btn btn-danger" data-dismiss="modal" onclick="">
+                    <span th:text="#{label.action.comfirm.yes}">Yes</span>
+                </button>
+                <button id="deletecustomerbuttonCancel" type="button" class="btn btn-default" data-dismiss="modal">
+                    <span th:text="#{label.action.cancel}">Cancel</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
