@@ -67,7 +67,9 @@ You may like to copy these files to a location accessible by application at all 
 
 Example:
 
-``` ./target/trickservice.war --spring.config.additional-location=/home/user/opentrick/java_properties/deployment.properties,/home/user/opentrick/java_properties/deployment-ldap.properties ``` 
+``` ./target/opentrick.war --spring.config.additional-location=/home/user/opentrick/java_properties/deployment.properties,/home/user/opentrick/java_properties/deployment-ldap.properties ``` 
+
+``` ./target/opentrick.war --spring.config.additional-location=/home/dmarinho/OpenTRICK/java-properties/deployment.properties,/home/dmarinho/OpenTRICK/java-properties/deployment-ldap.properties ``` 
 
 Now it is possible to go to the internet browser and access the URL https://localhost:8443
 

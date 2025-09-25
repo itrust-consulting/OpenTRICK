@@ -62,7 +62,7 @@ public class DAOActionPlanSummaryHBM extends DAOHibernate implements DAOActionPl
 	public SummaryStage getFromAnalysisById(Integer idAnalysis, Integer idSummaryStage)  {
 		String query = "Select summary From Analysis as analysis inner join analysis.summaries as summary where analysis.id = :idAnalysis and summary.id = :idSummaryStage";
 		return (SummaryStage) getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).setParameter("idSummaryStage", idSummaryStage).uniqueResultOptional().orElse(null);
-	}
+}
 
 	/**
 	 * belongsToAnalysis: <br>
@@ -74,7 +74,7 @@ public class DAOActionPlanSummaryHBM extends DAOHibernate implements DAOActionPl
 	public boolean belongsToAnalysis(Integer analysisId, Integer actionPlanSummaryId)  {
 		String query = "Select count(summary)>0 From Analysis as analysis inner join analysis.summaries as summary where analysis.id = :analysisId and summary.id = :actionPlanSummaryId";
 		return (boolean) getSession().createQuery(query).setParameter("analysisId", analysisId).setParameter("actionPlanSummaryId", actionPlanSummaryId).getSingleResult();
-	}
+}
 
 	/**
 	 * getAll: <br>
@@ -86,7 +86,7 @@ public class DAOActionPlanSummaryHBM extends DAOHibernate implements DAOActionPl
 	@Override
 	public List<SummaryStage> getAll()  {
 		return getSession().createQuery("From SummaryStage").getResultList();
-	}
+}
 
 	/**
 	 * getAllFromAnalysis: <br>
@@ -99,7 +99,7 @@ public class DAOActionPlanSummaryHBM extends DAOHibernate implements DAOActionPl
 	public List<SummaryStage> getAllFromAnalysis(Integer idAnalysis)  {
 		String query = "Select summary From Analysis as analysis inner join analysis.summaries as summary where analysis.id = :idAnalysis order by summary.id";
 		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).getResultList();
-	}
+}
 
 	/**
 	 * getAllFromAnalysis: <br>
@@ -124,7 +124,7 @@ public class DAOActionPlanSummaryHBM extends DAOHibernate implements DAOActionPl
 	public List<SummaryStage> getAllFromAnalysisAndActionPlanType(Integer idAnalysis, String actionPlanType)  {
 		String query = "Select summary From Analysis as analysis inner join analysis.summaries as summary where analysis.id = :idAnalysis and summary.actionPlanType.name = :actionPlanType order by summary.id";
 		return getSession().createQuery(query).setParameter("idAnalysis", idAnalysis).setParameter("actionPlanType", ActionPlanMode.getByName(actionPlanType)).getResultList();
-	}
+}
 
 	/**
 	 * getFromAnalysisAndActionPlanType: <br>
@@ -152,7 +152,7 @@ public class DAOActionPlanSummaryHBM extends DAOHibernate implements DAOActionPl
 	@Override
 	public void save(SummaryStage summaryStage)  {
 		getSession().save(summaryStage);
-	}
+}
 
 	/**
 	 * saveOrUpdate: <br>
@@ -163,7 +163,7 @@ public class DAOActionPlanSummaryHBM extends DAOHibernate implements DAOActionPl
 	@Override
 	public void saveOrUpdate(SummaryStage summaryStage)  {
 		getSession().saveOrUpdate(summaryStage);
-	}
+}
 
 	/**
 	 * delete: <br>
@@ -174,7 +174,7 @@ public class DAOActionPlanSummaryHBM extends DAOHibernate implements DAOActionPl
 	@Override
 	public void delete(SummaryStage summaryStage)  {
 		getSession().delete(summaryStage);
-	}
+}
 
 	/**
 	 * deleteAllFromAnalysis: <br>
@@ -193,6 +193,6 @@ public class DAOActionPlanSummaryHBM extends DAOHibernate implements DAOActionPl
 			for(SummaryStandardConformance conformance : summary.getConformances())
 				getSession().delete(conformance);
 			getSession().delete(summary);
-		}
-	}
+    }
+}
 }

@@ -56,7 +56,7 @@ public class ControllerKnowledgebase {
 		model.put("standards", serviceStandard.getAllNotBoundToAnalysis());
 		model.put("analyses", serviceAnalysis.getAllProfiles());
 		model.put("scaleTypes", serviceScaleType.findAll());
-		return "jsp/knowledgebase/knowledgebase";
+		return "templates/knowledgebase/knowledgebase";
 	}
 
 	@RequestMapping("/Analysis/Section")
@@ -64,6 +64,6 @@ public class ControllerKnowledgebase {
 		model.addAttribute("analyses", serviceAnalysis.getAllProfiles());
 		model.addAttribute("login", principal.getName());
 		model.addAttribute("KowledgeBaseView", true);
-		return "jsp/analysis/analyses";
+		return "templates/analysis/analyses";
 	}
 }

@@ -1,0 +1,35 @@
+<div th:if="${not #lists.isEmpty(languages)}">
+    <div class="form-group">
+        <label for="measurelanguageselect" class="col-sm-3 control-label" th:data-helper-content="#{help.measure.language}">
+            <span th:text="#{label.language}">Language</span>
+        </label>
+        <div class="col-sm-9 text-center">
+            <select id="measurelanguageselect" class="form-control">
+                <th:block th:each="language : ${languages}">
+                    <option th:value="${language.id}" th:selected="${language.id == selectedLanguage.id}" th:text="#{${language.name}}"></option>
+                </th:block>
+            </select>
+        </div>
+    </div>
+
+    <th:block th:each="language : ${languages}">
+        <div th:data-trick-id="${language.id}" th:attr="hidden=${language.id != selectedLanguage.id}">
+            <div class="form-group">
+                <label for="domain_${language.id}" class="col-sm-3 control-label" th:data-helper-content="#{help.measure.domain}">
+                    <span th:text="#{label.measure.domain}">Domain</span>
+                </label>
+                <div class="col-sm-9">
+                    <input name="domain_${language.id}" id="measure_domain_${language.id}" class="form-control" type="text" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="description_${language.id}" class="col-sm-3 control-label" th:data-helper-content="#{help.measure.description}">
+                    <span th:text="#{label.measure.description}">Description</span>
+                </label>
+                <div class="col-sm-9">
+                    <textarea name="description_${language.id}" rows="15" id="measure_description_${language.id}" class="form-control"></textarea>
+                </div>
+            </div>
+        </div>
+    </th:block>
+</div>

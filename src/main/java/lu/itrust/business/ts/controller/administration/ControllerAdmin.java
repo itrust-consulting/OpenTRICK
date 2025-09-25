@@ -292,7 +292,7 @@ public class ControllerAdmin {
 		model.put("authors", serviceTrickLog.getDistinctAuthor());
 		if (adminAllowedTicketing)
 			model.put("ticketingTypes", TicketingSystemType.values());
-		return "jsp/admin/administration";
+		return "templates/admin/administration";
 
 	}
 
@@ -388,7 +388,7 @@ public class ControllerAdmin {
 			serviceUser.getAllOthers(userAnalysisRights.keySet()).forEach(user -> userAnalysisRights.put(user, null));
 			userAnalysisRights.remove(analysis.getOwner());
 			model.addAttribute("userAnalysisRights", userAnalysisRights);
-			return "jsp/admin/analysis/switch-owner";
+			return "templates/admin/analysis/switch-owner";
 		} catch (Exception e) {
 			TrickLogManager.persist(e);
 			return "redirect:/Error";
@@ -441,7 +441,7 @@ public class ControllerAdmin {
 		model.addAttribute("customer", customerSection);
 		model.addAttribute("analyses", analyses);
 		model.addAttribute("customers", serviceCustomer.getAll());
-		return "jsp/admin/analysis/analyses";
+		return "templates/admin/analysis/analyses";
 	}
 
 	@RequestMapping(value = "/Analysis/Delete", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
@@ -466,7 +466,7 @@ public class ControllerAdmin {
 		} catch (Exception e) {
 			TrickLogManager.persist(e);
 		}
-		return "jsp/admin/log/section";
+		return "templates/admin/log/section";
 	}
 
 	@RequestMapping(value = "/Log/Filter/Update", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
@@ -514,7 +514,7 @@ public class ControllerAdmin {
 			model.addAttribute("userrights", userrights);
 			model.addAttribute("ownerId", analysis.getOwner().getId());
 			model.addAttribute("myId", serviceUser.get(principal.getName()).getId());
-			return "jsp/analyses/all/forms/rights";
+			return "templates/analyses/all/forms/rights";
 		} else {
 			return "redirect:Administration";
 		}
@@ -553,7 +553,7 @@ public class ControllerAdmin {
 		model.addAttribute("idAnalysis", analysisId);
 		model.addAttribute("currentCustomers", serviceAnalysis.getCustomersByIdAnalysis(analysisId));
 		model.addAttribute("customers", serviceCustomer.getAllNotProfiles());
-		return "jsp/admin/analysis/switch-customer";
+		return "templates/admin/analysis/switch-customer";
 	}
 
 	@RequestMapping(value = "/Analysis/{idAnalysis}/Switch/Customer/{idCustomer}", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
@@ -590,7 +590,7 @@ public class ControllerAdmin {
 		model.addAttribute("users", serviceUser.getAll());
 		model.addAttribute("enabledOTP", enabledOTP);
 		model.addAttribute("forcedOTP", forcedOTP);
-		return "jsp/admin/user/users";
+		return "templates/admin/user/users";
 	}
 
 	/**
@@ -609,7 +609,7 @@ public class ControllerAdmin {
 		model.put("enabledOTP", enabledOTP);
 		model.put("forcedOTP", forcedOTP);
 		model.put("user", new User());
-		return "jsp/admin/user/form";
+		return "templates/admin/user/form";
 
 	}
 
@@ -629,7 +629,7 @@ public class ControllerAdmin {
 		model.put("enabledOTP", enabledOTP);
 		model.put("forcedOTP", forcedOTP);
 		model.put("roles", RoleType.ROLES);
-		return "jsp/admin/user/form";
+		return "templates/admin/user/form";
 
 	}
 
@@ -728,7 +728,7 @@ public class ControllerAdmin {
 			model.addAttribute("user", user);
 			model.addAttribute("users", serviceUser.getAllOthers(user));
 			model.addAttribute("analyses", serviceAnalysis.getAllFromOwner(user));
-			return "jsp/admin/user/delete-dialog";
+			return "templates/admin/user/delete-dialog";
 		} catch (Exception e) {
 			TrickLogManager.persist(e);
 			return "redirect:/Error";
@@ -771,7 +771,7 @@ public class ControllerAdmin {
 		model.addAttribute("users", serviceUser.getAll());
 		model.addAttribute("customerUsers", serviceUser.getAllFromCustomer(customerID).stream()
 				.collect(Collectors.toMap(User::getLogin, user -> true)));
-		return "jsp/admin/customer/manage-access";
+		return "templates/admin/customer/manage-access";
 	}
 
 	/**
@@ -837,7 +837,7 @@ public class ControllerAdmin {
 
 		model.addAttribute("customerID", customerID);
 
-		return "jsp/admin/customer/eamil-template";
+		return "templates/admin/customer/email-template";
 	}
 
 	@PreAuthorize(Constant.ROLE_MIN_ADMIN)
@@ -913,7 +913,7 @@ public class ControllerAdmin {
 		model.addAttribute(Constant.ADMIN_ALLOWED_TICKETING,
 				serviceTSSetting.isAllowed(TSSettingName.SETTING_ALLOWED_TICKETING_SYSTEM_LINK));
 		model.addAttribute("customers", serviceCustomer.getAll());
-		return "jsp/admin/customer/customers";
+		return "templates/admin/customer/customers";
 	}
 
 	/**
@@ -997,7 +997,7 @@ public class ControllerAdmin {
 		model.addAttribute("types", TrickTemplateType.values());
 		model.addAttribute("languages", serviceLanguage.getByAlpha3("ENG", "FRA"));
 		model.addAttribute("maxFileSize", Math.min(maxUploadFileSize, maxTemplateSize));
-		return "jsp/knowledgebase/customer/template/home";
+		return "templates/knowledgebase/customer/template/home";
 	}
 
 	@PostMapping(value = "Customer/{customerId}/Template/Save", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
@@ -1062,12 +1062,12 @@ public class ControllerAdmin {
 
 		// if file could not be found retrun 404 error
 		if (template == null)
-			return "jsp/errors/404";
+			return "templates/errors/404";
 
 		Customer customer = serviceCustomer.findByReportTemplateId(id);
 
 		if (customer == null)
-			return "jsp/errors/404";
+			return "templates/errors/404";
 
 		if (customer.isCanBeUsed())
 			throw new AccessDeniedException(
@@ -1139,7 +1139,7 @@ public class ControllerAdmin {
 		model.addAttribute("langues", new Locale[] { Locale.FRENCH, Locale.ENGLISH });
 		model.addAttribute("types", LogLevel.values());
 		model.addAttribute("locale", locale);
-		return "jsp/admin/notification/form";
+		return "templates/admin/notification/form";
 	}
 
 	@DeleteMapping(value = "/Notification/{id}/Delete", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)

@@ -75,7 +75,7 @@ public class ControllerActionPlan extends AbstractController {
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).READ)")
 	public String showActionPlan(HttpSession session, Model model, Principal principal) throws Exception {
 		section(model, session, principal);
-		return "jsp/analyses/single/components/actionplan";
+		return "templates/analyses/single/components/actionplan";
 	}
 
 	/**
@@ -107,7 +107,7 @@ public class ControllerActionPlan extends AbstractController {
 		model.addAttribute("actionplans", actionplans);
 		model.addAttribute("type", analysis.getType());
 		model.addAttribute("analysisId", selected);
-		return "jsp/analyses/single/components/actionPlan/section";
+		return "templates/analyses/single/components/actionPlan/section";
 	}
 
 	@SuppressWarnings("unchecked")
@@ -120,7 +120,7 @@ public class ControllerActionPlan extends AbstractController {
 			model.addAttribute("selectedApt", ActionPlanMode.valueOf(selectedApt));
 			model.addAttribute("assets", ActionPlanManager
 					.getAssetsByActionPlanType((List<ActionPlanEntry>) model.asMap().get("actionplans")));
-			return "jsp/analyses/single/components/actionPlan/assets";
+			return "templates/analyses/single/components/actionPlan/assets";
 		} catch (Exception e) {
 			TrickLogManager.persist(e);
 			throw e;
@@ -145,7 +145,7 @@ public class ControllerActionPlan extends AbstractController {
 		model.put("type", serviceAnalysis.getAnalysisTypeById(analysisID));
 		model.put("id", analysisID);
 		model.put("standards", serviceAnalysisStandard.getAllFromAnalysis(analysisID));
-		return "jsp/analyses/single/components/actionPlan/form";
+		return "templates/analyses/single/components/actionPlan/form";
 	}
 
 	/**

@@ -11,7 +11,7 @@
             <th:block sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_SUPERVISOR','ROLE_CONSULTANT', 'ROLE_USER')">
                 <div class="navbar-header">
                     <a class="navbar-brand" id="main_menu_brand"
-                        th:href="@{${menu != null and menu != 'Home' ? '/Home' : '#'}}">
+                        th:href="${menu != null and menu != 'Home'} ? '/Home' : '#'">
                         <img class="brand-grey" th:alt="#{label.menu.home}" th:title="#{label.menu.home}"
                             th:src="@{/images/brand-grey.png}" />
                         <img class="brand-white" th:alt="#{label.menu.home}" th:title="#{label.menu.home}"
@@ -25,7 +25,7 @@
                     <ul class="nav navbar-nav">
                         <li sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_SUPERVISOR','ROLE_CONSULTANT')"
                             th:classappend="${menu != null and !menu.startsWith('KnowledgeBase')} ? '' : 'active'">
-                            <a th:href="@{${menu != null and !menu.startsWith('KnowledgeBase') ? '/KnowledgeBase' : '#'}}"
+                            <a th:href="${menu != null and !menu.startsWith('KnowledgeBase')} ? '/KnowledgeBase' : '#'"
                                 id="main_menu_knowledgebase">
                                 <span th:text="#{label.menu.analysis.knowledgebase}">Knowledge base</span>
                             </a>
@@ -34,19 +34,19 @@
                             <th:block th:case="'Analysis/Risk-evolution'">
                                 <li><a th:href="@{/Analysis}" id="main_menu_analysis"
                                         th:text="#{label.menu.analysis.all}">Analysis</a></li>
-                                <li class="active"><a href="#" id="main_menu_risk_evelotion"
+                                <li class="active"><a href="#" id="main_menu_risk_evolution"
                                         th:text="#{label.menu.analysis.risk_evolution}">Risk evolution</a></li>
                             </th:block>
                             <th:block th:case="'Analysis'">
                                 <li class="active"><a href="#" id="main_menu_analysis"
                                         th:text="#{label.menu.analysis.all}">Analysis</a></li>
-                                <li><a th:href="@{/Analysis/Risk-evolution}" id="main_menu_risk_evelotion"
+                                <li><a th:href="@{/Analysis/Risk-evolution}" id="main_menu_risk_evolution"
                                         th:text="#{label.menu.analysis.risk_evolution}">Risk evolution</a></li>
                             </th:block>
                             <th:block th:case="*">
                                 <li><a th:href="@{/Analysis}" id="main_menu_analysis"
                                         th:text="#{label.menu.analysis.all}">Analysis</a></li>
-                                <li><a th:href="@{/Analysis/Risk-evolution}" id="main_menu_risk_evelotion"
+                                <li><a th:href="@{/Analysis/Risk-evolution}" id="main_menu_risk_evolution"
                                         th:text="#{label.menu.analysis.risk_evolution}">Risk evolution</a></li>
                             </th:block>
                         </th:block>
@@ -54,7 +54,7 @@
 
                     <ul class="nav navbar-nav navbar-right">
                         <li th:classappend="${menu != 'Account'} ? '' : 'active'">
-                            <a th:href="@{${menu != 'Account' ? '/Account' : '#'}}" id="main_menu_profile"
+                            <a th:href="${menu != 'Account'} ? '/Account' : '#'" id="main_menu_profile"
                                 th:with="currentUsername=${#authentication.name}">
                                 <span
                                     th:text="${#strings.isEmpty(currentUsername) ? '#{label.profile}' : currentUsername}">Profile</span>
@@ -66,12 +66,12 @@
 
                         <th:block sec:authorize="hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERVISOR')">
                             <li th:classappend="${menu != 'Admin'} ? '' : 'active'">
-                                <a th:href="@{${menu != 'Admin' ? '/Admin' : '#'}}" id="main_menu_admin"
+                                <a th:href="${menu != 'Admin'} ? '/Admin' : '#'" id="main_menu_admin"
                                     th:text="#{label.administration}">Admin</a>
                             </li>
 
                             <!-- Runtime Menu -->
-                            <div sec:authorize="hasRole('ROLE_SUPERVISOR')">
+                            <th:block sec:authorize="hasRole('ROLE_SUPERVISOR')">
                                 <li class="dropdown-submenu">
                                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" id="main_menu_runtime">
                                         <span th:text="#{label.runtime}">Runtime</span><span class="caret"></span>
@@ -108,15 +108,15 @@
                                                 collections</a></li>
                                     </ul>
                                 </li>
-                            </div>
+                            </th:block>
                         </th:block>
 
                         <li>
-                            <a href="#" onclick="return document.getElementById('logoutFormSubmiter').click()"
+                            <a href="#" onclick="return document.getElementById('logoutFormSubmitter').click()"
                                 id="main_menu_logout" th:text="#{label.menu.logout}">Logout</a>
                             <form id="logout-form" th:action="@{/Signout}" method="post" style="display: none">
-                                <input type="hidden" name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                                <input type="submit" id="logoutFormSubmiter" />
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                <input type="submit" id="logoutFormSubmitter" />
                             </form>
                         </li>
                     </ul>
@@ -127,7 +127,7 @@
             <div sec:authorize="hasAnyRole('ROLE_ANONYMOUS', 'ROLE_PRE_AUTHEN')">
                 <div class="navbar-header">
                     <a class="navbar-brand" id="main_menu_brand"
-                        th:href="@{${menu != null and menu != 'Home' ? '/Home' : '#'}}">
+                        th:href="${menu != null and menu != 'Home'} ? '/Home' : '#'">
                         <img class="brand-grey" th:alt="#{label.menu.home}" th:title="#{label.menu.home}"
                             th:src="@{/images/brand-grey.png}" />
                         <img class="brand-white" th:alt="#{label.menu.home}" th:title="#{label.menu.home}"

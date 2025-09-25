@@ -109,7 +109,7 @@ public class ControllerCustomer {
 	@RequestMapping
 	public String loadAllCustomers(Principal principal, Map<String, Object> model) throws Exception {
 		model.put("customers", serviceCustomer.getAllNotProfileOfUser(principal.getName()));
-		return "jsp/knowledgebase/customer/customers";
+		return "templates/knowledgebase/customer/customers";
 	}
 
 	/**
@@ -126,7 +126,7 @@ public class ControllerCustomer {
 	public String section(Model model, HttpSession session, Principal principal, HttpServletRequest request)
 			throws Exception {
 		model.addAttribute("customers", serviceCustomer.getAllNotProfileOfUser(principal.getName()));
-		return "jsp/knowledgebase/customer/customers";
+		return "templates/knowledgebase/customer/customers";
 	}
 
 	/**
@@ -220,7 +220,7 @@ public class ControllerCustomer {
 		model.addAttribute("types", TrickTemplateType.values());
 		model.addAttribute("languages", serviceLanguage.getByAlpha3("ENG", "FRA"));
 		model.addAttribute("maxFileSize", Math.min(maxUploadFileSize, maxTemplateSize));
-		return "jsp/knowledgebase/customer/template/home";
+		return "templates/knowledgebase/customer/template/home";
 	}
 
 	@PostMapping(value = "/{customerId}/Template/Save", headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)
@@ -386,12 +386,12 @@ public class ControllerCustomer {
 
 		// if file could not be found retrun 404 error
 		if (template == null)
-			return "jsp/errors/404";
+			return "templates/errors/404";
 
 		Customer customer = serviceCustomer.findByReportTemplateId(id);
 
 		if (customer == null)
-			return "jsp/errors/404";
+			return "templates/errors/404";
 
 		if (customer.isCanBeUsed() && !serviceCustomer.hasAccess(principal.getName(), customer.getId()))
 			throw new AccessDeniedException(

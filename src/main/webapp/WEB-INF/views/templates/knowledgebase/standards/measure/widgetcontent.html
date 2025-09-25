@@ -1,0 +1,87 @@
+<div id="section_measure_description" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="showMeasures" aria-hidden="true">
+    <div class="modal-dialog" style="width: 95%; min-width: 1170px;">
+        <div class="modal-content" style="padding-bottom: 20px">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="measures_header"></h4>
+            </div>
+            <div id="measures_body" class="modal-body" style="max-height: 700px; overflow: auto; padding-bottom: 10px;"></div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addMeasureModel" tabindex="-1" role="dialog" aria-labelledby="addNewMeasure" aria-hidden="true">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="addMeasureModel-title">
+                    <span th:text="#{label.tile.add.measure}">Add new Measure</span>
+                </h4>
+            </div>
+            <div class="modal-body">
+                <form name="measure" action="/Save" method="post" class="form-horizontal" id="measure_form">
+                    <input type="hidden" name="id" value="0" id="measure_id">
+                    <div class="form-group">
+                        <label for="computable" class="col-sm-3 control-label" th:data-helper-content="#{help.measure.computable}">
+                            <span th:text="#{label.measure.computable}">Computable</span>
+                        </label>
+                        <div class="col-sm-9 text-center">
+                            <div class="btn-group" data-toggle="buttons" id="measure_computable">
+                                <label class="btn btn-default active">
+                                    <span th:text="#{label.yes_no.yes}">Yes</span>
+                                    <input name="computable" type="radio" value="true" checked="checked">
+                                </label>
+                                <label class="btn btn-default">
+                                    <span th:text="#{label.yes_no.no}">No</span>
+                                    <input name="computable" type="radio" value="false">
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="reference" class="col-sm-3 control-label" th:data-helper-content="#{help.measure.reference}">
+                            <span th:text="#{label.reference}">Reference</span>
+                        </label>
+                        <div class="col-sm-9">
+                            <input name="reference" id="measure_reference" class="form-control" type="text" />
+                        </div>
+                    </div>
+                    <div id="measurelanguages"></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button id="addmeasurebutton" type="button" class="btn btn-primary" onclick="saveMeasure()">
+                    <span th:text="#{label.action.add}">Add</span>
+                </button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    <span th:text="#{label.action.cancel}">Cancel</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteMeasureModel" tabindex="-1" aria-hidden="true" aria-labelledby="deleteMeasure" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="deleteMeasureModel-title">
+                    <span th:text="#{lable.title.delete.measure}">Delete a measure</span>
+                </h4>
+            </div>
+            <div id="deleteMeasureBody" class="modal-body">
+                Your question here...
+            </div>
+            <div class="modal-footer">
+                <button id="deletemeasurebuttonYes" type="button" class="btn btn-danger" data-dismiss="modal">
+                    <span th:text="#{label.action.confirm.yes}">Yes</span>
+                </button>
+                <button id="deletemeasurebuttonCancel" type="button" class="btn btn-default" data-dismiss="modal">
+                    <span th:text="#{label.action.cancel}">Cancel</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

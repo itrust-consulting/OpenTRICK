@@ -1,0 +1,74 @@
+<div class="tab-pane" id="tab-analyses">
+    <div class="section" id="section_profile_analysis">
+        <ul class="nav nav-pills bordered-bottom" id="menu_analysis">
+            <li class="disabled" data-trick-selectable="true">
+                <a href="#" onclick="return selectAnalysis(undefined, 'true')">
+                    <span class="glyphicon glyphicon-folder-open"></span>&nbsp;&nbsp;<span th:text="#{label.action.open}"></span>
+                </a>
+            </li>
+            <li class="disabled" data-trick-selectable="true">
+                <a href="#" onclick="return editSingleAnalysis();">
+                    <span class="glyphicon glyphicon-edit"></span> <span th:text="#{label.properties}"></span>
+                </a>
+            </li>
+            <li class="disabled" data-trick-selectable="true">
+                <a href="#" onclick="return exportAnalysis()">
+                    <span class="glyphicon glyphicon-export"></span> <span th:text="#{label.menu.export.analysis}">Export</span>
+                </a>
+            </li>
+            <li class="disabled" data-trick-selectable="true" data-trick-check="!isDefaultProfile()">
+                <a href="#" onclick="return setAsDefaultProfile(undefined, 'true')">&nbsp;&nbsp;<span class="glyphicon glyphicon-check"></span>
+                    <span th:text="#{label.menu.analysis.set_default.profile}">Set as default</span>
+                </a>
+            </li>
+            <li class="disabled pull-right" data-trick-selectable="true" data-trick-check="!isDefaultProfile()">
+                <a href="#" class="text-danger" onclick="return deleteAnalysisProfile();">
+                    <span class="glyphicon glyphicon-remove"></span> <span th:text="#{label.menu.delete.analysis}">Delete</span>
+                </a>
+            </li>
+        </ul>
+        <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th width="1%"></th>
+                    <th width="50%"><span th:text="#{label.analysis.label}">Name</span></th>
+                    <th width="5%"><span th:text="#{label.analysis.type}">Type</span></th>
+                    <th><span th:text="#{label.analysis.creation_date}">Create date</span></th>
+                    <th><span th:text="#{label.analysis.owner}">Owner</span></th>
+                    <th><span th:text="#{label.analysis.language}">Language</span></th>
+                    <th><span th:text="#{label.analysis.profile.default}">Default</span></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="analysis : ${analyses}" th:data-trick-id="${analysis.id}" th:data-trick-profile-default="${analysis.defaultProfile}"
+                    th:onclick="|selectElement(this)|" th:data-trick-type="${analysis.type}" th:data-trick-rights-id="0" 
+                    th:data-empty="${analysis.hasData()}" th:ondblclick="|return editSingleAnalysis(${analysis.id});|">
+                    <td><input type="checkbox" class="checkbox" th:change="|return updateMenu(this, '#section_profile_analysis', '#menu_analysis');|"></td>
+                    <td>
+                        <span th:if="${analysis.defaultProfile}">
+                            <i class="fa fa-file" aria-hidden="true" th:title="#{label.analysis.default.profile}"></i>
+                        </span>
+                        <span th:if="${analysis.profile}">
+                            <i class="fa fa-file-o" aria-hidden="true" th:title="#{label.analysis.profile}"></i>
+                        </span>
+                        <span th:if="${not analysis.data}">
+                            <i class="fa fa-folder-o" aria-hidden="true" th:title="#{label.analysis.empty}"></i>
+                        </span>
+                        <span th:if="${analysis.archived}">
+                            <i class="fa fa-archive" aria-hidden="true" th:title="#{label.analysis.archived}"></i>
+                        </span>
+                        <span th:if="${not analysis.defaultProfile and not analysis.profile and analysis.data}">
+                            <i class="fa fa-folder" aria-hidden="true" th:title="#{label.analysis.editable}"></i>
+                        </span>
+                        <span th:text="${analysis.label}" style="margin-left: 5px;"></span>
+                    </td>
+                    <td><span th:text="#{label.analysis.type.{analysis.type.toLowerCase()}}" th:utext="${analysis.type.toLowerCase()}"></span></td>
+                    <td><span th:utext="${#dates.format(analysis.creationDate, 'yyyy-MM-dd HH:mm')}"></span></td>
+                    <td><span th:text="${analysis.owner.firstName} + ' ' + ${analysis.owner.lastName}"></span></td>
+                    <td><span th:text="${analysis.language.name}"></span></td>
+                    <td><span th:text="#{label.yes_no.{analysis.defaultProfile ? 'yes' : 'no'}}"></span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

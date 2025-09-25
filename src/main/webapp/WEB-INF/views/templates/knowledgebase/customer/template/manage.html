@@ -1,0 +1,79 @@
+<div id="section_manage_customer_template" class="tab-pane active" style="margin-top: -10px">
+    <ul id="menu_manage_customer_template" class="nav nav-pills bordered-bottom">
+        <div th:if="${customer.canBeUsed}">
+            <li><a href="#form_customer_template" data-toggle="tab" role="add"><span class="glyphicon glyphicon-plus primary"></span> <span th:text="#{label.action.add}"></span></a></li>
+        </div>
+        <li data-trick-selectable="true" data-trick-check="!isDefaultCustomTemplate('#section_manage_customer_template')" class="disabled">
+            <a href="#form_customer_template" data-toggle="tab" role="edit">
+                <span class="glyphicon glyphicon-edit primary"></span> <span th:text="#{label.action.edit}"></span>
+            </a>
+        </li>
+        <li data-trick-selectable="multi" class="disabled" data-trick-check="checkItemCount('#section_manage_customer_template')">
+            <a role="download" href="#">
+                <span class="glyphicon glyphicon-download"></span>&nbsp;<span th:text="#{label.action.download}"></span>
+            </a>
+        </li>
+        <div th:if="${customer.canBeUsed}">
+            <li data-trick-selectable="multi" class="disabled pull-right" data-trick-check="!isDefaultCustomTemplate('#section_manage_customer_template')">
+                <a role="delete" class="text-danger" href="#">
+                    <span class="glyphicon glyphicon-remove"></span>&nbsp;<span th:text="#{label.action.remove}"></span>
+                </a>
+            </li>
+        </div>
+    </ul>
+    <div style="height: 456px; overflow-y: auto; overflow-x: hidden;">
+        <table class="table table-hover" id="table_manage_template">
+            <thead>
+                <tr>
+                    <th width="1%"><input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'manage_customer_template')"></th>
+                    <th width="50%"><span th:text="#{label.name}"></span></th>
+                    <th><span th:text="#{label.category}"></span></th>
+                    <th><span th:text="#{label.type}"></span></th>
+                    <th><span th:text="#{label.language}"></span></th>
+                    <th><span th:text="#{label.version}"></span></th>
+                    <th width="23%"><span th:text="#{label.last_update}"></span></th>
+                    <th width="10%"><span th:text="#{label.file.size}">Size</span></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="template : ${templates}" 
+                    th:classappend="${template.editable ? (template.outToDate ? 'warning' : '') : (customer.canBeUsed ? 'text-muted' : '')}" 
+                    ondblclick="return editReportTempalte(this);" 
+                    onclick="selectElement(this)"
+                    th:data-trick-id="${template.id}" 
+                    th:data-trick-editable="${template.editable or not customer.canBeUsed}">
+                    <td><input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_manage_customer_template','#menu_manage_customer_template');"></td>
+                    <td th:data-trick-field="label" th:data-trick-content="text">
+                        <span th:text="${template.label}"></span>
+                    </td>
+                    <td th:data-trick-field="type" th:data-trick-real-value="${template.type}">
+                        <span th:text="#{label.analysis.type.${template.analysisType.toLowerCase()}}"></span>
+                    </td>
+                    <td th:data-trick-field="type" th:data-trick-real-value="${template.type}">
+                        <span th:text="#{label.template.type.${template.type.toLowerCase()}}"></span>
+                    </td>
+                    <td th:if="${template.language == null}">
+                        <td th:data-trick-field="language" th:data-trick-real-value="-2">
+                            <span th:text="#{label.all}">ALL</span>
+                        </td>
+                    </td>
+                    <td th:unless="${template.language == null}">
+                        <td th:data-trick-field="language" th:data-trick-real-value="${template.language.id}">
+                            <span th:text="${template.language.name}"></span>
+                        </td>
+                    </td>
+                    <td th:data-trick-field="version">
+                        <span th:text="${template.version}"></span>
+                    </td>
+                    <td>
+                        <span th:text="${#dates.format(template.created, 'yyyy-MM-dd HH:mm:ss')}"></span>
+                    </td>
+                    <td>
+                        <span th:text="${#numbers.formatDecimal(template.length / (1024 * 1024), 0, 2)}"></span>
+                        <span th:text="#{label.metric.megabit}">Mb</span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

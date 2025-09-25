@@ -37,7 +37,7 @@ public class ControllerItemInformation {
 		var analysis  = serviceAnalysis.get( (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS));
         Collections.sort(analysis.getItemInformations(), new ComparatorItemInformation());
 		model.addAttribute("itemInformations", analysis.getItemInformations());
-		return "jsp/analyses/single/components/itemInformation";
+		return "templates/analyses/single/components/itemInformation";
 	}
 
 }

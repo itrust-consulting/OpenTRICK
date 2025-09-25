@@ -15,7 +15,7 @@
             <span th:text="#{label.action.enable}" th:utext="Enable" th:object="${enable}" />
             <span th:text="#{label.action.disable}" th:utext="Disable" th:object="${disable}" />
             <div class="modal-body">
-                <div th:replace="~{../../template/successErrors :: successErrors}"></div>
+                <div th:replace="~{templates/template/successErrors :: successErrors}"></div>
                 <form th:action="@{/path/to/submit}" th:object="${ids}" method="post" class="form-horizontal">
                     <input type="hidden" th:field="*{id}" />
 

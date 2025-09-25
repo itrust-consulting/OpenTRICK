@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <html lang="${locale.language}">
 <!-- Include Header -->
-<div th:replace="~{../template/header :: header}"></div>
+<div th:replace="~{templates/template/header :: header}"></div>
 
 <!-- ################################################################# Start Container ############################################################## -->
 <body>
     <div id="wrap">
         <!-- ################################################################### Nav Menu ################################################################### -->
-        <div th:replace="~{../template/menu :: menu}"></div>
+        <div th:replace="~{templates/template/menu :: menu}"></div>
         
         <div class="container">
-            <div th:replace="~{../template/successErrors :: successErrors}"></div>
+            <div th:replace="~{templates/template/successErrors :: successErrors}"></div>
 
             <!-- #################################################################### Content ################################################################### -->
             <div class="page-header">
@@ -23,10 +23,10 @@
         </div>
 
         <!-- ################################################################ Include Footer ################################################################ -->
-        <div th:replace="~{../template/footer :: footer}"></div>
+        <div th:replace="~{templates/template/footer :: footer}"></div>
     </div>
 
-    <div th:replace="~{../template/scripts :: scripts}"></div>
+    <div th:replace="~{templates/template/scripts :: scripts}"></div>
 </body>
 <!-- ################################################################### End HTML ################################################################### -->
 </html>

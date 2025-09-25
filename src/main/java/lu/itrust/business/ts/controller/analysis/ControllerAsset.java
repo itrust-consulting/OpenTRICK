@@ -189,7 +189,7 @@ public class ControllerAsset {
 		// add asset object to model
 		model.addAttribute("asset", serviceAsset.get(elementID));
 		loadAnalysisSettings(model, (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS));
-		return "jsp/analyses/single/components/asset/form";
+		return "templates/analyses/single/components/asset/form";
 	}
 
 	/**
@@ -206,7 +206,7 @@ public class ControllerAsset {
 	public String edit(Model model, HttpSession session, Principal principal) throws Exception {
 		model.addAttribute("assettypes", serviceAssetType.getAll());
 		loadAnalysisSettings(model, (Integer) session.getAttribute(Constant.SELECTED_ANALYSIS));
-		return "jsp/analyses/single/components/asset/form";
+		return "templates/analyses/single/components/asset/form";
 	}
 
 	/**
@@ -348,7 +348,7 @@ public class ControllerAsset {
 		model.addAttribute("isEditable", !OpenMode.isReadOnly((OpenMode) session.getAttribute(Constant.OPEN_MODE)));
 
 		model.addAttribute("show_uncertainty", analysis.isUncertainty());
-		return "jsp/analyses/single/components/asset/asset";
+		return "templates/analyses/single/components/asset/asset";
 	}
 
 	/**

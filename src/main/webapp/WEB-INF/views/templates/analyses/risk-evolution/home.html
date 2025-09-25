@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html>
 <!-- ################################################################ Include Header ################################################################ -->
-<div th:replace="../../template/header :: header"></div>
+<div th:replace="templates/template/header :: header"></div>
 
 <!-- ############################################################### Start Container ################################################################ -->
 <body>
     <div id="wrap">
         <!-- ################################################################### Nav Menu ################################################################### -->
-        <div th:replace="../../template/menu :: menu"></div>
+        <div th:replace="templates/template/menu :: menu"></div>
         
         <!-- ################################################################### Content #################################################################### -->
         <div class="container trick-container max-height" data-ug-root="risk-evolution">
@@ -166,10 +166,10 @@
             <!-- ################################################################ Include Footer ################################################################ -->
         </div>
 
-        <div th:replace="../../template/footer :: footer"></div>
+        <div th:replace="templates/template/footer :: footer"></div>
 
         <!-- ################################################################ End Container ################################################################# -->
-        <div th:replace="../../template/scripts :: scripts"></div>
+        <div th:replace="templates/template/scripts :: scripts"></div>
 
         <script th:src="@{/js/chartjs/Chart.bundle.min.js}"></script>
         <script th:src="@{/js/chartjs/plugins.js}"></script>
@@ -182,7 +182,7 @@
         </script>
 
         <div id="view-helper" class="hidden">
-            <div th:replace="../single/components/parameters/risk-acceptance :: risk-acceptance"></div>
+            <div th:replace="templates/analyses/single/components/parameters/risk-acceptance :: risk-acceptance"></div>
         </div>
     </div>
 </body>

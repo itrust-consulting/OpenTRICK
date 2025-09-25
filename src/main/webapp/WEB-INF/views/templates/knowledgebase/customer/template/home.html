@@ -1,0 +1,30 @@
+<div class="modal fade" th:classappend="${not customer.canBeUsed} ? ' d-none' : ''" id="reportTemplateModal" tabindex="-1" role="dialog" data-aria-labelledby="reportTemplateModal" data-aria-hidden="true">
+    <div class="modal-dialog modal-mdl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
+                <h4 class="modal-title">
+                    <span th:text="#{label.title.manage.customer.template}">Manage customer template</span>
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="tab-content">
+                    <!-- Use th:replace to include other templates -->
+                    <div th:replace="~{manage :: content}"></div>
+                    <div th:replace="~{form :: content}"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" name="save" class="btn btn-primary" style="display: none;">
+                    <span th:text="#{label.action.save}">Save</span>
+                </button>
+                <a href="#section_manage_customer_template" class="btn btn-default" role="back" data-toggle="tab" style="display: none;">
+                    <span th:text="#{label.action.back}">Back</span>
+                </a>
+                <button type="button" class="btn btn-default" data-dismiss="modal" name="cancel">
+                    <span th:text="#{label.action.close}">Close</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -147,7 +147,7 @@ public class ControllerAssessment {
 		model.addAttribute("asset", asset);
 		loadAnalysisSettings(model, analysis);
 		model.addAttribute("isEditable", !OpenMode.isReadOnly((OpenMode) session.getAttribute(OPEN_MODE)));
-		return "jsp/analyses/single/components/risk-estimation/asset/home";
+		return "templates/analyses/single/components/risk-estimation/asset/home";
 	}
 
 	/**
@@ -198,7 +198,7 @@ public class ControllerAssessment {
 		loadAnalysisSettings(model, analysis);
 		model.addAttribute("scenario", scenario);
 		model.addAttribute("isEditable", !OpenMode.isReadOnly((OpenMode) session.getAttribute(OPEN_MODE)));
-		return "jsp/analyses/single/components/risk-estimation/scenario/home";
+		return "templates/analyses/single/components/risk-estimation/scenario/home";
 
 	}
 
@@ -229,7 +229,7 @@ public class ControllerAssessment {
 		model.addAttribute("valueFactory", new ValueFactory(dynamicParameters));
 		model.addAttribute("standards", serviceAnalysisStandard.findStandardByAnalysisIdAndTypeIn(idAnalysis,
 				NormalStandard.class, AssetStandard.class));
-		return "jsp/analyses/single/components/risk-estimation/form/measure";
+		return "templates/analyses/single/components/risk-estimation/form/measure";
 	}
 
 	/**

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scale Type</title>
+</head>
+<body>
+
+<div th:if="${locale == null}">
+    <span th:text="${T(org.springframework.web.servlet.support.RequestContextUtils).getLocale(request).language}"></span>
+</div>
+
+<span th:set="langue=${locale != null ? locale.toUpperCase() : 'fr'}"></span>
+<div class="tab-pane" id="tab-scale-type">
+    <div class="section row" id="section_kb_scale_type">
+        <ul class="nav nav-pills bordered-bottom" id="menu_kb_scale_type" style="margin-bottom: 10px;">
+            <li data-trick-ignored="true">
+                <a href="#tab_kb_scale_type" onclick="return addScaleType()">
+                    <span class="glyphicon glyphicon-plus primary"></span>
+                    <span th:text="#{label.action.add}"></span>
+                </a>
+            </li>
+            <li class="disabled" data-trick-selectable="true">
+                <a href="#tab_kb_scale_type" onclick="return editScaleType()">
+                    <span class="glyphicon glyphicon-edit"></span>
+                    <span th:text="#{label.action.edit}"></span>
+                </a>
+            </li>
+            <li class="disabled pull-right" data-trick-selectable="multi">
+                <a href="#tab_kb_scale_type" onclick="return deleteScaleType()" class="text-danger">
+                    <span class="glyphicon glyphicon-remove"></span>
+                    <span th:text="#{label.action.delete}"></span>
+                </a>
+            </li>
+        </ul>
+        <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th width="1%" rowspan="3">
+                        <input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'kb_scale_type')">
+                    </th>
+                    <th rowspan="3">
+                        <span th:text="#{label.scale.name}">Name</span>
+                    </th>
+                    <th rowspan="3">
+                        <span th:text="#{label.scale.acronym}">Acronym</span>
+                    </th>
+                    <th colspan="[[${languages == null ? 1 : languages.size() * 2}]]" style="text-align: center;">
+                        <span th:text="#{label.scale.translations}">Translations</span>
+                    </th>
+                </tr>
+                <tr>
+                    <th th:each="language : ${languages}" colspan="2" style="text-align: center;">
+                        <span th:text="${language.alpha2 == langue ? language.name : language.altName}"></span>
+                    </th>
+                </tr>
+                <tr>
+                    <th th:each="language : ${languages}">
+                        <span th:text="#{label.translation}"></span>
+                    </th>
+                    <th th:each="language : ${languages}">
+                        <span th:text="#{label.translation.short}"></span>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="scaleType : ${scaleTypes}" data-trick-id="${scaleType.id}" 
+                    onclick="selectElement(this)" ondblclick="return editScaleType([[${scaleType.id}]])">
+                    <td>
+                        <input type="checkbox" class="checkbox" 
+                            onchange="return updateMenu(this,'#section_kb_scale_type','#menu_kb_scale_type');">
+                    </td>
+                    <td data-field-name="name">
+                        <span th:text="${scaleType.name}"></span>
+                    </td>
+                    <td data-field-name="acronym">
+                        <span th:text="${scaleType.acronym}"></span>
+                    </td>
+                    <th th:each="language : ${languages}">
+                        <td>
+                            <span th:text="${scaleType.translations[language.alpha2].name}"></span>
+                        </td>
+                        <td>
+                            <span th:text="${scaleType.translations[language.alpha2].shortName}"></span>
+                        </td>
+                    </th>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+</body>
+</html>

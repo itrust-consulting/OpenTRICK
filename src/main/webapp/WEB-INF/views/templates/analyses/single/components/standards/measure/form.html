@@ -1,0 +1,171 @@
+<div class="modal fade" id="modalMeasureForm" tabindex="-1" role="dialog" data-aria-labelledby="measureForm" style="z-index: 1042" data-aria-hidden="true">
+	<div class="modal-dialog modal-md">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
+				<h4 class="modal-title">
+					<span th:if="${measureForm.id < 1}">
+						<span th:text="#{label.tile.add.measure}"></span>
+					</span>
+					<span th:if="${measureForm.id >= 1}">
+						<span th:text="#{label.tile.edit.measure}"></span>
+					</span>
+				</h4>
+			</div>
+			<div class="modal-body" style="padding-top: 5px;">
+				<div id="measure-form-container">
+					<span th:if="${type == 'QUALITATIVE'}">
+						<span th:if="${isAnalysisOnly and measureForm.type == 'ASSET'}">
+							<ul id="measure_form_tabs" class="nav nav-tabs">
+								<li class="active"><a href="#tab_general" data-toggle="tab" th:text="#{label.menu.general}"></a></li>
+								<li><a href="#tab_asset" data-toggle="tab" th:text="#{label.menu.assets}"></a></li>
+								<li id="error_container" style="padding-top: 10px"></li>
+							</ul>
+						</span>
+						<span th:unless="${isAnalysisOnly and measureForm.type == 'ASSET'}">
+							<div id="error_container"></div>
+						</span>
+					</span>
+
+					<span th:unless="${type == 'QUALITATIVE'}">
+						<span th:if="${isAnalysisOnly}">
+							<ul id="measure_form_tabs" class="nav nav-tabs">
+								<li class="active"><a href="#tab_general" data-toggle="tab" th:text="#{label.menu.general}"></a></li>
+								<span th:if="${measureForm.type == 'ASSET'}">
+									<li><a href="#tab_asset" data-toggle="tab" th:text="#{label.menu.assets}"></a></li>
+								</span>
+								<li><a href="#tab_properties" data-toggle="tab" th:text="#{label.menu.properties}"></a></li>
+								<li id="error_container" style="padding-top: 10px"></li>
+							</ul>
+						</span>
+						<span th:unless="${isAnalysisOnly}">
+							<div id="error_container"></div>
+						</span>
+					</span>
+
+					<form name="measureForm" style="height: 478px;" action="/Save?${_csrf.parameterName}=${_csrf.token}" class="form-horizontal tab-content" id="measure_form" method="post">
+						<input type="hidden" name="id" th:value="${measureForm.id}" id="id"> 
+						<input type="hidden" name="idStandard" th:value="${measureForm.idStandard}" id="idStandard">
+
+						<span th:if="${isAnalysisOnly}">
+							<div id="tab_general" class="tab-pane active" style="padding-top: 17px;">
+								<div class="form-group">
+									<label for="reference" class="col-sm-3 control-label" th:data-helper-content="#{help.measure.reference}">
+										<span th:text="#{label.reference}"></span>
+									</label>
+									<div class="col-sm-9">
+										<input name="reference" id="reference" th:value="${measureForm.reference}" class="form-control" />
+									</div>
+								</div>
+
+								<div class="form-group">
+									<label for="computable" class="col-sm-3 control-label" th:data-helper-content="#{help.measure.computable}">
+										<span th:text="#{label.measure.computable}"></span>
+									</label>
+									<div class="col-sm-9" align="center">
+										<input name="computable" id="computable" th:checked="${measureForm.computable}" class="checkbox" type="checkbox" />
+									</div>
+								</div>
+
+								<div class="form-group">
+									<label for="domain" class="col-sm-3 control-label" th:data-helper-content="#{help.measure.domain}">
+										<span th:text="#{label.measure.domain}"></span>
+									</label>
+									<div class="col-sm-9">
+										<textarea name="domain" id="domain" rows="4" class="form-control resize_vectical_only" th:text="${measureForm.domain}"></textarea>
+									</div>
+								</div>
+
+								<div class="form-group">
+									<label for="description" class="col-sm-3 control-label" th:data-helper-content="#{help.measure.description}">
+										<span th:text="#{label.measure.description}"></span>
+									</label>
+									<div class="col-sm-9">
+										<textarea name="description" id="description" rows="9" class="form-control resize_vectical_only" th:text="${measureForm.description}"></textarea>
+									</div>
+								</div>
+							</div>
+
+							<span th:if="${measureForm.type == 'ASSET'}">
+								<div id="tab_asset" class="tab-pane">
+									<div class="row">
+										<div class="col-sm-12">
+											<h3>
+												<span th:text="#{label.assetmeasure.assets.title}"></span>
+											</h3>
+											<p class="bordered-bottom" style="padding-bottom: 10px;">
+												<span th:text="#{label.assetmeasure.assets.description}"></span>
+											</p>
+										</div>
+										<div class="form-group" style="width: 47%; margin: 5px 15px;">
+											<label class="col-xs-3" style="padding: 5px;">
+												<span th:text="#{label.asset_type}"></span>
+											</label>
+											<div class="col-xs-9">
+												<select class="form-control" name="assettypes" id="assettypes">
+													<option value="ALL"><span th:text="#{label.all}"></span></option>
+													<span th:each="assetType : ${assetTypes}">
+														<option th:value="${assetType.name}" th:selected="${assetType.name == selectedAssetType}">
+															<span th:text="#{label.asset_type.${assetType.name.toLowerCase()}}"></span>
+														</option>
+													</span>
+												</select>
+											</div>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-sm-6">
+											<h3>
+												<span th:text="#{label.assetmeasure.assetlist}"></span>
+											</h3>
+											<p>
+												<span th:text="#{label.assetmeasure.assets.clickforselect}"></span>
+											</p>
+
+											<ul class="asset-measure" data-trick-type="available">
+												<span th:each="availableAsset : ${availableAssets}">
+													<li th:data-trick-id="${availableAsset.id}" class="list-group-item" data-trick-selected="false" th:data-trick-type="${availableAsset.assetType.name}">
+														<span th:text="${availableAsset.name}"></span>
+													</li>
+												</span>
+											</ul>
+										</div>
+										<div class="col-sm-6">
+											<h3>
+												<span th:text="#{label.assetmeasure.selected}"></span>
+											</h3>
+											<p>
+												<span th:text="#{label.assetmeasure.assets.clickfordeselect}"></span>
+											</p>
+											<ul class="asset-measure" data-trick-type="measure">
+												<span th:each="assetValue : ${measureForm.assetValues}">
+													<li th:data-trick-id="${assetValue.id}" data-trick-selected="true" class="list-group-item" th:data-trick-type="${assetValue.type}">
+														<span th:text="${assetValue.name}"></span>
+														<input name="assets" th:value="${assetValue.id}" type="hidden"/>
+													</li>
+												</span>
+											</ul>
+										</div>
+									</div>
+								</div>
+							</span>
+						</span>
+
+						<span th:if="${type == 'quantitative'}">
+							<!-- Include properties page (this may need to be handled differently in Thymeleaf) -->
+						</span>
+					</form>
+					<div class="clearfix"></div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary" onclick="return saveMeasure('#measure_form')">
+					<span th:text="#{label.action.save}"></span>
+				</button>
+				<button type="button" class="btn btn-default" data-dismiss="modal">
+					<span th:text="#{label.action.cancel}"></span>
+				</button>
+			</div>
+		</div>
+	</div>
+</div>

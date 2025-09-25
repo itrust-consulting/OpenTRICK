@@ -2,16 +2,16 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="${#locale.language}">
 <head>
     <title th:text="#{title.400}">Error 400</title>
-    <th:block th:replace="~{../template/header :: header}"></th:block>
+    <th:block th:replace="~{templates/template/header :: header}"></th:block>
 </head>
 <body>
     <div id="wrap">
         <!-- Include Nav Menu -->
-        <th:block th:replace="~{../template/menu :: menu}"></th:block>
+        <th:block th:replace="~{templates/template/menu :: menu}"></th:block>
 
         <div class="container">
             <!-- Include Success / Error Messages -->
-            <th:block th:replace="~{../template/successErrors :: messages}"></th:block>
+            <th:block th:replace="~{templates/template/successErrors :: messages}"></th:block>
 
             <!-- Page Header -->
             <div class="page-header">
@@ -25,10 +25,10 @@
         </div>
 
         <!-- Include Footer -->
-        <th:block th:replace="~{../template/footer :: footer}"></th:block>
+        <th:block th:replace="~{templates/template/footer :: footer}"></th:block>
     </div>
 
     <!-- Include Scripts -->
-    <th:block th:replace="~{../template/scripts :: scripts}"></th:block>
+    <th:block th:replace="~{templates/template/scripts :: scripts}"></th:block>
 </body>
 </html>

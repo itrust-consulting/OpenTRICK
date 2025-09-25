@@ -5,16 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="#{title.error.503}"></title>
     <!-- Include Header -->
-    <div th:replace="../template/header :: header"></div>
+    <div th:replace="templates/template/header :: header"></div>
 </head>
 <body>
     <div id="wrap">
         <!-- ################################################################### Nav Menu ################################################################### -->
-        <div th:replace="../template/menu :: menu"></div>
+        <div th:replace="templates/template/menu :: menu"></div>
 
         <div class="container">
             <!-- Success/Error Message -->
-            <div th:replace="../template/successErrors :: successErrors"></div>
+            <div th:replace="templates/template/successErrors :: successErrors"></div>
 
             <!-- #################################################################### Content ################################################################### -->
             <div class="page-header">
@@ -27,10 +27,10 @@
         </div>
 
         <!-- ################################################################ Include Footer ################################################################ -->
-        <div th:replace="../template/footer :: footer"></div>
+        <div th:replace="templates/template/footer :: footer"></div>
     </div>
 
     <!-- Include Scripts -->
-    <div th:replace="../template/scripts :: scripts"></div>
+    <div th:replace="templates/template/scripts :: scripts"></div>
 </body>
 </html>

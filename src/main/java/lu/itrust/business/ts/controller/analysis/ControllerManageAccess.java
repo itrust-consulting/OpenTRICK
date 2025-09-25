@@ -111,7 +111,7 @@ public class ControllerManageAccess {
 		model.addAttribute("invitations", serviceAnalysisShareInvitation.findByAnalysisId(analysisID));
 		model.addAttribute("ownerId", analysis.getOwner().getId());
 		model.addAttribute("myId", serviceUser.get(principal.getName()).getId());
-		return "jsp/analyses/all/forms/rights";
+		return "templates/analyses/all/forms/rights";
 	}
 
 	/**

@@ -10,7 +10,7 @@
         <div th:switch="${not type.quantitative and type.qualitative}">
             <div th:case="true">
                 <div class="row">
-                    <th:block th:include="~{../probability/likelihood}"></th:block>
+                    <th:block th:include="~{templates/analyses/single/components/setting/parameters/probability/likelihood}"></th:block>
                     <th:block th:with="writeIndex=${1}"></th:block>
                 </div>
             </div>
@@ -24,7 +24,7 @@
                 <div th:switch="${impactType.name}">
                     <div th:case="'IMPACT'">
                         <div th:if="${writeIndex % 2 != 0 and status.index == #lists.size(impactTypes) - 1}">
-                            <th:block th:include="~{../probability/dynamic}"></th:block>
+                            <th:block th:include="~{templates/analyses/single/components/setting/parameters/probability/dynamic}"></th:block>
                             <th:block th:with="writtenDynamic=${true}"></th:block>
                         </div>
                     </div>
@@ -63,7 +63,7 @@
                         </div>
                         <div th:if="${writeIndex % 2 != 0 or status.index == #lists.size(impactTypes) - 1}">
                             <div th:if="${status.index == #lists.size(impactTypes) - 1}">
-                                <th:block th:include="~{../probability/dynamic}"></th:block>
+                                <th:block th:include="~{templates/analyses/single/components/settings/parameters/probability/dynamic}"></th:block>
                                 <th:block th:with="writtenDynamic=${true}"></th:block>
                             </div>
                         </div>
@@ -74,7 +74,7 @@
 
             <div th:if="${not writtenDynamic and type.quantitative and showDynamicAnalysis}">
                 <div class="row">
-                    <th:block th:include="~{../probability/dynamic}"></th:block>
+                    <th:block th:include="~{templates/analyses/single/components/settings/parameters/probability/dynamic}"></th:block>
                 </div>
             </div>
         </th:block>

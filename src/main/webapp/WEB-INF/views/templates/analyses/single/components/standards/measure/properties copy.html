@@ -1,0 +1,184 @@
+<div id="tab_properties" class="tab-pane measure-property" th:classappend="${not isAnalysisOnly ? ' active' : ''}" style="padding-top: 17px;">
+    <div style="overflow-x: auto; overflow-y: hidden">
+        <table class="table">
+            <thead>
+                <tr id="slidersTitle">
+                    <th class="warning" th:text="#{label.rrf.measure.strength_measure}"></th>
+                    <th class="warning" th:text="#{label.rrf.measure.strength_sectoral}"></th>
+                    <th th:each="category : ${measureForm.properties.categories.keySet()}" class="info" 
+                        th:classappend="${not #lists.isEmpty(cssfExcludes[category]) ? ' hidden' : ''}" 
+                        data-trick-class="Category" 
+                        data-trick-value="${#messages.msg(category)}">
+                        <span th:text="#{label.rrf.category.{category.toLowerCase().replace('_','.')}}"></span>
+                    </th>
+                    <th class="success" th:text="#{label.rrf.measure.preventive}"></th>
+                    <th class="success" th:text="#{label.rrf.measure.detective}"></th>
+                    <th class="success" th:text="#{label.rrf.measure.limitative}"></th>
+                    <th class="success" th:text="#{label.rrf.measure.corrective}"></th>
+                    <th class="warning" th:text="#{label.rrf.measure.intentional}"></th>
+                    <th class="warning" th:text="#{label.rrf.measure.accidental}"></th>
+                    <th class="warning" th:text="#{label.rrf.measure.environmental}"></th>
+                    <th class="warning" th:text="#{label.rrf.measure.internal_threat}"></th>
+                    <th class="warning" th:text="#{label.rrf.measure.external_threat}"></th>
+                    <th th:if="${measureForm.type == 'ASSET'}">
+                        <th th:each="assetValue : ${measureForm.assetValues}" 
+                            data-trick-class="MeasureAssetValue" 
+                            data-trick-asset-id="${assetValue.id}">
+                            <span th:text="${assetValue.name}"></span>
+                        </th>
+                    </th>
+                    <th th:if="${measureForm.type == 'NORMAL'}">
+                        <th th:each="assetValue : ${measureForm.assetValues}" 
+                            th:classappend="${not #lists.isEmpty(hiddenAssetTypes[assetValue.type]) ? ' hidden' : ''}">
+                            <span th:text="#{label.asset_type.{assetValue.name.toLowerCase()}}"></span>
+                        </th>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr id="sliders" class="slider-vertical" style="text-align: center;">
+                    <td class="warning" data-trick-class="MeasureProperties">
+                        <div class="measure-slider">
+                            <sl-range style=" --track-color-active: white; --track-color-inactive: white;" 
+                                      id="fmeasure" 
+                                      th:value="${measureForm.properties.getFMeasure()}"
+                                      min="0" max="10" step="1" 
+                                      name="fmeasure" />
+                        </div>
+                    </td>
+                    <td class="warning" data-trick-class="MeasureProperties">
+                        <div class="measure-slider">
+                            <sl-range style=" --track-color-active: white; --track-color-inactive: white;" 
+                                      id="fsectoral" 
+                                      th:value="${measureForm.properties.getFSectoral()}"
+                                      min="0" max="4" step="1" 
+                                      name="fsectoral" />
+                        </div>
+                    </td>
+                    <th th:each="category : ${measureForm.properties.categories.keySet()}" 
+                        class="info" 
+                        th:classappend="${not #lists.isEmpty(cssfExcludes[category]) ? ' hidden' : ''}" 
+                        data-trick-class="Category" 
+                        data-trick-value="${#messages.msg(category)}">
+                        <div class="measure-slider">
+                            <sl-range style=" --track-color-active: white; --track-color-inactive: white;" 
+                                      id="${category.replace('.', '_')}" 
+                                      th:value="${measureForm.properties.getCategoryValue(category)}"
+                                      min="0" max="4" step="1" 
+                                      name="${#messages.msg(category)}" />
+                        </div>
+                    </th>
+                    <td class="success">
+                        <div class="measure-slider">
+                            <sl-range style=" --track-color-active: white; --track-color-inactive: white;" 
+                                      id="preventive" 
+                                      th:value="${measureForm.properties.preventive}"
+                                      min="0" max="4" step="1" 
+                                      name="preventive" />
+                        </div>
+                    </td>
+                    <td class="success">
+                        <div class="measure-slider">
+                            <sl-range style=" --track-color-active: white; --track-color-inactive: white;" 
+                                      id="detective" 
+                                      th:value="${measureForm.properties.detective}"
+                                      min="0" max="4" step="1" 
+                                      name="detective" orientation="vertical" selection="after" />
+                        </div>
+                    </td>
+                    <td class="success">
+                        <div class="measure-slider">
+                            <sl-range style=" --track-color-active: white; --track-color-inactive: white;" 
+                                      id="limitative" 
+                                      th:value="${measureForm.properties.limitative}"
+                                      min="0" max="4" step="1" 
+                                      name="limitative" />
+                        </div>
+                    </td>
+                    <td class="success">
+                        <div class="measure-slider">
+                            <sl-range style=" --track-color-active: white; --track-color-inactive: white;" 
+                                      id="corrective" 
+                                      th:value="${measureForm.properties.corrective}"
+                                      min="0" max="4" step="1" 
+                                      name="corrective" orientation="vertical" selection="after" />
+                        </div>
+                    </td>
+                    <td class="warning">
+                        <div class="measure-slider">
+                            <sl-range style=" --track-color-active: white; --track-color-inactive: white;" 
+                                      id="intentional" 
+                                      th:value="${measureForm.properties.intentional}"
+                                      min="0" max="4" step="1" 
+                                      name="intentional" orientation="vertical" selection="after" />
+                        </div>
+                    </td>
+                    <td class="warning">
+                        <div class="measure-slider">
+                            <sl-range style=" --track-color-active: white; --track-color-inactive: white;" 
+                                      id="accidental" 
+                                      th:value="${measureForm.properties.accidental}"
+                                      min="0" max="4" step="1" 
+                                      name="accidental" orientation="vertical" selection="after" />
+                        </div>
+                    </td>
+                    <td class="warning">
+                        <div class="measure-slider">
+                            <sl-range style=" --track-color-active: white; --track-color-inactive: white;" 
+                                      id="environmental" 
+                                      th:value="${measureForm.properties.environmental}"
+                                      min="0" max="4" step="1" 
+                                      name="environmental" orientation="vertical" selection="after" />
+                        </div>
+                    </td>
+                    <td class="warning">
+                        <div class="measure-slider">
+                            <sl-range style=" --track-color-active: white; --track-color-inactive: white;" 
+                                      id="internalThreat" 
+                                      th:value="${measureForm.properties.internalThreat}"
+                                      min="0" max="4" step="1" 
+                                      name="internalThreat" orientation="vertical" selection="after" />
+                        </div>
+                    </td>
+                    <td class="warning">
+                        <div class="measure-slider">
+                            <sl-range style=" --track-color-active: white; --track-color-inactive: white;" 
+                                      id="externalThreat" 
+                                      th:value="${measureForm.properties.externalThreat}"
+                                      min="0" max="4" step="1" 
+                                      name="externalThreat" orientation="vertical" selection="after" />
+                        </div>
+                    </td>
+                    <th th:if="${measureForm.type == 'ASSET'}">
+                        <th th:each="assetValue : ${measureForm.assetValues}" 
+                            data-trick-class="MeasureAssetValue" 
+                            data-trick-asset-id="${assetValue.id}">
+                            <div class="measure-slider">
+                                <sl-range style=" --track-color-active: var(--sl-color-primary-600); --track-color-inactive: var(--sl-color-primary-100);" 
+                                          id="asset_slider_${assetValue.id}" 
+                                          th:value="${assetValue.value}" 
+                                          min="0" max="100" step="1" 
+                                          name="${assetValue.id}" 
+                                          orientation="vertical" 
+                                          selection="after" />
+                            </div>
+                        </th>
+                    </th>
+                    <th th:if="${measureForm.type == 'NORMAL'}">
+                        <th th:each="assetValue : ${measureForm.assetValues}" 
+                            th:classappend="${not #lists.isEmpty(hiddenAssetTypes[assetValue.type]) ? ' hidden' : ''}">
+                            <div class="measure-slider">
+                                <sl-range style=" --track-color-active: var(--sl-color-primary-600); --track-color-inactive: var(--sl-color-primary-100);" 
+                                          id="asset_slider_${assetValue.id}" 
+                                          th:value="${assetValue.value}" 
+                                          min="0" max="100" step="1" 
+                                          name="${assetValue.id}" />
+                            </div>
+                        </th>
+                    </th>
+                </tr>
+                <!-- Continue with the rest of your template -->
+            </tbody>
+        </table>
+    </div>
+</div>
