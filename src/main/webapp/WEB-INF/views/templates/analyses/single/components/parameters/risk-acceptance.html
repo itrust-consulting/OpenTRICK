@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Risk Acceptance Threshold</title>
+</head>
+<body>
+<fieldset>
+    <legend>
+        <th:block th:if="${isEditable}">
+            <span th:text="#{label.title.parameter.risk.acceptance.threshold}"></span>
+            <span class="pull-right">
+                <button class='btn btn-xs btn-link' onclick="return manageRiskAcceptance(true)" style="font-size: 15px">
+                    <i class="fa fa-cog" aria-hidden="true"></i>
+                    <span th:text="#{label.action.manage}"></span>
+                </button>
+            </span>
+        </th:block>
+        <th:block th:unless="${isEditable}">
+            <span th:text="#{label.title.parameter.risk.acceptance.threshold}"></span>
+        </th:block>
+    </legend>
+
+    <table class="table table-hover table-condensed" id="table_parameter_risk_acceptance">
+        <thead>
+            <tr>
+                <th class="textaligncenter" th:text="#{label.importance.threshold}"></th>
+                <th style="width: 20%" class="textaligncenter" th:text="#{label.parameter.label}"></th>
+                <th style="width: 50%" th:text="#{label.description}"></th>
+                <th class="textaligncenter" th:text="#{label.color}"></th>
+            </tr>
+        </thead>
+        <tbody>
+            <th:block th:if="${empty mappedParameters['RISK_ACCEPTANCE']}">
+                <tr class="warning">
+                    <td colspan="4" th:text="#{info.risk_acceptance.current.empty}"></td>
+                </tr>
+            </th:block>
+            <th:block th:unless="${empty mappedParameters['RISK_ACCEPTANCE']}">
+                <th:block th:with="size=${#maps.size(mappedParameters['RISK_ACCEPTANCE'])}">
+                    <th:block th:each="parameter, status : ${mappedParameters['RISK_ACCEPTANCE']}">
+                        <tr th:data-trick-class="RiskAcceptanceParameter" 
+                            th:data-trick-id="${parameter.id}" 
+                            th:attr="ondblclick=${isEditable} ? 'return manageRiskAcceptance()' : ''"
+                            th:data-trick-callback="reloadRiskHeatMapSection()">
+                            
+                            <th:block th:with="value=${#numbers.formatDecimal(parameter.value, 0, 'POINT')}">
+                                <td class="textaligncenter" th:data-trick-field="value">
+                                    <th:block th:if="${status.index == 0}">
+                                        [ <span class="text-muted">0</span> ; <span th:text="${value}"></span> ]
+                                    </th:block>
+                                    <th:block th:if="${status.index < size - 1}">
+                                        ] <span class="text-muted" th:text="${prevValue}"></span> ; <span th:text="${value}"></span> ]
+                                    </th:block>
+                                    <th:block th:unless="${status.index < size - 1}">
+                                        ] <span class="text-muted" th:text="${prevValue}"></span> ; <span th:text="${maxImportance}"></span> ]
+                                    </th:block>
+                                </td>
+                            </th:block>
+                            
+                            <th:block th:set="prevValue=${value}"/>
+                            
+                            <td class="textaligncenter editable" th:data-trick-field="label" th:data-trick-field-type="string" onclick="return editField(this);">
+                                <span th:text="${parameter.label}"></span>
+                            </td>
+                            
+                            <th:block th:set="color=${parameter.color}"/>
+                            
+                            <td class="editable" th:data-trick-field="description" th:data-trick-content="text" th:data-trick-field-type="string" onclick="return editField(this);">
+                                <span th:text="${parameter.description}"></span>
+                            </td>
+                            
+                            <td style="background-color: ${color};" th:data-trick-field="color" th:data-trick-content="color" th:data-trick-field-type="string" th:data-real-value="${color}" onclick="return editField(this);"></td>
+                        </tr>
+                    </th:block>
+                </th:block>
+            </th:block>
+        </tbody>
+    </table>
+</fieldset>
+</body>
+</html>

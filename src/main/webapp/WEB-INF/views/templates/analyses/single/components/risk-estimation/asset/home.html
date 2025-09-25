@@ -11,7 +11,9 @@
     
     <div th:if="${assessments != null}">
         <!-- Include assessments fragment -->
+        <!-- commented out for now, will need reviewing later
         <div th:replace="fragments/assessments :: assessmentsFragment"></div>
+        -->
     </div>
 
     <div th:if="${assessment != null}">
@@ -25,13 +27,17 @@
 
             <div th:if="${type.qualitative}">
                 <!-- Include qualitative form fragment -->
+                <!-- commented out for now, will need reviewing later
                 <div th:replace="form/qualitative :: qualitativeForm"></div>
+                -->
             </div>
             <div th:unless="${type.qualitative}">
                 <!-- Set request variable (no exact equivalent in Thymeleaf, usually set in controller) -->
                 <!-- For example: model.addAttribute("rowLength", showHiddenComment ? "14" : "30"); -->
                 <div th:with="rowLength=${showHiddenComment} ? 14 : 30">
+                    <!-- commented out for now, will need reviewing later
                     <div th:replace="form/quantitative :: quantitativeForm"></div>
+                    -->
                 </div>
             </div>
         </div>

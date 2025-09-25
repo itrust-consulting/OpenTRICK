@@ -1,20 +1,20 @@
 <!DOCTYPE html>
-<html lang="${locale.language}">
-<!-- Include Header -->
-<div th:replace="~{templates/template/header :: header}"></div>
-
-<!-- ################################################################# Start Container ############################################################## -->
+<html lang="[[${locale.language}]]">
+<head>
+    <!-- Include Header -->
+    <th:block th:replace="~{templates/template/header :: header('label.title.error.504')}"></th:block>
+</head>
 <body>
     <div id="wrap">
         <!-- ################################################################### Nav Menu ################################################################### -->
-        <div th:replace="~{templates/template/menu :: menu}"></div>
+        <th:block th:replace="~{templates/template/menu :: main-menu(menu, analysisSharedCount)}"></th:block>
         
         <div class="container">
-            <div th:replace="~{templates/template/successErrors :: successErrors}"></div>
+            <th:block th:replace="~{templates/template/successErrors :: successErrors}"></th:block>
 
             <!-- #################################################################### Content ################################################################### -->
             <div class="page-header">
-                <h1 th:text="#{title.error.504}">504 Error</h1>
+                <h1 th:text="#{label.title.error.504}">504: Gateway Timeout</h1>
             </div>
             <div class="content" id="content" data-spy="scroll">
                 <p th:text="#{error.504.message}">Error 504 Message</p>
@@ -23,10 +23,9 @@
         </div>
 
         <!-- ################################################################ Include Footer ################################################################ -->
-        <div th:replace="~{templates/template/footer :: footer}"></div>
+        <th:block th:replace="~{templates/template/footer :: footer}"></th:block>
     </div>
 
-    <div th:replace="~{templates/template/scripts :: scripts}"></div>
+    <th:block th:replace="~{templates/template/scripts :: scripts}"></th:block>
 </body>
-<!-- ################################################################### End HTML ################################################################### -->
 </html>

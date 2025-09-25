@@ -1,0 +1,55 @@
+<div th:if="${type.quantitative and showDynamicAnalysis}" class="col-md-6 probability-dynamic">
+    <fieldset id="DynamicParameters">
+        <legend>
+            <span th:if="${isEditable}">
+                <span th:text="#{label.parameter.dynamic.probability}"></span>
+                <span class="pull-right">
+                    <span style="margin-right:10px" th:text="#{label.display.exclude.dynamic.parameter}"></span>
+                    <div class="material-switch pull-right">
+                        <input id="display-exclude-dynamic-parameter" name="display-exclude-dynamic-parameter" 
+                               th:checked="${showExcludeDynamic}" th:onchange="swtichExcludeDynamic(this)" type="checkbox"/>
+                        <label for="display-exclude-dynamic-parameter" class="label-success"></label>
+                    </div>
+                </span>
+            </span>
+            <span th:if="${not isEditable}">
+                <span th:text="#{label.parameter.dynamic.probability}"></span>
+            </span>
+        </legend>
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th class="textaligncenter" th:text="#{label.parameter.acronym}"></th>
+                    <th class="textaligncenter" th:text="#{label.parameter.value}"></th>
+                    <th th:if="${isEditable}" class="textaligncenter" data-name="action" th:text="#{label.action}"></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="parameter, status : ${mappedParameters['DYNAMIC']}">
+                    <th th:text="${#messages.get(parameter.acronym)}" th:var="dynamicAcronym"></th>
+                    <tr data-trick-class="DynamicParameter" data-trick-id="${parameter.id}">
+                        <td data-trick-field="acronym" data-trick-field-type="string" class="textaligncenter" th:text="${dynamicAcronym}"></td>
+                        <td data-trick-field="value" class="textaligncenter" th:text="${#numbers.formatDecimal(parameter.value, 4, 4)}"></td>
+                        <td th:if="${isEditable}" class="text-center" data-name="action">
+                            <button class="btn btn-danger" th:onclick="'deleteDynamicParameter(' + ${parameter.id} + ',' + ${dynamicAcronym} + ')'">
+                                <i class="glyphicon glyphicon-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                </tr>
+                <tr th:if="${showExcludeDynamic and not #lists.isEmpty(excludeAcronyms)}" data-trick-class="ExcludeDynamicParameter">
+                    <th class="textaligncenter" colspan="3" th:text="#{label.exclude.dynamic.parameters}"></th>
+                </tr>
+                <tr th:each="entry : ${excludeAcronyms.entrySet()}" data-trick-class="ExcludeDynamicParameter" data-trick-id="${entry.key}">
+                    <td class="textaligncenter" th:text="${entry.key}"></td>
+                    <td class="textaligncenter" th:text="${#numbers.formatDecimal(entry.value, 4, 4)}"></td>
+                    <td th:if="${isEditable}" class="text-center" data-name="action">
+                        <button class="btn btn-warning" th:onclick="'restoreDynamicParameter(' + ${entry.key} + ')'">
+                            <i class="glyphicon glyphicon-repeat"></i>
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </fieldset>
+</div>

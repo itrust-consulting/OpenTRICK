@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <html>
 <!-- ################################################################ Include Header ################################################################ -->
-<div th:replace="templates/template/header :: header"></div>
+<head th:replace="templates/template/header :: header('label.title.risk_evolution')"></head>
+
 
 <!-- ############################################################### Start Container ################################################################ -->
 <body>
     <div id="wrap">
         <!-- ################################################################### Nav Menu ################################################################### -->
-        <div th:replace="templates/template/menu :: menu"></div>
+        <div th:replace="templates/template/menu :: main-menu(menu, analysisSharedCount)"></div>
         
         <!-- ################################################################### Content #################################################################### -->
         <div class="container trick-container max-height" data-ug-root="risk-evolution">
@@ -180,10 +181,12 @@
             application["settings"] = [[${riskEvolutionSettings != null ? riskEvolutionSettings : '{}'}]];
             -->
         </script>
-
+<!-- commented out for now, will need reviewing later
+         
         <div id="view-helper" class="hidden">
             <div th:replace="templates/analyses/single/components/parameters/risk-acceptance :: risk-acceptance"></div>
         </div>
+         -->
     </div>
 </body>
 </html>

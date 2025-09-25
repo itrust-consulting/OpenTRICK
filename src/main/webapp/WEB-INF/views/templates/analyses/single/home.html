@@ -11,84 +11,110 @@
     </head>
     <body>
         <div id="wrap" class="wrap">
-            <th:block th:replace="~{templates/template/header :: header}"></th:block>
+            <th:block th:replace="~{templates/template/header :: header(label.title.analysis)}"></th:block>
 
             <div class="container" data-ug-root="analysis">
-                <th:block th:replace="~{templates/template/menu :: menu}"></th:block>
+                <th:block th:replace="~{templates/template/menu :: main-menu(menu, analysisSharedCount)}"></th:block>
 
                 <div class="tab-content" id="nav-container" 
                     th:data-trick-id="${analysis.id}" 
                     th:data-trick-class="'Analysis'" 
                     th:data-trick-rights-id="${analysis.profile ? 0 : analysis.findRightsforUserString(login).right.ordinal()}"
                     th:data-trick-language="${locale.language}">
+                    
+                <!-- History -->
+<th:block th:if="${not isProfile}">
+    <th:block th:with="histories=${analysis.histories}">
+        <!-- commented out for now, will need reviewing later
+        <th:block th:replace="~{templates/analyses/single/components/history :: history}"></th:block>
+        -->
+    </th:block>
+</th:block>
 
-                    <!-- History -->
-                    <th:block th:if="${not isProfile}">
-                        <th:block th:with="histories=${analysis.histories}">
-                            <th:block th:replace="~{templates/analyses/single/components/history :: history}"></th:block>
-                        </th:block>
-                    </th:block>
+<!-- Item Information -->
+<th:block th:if="${not isProfile}">
+    <th:block th:with="itemInformations=${analysis.itemInformations}">
+        <!-- commented out for now, will need reviewing later
+        <th:block th:replace="~{templates/analyses/single/components/itemInformation :: itemInformation}"></th:block>
+        -->
+    </th:block>
+</th:block>
 
-                    <!-- Item Information -->
-                    <th:block th:if="${not isProfile}">
-                        <th:block th:with="itemInformations=${analysis.itemInformations}">
-                            <th:block th:replace="~{templates/analyses/single/components/itemInformation :: itemInformation}"></th:block>
-                        </th:block>
-                    </th:block>
+<!-- Qualitative Impact Types -->
+<th:block th:if="${type.qualitative}">
+    <th:block th:with="impactTypes=${analysis.findImpacts()}"></th:block>
+</th:block>
 
-                    <!-- Qualitative Impact Types -->
-                    <th:block th:if="${type.qualitative}">
-                        <th:block th:with="impactTypes=${analysis.findImpacts()}"></th:block>
-                    </th:block>
+<!-- Parameters -->
+<th:block th:with="parameters=${analysis.parameters}">
+    <!-- commented out for now, will need reviewing later
+    <th:block th:replace="~{templates/analyses/single/components/parameters/home :: home}"></th:block>
+    -->
+</th:block>
 
-                    <!-- Parameters -->
-                    <th:block th:with="parameters=${analysis.parameters}">
-                        <th:block th:replace="~{templates/analyses/single/components/parameters/home :: home}"></th:block>
-                    </th:block>
+<!-- Scenarios -->
+<th:block th:with="scenarios=${analysis.scenarios}">
+    <!-- commented out for now, will need reviewing later
+    <th:block th:replace="~{templates/analyses/single/components/scenario/scenario :: scenario}"></th:block>
+    -->
+</th:block>
 
-                    <!-- Scenarios -->
-                    <th:block th:with="scenarios=${analysis.scenarios}">
-                        <th:block th:replace="~{templates/analyses/single/components/scenario/scenario :: scenario}"></th:block>
-                    </th:block>
+<!-- Phases -->
+<th:block th:with="phases=${analysis.phases}">
+    <!-- commented out for now, will need reviewing later
+    <th:block th:replace="~{templates/analyses/single/components/phase/home :: home}"></th:block>
+    -->
+</th:block>
 
-                    <!-- Phases -->
-                    <th:block th:with="phases=${analysis.phases}">
-                        <th:block th:replace="~{templates/analyses/single/components/phase/home :: home}"></th:block>
-                    </th:block>
+<!-- Standards -->
+<!-- commented out for now, will need reviewing later
+<th:block th:replace="~{templates/analyses/single/components/standards/standard/standards :: standards}"></th:block>
+-->
+<!-- commented out for now, will need reviewing later
+<th:block th:replace="~{templates/analyses/single/components/standards/edition/home :: home}"></th:block>
+-->
 
-                    <!-- Standards -->
-                    <th:block th:replace="~{templates/analyses/single/components/standards/standard/standards :: standards}"></th:block>
-                    <th:block th:replace="~{templates/analyses/single/components/standards/edition/home :: home}"></th:block>
+<!-- Action Plans, Summaries -->
+<th:block th:if="${not isProfile}">
+    <th:block th:with="actionplans=${analysis.actionPlans}">
+        <!-- commented out for now, will need reviewing later
+        <th:block th:replace="~{templates/analyses/single/components/actionPlan/section :: section}"></th:block>
+        -->
+    </th:block>
+    <th:block th:with="summaries=${analysis.summaries}">
+        <!-- commented out for now, will need reviewing later
+        <th:block th:replace="~{templates/analyses/single/components/summary :: summary}"></th:block>
+        -->
+    </th:block>
+</th:block>
 
-                    <!-- Action Plans, Summaries -->
-                    <th:block th:if="${not isProfile}">
-                        <th:block th:with="actionplans=${analysis.actionPlans}">
-                            <th:block th:replace="~{templates/analyses/single/components/actionPlan/section :: section}"></th:block>
-                        </th:block>
-                        <th:block th:with="summaries=${analysis.summaries}">
-                            <th:block th:replace="~{templates/analyses/single/components/summary :: summary}"></th:block>
-                        </th:block>
-                    </th:block>
+<!-- Risk Register (for Qualitative Types) -->
+<th:block th:if="${type.qualitative}">
+    <th:block th:with="riskregister=${analysis.riskRegisters}">
+        <!-- commented out for now, will need reviewing later
+        <th:block th:replace="~{templates/analyses/single/components/riskRegister/home :: home}"></th:block>
+        -->
+    </th:block>
+</th:block>
 
-                    <!-- Risk Register (for Qualitative Types) -->
-                    <th:block th:if="${type.qualitative}">
-                        <th:block th:with="riskregister=${analysis.riskRegisters}">
-                            <th:block th:replace="~{templates/analyses/single/components/riskRegister/home :: home}"></th:block>
-                        </th:block>
-                    </th:block>
+<!-- Charts -->
+<!-- commented out for now, will need reviewing later
+<th:block th:replace="~{templates/analyses/single/components/charts :: charts}"></th:block>
+-->
 
-                    <!-- Charts -->
-                    <th:block th:replace="~{templates/analyses/single/components/charts :: charts}"></th:block>
+<th:block th:replace="~{templates/template/tab-option :: tab-option}"></th:block>
 
-                    <th:block th:replace="~{templates/template/tab-option :: tab-option}"></th:block>
-                </div>
-            </div>
+...
 
-            <th:block th:replace="~{templates/template/footer :: footer}"></th:block>
-            <th:block th:replace="~{templates/analyses/single/components/widgets :: widgets}"></th:block>
+<th:block th:replace="~{templates/template/footer :: footer}"></th:block>
+<!-- commented out for now, will need reviewing later
+<th:block th:replace="~{templates/analyses/single/components/widgets :: widgets}"></th:block>
 
+-->
+
+         
         </div>
-
+        
         <th:block th:replace="~{templates/template/scripts :: scripts}"></th:block>
         
         <script src="/js/chartjs/Chart.bundle.min.js"></script>

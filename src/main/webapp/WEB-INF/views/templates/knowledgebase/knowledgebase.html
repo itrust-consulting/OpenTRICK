@@ -2,20 +2,22 @@
 <html lang="[[${locale.language}]]">
 <!-- Include Header -->
 <th:block th:if="${#strings.isEmpty(locale)}">
-    <th:block th:replace="templates/template/locale :: localeContextHolder"></th:block>
+    <!-- commented out for now, will need reviewing later
+    <th:block th:replace="~{templates/template/locale :: localeContextHolder}"></th:block>
+    -->
 </th:block>
 
 <!-- Set the page title -->
 <th:block th:with="title=${'label.title.knowledgebase'}"></th:block>
 
 <!-- Include header -->
-<div th:replace="~{templates/template/header :: header}"></div>
+<div th:replace="~{templates/template/header :: header('label.title.knowledgebase')}"></div>
 
 <!-- ################################################################# Start Container ############################################################## -->
 <body>
     <div id="wrap" class="wrap">
         <!-- ################################################################### Nav Menu ################################################################### -->
-        <div th:replace="~{templates/template/menu :: menu}"></div>
+        <div th:replace="~{templates/template/menu :: main-menu(menu, analysisSharedCount)}"></div>
         
         <div class="container" data-ug-root="knowledgebase">
             <!-- #################################################################### Content ################################################################### -->
@@ -43,13 +45,23 @@
             </ul>
             
             <div class="tab-content" id="tab-container">
-                <div th:replace="~{customer/customers :: customers}"></div>
-                <div th:replace="~{language/languages :: languages}"></div>
-                <div th:replace="~{standards/standard/standards :: standards}"></div>
-                <div th:replace="~{standards/measure/measures :: measures}"></div>
-                <div th:replace="~{analysis/analyses :: analyses}"></div>
-                <div th:replace="~{scale/home :: home}"></div>
-                <div th:replace="~{templates/template/tab-option :: tabOption}"></div>
+                <!-- commented out for now, will need reviewing later
+                <div th:replace="~{templates/customer/customers :: customers}"></div>
+                -->
+                <!-- commented out for now, will need reviewing later
+                <div th:replace="~{templates/language/languages :: languages}"></div>
+                -->
+                <div th:replace="~{templates/analyses/single/components/standards/standard/standards :: standards}"></div>
+                <!-- commented out for now, will need reviewing later
+                <div th:replace="~{templates/analyses/single/components/standards/measure/measures :: measures}"></div>
+                -->
+                <!-- commented out for now, will need reviewing later
+                <div th:replace="~{templates/analysis/analyses :: analyses}"></div>
+                -->
+                <!-- commented out for now, will need reviewing later
+                <div th:replace="~{templates/scale/home :: home}"></div>
+                -->
+                <div th:replace="~{templates/template/tab-option :: tab-option}"></div>
             </div>
         </div>
         <!-- ################################################################ End Container ################################################################# -->
@@ -57,7 +69,9 @@
 
     <!-- Include Footer -->
     <div th:replace="~{templates/template/footer :: footer}"></div>
+    <!-- commented out for now, will need reviewing later
     <div th:replace="~{templates/template/widget :: widget}"></div>
+    -->
     
     <!-- Scripts -->
     <div th:replace="~{templates/template/scripts :: scripts}"></div>

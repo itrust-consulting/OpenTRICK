@@ -15,7 +15,9 @@
         <div th:with="item=${rawRRFItem}" class="tab-pane active" id="import-${item.name}"
             data-view-name="${item.name}" data-view-process-url="${item.processURL}" data-view-extentions="${item.extensions}">
             <!-- Including another page: use fragment inclusion in Thymeleaf -->
-            <div th:replace="~{default :: content}"></div>
+             <!-- commented out for now, will need reviewing later 
+            <div th:replace="~{templates/analyses/single/components/data-manager/import/default :: content}"></div>
+    -->
         </div>
         <div class="tab-pane" id="import-${rrfItem.name}" data-view-name="${rrfItem.name}" data-view-process-url="${rrfItem.processURL}">
             <fieldset>
