@@ -104,7 +104,7 @@ public class TS_08_Administration extends SpringTestConfiguration {
 		this.mockMvc
 				.perform(get(String.format("/Admin/Analysis/%d/Switch/Customer", getInteger(CUSTOMER_TO_DELETE_ID))).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")).with(csrf())
 						.accept(APPLICATION_JSON_CHARSET_UTF_8).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")))
-				.andExpect(status().isOk()).andExpect(view().name("jsp/admin/analysis/switch-customer"));
+				.andExpect(status().isOk()).andExpect(view().name("templates/admin/analysis/switch-customer"));
 	}
 
 	@Test(dependsOnMethods = "test_03_SwitchCustomer")
@@ -122,7 +122,7 @@ public class TS_08_Administration extends SpringTestConfiguration {
 		this.mockMvc
 				.perform(get(String.format("/Admin/Analysis/%d/Switch/Owner", getInteger(SIMPLE_ANALYSIS_V0_0_1_ID))).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")).with(csrf())
 						.accept(APPLICATION_JSON_CHARSET_UTF_8).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")))
-				.andExpect(status().isOk()).andExpect(view().name("jsp/admin/analysis/switch-owner"));
+				.andExpect(status().isOk()).andExpect(view().name("templates/admin/analysis/switch-owner"));
 	}
 
 	@Test(dependsOnMethods = "test_05_SwitchOwner")
@@ -145,7 +145,7 @@ public class TS_08_Administration extends SpringTestConfiguration {
 	@Test(dependsOnMethods = "test_00_addUser")
 	public void test_08_ManageAnalysisAccessView() throws Exception {
 		this.mockMvc.perform(get(String.format("/Admin/Analysis/%d/ManageAccess", getInteger(SIMPLE_ANALYSIS_V0_0_1_ID))).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")).with(csrf())
-				.with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN"))).andExpect(status().isOk()).andExpect(view().name("jsp/analyses/all/forms/rights"));
+				.with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN"))).andExpect(status().isOk()).andExpect(view().name("templates/admin/analysis/manage-access"));
 	}
 
 	@Test(dependsOnMethods = "test_08_ManageAnalysisAccessView")
@@ -162,7 +162,7 @@ public class TS_08_Administration extends SpringTestConfiguration {
 		this.mockMvc
 				.perform(post(String.format("/Admin", getInteger(SIMPLE_ANALYSIS_V0_0_1_ID))).contentType(APPLICATION_JSON_CHARSET_UTF_8).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN"))
 						.with(csrf()).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")))
-				.andExpect(status().isOk()).andExpect(view().name("jsp/admin/administration"))
+				.andExpect(status().isOk()).andExpect(view().name("templates/admin/administration"))
 				.andExpect(model().attributeExists("tsSettings", "logFilter", "logLevels", "logTypes", "actions", "authors"));
 	}
 
@@ -200,6 +200,6 @@ public class TS_08_Administration extends SpringTestConfiguration {
 	public void test_12_LoadLogsSection() throws Exception {
 		this.mockMvc
 				.perform(get("/Admin/Log/Section").contentType(APPLICATION_JSON_CHARSET_UTF_8).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")).with(csrf()).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")))
-				.andExpect(status().isOk()).andExpect(view().name("jsp/admin/log/section")).andExpect(model().attributeExists("trickLogs"));
+				.andExpect(status().isOk()).andExpect(view().name("templates/admin/log/section")).andExpect(model().attributeExists("trickLogs"));
 	}
 }

@@ -519,59 +519,63 @@ FieldEditor.prototype.Rollback = function () {
 };
 
 FieldEditor.prototype.Restore = function (rollback) {
-	var taht = this, $element = $(this.element), $td = $element.is("td") ? $element : $element.closest("td"), type = $element.attr("data-trick-content");
-	if (this.backupData.orginalStyle)
-		$td.attr("style", this.orginalStyle);
-	else
-		$td.removeAttr("style");
+    var $element = $(this.element),
+        $td = $element.is("td") ? $element : $element.closest("td"),
+        type = $element.attr("data-trick-content");
 
-	if (this.backupData.parentClass)
-		$(this.fieldEditor).parent().attr("class", this.backupData.parentClass);
-	else
-		$(this.fieldEditor).parent().removeAttr("class");
+    if (this.backupData.orginalStyle)
+        $td.attr("style", this.orginalStyle);
+    else
+        $td.removeAttr("style");
 
-	if (rollback) {
-		$element.text(this.defaultValue);
-		if ($td.parent().attr("data-force-callback"))
-			setTimeout(this.callback, 1);
-	} else {
-		var value = this.GetValue();
-		if (this.choose.length && (this.chooseTranslate.length || this.chooseValue.length)) {
-			if (this.chooseValue.length) {
-				for (var i = 0; i < this.choose.length; i++) {
-					if (this.choose[i] == value) {
-						$element.text(this.chooseValue[i]);
-						break;
-					}
-				}
-			} else {
-				for (var i = 0; i < this.choose.length; i++) {
-					if (this.choose[i] == value) {
-						$element.text(this.chooseTranslate[i]);
-						break;
-					}
-				}
-			}
-		} else if (type === "color") {
-			$element.css({ "background-color": value });
-			$element.attr("data-real-value", value);
-			$element.empty();
-		} else
-			$element.text(value);
+    if (this.backupData.parentClass)
+        $(this.fieldEditor).parent().attr("class", this.backupData.parentClass);
+    else
+        $(this.fieldEditor).parent().removeAttr("class");
 
-		if ($td.width != this.backupData.width)
-			window.dispatchEvent(new Event('resize'));
-	}
+    if (rollback) {
+        $element.text(this.defaultValue);
+        if ($td.parent().attr("data-force-callback"))
+            setTimeout(this.callback, 1);
+    } else {
+        var value = this.GetValue();
+        if (this.choose.length && (this.chooseTranslate.length || this.chooseValue.length)) {
+            if (this.chooseValue.length) {
+                for (var i = 0; i < this.choose.length; i++) {
+                    if (this.choose[i] == value) {
+                        $element.text(this.chooseValue[i]);
+                        break;
+                    }
+                }
+            } else {
+                for (var i = 0; i < this.choose.length; i++) {
+                    if (this.choose[i] == value) {
+                        $element.text(this.chooseTranslate[i]);
+                        break;
+                    }
+                }
+            }
+        } else if (type === "color") {
+            $element.css({ "background-color": value });
+            $element.attr("data-real-value", value);
+            $element.empty();
+        } else
+            $element.text(value);
 
-	if (this.tabPress) {
-		var isNext = this.tabPress == "next", $next = isNext ? $td.nextAll("[onclick*='editField']:first") : $td.prevAll("[onclick*='editField']:first");
-		if (!$next.length)
-			$next = this.__findNextEditable($td.parent(), isNext);
-		$next.click();
-	}
-	delete that;
-	return null;
+        if ($td.width != this.backupData.width)
+            window.dispatchEvent(new Event('resize'));
+    }
+
+    if (this.tabPress) {
+        var isNext = this.tabPress == "next",
+            $next = isNext ? $td.nextAll("[onclick*='editField']:first") : $td.prevAll("[onclick*='editField']:first");
+        if (!$next.length)
+            $next = this.__findNextEditable($td.parent(), isNext);
+        $next.click();
+    }
+    return null;
 };
+
 
 FieldEditor.prototype.Error = function (jqXHR, textStatus, errorThrown) {
 	this.Rollback();

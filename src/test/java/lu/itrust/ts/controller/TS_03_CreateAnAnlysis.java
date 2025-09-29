@@ -134,7 +134,7 @@ public class TS_03_CreateAnAnlysis extends SpringTestConfiguration {
 		put(SIMPLE_ANALYSIS_V0_0_1_ID, analysis.getId());
 		ANALYSIS_ID = analysis.getId();
 		this.mockMvc.perform(get(String.format("/Analysis/%d/Select", ANALYSIS_ID)).with(csrf()).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN")).accept(APPLICATION_JSON_CHARSET_UTF_8))
-				.andExpect(status().isOk()).andExpect(forwardedUrl("/WEB-INF/views/jsp/analyses/single/home.jsp"));
+				.andExpect(status().isOk()).andExpect(forwardedUrl("/WEB-INF/views/templates/analyses/single/home"));
 	}
 
 	@Test

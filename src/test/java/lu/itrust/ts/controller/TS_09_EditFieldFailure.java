@@ -110,6 +110,7 @@ public class TS_09_EditFieldFailure extends SpringTestConfiguration {
 	@Autowired
 	private ResourceLoader resourceLoader;
 
+	@SuppressWarnings("null")
 	@Test(timeOut = 120000)
 	public synchronized void importAnalysis() throws Exception {
 		Resource resource = resourceLoader.getResource(testFileName);

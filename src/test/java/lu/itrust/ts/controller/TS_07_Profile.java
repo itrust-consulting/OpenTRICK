@@ -63,6 +63,7 @@ public class TS_07_Profile extends SpringTestConfiguration {
 	@Value("${app.settings.test.validation.action.plan.analysis.version}")
 	private String version;
 
+	@SuppressWarnings("null")
 	@Test(timeOut = 120000)
 	public synchronized void test_GenerateSqlite() throws Exception {
 		Integer idAnalysis = getInteger(ANALYSIS_KEY);
@@ -122,7 +123,7 @@ public class TS_07_Profile extends SpringTestConfiguration {
 	}
 
 	@Transactional
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "null" })
 	@Test(timeOut = 120000)
 	public synchronized void test_GenerateReport() throws Exception {
 		Integer idAnalysis = getInteger(ANALYSIS_KEY);

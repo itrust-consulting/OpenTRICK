@@ -52,17 +52,18 @@
                         </th:block>
                     </ul>
 
-                    <ul class="nav navbar-nav navbar-right">
-                        <li th:classappend="${menu != 'Account'} ? '' : 'active'">
-                            <a th:href="${menu != 'Account'} ? '/Account' : '#'" id="main_menu_profile"
-                                th:with="currentUsername=${#authentication.name}">
-                                <span
-                                    th:text="${#strings.isEmpty(currentUsername) ? '#{label.profile}' : currentUsername}">Profile</span>
-                                <span id="invitation-count" class="badge" style="padding-bottom: 4px; padding-top: 2px;"
-                                    th:title="#{label.info.analysis.invitation.count}"
-                                    th:text="${analysisSharedCount}">0</span>
-                            </a>
-                        </li>
+                   <ul class="nav navbar-nav navbar-right">
+  <li th:classappend="${menu != 'Account'} ? '' : 'active'">
+    <a th:href="${menu != 'Account'} ? '/Account' : '#'" id="main_menu_profile"
+       th:with="currentUsername=${#authentication != null ? #authentication.name : ''}">
+      <span th:text="${#strings.isEmpty(currentUsername) ? '#{label.profile}' : currentUsername}">Profile</span>
+      <span id="invitation-count" class="badge" style="padding-bottom: 4px; padding-top: 2px;"
+            th:title="#{label.info.analysis.invitation.count}"
+            th:text="${analysisSharedCount}">0</span>
+    </a>
+  </li>
+
+
 
                         <th:block sec:authorize="hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERVISOR')">
                             <li th:classappend="${menu != 'Admin'} ? '' : 'active'">

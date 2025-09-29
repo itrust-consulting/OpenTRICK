@@ -63,6 +63,7 @@ public class TS_04_Computation extends SpringTestConfiguration {
 	@Autowired
 	private WorkersPoolManager workersPoolManager;
 
+	@SuppressWarnings("null")
 	@Test(timeOut = 120000)
 	public synchronized void test_00_ActionPlan() throws Exception {
 		this.mockMvc.perform(post("/Analysis/ActionPlan/Compute").with(csrf()).with(user(USERNAME).password(PASSWORD).roles("USER", "ADMIN"))
