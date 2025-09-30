@@ -25,9 +25,7 @@
                             <div class="alert alert-sm alert-info" style="margin-bottom: 15px">
                                 <span th:text="#{info.data_manager.export.${#strings.replace(#strings.toLowerCase(item.name), '-', '_')}}"></span>
                             </div>
-                            <!-- commented out for now, will need reviewing later
-                            <div th:replace="~{templates/analyses/single/components/data-manager/export/report/form :: form}"></div>
-                            -->
+                            <div th:replace="~{templates/analyses/single/components/data-manager/export/report/form}"></div>
                         </fieldset>
                     </div>
                 </div>
@@ -42,9 +40,7 @@
             <div class="alert alert-sm alert-info" style="margin-bottom: 15px">
                 <span th:text="#{info.data_manager.export.word_report}"></span>
             </div>
-            <!-- commented out for now, will need reviewing later
-            <div th:replace="~{templates/analyses/single/components/data-manager/export/report/form :: form}"></div>
-            -->
+            <div th:replace="~{templates/analyses/single/components/data-manager/export/report/form}"></div>
         </fieldset>
     </div>
 </div>

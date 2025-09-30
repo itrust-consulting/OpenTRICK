@@ -11,22 +11,26 @@
 				</div>
 			</div>
 			<div class="modal-body tab-content">
-				<div id="section_manage_standards" class="tab-pane active" style="height: 510px; overflow-y: auto; overflow-x: hidden; margin-top: -10px"></div>
-				<div id="importFromKb" class="tab-pane" style="height: 510px; overflow-y: auto; overflow-x: hidden; margin-top: -10px">
-					<!-- commented out for now, will need reviewing later
-					<div th:replace="~{templates/analyses/single/components/standards/standard/form/importFromKb :: content}"></div>
-					-->
-				</div>
-				<div id="importFromFile" class="tab-pane" style="height: 510px; overflow-y: auto; overflow-x: hidden; margin-top: -10px">
-					<!-- commented out for now, will need reviewing later
-					<div th:replace="~{templates/analyses/single/components/standards/standard/form/importFromFile :: content}"></div>
-					-->
-				</div>
-				<div id="standard_form_container" class="tab-pane" style="overflow-y: auto; overflow-x: hidden; height: 500px;">
-					<!-- commented out for now, will need reviewing later
-					<div th:replace="~{templates/analyses/single/components/standards/standard/form/add :: content}"></div>
-					-->
-				</div>
+    <div id="section_manage_standards" class="tab-pane active"
+         style="height: 510px; overflow-y: auto; overflow-x: hidden; margin-top: -10px">
+    </div>
+
+    <div id="importFromKb" class="tab-pane"
+         style="height: 510px; overflow-y: auto; overflow-x: hidden; margin-top: -10px">
+        <div th:replace="~{templates/analyses/single/components/standards/standard/form/importFromKb}"></div>
+    </div>
+
+    <div id="importFromFile" class="tab-pane"
+         style="height: 510px; overflow-y: auto; overflow-x: hidden; margin-top: -10px">
+        <div th:replace="~{templates/analyses/single/components/standards/standard/form/importFromFile}"></div>
+    </div>
+
+    <div id="standard_form_container" class="tab-pane"
+         style="overflow-y: auto; overflow-x: hidden; height: 500px;">
+        <div th:replace="~{templates/analyses/single/components/standards/standard/form/add}"></div>
+    </div>
+</div>
+
 			</div>
 			<div class="modal-footer">
 				<button class="btn btn-primary" style="display: none;" name="import" disable id="standardModalImportBtn">

@@ -13,12 +13,11 @@
     </ul>
     <div class="tab-content" data-view-tab="secondary">
         <div th:with="item=${rawRRFItem}" class="tab-pane active" id="import-${item.name}"
-            data-view-name="${item.name}" data-view-process-url="${item.processURL}" data-view-extentions="${item.extensions}">
-            <!-- Including another page: use fragment inclusion in Thymeleaf -->
-             <!-- commented out for now, will need reviewing later 
-            <div th:replace="~{templates/analyses/single/components/data-manager/import/default :: content}"></div>
-    -->
+             data-view-name="${item.name}" data-view-process-url="${item.processURL}" data-view-extentions="${item.extensions}">
+            <!-- full include instead of fragment -->
+            <div th:replace="~{templates/analyses/single/components/data-manager/import/default}"></div>
         </div>
+
         <div class="tab-pane" id="import-${rrfItem.name}" data-view-name="${rrfItem.name}" data-view-process-url="${rrfItem.processURL}">
             <fieldset>
                 <legend>
@@ -47,14 +46,12 @@
                         <select class="form-control" name="analysis">
                             <th:block th:each="analysis : ${analyses}">
                                 <th:block th:if="${analysis.profile}">
-                                    <option th:value="${analysis.id}" th:title="#{${analysis.label}}"
-                                        th:data-trick-id="${analysis.customer.id}">
+                                    <option th:value="${analysis.id}" th:title="#{${analysis.label}}" th:data-trick-id="${analysis.customer.id}">
                                         <span th:text="${analysis.label}"></span>
                                     </option>
                                 </th:block>
                                 <th:block th:unless="${analysis.profile}">
-                                    <option th:value="${analysis.id}" th:title="#{${analysis.label} - v.${analysis.version}}"
-                                        th:data-trick-id="${analysis.customer.id}">
+                                    <option th:value="${analysis.id}" th:title="#{${analysis.label} - v.${analysis.version}}" th:data-trick-id="${analysis.customer.id}">
                                         <span th:text="${analysis.label} - v.${analysis.version}"></span>
                                     </option>
                                 </th:block>
@@ -69,8 +66,7 @@
                             <th:block th:each="analysis : ${analyses}">
                                 <th:block th:each="analysisStandard : ${analysis.analysisStandards.values()}">
                                     <th:block th:if="${standards.contains(analysisStandard.standard)}">
-                                        <option th:title="#{${analysisStandard.standard.name} : ${analysisStandard.standard.label} - v.${analysisStandard.standard.version}}"
-                                            th:value="${analysisStandard.standard.id}" th:data-trick-id="${analysis.id}">
+                                        <option th:title="#{${analysisStandard.standard.name} : ${analysisStandard.standard.label} - v.${analysisStandard.standard.version}}" th:value="${analysisStandard.standard.id}" th:data-trick-id="${analysis.id}">
                                             <span th:text="${analysisStandard.standard.name}"></span>
                                         </option>
                                     </th:block>

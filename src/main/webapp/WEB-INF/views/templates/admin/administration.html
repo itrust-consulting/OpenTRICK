@@ -23,22 +23,19 @@
             <li><a href="#tab-broadcasting" data-toggle="tab" th:text="#{label.administrator.messages}">Messages</a></li>
             <li><a href="#tab-log" data-toggle="tab" th:text="#{label.logs}">Logs</a></li>
         </ul>
-<!--
-        Unsure about "content" fragmments below, Review later
-        <div class="tab-content" id="tab-container">
-            <div th:replace="templates/admin/status :: content"></div>
-            <div th:replace="templates/admin/user/users :: content"></div>
-            <div th:replace="templates/admin/ids/home :: content"></div>
-            <div th:replace="templates/admin/customer/customers :: content"></div>
-            <div th:replace="templates/admin/analysis/analyses :: content"></div>
-            <div th:replace="templates/admin/tsSetting/home :: content"></div>
-            <div th:replace="templates/admin/notification/home :: content"></div>
-            <div th:replace="templates/admin/log/home :: content"></div>
-            <div th:replace="templates/admin/widget :: content"></div>
-            <div th:replace="templates/template/tab-option :: tab-option"></div>
-        </div>
-    </div>
--->
+<div class="tab-content" id="tab-container">
+    <div th:replace="templates/admin/status"></div>
+    <div th:replace="templates/admin/user/users"></div>
+    <div th:replace="templates/admin/ids/home"></div>
+    <div th:replace="templates/admin/customer/customers"></div>
+    <div th:replace="templates/admin/analysis/analyses"></div>
+    <div th:replace="templates/admin/tsSetting/home"></div>
+    <div th:replace="templates/admin/notification/home"></div>
+    <div th:replace="templates/admin/log/home"></div>
+    <div th:replace="templates/admin/widget"></div>
+    <div th:replace="templates/template/tab-option"></div>
+</div>
+
 
     <div th:replace="templates/template/footer :: footer"></div>
 </div>

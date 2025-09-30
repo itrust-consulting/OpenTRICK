@@ -181,12 +181,10 @@
             application["settings"] = [[${riskEvolutionSettings != null ? riskEvolutionSettings : '{}'}]];
             -->
         </script>
-<!-- commented out for now, will need reviewing later
-         
-        <div id="view-helper" class="hidden">
-            <div th:replace="templates/analyses/single/components/parameters/risk-acceptance :: risk-acceptance"></div>
-        </div>
-         -->
+<div id="view-helper" class="hidden">
+    <div th:replace="templates/analyses/single/components/parameters/risk-acceptance"></div>
+</div>
+
     </div>
 </body>
 </html>

@@ -4,22 +4,19 @@
     <meta charset="UTF-8">
 </head>
 <body>
-    <div th:utext="${T(lu.itrust.business.ts.model.analysis.helper.AnalysisUtils).SplitParameters(parameters)}" th:with="mappedParameters=${T(lu.itrust.business.ts.model.analysis.helper.AnalysisUtils).SplitParameters(parameters)}"></div>
-    
-    <!-- Include other JSP pages -->
-<!-- commented out for now, will need reviewing later
-<div th:replace="~{templates/analyses/single/components/other}"></div>
--->
-<!-- commented out for now, will need reviewing later
-<div th:replace="~{templates/analyses/single/components/impact_probability}"></div>
--->
+    <div th:utext="${T(lu.itrust.business.ts.model.analysis.helper.AnalysisUtils).SplitParameters(parameters)}"
+         th:with="mappedParameters=${T(lu.itrust.business.ts.model.analysis.helper.AnalysisUtils).SplitParameters(parameters)}">
+    </div>
 
-<!-- Conditional block for quantitative type and maturity -->
-<div th:if="${type.quantitative and hasMaturity}">
-    <!-- commented out for now, will need reviewing later
-    <div th:replace="~{templates/analyses/single/components/maturity/home}"></div>
-    -->
-</div>
+    <!-- Include other pages (whole file, not fragment) -->
+    <div th:replace="~{templates/analyses/single/components/other}"></div>
+
+    <div th:replace="~{templates/analyses/single/components/impact_probability}"></div>
+
+    <!-- Conditional block for quantitative type and maturity -->
+    <div th:if="${type.quantitative and hasMaturity}">
+        <div th:replace="~{templates/analyses/single/components/maturity/home}"></div>
+    </div>
 
 </body>
 </html>
