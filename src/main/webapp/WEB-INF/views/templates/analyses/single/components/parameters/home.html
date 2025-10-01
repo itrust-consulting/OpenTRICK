@@ -9,13 +9,13 @@
     </div>
 
     <!-- Include other pages (whole file, not fragment) -->
-    <div th:replace="~{templates/analyses/single/components/other}"></div>
+    <div th:replace="~{templates/analyses/single/components/parameters/other}"></div>
 
-    <div th:replace="~{templates/analyses/single/components/impact_probability}"></div>
+    <div th:replace="~{templates/analyses/single/components/parameters/impact_probability}"></div>
 
     <!-- Conditional block for quantitative type and maturity -->
     <div th:if="${type.quantitative and hasMaturity}">
-        <div th:replace="~{templates/analyses/single/components/maturity/home}"></div>
+        <div th:replace="~{templates/analyses/single/components/parameters/maturity/home}"></div>
     </div>
 
 </body>

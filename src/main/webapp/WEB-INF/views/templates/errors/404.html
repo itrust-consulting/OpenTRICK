@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="[[${locale.language}]]">
 <head>
-    <th:block th:if="${locale == null}">
-        <th:block th:with="locale=${T(org.springframework.web.servlet.support.RequestContextUtils).getLocale(request)}"></th:block>
-    </th:block>
+    <th:block th:if="${#locale != null}">
+    <th:block th:with="locale=${#locale}"></th:block>
+</th:block>
+
     <th:block th:replace="~{templates/template/header :: header('label.title.error.404')}" />
 </head>
 <body>

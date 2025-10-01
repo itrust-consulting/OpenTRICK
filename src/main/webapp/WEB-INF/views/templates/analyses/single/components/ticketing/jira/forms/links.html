@@ -1,8 +1,10 @@
 <div th:if="${locale == null}">
-    <span th:utext="${T(org.springframework.web.servlet.support.RequestContextUtils).getLocale(request)}" th:with="locale=${locale}"></span>
-</div>
-<div th:replace="~{templates/fragments/locale}" th:with="locale=${locale.language}"></div>
+  <span th:utext="${#locale}"></span>
 
+</div>
+<!-- review
+<div th:replace="~{templates/fragments/locale}" th:with="locale=${locale.language}"></div>
+-->
 
 
 <div class="modal fade" id="modal-ticketing-linker" tabindex="-1" role="dialog" data-aria-labelledby="modalTicketingLinker" data-aria-hidden="true" data-backdrop="static">

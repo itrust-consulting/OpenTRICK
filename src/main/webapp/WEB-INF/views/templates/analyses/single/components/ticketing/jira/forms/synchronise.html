@@ -1,7 +1,8 @@
 <!-- Set the locale if it's empty -->
-<div th:if="${locale == null}">
-    <span th:utext="${T(org.springframework.web.servlet.support.RequestContextUtils).getLocale(request)}" th:object="${locale}"></span>
+<div th:if="${#locale != null}">
+    <span th:utext="${#locale}"></span>
 </div>
+
 
 <!-- Set the locale for session scope -->
 <div th:if="${locale != null}">

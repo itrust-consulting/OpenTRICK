@@ -7,10 +7,10 @@
     <title>Scale Type</title>
 </head>
 <body>
-
-<div th:if="${locale == null}">
-    <span th:text="${T(org.springframework.web.servlet.support.RequestContextUtils).getLocale(request).language}"></span>
+<div th:if="${#locale != null}">
+    <span th:text="${#locale.language}"></span>
 </div>
+
 
 <span th:set="langue=${locale != null ? locale.toUpperCase() : 'fr'}"></span>
 <div class="tab-pane" id="tab-scale-type">
