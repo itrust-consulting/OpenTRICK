@@ -1,22 +1,5 @@
 package lu.itrust.business.ts.controller.analysis;
 
-import static lu.itrust.business.ts.constants.Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8;
-import static lu.itrust.business.ts.constants.Constant.APPLICATION_JSON_CHARSET_UTF_8;
-import static lu.itrust.business.ts.constants.Constant.RI_SHEET_MAPPERS;
-import static lu.itrust.business.ts.constants.Constant.ROLE_MIN_USER;
-import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.createHeader;
-import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.createRow;
-import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.createWorkSheetPart;
-import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.findSheet;
-import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.findTable;
-import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.getExtension;
-import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.getOrCreateCell;
-import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.getOrCreateRow;
-import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.getWorksheetPart;
-import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.setFormula;
-import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.setValue;
-import static lu.itrust.business.ts.helper.InstanceManager.loadTemplate;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -91,6 +74,10 @@ import lu.itrust.business.ts.component.DefaultTemplateLoader;
 import lu.itrust.business.ts.component.MeasureManager;
 import lu.itrust.business.ts.component.TrickLogManager;
 import lu.itrust.business.ts.constants.Constant;
+import static lu.itrust.business.ts.constants.Constant.ACCEPT_APPLICATION_JSON_CHARSET_UTF_8;
+import static lu.itrust.business.ts.constants.Constant.APPLICATION_JSON_CHARSET_UTF_8;
+import static lu.itrust.business.ts.constants.Constant.RI_SHEET_MAPPERS;
+import static lu.itrust.business.ts.constants.Constant.ROLE_MIN_USER;
 import lu.itrust.business.ts.database.service.ServiceAnalysis;
 import lu.itrust.business.ts.database.service.ServiceAssessment;
 import lu.itrust.business.ts.database.service.ServiceAssetType;
@@ -112,6 +99,17 @@ import lu.itrust.business.ts.exportation.word.impl.docx4j.Docx4jReportImpl;
 import lu.itrust.business.ts.exportation.word.impl.docx4j.helper.AddressRef;
 import lu.itrust.business.ts.exportation.word.impl.docx4j.helper.CellRef;
 import lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper;
+import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.createHeader;
+import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.createRow;
+import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.createWorkSheetPart;
+import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.findSheet;
+import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.findTable;
+import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.getExtension;
+import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.getOrCreateCell;
+import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.getOrCreateRow;
+import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.getWorksheetPart;
+import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.setFormula;
+import static lu.itrust.business.ts.exportation.word.impl.docx4j.helper.ExcelHelper.setValue;
 import lu.itrust.business.ts.form.CSSFExportForm;
 import lu.itrust.business.ts.form.DataManagerItem;
 import lu.itrust.business.ts.form.ExportWordReportForm;
@@ -121,6 +119,7 @@ import lu.itrust.business.ts.helper.Column;
 import lu.itrust.business.ts.helper.DependencyGraphManager;
 import lu.itrust.business.ts.helper.ILRExport;
 import lu.itrust.business.ts.helper.InstanceManager;
+import static lu.itrust.business.ts.helper.InstanceManager.loadTemplate;
 import lu.itrust.business.ts.helper.JsonMessage;
 import lu.itrust.business.ts.helper.NaturalOrderComparator;
 import lu.itrust.business.ts.helper.RRFExportImport;
@@ -1628,7 +1627,9 @@ public class ControllerDataManager {
 
 	/**
 	 * Parse the extras columns from the file.
-	 * The file should contain lines in the format: column_name;[@[column]] or [@column]
+	 * The file should contain lines in the format: column_name;[@[column]] or
+	 * [@column]
+	 * 
 	 * @param multipartFile
 	 * @return
 	 */
@@ -2078,7 +2079,7 @@ public class ControllerDataManager {
 						: new ActionPlanMode[] { ActionPlanMode.APPN };
 		for (int i = 0; i < types.length; i++) {
 			final ActionPlanMode type = types[i];
-			final int colCount = type == ActionPlanMode.APPN ? 23 : 21;
+			final int colCount = type == ActionPlanMode.APPN ? 24 : 22;
 			final List<ActionPlanEntry> actionPlanEntries = analysis.findActionPlan(type);
 			if (actionPlanEntries.isEmpty())
 				continue;
@@ -2089,7 +2090,7 @@ public class ControllerDataManager {
 			final String title = messageSource.getMessage(
 					"label.title.export.plan_type." + type.getName().toLowerCase(), null, type.getName(), locale);
 			createHeader(worksheetPart, title, defaultExcelTableStyle,
-					generateActionPlanColumns(colCount - 1, type, locale), actionPlanEntries.size());
+					generateActionPlanColumns(colCount, type, locale), actionPlanEntries.size());
 			for (ActionPlanEntry actionPlanEntry : actionPlanEntries)
 				sheet.getRow().add(writeActionPLanData(factory.createRow(), colCount, actionPlanEntry,
 						expressionParameters, locale));
@@ -2164,10 +2165,6 @@ public class ControllerDataManager {
 		columns[colIndex++] = messageSource.getMessage("report.measure.domain", null, "Domain", locale);
 		columns[colIndex++] = messageSource.getMessage("report.measure.description", null, "Description", locale);
 		columns[colIndex++] = messageSource.getMessage("report.measure.status", null, "ST", locale);
-		columns[colIndex++] = messageSource.getMessage("report.measure.comment", null, "Comment", locale);
-		columns[colIndex++] = messageSource.getMessage("report.measure.to_do", null, "To Do", locale);
-		columns[colIndex++] = messageSource.getMessage("report.measure.responsible", null, "Resp.", locale);
-		columns[colIndex++] = messageSource.getMessage("report.measure.ticket", null, "ticket", locale);
 		columns[colIndex++] = messageSource.getMessage("report.measure.implementation_rate", null, "IR(%)", locale);
 		columns[colIndex++] = messageSource.getMessage("report.measure.internal.workload", null, "IS(md)", locale);
 		columns[colIndex++] = messageSource.getMessage("report.measure.external.workload", null, "ES(md)", locale);
@@ -2178,14 +2175,68 @@ public class ControllerDataManager {
 		columns[colIndex++] = messageSource.getMessage("report.measure.recurrent.investment", null, "RINV(k€)", locale);
 		columns[colIndex++] = messageSource.getMessage("report.measure.cost", null, "CS(k€)", locale);
 		columns[colIndex++] = messageSource.getMessage("label.measure.phase", null, "Phase", locale);
+		columns[colIndex++] = messageSource.getMessage("label.measure.importance", null, "I.", locale);
+		columns[colIndex++] = messageSource.getMessage("report.measure.responsible", null, "Resp.", locale);
+		columns[colIndex++] = messageSource.getMessage("report.measure.to_check", null, "To check", locale);
+		columns[colIndex++] = messageSource.getMessage("report.measure.comment", null, "Comment", locale);
+		columns[colIndex++] = messageSource.getMessage("report.measure.to_do", null, "To Do", locale);
+		columns[colIndex++] = messageSource.getMessage("report.measure.ticket", null, "Ticket", locale);
 		if (type == ActionPlanMode.APQ)
-			columns[colIndex++] = messageSource.getMessage("report.action_plan.risk_count", null, "NR", locale);
+			columns[colIndex] = messageSource.getMessage("report.action_plan.risk_count", null, "NR", locale);
 		else if (type == ActionPlanMode.APPN) {
 			columns[colIndex++] = messageSource.getMessage("report.action_plan.ale", null, "ALE", locale);
 			columns[colIndex++] = messageSource.getMessage("report.action_plan.delta_ale", null, "Δ ALE", locale);
-			columns[colIndex++] = messageSource.getMessage("report.action_plan.rosi", null, "ROSI", locale);
+			columns[colIndex] = messageSource.getMessage("report.action_plan.rosi", null, "ROSI", locale);
 		}
 		return columns;
+	}
+
+	private Row writeActionPLanData(Row row, int colCount, ActionPlanEntry actionPlanEntry,
+			List<IAcronymParameter> expressionParameters, Locale locale) {
+		for (int i = 0; i <= colCount; i++) {
+			if (row.getC().size() < i)
+				getOrCreateCell(row, i);
+		}
+		int colIndex = 0;
+		Measure measure = actionPlanEntry.getMeasure();
+		MeasureDescriptionText descriptionText = measure.getMeasureDescription()
+				.getMeasureDescriptionTextByAlpha3(locale.getISO3Language());
+		setValue(row.getC().get(colIndex), measure.getMeasureDescription().getStandard().getName());
+		setValue(row.getC().get(++colIndex), measure.getMeasureDescription().getReference());
+		setValue(row.getC().get(++colIndex), descriptionText.getDomain());
+		setValue(row.getC().get(++colIndex), descriptionText.getDescription());
+		setValue(row.getC().get(++colIndex), measure.getStatus());
+
+		setValue(row.getC().get(++colIndex), measure.getImplementationRateValue(expressionParameters));
+		setValue(row.getC().get(++colIndex), measure.getInternalWL());
+		setValue(row.getC().get(++colIndex), measure.getExternalWL());
+		setValue(row.getC().get(++colIndex), measure.getInvestment() * 0.001);
+		setValue(row.getC().get(++colIndex), measure.getLifetime());
+		setValue(row.getC().get(++colIndex), measure.getInternalMaintenance());
+		setValue(row.getC().get(++colIndex), measure.getExternalMaintenance());
+		setValue(row.getC().get(++colIndex), measure.getRecurrentInvestment() * 0.001);
+		setValue(row.getC().get(++colIndex), measure.getCost() * 0.001);
+		setValue(row.getC().get(++colIndex), measure.getPhase().getNumber());
+		setValue(row.getC().get(++colIndex), measure.getImportance() <= 1 ? "L" : (measure.getImportance() == 2 ? "M" : "H"));
+		setValue(row.getC().get(++colIndex), measure.getResponsible());
+
+		if (measure instanceof AbstractNormalMeasure normalMeasure)
+			setValue(row.getC().get(++colIndex), normalMeasure.getToCheck());
+		else
+			setValue(row.getC().get(++colIndex), "");
+
+		setValue(row.getC().get(++colIndex), measure.getComment());
+		setValue(row.getC().get(++colIndex), measure.getToDo());
+		setValue(row.getC().get(++colIndex), measure.getTicket());
+
+		if (actionPlanEntry.getActionPlanType().getActionPlanMode() == ActionPlanMode.APQ)
+			setValue(row.getC().get(++colIndex), actionPlanEntry.getRiskCount());
+		else {
+			setValue(row.getC().get(++colIndex), actionPlanEntry.getTotalALE() * 0.001);
+			setValue(row.getC().get(++colIndex), actionPlanEntry.getDeltaALE() * 0.001);
+			setValue(row.getC().get(++colIndex), actionPlanEntry.getROI() * 0.001);
+		}
+		return row;
 	}
 
 	private String[] getColumns(AnalysisStandard analysisStandard) {
@@ -2248,46 +2299,6 @@ public class ControllerDataManager {
 			cookie.setPath("/");
 			response.addCookie(cookie);
 		}
-	}
-
-	private Row writeActionPLanData(Row row, int colCount, ActionPlanEntry actionPlanEntry,
-			List<IAcronymParameter> expressionParameters, Locale locale) {
-		for (int i = 0; i < colCount; i++) {
-			if (row.getC().size() < i)
-				getOrCreateCell(row, i);
-		}
-		int colIndex = 0;
-		Measure measure = actionPlanEntry.getMeasure();
-		MeasureDescriptionText descriptionText = measure.getMeasureDescription()
-				.getMeasureDescriptionTextByAlpha3(locale.getISO3Language());
-		setValue(row.getC().get(colIndex), measure.getMeasureDescription().getStandard().getName());
-		setValue(row.getC().get(++colIndex), measure.getMeasureDescription().getReference());
-		setValue(row.getC().get(++colIndex), descriptionText.getDomain());
-		setValue(row.getC().get(++colIndex), descriptionText.getDescription());
-		setValue(row.getC().get(++colIndex), measure.getStatus());
-		setValue(row.getC().get(++colIndex), measure.getComment());
-		setValue(row.getC().get(++colIndex), measure.getToDo());
-		setValue(row.getC().get(++colIndex), measure.getResponsible());
-		setValue(row.getC().get(++colIndex), measure.getTicket());
-		setValue(row.getC().get(++colIndex), measure.getImplementationRateValue(expressionParameters));
-		setValue(row.getC().get(++colIndex), measure.getInternalWL());
-		setValue(row.getC().get(++colIndex), measure.getExternalWL());
-		setValue(row.getC().get(++colIndex), measure.getInvestment() * 0.001);
-		setValue(row.getC().get(++colIndex), measure.getLifetime());
-		setValue(row.getC().get(++colIndex), measure.getInternalMaintenance());
-		setValue(row.getC().get(++colIndex), measure.getExternalMaintenance());
-		setValue(row.getC().get(++colIndex), measure.getRecurrentInvestment() * 0.001);
-		setValue(row.getC().get(++colIndex), measure.getCost() * 0.001);
-		setValue(row.getC().get(++colIndex), measure.getPhase().getNumber());
-
-		if (actionPlanEntry.getActionPlanType().getActionPlanMode() == ActionPlanMode.APQ)
-			setValue(row.getC().get(++colIndex), actionPlanEntry.getRiskCount());
-		else {
-			setValue(row.getC().get(++colIndex), actionPlanEntry.getTotalALE() * 0.001);
-			setValue(row.getC().get(++colIndex), actionPlanEntry.getDeltaALE() * 0.001);
-			setValue(row.getC().get(++colIndex), actionPlanEntry.getROI() * 0.001);
-		}
-		return row;
 	}
 
 	private int writeProbaImpact(Row row, int colIndex, Assessment assessment, List<ScaleType> scales,

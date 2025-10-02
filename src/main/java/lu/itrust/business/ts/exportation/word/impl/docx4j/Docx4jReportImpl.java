@@ -177,7 +177,6 @@ public class Docx4jReportImpl implements Docx4jReport {
 
 	private org.docx4j.openpackaging.packages.WordprocessingMLPackage wordMLPackage;
 
-	
 	public Docx4jReportImpl() {
 	}
 
@@ -426,7 +425,7 @@ public class Docx4jReportImpl implements Docx4jReport {
 
 	}
 
-	public P createGraphic(String name, String description, String refId){
+	public P createGraphic(String name, String description, String refId) {
 		P paragraph = setStyle(getFactory().createP(), "FigurewithCaption");
 		R run = getFactory().createR();
 		run.setRPr(getFactory().createRPr());
@@ -1467,6 +1466,9 @@ public class Docx4jReportImpl implements Docx4jReport {
 						Collectors.summingDouble(Asset::getValue)));
 		final List<SummaryStage> summaries = getSummaryStage(ActionPlanMode.APPN);
 		final List<Phase> phases = analysis.findUsablePhase();
+		final int mandatoryPhase = analysis.getSimpleParameters().stream()
+				.filter(p -> p.getDescription().equals(Constant.MANDATORY_PHASE)).mapToInt(p -> p.getValue().intValue())
+				.findAny().orElse(0);
 
 		double assetTotalValue = 0;
 
@@ -1509,8 +1511,12 @@ public class Docx4jReportImpl implements Docx4jReport {
 		assetDecimalFormat.setMinimumFractionDigits(1);
 		setCustomProperty("AV_DROSI_VAL", Math.round(avDRosi));
 		setCustomProperty("GAIN_VAL", assetDecimalFormat.format(1 + avDRosi * 0.01));
-		if (!summaries.isEmpty())
-			setCustomProperty("FINAL_ALE_VAL", Math.round(summaries.get(summaries.size() - 1).getTotalALE() * 0.001));
+		if (!summaries.isEmpty()) {
+			setCustomProperty("FINAL_ALE_VAL",
+					Math.round(summaries.stream().filter(e -> e.getStage().equals("Phase " + mandatoryPhase))
+							.mapToDouble(e -> e.getTotalALE()).findAny()
+							.orElse(summaries.get(summaries.size() - 1).getTotalALE()) * 0.001));
+		}
 	}
 
 	public List<SummaryStage> getSummaryStage(ActionPlanMode planMode) {
