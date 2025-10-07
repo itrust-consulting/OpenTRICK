@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org" lang="en" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -32,19 +32,21 @@
             </tr>
         </thead>
         <tbody>
-            <th:block th:if="${empty mappedParameters['RISK_ACCEPTANCE']}">
-                <tr class="warning">
-                    <td colspan="4" th:text="#{info.risk_acceptance.current.empty}"></td>
-                </tr>
-            </th:block>
-            <th:block th:unless="${empty mappedParameters['RISK_ACCEPTANCE']}">
-                <th:block th:with="size=${#maps.size(mappedParameters['RISK_ACCEPTANCE'])}">
-                    <th:block th:each="parameter, status : ${mappedParameters['RISK_ACCEPTANCE']}">
-                        <tr th:data-trick-class="RiskAcceptanceParameter" 
-                            th:data-trick-id="${parameter.id}" 
+            <!-- FIX: compute ra safely even if mappedParameters is null/missing -->
+            <th:block th:with="ra=${mappedParameters != null ? mappedParameters['RISK_ACCEPTANCE'] : null}">
+                <th:block th:if="${#lists.isEmpty(ra)}">
+                    <tr class="warning">
+                        <td colspan="4" th:text="#{info.risk_acceptance.current.empty}"></td>
+                    </tr>
+                </th:block>
+
+                <th:block th:unless="${#lists.isEmpty(ra)}" th:with="size=${#maps.size(ra)}">
+                    <th:block th:each="parameter, status : ${ra}">
+                        <tr th:data-trick-class="RiskAcceptanceParameter"
+                            th:data-trick-id="${parameter.id}"
                             th:attr="ondblclick=${isEditable} ? 'return manageRiskAcceptance()' : ''"
                             th:data-trick-callback="reloadRiskHeatMapSection()">
-                            
+
                             <th:block th:with="value=${#numbers.formatDecimal(parameter.value, 0, 'POINT')}">
                                 <td class="textaligncenter" th:data-trick-field="value">
                                     <th:block th:if="${status.index == 0}">
@@ -58,20 +60,20 @@
                                     </th:block>
                                 </td>
                             </th:block>
-                            
-                            <th:block th:set="prevValue=${value}"/>
-                            
+
+                            <th:block th:with="prevValue=${value}"></th:block>
+
                             <td class="textaligncenter editable" th:data-trick-field="label" th:data-trick-field-type="string" onclick="return editField(this);">
                                 <span th:text="${parameter.label}"></span>
                             </td>
-                            
-                            <th:block th:set="color=${parameter.color}"/>
-                            
+
+                            <th:block th:with="color=${parameter.color}"></th:block>
+
                             <td class="editable" th:data-trick-field="description" th:data-trick-content="text" th:data-trick-field-type="string" onclick="return editField(this);">
                                 <span th:text="${parameter.description}"></span>
                             </td>
-                            
-                            <td style="background-color: ${color};" th:data-trick-field="color" th:data-trick-content="color" th:data-trick-field-type="string" th:data-real-value="${color}" onclick="return editField(this);"></td>
+
+                            <td style="background-color: [[${color}]];" th:data-trick-field="color" th:data-trick-content="color" th:data-trick-field-type="string" th:data-real-value="${color}" onclick="return editField(this);"></td>
                         </tr>
                     </th:block>
                 </th:block>

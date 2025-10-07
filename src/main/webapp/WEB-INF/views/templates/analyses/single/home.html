@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="[[${language}]]">
+<html xmlns:th="http://www.thymeleaf.org" lang="[[${language}]]" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="#{label.title.analysis}">Analysis</title>
 
     <!-- inject css -->
-    <link rel="stylesheet" href="/css/autoComplete.min.css">
+    <link rel="stylesheet" th:href="@{/css/autoComplete.min.css}">
 </head>
 <body>
 <div id="wrap" class="wrap">
@@ -91,33 +91,33 @@
 
     <th:block th:replace="~{templates/template/scripts :: scripts}"></th:block>
 
-    <script src="/js/chartjs/Chart.bundle.min.js"></script>
-    <script src="/js/chartjs/plugins.js"></script>
-    <script src="/js/chartjs/Chart.HeatMap.js"></script>
-    <script src="/js/trickservice/analysis.js"></script>
-    <script type="text/javascript" src="/js/trickservice/fieldeditor.js"></script>
-    <script type="text/javascript" src="/js/trickservice/scenario.js"></script>
-    <script type="text/javascript" src="/js/trickservice/phase.js"></script>
-    <script type="text/javascript" src="/js/trickservice/rrfManager.js"></script>
-    <script type="text/javascript" src="/js/trickservice/analysisStandard.js"></script>
-    <script type="text/javascript" src="/js/trickservice/analysis-measure.js"></script>
+    <script th:src="@{/js/chartjs/Chart.bundle.min.js}"></script>
+    <script th:src="@{/js/chartjs/plugins.js}"></script>
+    <script th:src="@{/js/chartjs/Chart.HeatMap.js}"></script>
+    <script th:src="@{/js/trickservice/analysis.js}"></script>
+    <script type="text/javascript" th:src="@{/js/trickservice/fieldeditor.js}"></script>
+    <script type="text/javascript" th:src="@{/js/trickservice/scenario.js}"></script>
+    <script type="text/javascript" th:src="@{/js/trickservice/phase.js}"></script>
+    <script type="text/javascript" th:src="@{/js/trickservice/rrfManager.js}"></script>
+    <script type="text/javascript" th:src="@{/js/trickservice/analysisStandard.js}"></script>
+    <script type="text/javascript" th:src="@{/js/trickservice/analysis-measure.js}"></script>
 
     <th:block th:if="${isEditable}">
-        <script type="text/javascript" src="/js/trickservice/analysisImport.js"></script>
+        <script type="text/javascript" th:src="@{/js/trickservice/analysisImport.js}"></script>
     </th:block>
 
     <th:block th:if="${not isProfile}">
         <th:block th:if="${allowedTicketing}">
-            <script type="text/javascript" src="/js/trickservice/ticketing-system.js"></script>
+            <script type="text/javascript" th:src="@{/js/trickservice/ticketing-system.js}"></script>
         </th:block>
-        <script type="text/javascript" src="/js/trickservice/actionplan.js"></script>
-        <script type="text/javascript" src="/js/trickservice/asset.js"></script>
+        <script type="text/javascript" th:src="@{/js/trickservice/actionplan.js}"></script>
+        <script type="text/javascript" th:src="@{/js/trickservice/asset.js}"></script>
         <th:block th:if="${canExport}">
-            <script type="text/javascript" src="/js/trickservice/analysisExport.js"></script>
+            <script type="text/javascript" th:src="@{/js/trickservice/analysisExport.js}"></script>
         </th:block>
-        <script type="text/javascript" src="/js/trickservice/risk-estimation.js"></script>
+        <script type="text/javascript" th:src="@{/js/trickservice/risk-estimation.js}"></script>
         <th:block th:if="${type.qualitative}">
-            <script type="text/javascript" src="/js/trickservice/riskregister.js"></script>
+            <script type="text/javascript" th:src="@{/js/trickservice/riskregister.js}"></script>
             <script type="text/javascript" th:inline="javascript">
                 application['measureStatus'] = {
                     'M': {title: '[[#{label.title.measure.status.m}]]', value: '[[#{label.measure.status.m}]]'},

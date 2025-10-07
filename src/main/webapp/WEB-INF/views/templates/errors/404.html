@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="[[${locale.language}]]">
+<html xmlns:th="http://www.thymeleaf.org" lang="[[${locale.language}]]" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <th:block th:if="${#locale != null}">
     <th:block th:with="locale=${#locale}"></th:block>
