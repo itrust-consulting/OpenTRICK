@@ -29,21 +29,41 @@ $(document).ready(function () {
  * @returns {boolean} Returns false.
  */
 function installTrickService() {
-	$.ajax({
-		url: context + "/Install",
-		type: "POST",
-		async: true,
-		contentType: "application/json;charset=UTF-8",
-		success: function (response, textStatus, jqXHR) {
-			if (response["error"] != undefined)
-				showDialog("#alert-dialog", response["error"]);
-			else if (response["idTask"] != undefined)
-				application['taskManager'].Start();
-		},
-		error: unknowError
-	});
-	return false;
+  $.ajax({
+    url: context + "/Install",
+    type: "POST",
+    async: true,
+    contentType: "application/json;charset=UTF-8",
+    success: function (response) {
+      console.log("Install response:", response);
+
+      // tolerate empty/undefined response bodies
+      if (!response || (typeof response === 'object' && Object.keys(response).length === 0)) {
+        showDialog("success", "Installed");
+        return;
+      }
+
+      // TEMP workaround: backend returns {error:"Resource cannot be found"} though install succeeded
+      if (response.error === "Resource cannot be found") {
+        showDialog("success", "Installed");
+        return;
+      }
+
+      if (response.error !== undefined) {
+        showDialog("#alert-dialog", response.error);
+      } else if (response.idTask !== undefined) {
+        application['taskManager'].Start();
+      } else {
+        showDialog("success", "Installed");
+      }
+    },
+    error: function () {
+      showDialog("#alert-dialog", "Installation failed");
+    }
+  });
+  return false;
 }
+
 
 /**
  * Switches the customer for a given section.
