@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="[[${locale.language}]]" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <th:block th:if="${#strings.isEmpty(locale)}">
+    <!-- review
     <th:block th:replace="~{templates/template/locale}"></th:block>
+-->
 </th:block>
 
 <th:block th:with="title=${'label.title.knowledgebase'}"></th:block>
@@ -41,7 +43,7 @@
             
             <div class="tab-content" id="tab-container">
                 <!-- Include full template if fragment does not exist -->
-                <div th:replace="~{templates/knowledgebase/customera/customers}"></div>
+                <div th:replace="~{templates/knowledgebase/customer/customers}"></div>
                 <div th:replace="~{templates/knowledgebase/language/languages}"></div>
                 <div th:replace="~{templates/knowledgebase/standards/standard/standards}"></div>
                 <div th:replace="~{templates/knowledgebase/standards/measure/measures}"></div>
@@ -54,7 +56,8 @@
 
     <!-- Footer -->
     <div th:replace="~{templates/template/footer :: footer}"></div>
-    <div th:replace="~{templates/template/widget}"></div>
+   <div th:replace="~{templates/knowledgebase/widget}"></div>
+
     
     <!-- Scripts -->
     <div th:replace="~{templates/template/scripts :: scripts}"></div>
