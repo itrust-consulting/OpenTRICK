@@ -82,7 +82,7 @@
                    onchange="return updateMenu(this,'#section_kb_scale_type','#menu_kb_scale_type');">
           </td>
           <td data-field-name="name">
-            <span th:text="${scaleType.name}"></span>
+            <span th:text="${scaleType != null ? scaleType.name : ''}"></span>
           </td>
           <td data-field-name="acronym">
             <span th:text="${scaleType.acronym}"></span>
@@ -91,10 +91,10 @@
           
           <th:block th:each="language : ${languages}">
             <td>
-              <span th:text="${scaleType.translations[language.alpha2].name}"></span>
+              <span th:text="${(scaleType != null && scaleType.translations != null && scaleType.translations[language.alpha2] != null) ? scaleType.translations[language.alpha2].name : ''}"></span>
             </td>
             <td>
-              <span th:text="${scaleType.translations[language.alpha2].shortName}"></span>
+              <span th:text="${(scaleType != null && scaleType.translations != null && scaleType.translations[language.alpha2] != null) ? scaleType.translations[language.alpha2].shortName : ''}"></span>
             </td>
           </th:block>
         </tr>

@@ -6,14 +6,17 @@
         <div class="col-sm-9 text-center">
             <select id="measurelanguageselect" class="form-control">
                 <th:block th:each="language : ${languages}">
-                    <option th:value="${language.id}" th:selected="${language.id == selectedLanguage.id}" th:text="#{${language.name}}"></option>
+                    <option th:value="${language.id}"
+                            th:selected="${selectedLanguage != null ? language.id == selectedLanguage.id : false}"
+                            th:text="#{${language.name}}"></option>
                 </th:block>
             </select>
         </div>
     </div>
 
     <th:block th:each="language : ${languages}">
-        <div th:data-trick-id="${language.id}" th:attr="hidden=${language.id != selectedLanguage.id}">
+        <div th:data-trick-id="${language.id}"
+             th:attr="hidden=${selectedLanguage != null ? (language.id != selectedLanguage.id) : true}">
             <div class="form-group">
                 <label for="domain_${language.id}" class="col-sm-3 control-label" th:data-helper-content="#{help.measure.domain}">
                     <span th:text="#{label.measure.domain}">Domain</span>

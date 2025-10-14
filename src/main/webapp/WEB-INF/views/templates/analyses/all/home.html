@@ -1,82 +1,93 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="${locale.language}">
-<head>
-  <meta charset="UTF-8">
-  <title th:text="#{label.menu.analysis.list}">List of Analyses</title>
-  <div th:replace="~{templates/template/header :: header('label.title.analysis')}"></div>
-
-  <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}"/>
-  <link rel="stylesheet" th:href="@{/css/font-awesome.min.css}"/>
-  <link rel="stylesheet" th:href="@{/css/jquery-ui.min.css}"/>
-  <link rel="stylesheet" th:href="@{/css/main.css}"/>
-
-  <script th:inline="javascript">
-    var context = /*[[@{/}]]*/ "/";
-  </script>
-</head>
+<div th:replace="~{templates/template/header :: header('label.title.analyses')}"></div>
 <body>
+  <div id="wrap" class="wrap">
+    <div th:replace="~{templates/template/menu :: main-menu(menu, analysisSharedCount)}"></div>
+    <div class="container" data-ug-root="analyses">
+      <div class="section" id="section_analysis">
+        
+        <!-- Customer and Name Filters -->
+        <div class="center-block">
+          <div class="col-md-6">
+            <p class="text-center">
+              <label th:text="#{label.filter.analysis.customer}">Analyses filtered by customer</label>
+            </p>
+            <form class="col-md-offset-4 col-md-4">
+              <select id="customerSelectorFilter" class="form-control" onchange="return customerChange('#customerSelectorFilter','#nameSelectorFilter')" style="margin-bottom: 10px">
+                <option th:each="icustomer : ${customers}" th:value="${icustomer.id}" 
+                        th:selected="${customer != null and icustomer.id == customer}" 
+                        th:text="${icustomer.organisation}">Customer</option>
+              </select>
+            </form>
+          </div>
+          <div class="col-md-6">
+            <p class="text-center">
+              <label th:text="#{label.filter.analysis.name}">Analyses filtered by name</label>
+            </p>
+            <form class="col-md-offset-4 col-md-4">
+              <select id="nameSelectorFilter" class="form-control" onchange="return customerChange('#customerSelectorFilter','#nameSelectorFilter')" style="margin-bottom: 10px">
+                <option value="ALL" th:text="#{label.all}">ALL</option>
+                <option th:each="name : ${names}" th:value="${name}" 
+                        th:selected="${analysisSelectedName != null and analysisSelectedName == name}" 
+                        th:text="${name}">Name</option>
+              </select>
+            </form>
+          </div>
+        </div>
 
-<div th:with="user=${#authentication != null ? #authentication.principal : null}">
-  <ul>
-    <li th:if="${ticketingURL != null and allowedTicketing != null and allowedTicketing}">
-      <a th:href="@{${ticketingURL}}">
-        <span th:text="#{label.menu.link.project(${ticketingName})}">Project Link</span>
-      </a>
-    </li>
-  </ul>
-
-  <table class="table" id="analysesTable">
-    <thead>
-      <tr>
-        <th th:text="#{label.analysis}">Analysis</th>
-        <th th:text="#{label.customer}">Customer</th>
-        <th th:text="#{label.creation.date}">Created</th>
-        <th th:text="#{label.owner}">Owner</th>
-      </tr>
-    </thead>
-    <tbody id="analysesBody">
-      <tr th:each="analysis : ${analyses}">
-        <td><a th:href="@{|/Analysis/${analysis.id}|}" th:text="${analysis.name}">Name</a></td>
-        <td th:text="${analysis.customer.organisation}"></td>
-        <td th:text="${#dates.format(analysis.creationDate, 'yyyy-MM-dd HH:mm')}"></td>
-        <td th:text="${analysis.owner.login}"></td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-
-
-<script th:src="@{/js/jquery-3.5.1.min.js}"></script>
-<script th:src="@{/js/jquery-migrate-3.3.0.min.js}"></script>
-<script th:src="@{/js/jquery-ui.min.js}"></script>
-
-
-<script>
-(function($){
-  if (!$ || !$.ajax) return;
-  var _ajax = $.ajax;
-  $.ajax = function(opts){
-    try {
-      var m = (opts && opts.type) || "GET";
-      var u = (opts && opts.url) || "(no url)";
-      console.log("AJAX →", m, u, opts && opts.data);
-    } catch(e){}
-    return _ajax.apply(this, arguments);
-  };
-})(window.jQuery);
-</script>
-
-
-<script th:src="@{/js/jquery.idle.js}"></script>
-<script th:src="@{/js/bootstrap/stickyTableHeaders.js}"></script>
-<script th:src="@{/js/main.js}"></script>
-
-
-<script th:src="@{/js/trickservice/analyses.js}"></script>
-<script th:src="@{/js/trickservice/analysisExport.js}"></script>
-<script th:if="${allowedTicketing != null and allowedTicketing}"
-        th:src="@{/js/trickservice/ticketing-system.js}"></script>
-
+        <!-- Analysis Table -->
+        <table class="table table-striped table-hover" style="border-top: 1px solid #dddddd;">
+          <thead>
+            <tr>
+              <th width="1%"></th>
+              <th width="20%" th:text="#{label.analysis.label}">Name</th>
+              <th width="5%" th:text="#{label.analysis.type}">Type</th>
+              <th width="35%" th:text="#{label.analysis.comment}">Comment</th>
+              <th th:text="#{label.analysis.version}">Version</th>
+              <th width="8%" th:text="#{label.analysis.creation_date}">Create date</th>
+              <th th:text="#{label.analysis.author}">Author</th>
+              <th th:text="#{label.analysis.language}">Language</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="analysis : ${analyses}" 
+                th:class="${analysis.archived} ? 'text-muted' : ''" 
+                th:attr="data-trick-id=${analysis.id}"
+                onclick="selectElement(this)">
+              
+              <td>
+                <input type="checkbox" class="checkbox">
+              </td>
+              
+              <td>
+                <i class="fa fa-folder" aria-hidden="true"></i>
+                <span style="margin-left: 5px;" th:text="${analysis.label}">Analysis Name</span>
+              </td>
+              
+              <td th:text="${analysis.type}">Type</td>
+              
+              <td th:text="${analysis.lastHistory?.comment}">Comment</td>
+              
+              <td th:text="${analysis.version}">Version</td>
+              
+              <td th:text="${#dates.format(analysis.creationDate, 'yyyy-MM-dd HH:mm')}">Creation Date</td>
+              
+              <td th:text="${analysis.owner.firstName + ' ' + analysis.owner.lastName}">Author</td>
+              
+              <td th:text="${analysis.language.name}">Language</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    
+    <div th:replace="~{templates/template/footer}"></div>
+  </div>
+  
+  <div th:replace="~{templates/template/scripts}"></div>
+  <script th:src="@{/js/jquery-ui.min.js}"></script>
+  <script type="text/javascript" th:src="@{/js/trickservice/analyses.js}"></script>
+  <script type="text/javascript" th:src="@{/js/trickservice/analysisExport.js}"></script>
 </body>
 </html>

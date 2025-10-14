@@ -1,6 +1,4 @@
-<div class="tab-pane" id="tab-measure" data-trigger="showMeasures" data-update-required="true">
-    <div th:if="${not #lists.isEmpty(languages)}">
-        <div th:with="selectedLanguage=${languages[0]}" />
-    </div>
-    <th:block th:include="section :: section" />
+<div class="tab-pane" id="tab-measure" data-trigger="showMeasures" data-update-required="true"
+    th:with="selectedLanguage=${(languages != null and not #lists.isEmpty(languages)) ? languages[0] : null}">
+    <th:block th:replace="~{templates/knowledgebase/standards/measure/section}" />
 </div>

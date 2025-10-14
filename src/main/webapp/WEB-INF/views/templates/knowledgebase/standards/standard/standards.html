@@ -71,8 +71,8 @@
             <td data-trick-field="label" th:text="${standard != null ? standard.label : ''}"></td>
             <td data-trick-field="version" th:text="${standard != null ? standard.version : ''}"></td>
             <td class="pre" th:text="${standard != null ? standard.description : ''}"></td>
-            <td th:attr="data-trick-type=${standard != null ? standard.type : ''}"
-                th:text="${standard != null ? #messages.msg('label.norm.type_' + #strings.toLowerCase(standard.type.name())) : ''}"></td>
+      <td th:attr="data-trick-type=${standard != null ? standard.type : ''}"
+        th:text="${standard != null && standard.type != null ? #messages.msg('label.norm.type_' + #strings.toLowerCase(standard.type.name())) : ''}"></td>
             <td th:attr="data-trick-computable=${standard != null && standard.computable ? 'Yes' : 'No'}"
                 th:text="${standard != null ? #messages.msg('label.yes_no.' + standard.computable) : ''}"></td>
           </tr>
