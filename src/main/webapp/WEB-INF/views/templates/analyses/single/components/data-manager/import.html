@@ -84,7 +84,7 @@
                                                                    th:attr="maxlength=${maxFileSize}"
                                                                    name="file"
                                                                    style="display: none;"
-                                                                   th:onchange="'$(\'#upload-file-info-' + ${item.name} + '\').prop(\'value\',$(this).prop(\'value\')); checkExtention($(\'#upload-file-info-' + ${item.name} + '\').val(),\'' + ${#strings.replace(item.extensions,'.','')} + '\',\'#btn-import\');'" />
+                                                                   th:onchange="|$('#upload-file-info-${item.name}').prop('value',$(this).prop('value')); checkExtention($('#upload-file-info-${item.name}').val(),'${#strings.replace(item.extensions,'.','')}','#btn-import');|" />
 
                                                             <input th:id="'upload-file-info-' + ${item.name}"
                                                                    class="form-control"
@@ -95,7 +95,7 @@
 
                                                             <button class="btn btn-primary" type="button"
                                                                     id="browse-button"
-                                                                    th:onclick="'$(\'input[id=file-' + ${item.name} + ']\').click();'"
+                                                                    th:onclick="|$('input[id=file-${item.name}]').click();|"
                                                                     style="margin-left: -5px;"
                                                                     th:text="#{label.action.browse}">Browse</button>
                                                         </div>

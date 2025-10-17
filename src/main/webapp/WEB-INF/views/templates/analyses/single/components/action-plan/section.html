@@ -20,18 +20,18 @@
         </div>
 
         <ul class="nav nav-pills bordered-bottom" id="menu_actionplans"
-            th:if="${actionplansplitted != null}">
+            th:if="${actionplansplitted != null and !actionplansplitted.isEmpty()}">
 
-            <li th:each="apt, status : ${#maps.keys(actionplansplitted)}"
-                th:if="${#maps.size(actionplansplitted) > 1}"
+            <li th:each="apt, status : ${actionplansplitted != null ? actionplansplitted.keySet() : {}}"
+                th:if="${actionplansplitted != null and actionplansplitted.size() > 1}"
                 th:classappend="${status.index == 0} ? 'disabled'"
                 th:attr="data-trick-nav-control=${apt}">
-                <a href="#" th:onclick="'return navToogled(\'#section_actionplans\',\'#menu_actionplans,#tabOption\',\'' + ${apt} + '\',true);'"
-                   th:text="#{${'label.title.plan_type.' + apt.toLowerCase()}}">Type</a>
+                     <a href="#" th:onclick="|return navToogled('#section_actionplans','#menu_actionplans,#tabOption','${apt}',true);|"
+                         th:text="#{${'label.title.plan_type.' + #strings.toLowerCase(apt)}}">Type</a>
             </li>
 
             <!-- Ticketing options -->
-            <li th:if="${isLinkedToProject and isEditable and ticketingName?.toLowerCase() == 'email' and isNoClientTicketing}"
+            <li th:if="${(isLinkedToProject == true) and (isEditable == true) and (ticketingName?.toLowerCase() == 'email') and (isNoClientTicketing == true)}"
                 class="disabled" data-trick-selectable="multi"
                 th:attr="data-trick-single-check=!isLinkedTicketingSystem('#section_actionplans')">
                 <a href="#" onclick="return createTickets('#section_actionplans')"
@@ -39,12 +39,12 @@
             </li>
 
             <!-- Advanced menu header -->
-            <li th:if="${isLinkedToProject or #maps.size(actionplansplitted) > 1}"
+            <li th:if="${(isLinkedToProject == true) or (actionplansplitted != null and actionplansplitted.size() > 1)}"
                 class="dropdown-header" style="display:none;"
                 th:text="#{label.menu.advanced}">Advanced</li>
 
             <!-- Show assets -->
-            <li class="pull-right" th:if="${type.quantitative and actionplansplitted['APPN'] != null}">
+            <li class="pull-right" th:if="${(type != null and type.quantitative) and (actionplansplitted != null and actionplansplitted['APPN'] != null)}">
                 <a href="#" onclick="return displayActionPlanAssets();">
                     <span class="glyphicon glyphicon-new-window"></span>
                     <span th:text="#{label.action_plan_assets.show}">Show Assets</span>
@@ -52,14 +52,14 @@
             </li>
 
             <!-- Compute Button -->
-            <li class="pull-right" th:if="${type.quantitative and actionplansplitted['APPN'] != null}">
-                <a href="#" th:onclick="'return displayActionPlanOptions(\'' + (${analysisId} != null ? ${analysisId} : ${analysis.id}) + '\');'">
+            <li class="pull-right" th:if="${(type != null and type.quantitative) and (actionplansplitted != null and actionplansplitted['APPN'] != null)}">
+                <a href="#" th:onclick="|return displayActionPlanOptions('${analysisId != null ? analysisId : analysis.id}');|">
                     <i class="glyphicon glyphicon-expand"></i>
                     <span th:text="#{label.action.compute}">Compute</span>
                 </a>
             </li>
-            <li th:unless="${type.quantitative and actionplansplitted['APPN'] != null}"
-                th:classappend="${isLinkedToProject} ? 'pull-right'">
+            <li th:unless="${(type != null and type.quantitative) and (actionplansplitted != null and actionplansplitted['APPN'] != null)}"
+                th:classappend="${(isLinkedToProject == true)} ? 'pull-right'">
                 <a href="#" onclick="return calculateAction();">
                     <i class="glyphicon glyphicon-expand"></i>
                     <span th:text="#{label.action.compute}">Compute</span>
@@ -68,11 +68,11 @@
         </ul>
 
         <!-- Table content per action plan type -->
-        <div th:each="apt, status : ${#maps.keys(actionplansplitted)}"
+    <div th:each="apt, status : ${actionplansplitted != null ? actionplansplitted.keySet() : {}}"
              th:attr="data-trick-nav-content=${apt}"
-             th:if="${actionplansplitted[apt] != null}"
+             th:if="${actionplansplitted != null and actionplansplitted[apt] != null and !#lists.isEmpty(actionplansplitted[apt])}"
              th:attrappend="hidden=${status.index != 0} ? 'true'">
-            <table th:attr="id='actionplantable_' + ${apt}"
+         <table th:id="|actionplantable_${apt}|"
                    class="table table-hover table-condensed table-fixed-header-analysis">
                 <thead>
                 <tr>
@@ -98,7 +98,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="ape, idx : ${actionplansplitted[apt]}">
+                <tr th:each="ape, idx : ${actionplansplitted != null and actionplansplitted[apt] != null ? actionplansplitted[apt] : {}}"
                     <td th:if="${isLinkedToProject}">
                         <input type="checkbox" class="checkbox" name="actionplans"
                                th:value="${ape.id}"
@@ -109,11 +109,11 @@
                     <td th:text="${ape.reference}" th:title="${ape.name}">REF</td>
                     <td th:text="${ape.toDo}">ToDo</td>
                     <td th:if="${apt == 'APQ'}" th:text="${ape.riskCount}">0</td>
-                    <td th:if="${apt == 'APQ'}" th:text="${#numbers.formatDecimal(ape.cost, 1, 2)}">0.00</td>
-                    <td th:if="${apt != 'APQ'}" th:text="${#numbers.formatDecimal(ape.totalAle, 1, 2)}">0.00</td>
-                    <td th:if="${apt != 'APQ'}" th:text="${#numbers.formatDecimal(ape.deltaAle, 1, 2)}">0.00</td>
-                    <td th:if="${apt != 'APQ'}" th:text="${#numbers.formatDecimal(ape.cost, 1, 2)}">0.00</td>
-                    <td th:if="${apt != 'APQ'}" th:text="${#numbers.formatDecimal(ape.roi, 1, 2)}">0.00</td>
+                    <td th:if="${apt == 'APQ'}" th:text="${#numbers.formatDecimal(ape.cost != null ? ape.cost : 0, 1, 2)}">0.00</td>
+                    <td th:if="${apt != 'APQ'}" th:text="${#numbers.formatDecimal(ape.totalAle != null ? ape.totalAle : 0, 1, 2)}">0.00</td>
+                    <td th:if="${apt != 'APQ'}" th:text="${#numbers.formatDecimal(ape.deltaAle != null ? ape.deltaAle : 0, 1, 2)}">0.00</td>
+                    <td th:if="${apt != 'APQ'}" th:text="${#numbers.formatDecimal(ape.cost != null ? ape.cost : 0, 1, 2)}">0.00</td>
+                    <td th:if="${apt != 'APQ'}" th:text="${#numbers.formatDecimal(ape.roi != null ? ape.roi : 0, 1, 2)}">0.00</td>
                     <td th:text="${ape.iw}">IW</td>
                     <td th:text="${ape.ew}">EW</td>
                     <td th:text="${ape.investment}">INV</td>

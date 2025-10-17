@@ -40,7 +40,7 @@
                     </tr>
                 </th:block>
 
-                <th:block th:unless="${#lists.isEmpty(ra)}" th:with="size=${#maps.size(ra)}">
+                <th:block th:unless="${#lists.isEmpty(ra)}" th:with="size=${ra != null ? ra.size() : 0}">
                     <th:block th:each="parameter, status : ${ra}">
                         <tr th:data-trick-class="RiskAcceptanceParameter"
                             th:data-trick-id="${parameter.id}"

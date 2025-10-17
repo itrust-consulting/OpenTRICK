@@ -70,6 +70,7 @@ import lu.itrust.business.ts.helper.DependencyGraphManager;
 import lu.itrust.business.ts.helper.JsonMessage;
 import lu.itrust.business.ts.helper.NaturalOrderComparator;
 import lu.itrust.business.ts.model.actionplan.helper.ActionPlanComputation;
+import lu.itrust.business.ts.model.actionplan.helper.ActionPlanManager;
 import lu.itrust.business.ts.model.analysis.Analysis;
 import lu.itrust.business.ts.model.analysis.AnalysisSetting;
 import lu.itrust.business.ts.model.analysis.AnalysisType;
@@ -747,6 +748,19 @@ public class ControllerAnalysis extends AbstractController {
 			analysis.getAssets().sort(Comparators.ASSET());
 			analysis.getHistories()
 					.sort((a1, a2) -> NaturalOrderComparator.compareTo(a1.getVersion(), a2.getVersion()) * -1);
+			int accessLevel = analysis.findRightsforUserString(user.getLogin()).getRight().ordinal();
+			boolean isProfile = analysis.isProfile();
+			boolean canModify = isProfile || accessLevel < 3;
+			boolean isEditable = canModify && !readOnly;
+			boolean canExport = accessLevel < 2 && !(isProfile || readOnly);
+			
+			model.addAttribute("accessLevel", accessLevel);
+			model.addAttribute("isProfile", isProfile);
+			model.addAttribute("canModify", canModify);
+			model.addAttribute("isEditable", isEditable);
+			model.addAttribute("canExport", canExport);
+			model.addAttribute("language", locale.getLanguage());
+			
 			model.addAttribute("standardChapters", spliteMeasureByChapter(measuresByStandard));
 			model.addAttribute("valueFactory", valueFactory);
 			model.addAttribute("open", mode);
@@ -755,7 +769,16 @@ public class ControllerAnalysis extends AbstractController {
 			model.addAttribute("reportSettings", loadReportSettings(analysis));
 			model.addAttribute("exportFilenames", loadExportFileNames(analysis));
 			model.addAttribute("isILR", isILR);
-			loadUserSettings(principal, analysis.getCustomer().getTicketingSystem(), model, user);
+			boolean allowedTicketing = loadUserSettings(principal, analysis.getCustomer().getTicketingSystem(), model, user);
+			
+			boolean isLinkedToProject = allowedTicketing && (model.containsAttribute("isNoClientTicketing") || analysis.hasProject());
+			model.addAttribute("allowedTicketing", allowedTicketing);
+			model.addAttribute("isLinkedToProject", isLinkedToProject);
+
+			// Add action plans split by type for templates
+			if (!analysis.isProfile()) {
+				model.addAttribute("actionplansplitted", ActionPlanManager.splitByType(analysis.getActionPlans()));
+			}
 
 			/**
 			 * Log

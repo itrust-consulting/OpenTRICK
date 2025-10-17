@@ -7,7 +7,7 @@
 </head>
 <body>
     <th:block th:with="impactLanguage=${#strings.toUpperCase(language)}">
-        <div th:switch="${not type.quantitative and type.qualitative}">
+    <div th:switch="${(type == null or (type != null and type.quantitative != true)) and (type != null and type.qualitative == true)}">
             <div th:case="true">
                 <div class="row">
                     <th:block th:include="~{templates/analyses/single/components/setting/parameters/probability/likelihood}"></th:block>
@@ -72,7 +72,7 @@
                 </div>
             </div>
 
-            <div th:if="${not writtenDynamic and type.quantitative and showDynamicAnalysis}">
+            <div th:if="${(writtenDynamic != true) and (type != null and type.quantitative) and (showDynamicAnalysis == true)}">
                 <div class="row">
                     <th:block th:include="~{templates/analyses/single/components/settings/parameters/probability/dynamic}"></th:block>
                 </div>

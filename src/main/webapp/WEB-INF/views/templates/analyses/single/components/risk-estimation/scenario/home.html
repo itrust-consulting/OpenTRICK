@@ -24,7 +24,7 @@
                  th:data-trick-scenario-id="${scenario.id}"
                  th:style="'padding-bottom: ' + (${show_cssf} ? '28' : '18') + 'px;'"
                  th:data-trick-content="'scenario'">
-                <div th:switch="${type.qualitative}">
+                <div th:switch="${type != null and type.qualitative}">
                     <div th:case="true">
                         <th:block th:include="templates/analyses/single/components/risk-estimation/scenario/form/qualitative"></th:block>
                     </div>

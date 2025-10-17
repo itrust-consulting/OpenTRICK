@@ -33,38 +33,38 @@
                                     th:data-name="'soaThreshold'" th:data-trick-min-value="0" th:data-trick-max-value="100"
                                     th:data-trick-field="value" th:data-trick-field-type="'double'" 
                                     th:onclick="'return editField(this);'" th:data-trick-callback="'soaThresholdUpdate()'">
-                                    <span th:text="${#numbers.formatDecimal(parameter.value, 0, '###') }"></span>
+                                    <span th:text="${#numbers.formatDecimal(parameter.value != null ? parameter.value : 0, 0, '###') }"></span>
                                 </th>
                                 <th th:if="${parameter.description == 'max_rrf'}" th:data-trick-id="${parameter.id}" 
                                     th:data-name="'max_rrf'" th:data-trick-min-value="0" th:data-trick-max-value="100"
                                     th:data-trick-field="value" th:data-trick-field-type="'double'"
                                     th:onclick="'return editField(this);'" th:data-trick-callback-pre="'fixMinRRFFromRRFThreshold()'"
                                     th:data-trick-callback="'updateMaxRRF()'">
-                                    <span th:text="${#numbers.formatDecimal(parameter.value, 0, '###') }"></span>
+                                    <span th:text="${#numbers.formatDecimal(parameter.value != null ? parameter.value : 0, 0, '###') }"></span>
                                 </th>
                                 <th th:if="${parameter.description == 'lifetime_default'}" th:data-trick-id="${parameter.id}"
                                     th:data-trick-min-value="'1e-19'" class="textaligncenter" th:data-trick-field="value"
                                     th:data-trick-callback="'updateMeasuresCost()'" th:data-trick-field-type="'double'"
                                     th:onclick="'return editField(this);'">
-                                    <span th:text="${#numbers.formatDecimal(parameter.value, 0, '###') }"></span>
+                                    <span th:text="${#numbers.formatDecimal(parameter.value != null ? parameter.value : 0, 0, '###') }"></span>
                                 </th>
                                 <th th:if="${parameter.description == 'ilr_rrf_threshold'}" th:data-trick-id="${parameter.id}"
                                     th:data-name="'ilr_rrf_threshold'" th:data-trick-min-value="0" th:data-trick-max-value="100"
                                     th:data-trick-field="value" th:data-trick-field-type="'double'"
                                     th:onclick="'return editField(this);'" th:data-trick-callback-pre="'fixMaxRRFThresholdFromRRF()'">
-                                    <span th:text="${#numbers.formatDecimal(parameter.value, 2, '###.##') }"></span>
+                                    <span th:text="${#numbers.formatDecimal(parameter.value != null ? parameter.value : 0, 2, '###.##') }"></span>
                                 </th>
                                 <th th:if="${parameter.description == 'mandatoryPhase'}" th:data-trick-id="${parameter.id}"
                                     th:data-trick-callback-pre="'extractPhase(this,true)'" class="textaligncenter"
                                     th:data-trick-field="value" th:data-trick-field-type="'double'" th:onclick="'return editField(this);'">
-                                    <span th:text="${#numbers.formatDecimal(parameter.value, 0, '###') }"></span>
+                                    <span th:text="${#numbers.formatDecimal(parameter.value != null ? parameter.value : 0, 0, '###') }"></span>
                                 </th>
                                 <th th:if="${parameter.description != 'soaThreshold' and parameter.description != 'max_rrf' 
                                           and parameter.description != 'lifetime_default' and parameter.description != 'ilr_rrf_threshold' 
                                           and parameter.description != 'mandatoryPhase'}" th:data-trick-id="${parameter.id}"
                                     class="textaligncenter" th:data-trick-field="value" th:data-trick-field-type="'double'"
                                     th:data-trick-callback="'updateMeasuresCost()'" th:onclick="'return editField(this);'">
-                                    <span th:text="${#numbers.formatDecimal(parameter.value, 0, '###') }"></span>
+                                    <span th:text="${#numbers.formatDecimal(parameter.value != null ? parameter.value : 0, 0, '###') }"></span>
                                 </th>
                             </th:block>
                         </tr>
@@ -73,7 +73,7 @@
             </fieldset>
         </div>
         
-        <div th:if="${type.qualitative}">
+    <div th:if="${type != null and type.qualitative}">
             <span th:text="#{label.nil}" var="nil"></span>
             <span th:text="#{label.all}" var="all"></span>
             <span th:text="#{label.compliant}" var="compliant"></span>
@@ -100,11 +100,11 @@
                                         th:data-trick-id="${parameter.id}" th:data-trick-min-value="0" th:data-trick-max-value="10"
                                         th:data-trick-step-value="1" class="editable textaligncenter" th:data-trick-field="value"
                                         th:data-trick-field-type="'double'" th:onclick="'return editField(this);'">
-                                        <span th:text="${#numbers.formatDecimal(parameter.value, 0, '###') }"></span>
+                                        <span th:text="${#numbers.formatDecimal(parameter.value != null ? parameter.value : 0, 0, '###') }"></span>
                                     </th>
                                     <th th:if="${parameter.description == 'cssfCIASize' or parameter.description == 'cssfDirectSize' 
                                                 or parameter.description == 'cssfIndirectSize'}">
-                                        <span th:text="${#numbers.formatDecimal(parameter.value, 0, '###') }" var="cssfSize"></span>
+                                        <span th:text="${#numbers.formatDecimal(parameter.value != null ? parameter.value : 0, 0, '###') }" var="cssfSize"></span>
                                         <th th:data-trick-id="${parameter.id}" th:data-trick-choose-translate="${nil}, ${all}, ${compliant}"
                                             th:data-trick-min-value="-2" th:data-trick-step-value="1" th:data-trick-max-value="1000"
                                             class="editable textaligncenter" th:data-trick-field="value" th:data-trick-field-type="'double'"
@@ -125,7 +125,7 @@
             </div>
         </div>
         
-        <div th:if="${type.qualitative}">
+    <div th:if="${type != null and type.qualitative}">
             <div class="col-sm-3">
                 <fieldset>
                     <legend>
@@ -161,7 +161,7 @@
             </div>
         </div>
         
-        <div th:if="${type.qualitative}">
+    <div th:if="${type != null and type.qualitative}">
             <div class="col-sm-3">
                 <fieldset>
                     <legend>
@@ -207,7 +207,7 @@
                                 th:onclick="'return editField(this);'"><span th:text="#{label.riskregistertotal}"></span></td>
                             <td class="editable" th:data-trick-field="value" th:data-trick-field-type="'double'"
                                 th:onclick="'return editField(this);'">
-                                <span th:text="${#numbers.formatDecimal(riskRegister.total, 2)}"></span>
+                                <span th:text="${(riskRegister != null) ? #numbers.formatDecimal(riskRegister.total, 2) : '0.00'}"></span>
                             </td>
                         </tr>
                     </tbody>

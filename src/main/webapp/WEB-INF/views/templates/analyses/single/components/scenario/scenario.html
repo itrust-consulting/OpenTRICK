@@ -18,7 +18,7 @@
                 </div>
             </div>
 
-            <div th:if="${isEditable}">
+            <div th:if="${isEditable == true}">
                 <ul class="nav nav-pills bordered-bottom" id="menu_scenario">
                     <li data-trick-ignored="true">
                         <a href="#" onclick="return editScenario(undefined,true);">
@@ -54,7 +54,7 @@
             <table id="scenariotable" class="table table-hover table-fixed-header-analysis table-condensed">
                 <thead>
                     <tr>
-                        <th th:if="${isEditable}" style="width: 2%">
+                        <th th:if="${isEditable == true}" style="width: 2%">
                             <input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'scenario')">
                         </th>
                         <th style="width: 3%">
@@ -72,13 +72,13 @@
                                 <span th:text="#{label.scenario.type}"></span>
                             </a>
                         </th>
-                        <th th:if="${type.quantitative}">
-                            <span th:if="${show_uncertainty}">
+                        <th th:if="${type != null and type.quantitative}">
+                            <span th:if="${show_uncertainty == true}">
                                 <a href="#" onclick="return sortTable('aleo',this,true)" data-order="1">
                                     <span th:text="#{label.scenario.aleo}"></span>
                                 </a>
                             </span>
-                            <span th:if="${not show_uncertainty}">
+                            <span th:if="${show_uncertainty != true}">
                                 <a href="#" onclick="return sortTable('ale',this,true)" data-order="1">
                                     <span th:text="#{label.scenario.ale}"></span>
                                 </a>
@@ -93,7 +93,7 @@
                     <tr th:each="scenario, status : ${scenarios}" th:data-trick-id="${scenario.id}" 
                         th:classappend="${scenario.selected ? 'editable' : ''}" th:onclick="|selectElement(this)|" 
                         th:data-trick-selected="${scenario.selected}" th:ondblclick="|return editScenario(${scenario.id})|">
-                        <td th:if="${isEditable}" th:class="${scenario.selected ? 'selected' : 'unselected'}">
+                        <td th:if="${isEditable == true}" th:class="${scenario.selected ? 'selected' : 'unselected'}">
                             <input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_scenario','#menu_scenario');">
                         </td>
                         <td th:data-trick-field="index" th:text="${status.index + 1}"></td>
@@ -101,25 +101,45 @@
                             <span th:text="${scenario.name}"></span>
                         </td>
                         <td th:data-trick-field="type">
-                            <span th:text="#{label.scenario.type.${scenario.type.name.toLowerCase().replace('-', '_')}}"></span>
+                            <span th:text="#{${'label.scenario.type.' + #strings.replace(#strings.toLowerCase(scenario.type.name), '-', '_')}}"></span>
                         </td>
-                        <td th:if="${type.quantitative}">
-                            <span th:if="${show_uncertainty}">
-                                <td th:data-trick-field="aleo" 
-                                    th:title="${#numbers.formatDecimal(ale[0].value, 0, 'EUR')}" 
-                                    th:text="${#numbers.formatDecimal(ale[0].value * 0.001, 1)}"></td>
-                                <td th:data-trick-field="ale" 
-                                    th:title="${#numbers.formatDecimal(ale[1].value, 0, 'EUR')}" 
-                                    th:text="${#numbers.formatDecimal(ale[1].value * 0.001, 1)}"></td>
-                                <td th:data-trick-field="alep" 
-                                    th:title="${#numbers.formatDecimal(ale[2].value, 0, 'EUR')}" 
-                                    th:text="${#numbers.formatDecimal(ale[2].value * 0.001, 1)}"></td>
-                            </span>
-                            <span th:if="${not show_uncertainty}">
-                                <td th:data-trick-field="ale" 
-                                    th:title="${#numbers.formatDecimal(ale[1].value, 0, 'EUR')}" 
-                                    th:text="${#numbers.formatDecimal(ale[1].value * 0.001, 1)}"></td>
-                            </span>
+                        <td th:if="${type != null and type.quantitative}">
+                            <th:block th:if="${show_uncertainty == true}">
+                                <th:block th:if="${ale != null}">
+                                    <td th:data-trick-field="aleo"
+                                        th:title="|${#numbers.formatDecimal(ale[0].value != null ? ale[0].value : 0, 0, 0)} €|"
+                                        th:text="${#numbers.formatDecimal((ale[0].value != null ? ale[0].value : 0) * 0.001, 1, 1)}"></td>
+                                    <td th:data-trick-field="ale"
+                                        th:title="|${#numbers.formatDecimal(ale[1].value != null ? ale[1].value : 0, 0, 0)} €|"
+                                        th:text="${#numbers.formatDecimal((ale[1].value != null ? ale[1].value : 0) * 0.001, 1, 1)}"></td>
+                                    <td th:data-trick-field="alep"
+                                        th:title="|${#numbers.formatDecimal(ale[2].value != null ? ale[2].value : 0, 0, 0)} €|"
+                                        th:text="${#numbers.formatDecimal((ale[2].value != null ? ale[2].value : 0) * 0.001, 1, 1)}"></td>
+                                </th:block>
+                                <th:block th:unless="${ale != null}">
+                                    <td th:data-trick-field="aleo"
+                                        th:title="|${#numbers.formatDecimal(0, 0, 0)} €|"
+                                        th:text="${#numbers.formatDecimal(0 * 0.001, 1, 1)}"></td>
+                                    <td th:data-trick-field="ale"
+                                        th:title="|${#numbers.formatDecimal(0, 0, 0)} €|"
+                                        th:text="${#numbers.formatDecimal(0 * 0.001, 1, 1)}"></td>
+                                    <td th:data-trick-field="alep"
+                                        th:title="|${#numbers.formatDecimal(0, 0, 0)} €|"
+                                        th:text="${#numbers.formatDecimal(0 * 0.001, 1, 1)}"></td>
+                                </th:block>
+                            </th:block>
+                            <th:block th:if="${show_uncertainty != true}">
+                                <th:block th:if="${ale != null}">
+                                    <td th:data-trick-field="ale"
+                                        th:title="|${#numbers.formatDecimal(ale[1].value != null ? ale[1].value : 0, 0, 0)} €|"
+                                        th:text="${#numbers.formatDecimal((ale[1].value != null ? ale[1].value : 0) * 0.001, 1, 1)}"></td>
+                                </th:block>
+                                <th:block th:unless="${ale != null}">
+                                    <td th:data-trick-field="ale"
+                                        th:title="|${#numbers.formatDecimal(0, 0, 0)} €|"
+                                        th:text="${#numbers.formatDecimal(0 * 0.001, 1, 1)}"></td>
+                                </th:block>
+                            </th:block>
                         </td>
                         <td th:onclick="|editField(this);|" th:data-trick-field="description" th:data-trick-field-type="string" 
                             th:data-trick-content="text">
@@ -127,22 +147,38 @@
                         </td>
                     </tr>
                 </tbody>
-                <tfoot th:if="${not isProfile and type.quantitative}">
+                <tfoot th:if="${(isProfile != true) and (type != null and type.quantitative)}">
                     <tr class="panel-footer" style="font-weight: bold;">
                         <td colspan="4">
                             <span th:text="#{label.total.ale}"></span>
                         </td>
-                        <span th:if="${show_uncertainty}">
-                            <td th:title="${#numbers.formatDecimal(ale[0].value, 0, 'EUR')}" 
-                                th:text="${#numbers.formatDecimal(ale[0].value * 0.001, 1)}"></td>
-                            <td th:title="${#numbers.formatDecimal(ale[1].value, 0, 'EUR')}" 
-                                th:text="${#numbers.formatDecimal(ale[1].value * 0.001, 1)}"></td>
-                            <td th:title="${#numbers.formatDecimal(ale[2].value, 0, 'EUR')}" 
-                                th:text="${#numbers.formatDecimal(ale[2].value * 0.001, 1)}"></td>
+                        <span th:if="${show_uncertainty == true}">
+                            <th:block th:if="${ale != null}">
+                                <td th:title="|${#numbers.formatDecimal(ale[0].value != null ? ale[0].value : 0, 0, 0)} €|"
+                                    th:text="${#numbers.formatDecimal((ale[0].value != null ? ale[0].value : 0) * 0.001, 1, 1)}"></td>
+                                <td th:title="|${#numbers.formatDecimal(ale[1].value != null ? ale[1].value : 0, 0, 0)} €|"
+                                    th:text="${#numbers.formatDecimal((ale[1].value != null ? ale[1].value : 0) * 0.001, 1, 1)}"></td>
+                                <td th:title="|${#numbers.formatDecimal(ale[2].value != null ? ale[2].value : 0, 0, 0)} €|"
+                                    th:text="${#numbers.formatDecimal((ale[2].value != null ? ale[2].value : 0) * 0.001, 1, 1)}"></td>
+                            </th:block>
+                            <th:block th:unless="${ale != null}">
+                                <td th:title="|${#numbers.formatDecimal(0, 0, 0)} €|"
+                                    th:text="${#numbers.formatDecimal(0 * 0.001, 1, 1)}"></td>
+                                <td th:title="|${#numbers.formatDecimal(0, 0, 0)} €|"
+                                    th:text="${#numbers.formatDecimal(0 * 0.001, 1, 1)}"></td>
+                                <td th:title="|${#numbers.formatDecimal(0, 0, 0)} €|"
+                                    th:text="${#numbers.formatDecimal(0 * 0.001, 1, 1)}"></td>
+                            </th:block>
                         </span>
-                        <span th:if="${not show_uncertainty}">
-                            <td th:title="${#numbers.formatDecimal(ale[1].value, 0, 'EUR')}" 
-                                th:text="${#numbers.formatDecimal(ale[1].value * 0.001, 1)}"></td>
+                        <span th:if="${show_uncertainty != true}">
+                            <th:block th:if="${ale != null}">
+                                <td th:title="|${#numbers.formatDecimal(ale[1].value != null ? ale[1].value : 0, 0, 0)} €|"
+                                    th:text="${#numbers.formatDecimal((ale[1].value != null ? ale[1].value : 0) * 0.001, 1, 1)}"></td>
+                            </th:block>
+                            <th:block th:unless="${ale != null}">
+                                <td th:title="|${#numbers.formatDecimal(0, 0, 0)} €|"
+                                    th:text="${#numbers.formatDecimal(0 * 0.001, 1, 1)}"></td>
+                            </th:block>
                         </span>
                         <td th:colspan="${isILR ? 2 : 1}"></td>
                     </tr>

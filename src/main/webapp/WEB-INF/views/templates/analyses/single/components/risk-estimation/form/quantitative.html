@@ -12,7 +12,7 @@
 <div class="form-group">
     <table class='table form-no-fill'>
         <thead>
-            <tr th:if="${show_uncertainty}">
+            <tr th:if="${show_uncertainty == true}">
                 <th class="text-center" width="12.5%" th:text="#{label.risk_register.category}"></th>
                 <th class="text-center" width="12.5%" th:text="#{label.title.owner}">Owner</th>
                 <th class="text-center" width="12.5%" th:text="#{label.title.impact}"></th>
@@ -22,7 +22,7 @@
                 <th class="text-center" width="12.5%" th:title="#{label.title.ale}" th:text="#{label.normal.ale}">Normal ALE</th>
                 <th class="text-center" width="12.5%" th:title="#{label.title.alep}" th:text="#{label.pessimistic}">Pessimistic</th>
             </tr>
-            <tr th:unless="${show_uncertainty}">
+            <tr th:if="${show_uncertainty != true}">
                 <th class="text-center" width="20%" th:text="#{label.risk_register.category}"></th>
                 <th class="text-center" width="20%" th:text="#{label.title.owner}">Owner</th>
                 <th class="text-center" width="20%" th:text="#{label.title.impact}"></th>
@@ -51,7 +51,7 @@
                         <input name="likelihood" class="form-control" th:value="${likelihood.raw}" list="dataList-parameter-probability" th:title="${realValue}" th:placeholder="${rawProba}" data-trick-type="string"/>
                     </div>
                 </td>
-                <td th:if="${show_uncertainty}">
+                <td th:if="${show_uncertainty == true}">
                     <input name="uncertainty" class="form-control numeric" data-trick-type="double" th:value="${uncertainty}" th:placeholder="${uncertainty}" />
                 </td>
                 <td class='form-estimation form-estimation-left'>

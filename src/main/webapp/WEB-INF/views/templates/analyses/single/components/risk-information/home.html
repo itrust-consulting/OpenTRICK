@@ -7,8 +7,8 @@
 <body>
 
 <div th:each="categoryRiskInformation : ${riskInformationSplited.keySet()}">
-    <div class="tab-pane" th:id="'tab-risk-information-' + ${T(java.lang.String).toLowerCase(categoryRiskInformation)}">
-        <div class="section" th:id="'section_risk-information_' + ${T(java.lang.String).toLowerCase(categoryRiskInformation)}">
+    <div class="tab-pane" th:id="'tab-risk-information-' + ${#strings.toLowerCase(categoryRiskInformation)}">
+        <div class="section" th:id="'section_risk-information_' + ${#strings.toLowerCase(categoryRiskInformation)}">
             <div class="page-header tab-content-header table-condensed">
                 <div class="container">
                     <div class="row-fluid">
@@ -64,39 +64,23 @@
                 <tfoot></tfoot>
                 <tbody>
                     <div th:each="riskInformation : ${riskInformationSplited.get(categoryRiskInformation)}">
-                        <tr th:data-trick-class="'RiskInformation'" th:data-trick-id="${riskInformation.id}">
-                            <span th:set="codeLabel=${riskInformation.label}"></span>
-                            <span th:switch="${riskInformation.custom}">
-                                <span th:case="true">
-                                    <span th:set="codeText=${riskInformation.label}"></span>
-                                </span>
-                                <span th:case="false">
-                                    <span th:switch="${riskInformation.category}">
-                                        <span th:case="'Risk_TBA'">
-                                            <span th:set="codeLabel='label.risk_information.' + ${T(java.lang.String).toLowerCase(categoryRiskInformation)} + '_tba.' + ${T(java.lang.String).replace(riskInformation.chapter,'.','_')}"></span>
-                                        </span>
-                                        <span th:case="'Risk_TBS'">
-                                            <span th:set="codeLabel='label.risk_information.' + ${T(java.lang.String).toLowerCase(categoryRiskInformation)} + '_tbs.' + ${T(java.lang.String).replace(riskInformation.chapter,'.','_')}"></span>
-                                        </span>
-                                        <span th:case="*">
-                                            <span th:set="codeLabel='label.risk_information.' + ${T(java.lang.String).toLowerCase(categoryRiskInformation)} + '.' + ${T(java.lang.String).replace(riskInformation.chapter,'.','_')}"></span>
-                                        </span>
-                                    </span>
-                                </span>
-                            </span>
+                        <tr th:data-trick-class="'RiskInformation'" th:data-trick-id="${riskInformation.id}"
+                            th:with="isCustom=${riskInformation.custom},
+                                     suffix=${riskInformation.category == 'Risk_TBA' ? '_tba.' : (riskInformation.category == 'Risk_TBS' ? '_tbs.' : '.')},
+                                     codeKey=${'label.risk_information.' + #strings.toLowerCase(categoryRiskInformation) + suffix + #strings.replace(riskInformation.chapter,'.','_')}">
 
-                            <span th:switch="${T(org.apache.commons.lang3.StringUtils).matches(riskInformation.chapter, chapterRegex)}">
+                            <span th:switch="${(chapterRegex != null) and (riskInformation.chapter != null) and (riskInformation.chapter.matches(chapterRegex))}">
                                 <span th:case="true">
                                     <td style="height: 32px;"><strong th:text="${riskInformation.chapter}"></strong></td>
                                     <span th:switch="${categoryRiskInformation}">
-                                        <span th:case="'Threat'">
-                                            <td colspan="2"><strong th:text="#{${codeLabel}}"></strong></td>
+                                        <span th:case="'threat'">
+                                            <td colspan="2"><strong th:text="${isCustom ? riskInformation.label : #messages.msg(codeKey)}"></strong></td>
                                         </span>
                                         <span th:case="*">
-                                            <td><strong th:text="#{${codeLabel}}"></strong></td>
+                                            <td><strong th:text="${isCustom ? riskInformation.label : #messages.msg(codeKey)}"></strong></td>
                                         </span>
                                     </span>
-                                    <td class="editable" th:data-trick-field="exposed" th:data-trick-choose=",++,+,N,-,--" th:data-trick-field-type="string" th:onclick="|return editField(this);|">
+                                    <td class="editable" th:data-trick-field="exposed" th:data-trick-choose="',++,+,N,-,--'" th:data-trick-field-type="string" th:onclick="|return editField(this);|">
                                         <span th:text="${riskInformation.exposed}"></span>
                                     </td>
                                     <td class="editable" th:onclick="|return editField(this);|" th:data-trick-field="owner" th:data-trick-field-type="string">
@@ -113,13 +97,13 @@
                                 </span>
                                 <span th:case="false">
                                     <td style="height: 32px;" th:text="${riskInformation.chapter}"></td>
-                                    <td th:text="#{${codeLabel}}"></td>
+                                    <td th:text="${isCustom ? riskInformation.label : #messages.msg(codeKey)}"></td>
                                     <span th:if="${categoryRiskInformation == 'threat'}">
                                         <td class="editable" th:data-trick-field="acronym" th:data-trick-field-type="string" th:onclick="|return editField(this);|">
                                             <span th:text="${riskInformation.acronym}"></span>
                                         </td>
                                     </span>
-                                    <td class="editable" th:data-trick-field="exposed" th:data-trick-choose=",++,+,N,-,--" th:data-trick-field-type="string" th:onclick="|return editField(this);|">
+                                    <td class="editable" th:data-trick-field="exposed" th:data-trick-choose="',++,+,N,-,--'" th:data-trick-field-type="string" th:onclick="|return editField(this);|">
                                         <span th:text="${riskInformation.exposed}"></span>
                                     </td>
                                     <td class="editable" th:onclick="|return editField(this);|" th:data-trick-field="owner" th:data-trick-field-type="string">

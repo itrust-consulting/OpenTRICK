@@ -22,12 +22,12 @@
                 </td>
                 <td>
                     <a class="btn btn-primary" th:href="@{/Account/Sqlite/{id}/Download(id=${sqlite.id})}"
-                       th:onclick="'return downloadExportedSqLite(' + ${sqlite.id} + ')'"
+                           th:onclick="|return downloadExportedSqLite(${sqlite.id})|"
                        th:title="#{label.action.download}">
                         <i class="fa fa-download"></i>
                     </a>
                     <a class="btn btn-danger" th:href="@{/Account/Sqlite/{id}/Delete(id=${sqlite.id})}"
-                       th:onclick="'return deleteSqlite(' + ${sqlite.id} + ')'"
+                           th:onclick="|return deleteSqlite(${sqlite.id})|"
                        th:title="#{label.action.delete}">
                         <i class="fa fa-trash"></i>
                     </a>

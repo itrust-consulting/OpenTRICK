@@ -19,17 +19,17 @@
                 </div>
             </div>
 
-            <div th:switch="${type.quantitative}">
+            <div th:switch="${type != null and type.quantitative}">
                 <div th:case="true">
                     <div class="row">
                         <div th:replace="~{templates/analyses/single/components/parameters/impact/financial}"></div>
-                        <div th:replace="~{templates/analyses/single/components/parameters/likelihood}"></div>
-                        <div th:replace="~{templates/analyses/single/components/parameters/dynamic}"></div>
+                        <div th:replace="~{templates/analyses/single/components/parameters/probability/likelihood}"></div>
+                        <div th:replace="~{templates/analyses/single/components/parameters/probability/dynamic}"></div>
                     </div>
                 </div>
 
                 <div th:case="false">
-                    <div th:if="${type.quantitative}">
+                    <div th:if="${type != null and type.quantitative}">
                         <div class="row">
                             <div th:replace="~{templates/analyses/single/components/parameters/probability/likelihood}"></div>
                             <div th:replace="~{templates/analyses/single/components/parameters/impact/financial}"></div>

@@ -36,19 +36,16 @@
                         <option value="0" th:title="#{label.all}" th:text="#{label.all}">All</option>
                         <th:block th:each="asset : ${assets}">
                             <span th:text="${asset.name}" th:utext="true"
-                                  th:attr="data-trick-type=${asset.assetType.id}"
-                                  th:attr="data-trick-selected=${asset.selected}"></span>
+                                  th:attr="data-trick-type=${asset.assetType.id}, data-trick-selected=${asset.selected}"></span>
                             <th:block th:if="${asset.selected}">
                                 <option th:value="${asset.id}"
-                                        th:attr="data-trick-type=${asset.assetType.id}"
-                                        th:attr="data-trick-selected='true'"
+                                        th:attr="data-trick-type=${asset.assetType.id}, data-trick-selected='true'"
                                         th:title="${asset.name}" selected="selected"
                                         th:text="${asset.name}"></option>
                             </th:block>
                             <th:block th:unless="${asset.selected}">
                                 <option th:value="${asset.id}"
-                                        th:attr="data-trick-type=${asset.assetType.id}"
-                                        th:attr="data-trick-selected='false'"
+                                        th:attr="data-trick-type=${asset.assetType.id}, data-trick-selected='false'"
                                         hidden="hidden"
                                         th:title="${asset.name}"
                                         th:text="${asset.name}"></option>
@@ -74,19 +71,16 @@
                         <option value="0" th:title="#{label.all}" th:text="#{label.all}">All</option>
                         <th:block th:each="scenario : ${scenarios}">
                             <span th:text="${scenario.name}" th:utext="true"
-                                  th:attr="data-trick-type=${scenario.assetTypeIds()}"
-                                  th:attr="data-trick-selected=${scenario.selected}"></span>
+                                  th:attr="data-trick-type=${scenario.assetTypeIds()}, data-trick-selected=${scenario.selected}"></span>
                             <th:block th:if="${scenario.selected}">
                                 <option th:value="${scenario.id}"
-                                        th:attr="data-trick-selected='true'"
-                                        th:attr="data-trick-linked=${scenario.assetLinked}"
+                                        th:attr="data-trick-selected='true', data-trick-linked=${scenario.assetLinked}"
                                         th:title="${scenario.name}" th:text="${scenario.name}"></option>
                             </th:block>
                             <th:block th:unless="${scenario.selected}">
                                 <option th:value="${scenario.id}"
                                         hidden="hidden"
-                                        th:attr="data-trick-linked=${scenario.assetLinked}"
-                                        th:attr="data-trick-selected='false'"
+                                        th:attr="data-trick-linked=${scenario.assetLinked}, data-trick-selected='false'"
                                         th:title="${scenario.name}" th:text="${scenario.name}"></option>
                             </th:block>
                         </th:block>
@@ -102,17 +96,12 @@
 
                         <th:block th:each="scenario : ${scenarios}">
                             <span th:text="${scenario.name}" th:utext="true"
-                                  th:attr="data-trick-selected=${scenario.selected}"
-                                  th:attr="data-trick-linked=${scenario.assetLinked}"
-                                  th:attr="data-trick-type=${scenario.assetTypeIds()}"></span>
+                                  th:attr="data-trick-selected=${scenario.selected}, data-trick-linked=${scenario.assetLinked}, data-trick-type=${scenario.assetTypeIds()}"></span>
 
-                            <th:block th:with="displayFlag=${scenario.assetLinked} ? (scenario.selected and ${currentAssetId} != null and ${currentAssetId}.matches(${scenario.assetTypeIds()})) : (scenario.selected and ${currentAssetType} != null and ${currentAssetType}.matches(${scenario.assetTypeIds()}))">
-                                <a href="#"
-                                   th:title="${scenario.name}"
-                                   th:attr="data-trick-id=${scenario.id}"
-                                   th:attr="data-trick-selected=${scenario.selected}"
-                                   th:attr="data-trick-linked=${scenario.assetLinked}"
-                                   th:attr="data-trick-type=${scenario.assetTypeIds()}"
+                            <th:block th:with="displayFlag= scenario.assetLinked ? (scenario.selected and currentAssetId != null and scenario.assetTypeIds() != null and currentAssetId.matches(scenario.assetTypeIds())) : (scenario.selected and currentAssetType != null and scenario.assetTypeIds() != null and currentAssetType.matches(scenario.assetTypeIds()))">
+                                          <a href="#"
+                                              th:title="${scenario.name}"
+                                              th:attr="data-trick-id=${scenario.id}, data-trick-selected=${scenario.selected}, data-trick-linked=${scenario.assetLinked}, data-trick-type=${scenario.assetTypeIds()}"
                                    style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
                                    th:styleappend="|;display: ${displayFlag} ? inline-block : none;|"
                                    class="list-group-item"
@@ -130,11 +119,9 @@
                            th:text="#{label.title.assets}">Assets</a>
 
                         <th:block th:each="asset : ${assets}">
-                            <a href="#"
-                               th:title="${asset.name}"
-                               th:attr="data-trick-id=${asset.id}"
-                               th:attr="data-trick-selected=${asset.selected}"
-                               th:attr="data-trick-type=${asset.assetType.id}"
+                                     <a href="#"
+                                         th:title="${asset.name}"
+                                         th:attr="data-trick-id=${asset.id}, data-trick-selected=${asset.selected}, data-trick-type=${asset.assetType.id}"
                                style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
                                th:styleappend="|;display: ${asset.selected} ? inline-block : none;|"
                                class="list-group-item"
@@ -145,7 +132,7 @@
             </div>
         </div>
 
-        <th:block th:include="asset/home :: home"></th:block>
+    <th:block th:include="templates/analyses/single/components/risk-estimation/asset/home :: home"></th:block>
     </div>
 </div>
 

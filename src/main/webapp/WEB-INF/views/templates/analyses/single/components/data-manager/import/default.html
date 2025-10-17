@@ -27,12 +27,12 @@
                         <div class="input-group-btn">
                             <span th:text="${#strings.replace(item.extensions,'.','')}"></span>
                             <input th:id="'file-' + ${item.name}" type="file" th:accept="${item.extensions}" th:maxlength="${maxFileSize}"
-                                   th:onclick="'checkExtention($(this).val(),\"' + ${extension} + '\",\"#btn-import\");'"
+                       th:onclick="|checkExtention($(this).val(),'${extension}','#btn-import');|"
                                    name="file" style="display: none;" />
                             <input th:id="'upload-file-info-' + ${item.name}" class="form-control" readonly="readonly" required="required" 
                                    style="width: 88%;" placeholder="${maxSizeInfo}" />
                             <button class="btn btn-primary" type="button" th:id="'browse-button'" 
-                                    th:onclick="'$(\'input[id=file-\' + ${item.name} + \']\').click();'" 
+                        th:onclick="|$('input[id=file-${item.name}]').click();|" 
                                     style="margin-left: -5px;">
                                 <span th:text="#{label.action.browse}">Browse</span>
                             </button>

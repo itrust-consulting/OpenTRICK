@@ -5,75 +5,221 @@
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                 <h4 class="modal-title" th:text="#{label.title.build.analysis}">Build an analysis</h4>
             </div>
+
             <div class="modal-body" style="padding-top: 2px;">
                 <ul class="nav nav-tabs" role="tablist" style="margin-top: 0px;">
-                    <li class="active" role="tab_group_1">
-                        <a href="#group_1" data-toggle="tab" th:text="#{label.menu.build.analyis.default}">Default</a>
-                    </li>
-                    <li>
-                        <a href="#group_2" data-toggle="tab" th:attr="data-helper-content=#{help.analysis.advance}" th:text="#{label.menu.build.analyis.advance}">Advance</a>
-                    </li>
+                    <li class="active" role="tab_group_1"><a href="#group_1" data-toggle="tab" th:text="#{label.menu.build.analyis.default}">Default</a></li>
+                    <li><a href="#group_2" data-toggle="tab" th:attr="data-helper-content=#{help.analysis.advance}" th:text="#{label.menu.build.analyis.advance}">Advance</a></li>
                     <li class="col-sm-8 pull-right" id="build-analysis-modal-error"></li>
                 </ul>
 
-                <form th:action="@{/}" class="form-horizontal tab-content" id="tabs" style="overflow-x: hidden; overflow-y: auto; height: 610px;">
+                <form action="#" class="form-horizontal tab-content" id="tabs" style="overflow-x: hidden; overflow-y: auto; height: 610px;">
                     <div id="group_1" class="tab-pane active" style="padding-top: 10px;">
                         <div class="form-group">
                             <label for="type" class="col-sm-2 control-label" th:attr="data-helper-content=#{help.analysis.type}" th:text="#{label.analysis.type}">Type</label>
                             <div class="col-sm-10" align="center">
                                 <div class="btn-group" data-toggle="buttons">
-                                    <div th:each="type, status : ${types}">
+                                                        <th:block th:each="type, status : ${types}" th:with="typeValue=${#strings.toLowerCase(type)}">
                                         <label class="btn btn-default" th:classappend="${status.index == 1} ? ' active'">
-                                            <span th:text="#{label.analysis.type.${#strings.toLowerCase(type)}}">Type</span>
-                                            <input type="radio" name="type" th:value="${type}" th:checked="${status.index == 1}" />
+                                                                <span th:text="${#messages.msgOrNull('label.analysis.type.' + typeValue) ?: type}">type</span>
+                                            <input th:checked="${status.index == 1}" name="type" type="radio" th:value="${type}">
                                         </label>
-                                    </div>
+                                    </th:block>
                                 </div>
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label for="dataSource" class="col-sm-2 control-label" th:attr="data-helper-content=#{help.analysis.datasource}" th:text="#{label.datasource}">Datasource</label>
+                            <label for="customer" class="col-sm-2 control-label" th:attr="data-helper-content=#{help.analysis.customer.organisation}" th:text="#{label.customer.organisation}">Customer</label>
                             <div class="col-sm-10">
-                                <select class="form-control" id="dataSource" name="dataSource" th:field="*{dataSource}">
-                                    <option value="" th:text="#{label.datasource.default}">Choose a source</option>
-                                    <option th:each="ds : ${datasources}" th:value="${ds}" th:text="${ds}"></option>
+                                <select class="form-control" name="customer" required>
+                                    <option value="0" selected disabled th:text="#{label.action.choose}">Choose...</option>
+                                    <option th:each="customer : ${customers}" th:value="${customer.id}" th:text="${customer.organisation}">Customer</option>
                                 </select>
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label for="view" class="col-sm-2 control-label" th:attr="data-helper-content=#{help.analysis.view}" th:text="#{label.analysis.view}">View</label>
+                            <label for="language" class="col-sm-2 control-label" th:attr="data-helper-content=#{help.analysis.language}" th:text="#{label.analysis.language}">Language</label>
                             <div class="col-sm-10">
-                                <select class="form-control" id="view" name="view" th:field="*{view}">
-                                    <option th:text="#{label.view.default}">Select a view</option>
-                                    <option th:each="view : ${views}" th:value="${view}" th:text="${view}"></option>
+                                <select name="language" class="form-control" required>
+                                    <option value="0" selected disabled th:text="#{label.action.choose}">Choose...</option>
+                                    <option th:each="language : ${languages}" th:value="${language.id}" th:text="${language.name}">Language</option>
                                 </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="profile" class="col-sm-2 control-label" th:attr="data-helper-content=#{help.analysis.profile_analysis}" th:text="#{label.analysis.profile_analysis}">Profile</label>
+                            <div class="col-sm-10">
+                                <select name="profile" id="analysis_profile" class="form-control" required>
+                                    <option value="0" selected disabled th:text="#{label.action.choose.analysis_profile}">Choose...</option>
+                                    <option th:each="profile : ${profiles}" th:value="${profile.id}" th:attr="data-type=${profile.type}" th:text="${profile.label}">Profile</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="author" class="col-sm-2 control-label" th:attr="data-helper-content=#{help.analysis.author}" th:text="#{label.analysis.author}">Author</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" name="author" th:value="${author}" required />
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                                            <label for="name" class="col-sm-2 control-label" th:attr="data-helper-content=#{help.analysis.label}" th:text="#{label.analysis.label}">Label</label>
+                            <div class="col-sm-4">
+                                <input name="name" class="form-control" required />
+                            </div>
+
+                                            <label for="version" class="col-sm-2 control-label" th:attr="data-helper-content=#{help.analysis.version}, data-helper-placement='auto bottom'" th:text="#{label.analysis.version}">Version</label>
+                            <div class="col-sm-4">
+                                <input name="version" class="form-control" type="text" value="0.1" required />
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="comment" class="col-sm-2 control-label" th:attr="data-helper-content=#{help.analysis.description}" th:text="#{label.analysis.description}">Description</label>
+                            <div class="col-sm-10">
+                                <textarea name="comment" class="form-control resize_vectical_only" rows="2" required></textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="uncertainty" class="col-sm-2 control-label" th:attr="data-helper-content=#{help.analysis.uncertainty}" th:text="#{label.analysis.uncertainty}">Uncertainty</label>
+                            <div class="col-sm-10" align="center">
+                                <input type="checkbox" name="uncertainty" class="checkbox">
+                            </div>
+                        </div>
+
+                        <div class="form-group" data-type="QUALITATIVE">
+                            <label for="impacts" class="col-sm-2 control-label" th:attr="data-helper-content=#{help.analysis.impacts}" th:text="#{label.analysis.impacts}">Impacts</label>
+                            <div class="col-sm-10">
+                                <select name="impacts" id="analysis_impacts" class="form-control" multiple style="resize: vertical;">
+                                    <option value="0" selected th:text="#{label.select.impact}">From profile</option>
+                                    <option th:each="impact : ${impacts}" th:value="${impact.id}" th:text="${impact.displayName}">Impact</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group" data-type="QUALITATIVE">
+                            <label for="scale.level" class="col-sm-2 control-label" th:attr="data-helper-content=#{help.analysis.scale.level}" th:text="#{label.scale.leve}">Level</label>
+                            <div class="col-sm-10">
+                                <input name="scale.level" id="scale_level" class="form-control" type="number" required value="11" min="2" placeholder="11">
+                            </div>
+                        </div>
+
+                        <div class="form-group" data-type="HYBRID-ONLY">
+                            <label for="impacts" class="col-sm-2 control-label" th:attr="data-helper-content=#{help.analysis.scale.value}" th:text="#{label.analysis.scale.value}">Max value</label>
+                            <div class='col-sm-10'>
+                                <input name="scale.maxValue" id="scale_maxValue" value="300" class="form-control" type="number" min="1" required placeholder="300">
                             </div>
                         </div>
                     </div>
 
                     <div id="group_2" class="tab-pane" style="padding-top: 10px;">
-                        <div class="form-group">
-                            <label for="query" class="col-sm-2 control-label" th:attr="data-helper-content=#{help.analysis.query}" th:text="#{label.analysis.query}">Query</label>
-                            <div class="col-sm-10">
-                                <textarea class="form-control" name="query" id="query" style="min-height: 250px; font-family: monospace; font-size: 12px;" th:field="*{query}"></textarea>
-                            </div>
+                        <div class="col-sm-4">
+                            <h4 th:attr="data-helper-content=#{help.analysis.advance.customers}" th:text="#{label.analysis.customers}">Customers</h4>
+                            <select class="form-control" id="selector-customer">
+                                <option value="0" selected th:text="#{label.action.choose}">Choose...</option>
+                                <option th:each="customer : ${customers}" th:value="${customer.id}" th:text="${customer.organisation}">Customer</option>
+                            </select>
+
+                            <h4 th:attr="data-helper-content=#{help.analysis.advance.analyses}" th:text="#{label.analyses}">Analyses</h4>
+                            <select class="form-control" id="selector-analysis">
+                                <option value="0" selected th:text="#{label.action.choose}">Choose...</option>
+                            </select>
+
+                            <h4 th:attr="data-helper-content=#{help.analysis.advance.version}" th:text="#{label.analysis.versions}">Versions</h4>
+                            <ul class="list-group" style="max-height: 239px; overflow: auto;" id="analysis-versions"></ul>
                         </div>
 
-                        <div class="form-group">
-                            <label for="params" class="col-sm-2 control-label" th:text="#{label.analysis.query.params}">Parameters</label>
-                            <div class="col-sm-10">
-                                <textarea class="form-control" name="params" id="params" style="min-height: 100px; font-family: monospace; font-size: 12px;" th:field="*{params}"></textarea>
+                        <div class="col-sm-8" style="border-left: 1px solid #e5e5e5; margin-top: -5px;">
+                            <div class="form-group">
+                                <label for="scope" class="col-sm-3 control-label" th:attr="data-helper-content=#{help.analysis.advance.scope}" th:text="#{label.analysis.scope}">Scope</label>
+                                <div class="col-sm-9" id="analysis-build-scope" data-trick-name="scope" dropzone="true">
+                                    <div class="well well-sm" data-supported='HYBRID' th:text="#{label.drop_here}">Drop your analysis here</div>
+                                    <input name="scope" value="0" hidden>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="riskInformation" class="col-sm-3 control-label" th:attr="data-helper-content=#{help.analysis.advance.risk_information}" th:text="#{label.analysis.risk_information}">Risk information</label>
+                                <div class="col-sm-9" id="analysis-build-riskInformation" data-trick-name="riskInformation" dropzone="true">
+                                    <div class="well well-sm" data-supported='HYBRID' th:text="#{label.drop_here}">Drop your analysis here</div>
+                                    <input name="riskInformation" value="0" hidden>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="parameters" class="col-sm-3 control-label" th:attr="data-helper-content=#{help.analysis.advance.parameters}" th:text="#{label.analysis.parameters}">Parameters</label>
+                                <div class="col-sm-9" id="analysis-build-parameters" data-trick-name="parameter" dropzone="true">
+                                    <div class="well well-sm" data-supported='HYBRID' th:text="#{label.drop_here}">Drop your analysis here</div>
+                                    <input name="parameter" value="0" hidden>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="assets" class="col-sm-3 control-label" th:attr="data-helper-content=#{help.analysis.advance.assets}" th:text="#{label.analysis.assets}">Assets</label>
+                                <div class="col-sm-9" id="analysis-build-assets" data-trick-name="asset" dropzone="true">
+                                    <div class="well well-sm" data-supported='HYBRID' th:text="#{label.drop_here}">Drop your analysis here</div>
+                                    <input name="asset" value="0" hidden>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="scenarios" class="col-sm-3 control-label" th:title="#{label.analysis.scenarios}" th:attr="data-helper-content=#{help.analysis.advance.scenarios}"><span th:text="#{label.scenarios}">Scenarios</span></label>
+                                <div class="col-sm-9" id="analysis-build-scenarios" dropzone="true" data-trick-name="scenario">
+                                    <div class="well well-sm" data-supported='HYBRID' th:text="#{label.drop_here}">Drop your analysis here</div>
+                                    <input name="scenario" value="0" hidden>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="assessment" class="col-sm-3 control-label" th:attr="data-helper-content=#{help.analysis.advance.risk_estimation}" th:text="#{label.analysis.risk_estimation}">Risk estimation</label>
+                                <div class="col-sm-9" align="center">
+                                    <input type="checkbox" class="checkbox" name="assessment" disabled />
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="riskProfile" class="col-sm-3 control-label" th:attr="data-helper-content=#{help.analysis.advance.risk_profile}" th:text="#{label.analysis.risk_profile}">Risk profile</label>
+                                <div class="col-sm-9" align="center">
+                                    <input type="checkbox" class="checkbox" name="riskProfile" disabled />
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="assetDependancy" class="col-sm-3 control-label" th:attr="data-helper-content=#{help.analysis.advance.asset_dependancy}" th:text="#{label.analysis.asset_dependancy}">Dependancy graph</label>
+                                <div class="col-sm-9" align="center">
+                                    <input type="checkbox" class="checkbox" name="assetDependancy" disabled />
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="standards" class="col-sm-3 control-label" th:title="#{label.analysis.standards}" th:attr="data-helper-content=#{help.analysis.advance.standards}"><span th:text="#{label.analysis.standards}">Standards</span></label>
+                                <div class="col-sm-9" id="analysis-build-standards" data-trick-name="standards" dropzone="true">
+                                    <div class="well well-sm" style="height: 170px; overflow-y: auto; resize: vertical;" data-supported='HYBRID' th:text="#{label.drop_here}">Drop your analysis here</div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="phase" class="col-sm-3 control-label" th:attr="data-helper-content=#{help.analysis.advance.phases}" th:text="#{label.phases}">Phase</label>
+                                <div class="col-sm-9" align="center">
+                                    <input type="checkbox" class="checkbox" name="phase" disabled />
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary" id="submitBtn" th:text="#{label.analysis.button.submit}">Submit</button>
-                        <button type="button" class="btn btn-default" data-dismiss="modal" th:text="#{label.analysis.button.cancel}">Cancel</button>
-                    </div>
+                    <div class='clearfix'></div>
                 </form>
+                <span style="display: block; clear: both; margin: 0; padding: 0"></span>
+            </div>
+
+            <div class="modal-footer" style="margin-top: 0">
+                <button type="button" class="btn btn-primary" name="save" th:text="#{label.action.save}">Save</button>
+                <button type="button" class="btn btn-default" name="cancel" th:text="#{label.action.cancel}">Cancel</button>
             </div>
         </div>
     </div>

@@ -7,7 +7,7 @@
          aria-labelledby="rrfEditor" aria-hidden="true" data-backdrop="static"></div>
     
     <!-- Conditional rendering for isEditable and type.quantitative -->
-    <div th:if="${isEditable and type.quantitative}">
+    <div th:if="${(isEditable == true) and (type != null and type.quantitative)}">
         <datalist id="dataListImplementationRate" hidden="hidden">
             <!-- Iterating over the range from 0 to 100 -->
             <option th:each="implementationRate : ${#numbers.sequence(0, 100)}"

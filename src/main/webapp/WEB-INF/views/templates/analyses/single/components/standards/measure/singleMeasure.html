@@ -24,8 +24,8 @@
     titleImp1=${#messages.msg('label.title.measure.importance.value', 1)},
     titleImp2=${#messages.msg('label.title.measure.importance.value', 2)},
     titleImp3=${#messages.msg('label.title.measure.importance.value', 3)},
-    implementationRate=${measure.getImplementationRateValue(valueFactory)},
-    implementationRateValue=${#numbers.formatDecimal(implementationRate,0,0)},
+  implementationRate=${measure.getImplementationRateValue(valueFactory)},
+  implementationRateValue=${#numbers.formatDecimal(implementationRate != null ? implementationRate : 0,0,0)},
     css=${implementationRate < 100 and not (measure.status == 'NA' or measure.status == 'EX') ? 'editable' : ''},
     todoCSS=${measure.toDo == null and css.contains('editable') ? 'danger' : css},
     measureDescriptionText=${measure.measureDescription.getMeasureDescriptionTextByAlpha2(lang)},
@@ -39,10 +39,10 @@
                data-trick-id=${measure.id},
                data-is-linked=${hasTicket}"
       th:onclick="|selectElement(this); reloadMeasureRow('${measure.id}','${standardid}');|"
-      th:ondblclick="${isEditable and (analysisOnly or (type == 'quantitative' and measure.measureDescription.computable and selectedStandard.computable and selectedStandard.type != 'MATURITY'))} ? |return editMeasure(this, ${standardid}, ${measure.id});| : null"
+  th:ondblclick="${(isEditable == true) and ((analysisOnly == true) or (type == 'quantitative' and measure.measureDescription.computable and selectedStandard.computable and selectedStandard.type != 'MATURITY'))} ? |return editMeasure(this, ${standardid}, ${measure.id});| : null"
       class="active">
 
-    <td th:if="${isLinkedToProject or (analysisOnly and isEditable)}">
+  <td th:if="${(isLinkedToProject == true) or ((analysisOnly == true) and (isEditable == true))}">
       <input type="checkbox"
              th:disabled="${analysisOnly}"
              class="checkbox"
@@ -153,42 +153,42 @@
     <td th:attr="data-trick-field=|internalWL|, data-trick-field-type=|double|"
         th:data-trick-min-value="0"
         th:onclick="|return editField(this);|">
-      <span th:text="${#numbers.formatDecimal(measure.internalWL,0,2)}"></span>
+  <span th:text="${#numbers.formatDecimal(measure.internalWL != null ? measure.internalWL : 0,0,2)}"></span>
     </td>
 
     <td th:attr="data-trick-field=|externalWL|, data-trick-field-type=|double|"
         th:data-trick-min-value="0"
         th:onclick="|return editField(this);|">
-      <span th:text="${#numbers.formatDecimal(measure.externalWL,0,2)}"></span>
+  <span th:text="${#numbers.formatDecimal(measure.externalWL != null ? measure.externalWL : 0,0,2)}"></span>
     </td>
 
     <td th:attr="data-trick-field=|investment|, data-trick-field-type=|double|"
         th:data-trick-min-value="0"
-        th:title="${measure.investment * 0.001}"
+        th:title="${(measure.investment != null ? measure.investment : 0) * 0.001}"
         th:onclick="|return editField(this);|">
-      <span th:text="${#numbers.formatDecimal(measure.investment * 0.001,0,0)}"></span>
+      <span th:text="${#numbers.formatDecimal(((measure.investment != null ? measure.investment : 0) * 0.001),0,0)}"></span>
     </td>
 
     <td th:attr="data-trick-field=|lifetime|, data-trick-field-type=|double|"
         th:data-trick-min-value="0"
         th:onclick="|return editField(this);|">
-      <span th:text="${#numbers.formatDecimal(measure.lifetime,0,2)}"></span>
+  <span th:text="${#numbers.formatDecimal(measure.lifetime != null ? measure.lifetime : 0,0,2)}"></span>
     </td>
 
     <td th:attr="data-trick-field=|internalMaintenance|, data-trick-field-type=|double|"
         th:onclick="|return editField(this);|">
-      <span th:text="${#numbers.formatDecimal(measure.internalMaintenance,0,2)}"></span>
+  <span th:text="${#numbers.formatDecimal(measure.internalMaintenance != null ? measure.internalMaintenance : 0,0,2)}"></span>
     </td>
 
     <td th:attr="data-trick-field=|externalMaintenance|, data-trick-field-type=|double|"
         th:onclick="|return editField(this);|">
-      <span th:text="${#numbers.formatDecimal(measure.externalMaintenance,0,2)}"></span>
+  <span th:text="${#numbers.formatDecimal(measure.externalMaintenance != null ? measure.externalMaintenance : 0,0,2)}"></span>
     </td>
 
     <td th:attr="data-trick-field=|recurrentInvestment|, data-trick-field-type=|double|"
-        th:title="${measure.recurrentInvestment * 0.001}"
+        th:title="${(measure.recurrentInvestment != null ? measure.recurrentInvestment : 0) * 0.001}"
         th:onclick="|return editField(this);|">
-      <span th:text="${#numbers.formatDecimal(measure.recurrentInvestment * 0.001,0,0)}"></span>
+      <span th:text="${#numbers.formatDecimal(((measure.recurrentInvestment != null ? measure.recurrentInvestment : 0) * 0.001),0,0)}"></span>
     </td>
 
     <td th:attr="data-trick-field=|phase|, data-trick-field-type=|integer|"

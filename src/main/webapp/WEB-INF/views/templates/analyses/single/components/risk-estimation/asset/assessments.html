@@ -1,10 +1,4 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+<div th:fragment="assessments">
 
     <!-- Load Messages -->
     <span th:text="#{label.menu.show.impact_scale}" th:id="impactScaleMenu"></span>
@@ -19,16 +13,18 @@
 
     <!-- Set Locale and Language if empty -->
     <div th:if="${locale == null}">
-        <span th:with="locale=${#locale.context().locale}"></span>
+        <span th:with="locale=${#locale}"></span>
     </div>
     
     <div th:if="${langue == null}">
         <span th:with="langue=${#strings.toUpperCase(locale.language)}"></span>
     </div>
 
-    <!-- Set Titles with Escaped Single Quotes -->
-    <div th:with="impactScaleTitle=${#strings.replace(impactScaleTitle, '\'', '\\\'')}"
-         th:with="probabilityScaleTitle=${#strings.replace(probabilityScaleTitle, '\'', '\\\'')}"></div>
+    <th:block th:with="
+        impactScaleTitleSafe=${impactScaleTitle != null ? #strings.replace(impactScaleTitle, '\'', '\\'') : ''},
+        probabilityScaleTitleSafe=${probabilityScaleTitle != null ? #strings.replace(probabilityScaleTitle, '\'', '\\'') : ''},
+        dynamicParametersTitleSafe=${dynamicParametersTitle != null ? #strings.replace(dynamicParametersTitle, '\'', '\\'') : ''}
+    "></th:block>
 
     <!-- Set a Counter for Qualitative Impact -->
     <div th:with="qualitativeImpactCount=0">
@@ -39,7 +35,7 @@
         </ul>
     </div>
     <!-- Setting the locale with Thymeleaf -->
-    <span th:utext="'fr'" th:attr="data-locale=${session.locale}"></span>
+    <span th:utext="${#locale.language}" th:attr="data-locale=${#locale}"></span>
 
     <!-- Div with Thymeleaf expressions -->
     <div class="section col-lg-10 col-md-9 trick-ui" id="section_asset_assessment"
@@ -52,7 +48,7 @@
             <div class="container">
                 <div class="row-fluid">
                     <h3 role="title"
-                        th:text="#{label.assessment.for.asset(${asset.name}, ${#numbers.formatDecimal(asset.value * 0.001, 0, 'COMMA', 0, 'POINT')})}">
+                        th:text="#{label.assessment.for.asset(${asset.name}, ${#numbers.formatDecimal((asset.value != null ? asset.value : 0) * 0.001, 0, 'COMMA', 0, 'POINT')})}">
                         Assessment for Asset
                     </h3>
                 </div>
@@ -66,23 +62,23 @@
                 </a>
             </li>
         
-            <li th:if="${type.qualitative}" class="dropdown-submenu">
+            <li th:if="${type != null and type.qualitative == true}" class="dropdown-submenu">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                     <span th:text="${impactScaleMenu}">Impact Scale</span> <span class="caret"></span>
                 </a>
                 <ul class="dropdown-menu">
-                    <li th:if="${type.quantitative}" class="dropdown-header" th:text="#{label.analysis.type.quantitative}">Quantitative</li>
-                    <li th:if="${type.quantitative}">
-                        <a href="#" th:onclick="'return displayParameters(\'#Scale_Impact\', \'' + #{label.title.parameter.quantitative.impact} + '\')'">
+                    <li th:if="${type != null and type.quantitative == true}" class="dropdown-header" th:text="#{label.analysis.type.quantitative}">Quantitative</li>
+                    <li th:if="${type != null and type.quantitative == true}">
+                        <a href="#" th:onclick="|return displayParameters('#Scale_Impact', '${#messages.msg('label.title.parameter.quantitative.impact')}')|">
                             <span th:text="#{label.impact_fin}">Financial Impact</span>
                         </a>
                     </li>
-                    <li th:if="${type.quantitative}" class="dropdown-header" th:text="#{label.analysis.type.qualitative}">Qualitative</li>
+                    <li th:if="${type != null and type.quantitative == true}" class="dropdown-header" th:text="#{label.analysis.type.qualitative}">Qualitative</li>
         
                     <li th:each="impactType : ${impactTypes}" 
                         th:if="${impactType.name != 'IMPACT'}">
                         <a href="#"
-                           th:onclick="'return displayParameters(\'#Scale_Impact_' + ${impactType.name} + '\')'"
+                           th:onclick="|return displayParameters('#Scale_Impact_${impactType.name}')|"
                            th:text="#{${'label.title.parameter.extended.impact.' + #strings.toLowerCase(impactType.name)}}">
                             Impact Type
                         </a>
@@ -90,63 +86,63 @@
                 </ul>
             </li>
         
-            <li th:if="${type.qualitative and type.quantitative}">
-                <ul class="dropdown-menu" th:if="${showDynamicAnalysis}">
-                    <li>
-                        <a href="#"
-                           th:onclick="'return displayParameters(\'#Scale_Probability\', \'' + ${probabilityScaleTitle} + '\')'"
-                           th:text="${probabilityScaleTitle}">Probability Scale</a>
-                    </li>
-                    <li>
-                        <a href="#"
-                           th:onclick="'return displayParameters(\'#DynamicParameters\', \'' + ${dynamicParametersTitle} + '\')'"
-                           th:text="${dynamicParametersTitle}">Dynamic Analysis</a>
-                    </li>
+            <li th:if="${(type != null and type.qualitative == true) and (type != null and type.quantitative == true)}">
+                <ul class="dropdown-menu" th:if="${showDynamicAnalysis == true}">
+                          <li>
+                                        <a href="#"
+                                            th:onclick="|return displayParameters('#Scale_Probability', '${probabilityScaleTitleSafe}')|"
+                                    th:text="${probabilityScaleTitle}">Probability Scale</a>
+                          </li>
+                          <li>
+                                        <a href="#"
+                                            th:onclick="|return displayParameters('#DynamicParameters', '${dynamicParametersTitleSafe}')|"
+                                    th:text="${dynamicParametersTitle}">Dynamic Analysis</a>
+                          </li>
                 </ul>
-                <a href="#" th:unless="${showDynamicAnalysis}"
-                   th:onclick="'return displayParameters(\'#Scale_Probability\', \'' + ${probabilityScaleTitle} + '\')'"
-                   th:text="${probabilityScaleMenu}">Probability Menu</a>
+                         <a href="#" th:if="${showDynamicAnalysis != true}"
+                             th:onclick="|return displayParameters('#Scale_Probability', '${probabilityScaleTitleSafe}')|"
+                         th:text="${probabilityScaleMenu}">Probability Menu</a>
             </li>
         
-            <li th:unless="${type.qualitative}">
-                <a href="#" th:onclick="'return displayParameters(\'#Scale_Impact\', \'' + ${impactScaleTitle} + '\')'"
+            <li th:if="${type == null or (type != null and type.qualitative != true)}">
+                         <a href="#" th:onclick="|return displayParameters('#Scale_Impact', '${impactScaleTitleSafe}')|"
                    th:text="${impactScaleMenu}">Impact Menu</a>
             </li>
         
-            <li th:unless="${type.qualitative}">
-                <ul class="dropdown-menu" th:if="${showDynamicAnalysis}">
+            <li th:if="${type == null or (type != null and type.qualitative != true)}">
+                <ul class="dropdown-menu" th:if="${showDynamicAnalysis == true}">
                     <li>
-                        <a href="#"
-                           th:onclick="'return displayParameters(\'#Scale_Probability\', \'' + ${probabilityScaleTitle} + '\')'"
+                                        <a href="#"
+                                            th:onclick="|return displayParameters('#Scale_Probability', '${probabilityScaleTitleSafe}')|"
                            th:text="${probabilityScaleTitle}">Probability Scale</a>
                     </li>
                     <li>
-                        <a href="#"
-                           th:onclick="'return displayParameters(\'#DynamicParameters\', \'' + ${dynamicParametersTitle} + '\')'"
+                                        <a href="#"
+                                            th:onclick="|return displayParameters('#DynamicParameters', '${dynamicParametersTitleSafe}')|"
                            th:text="${dynamicParametersTitle}">Dynamic Analysis</a>
                     </li>
                 </ul>
-                <a href="#" th:unless="${showDynamicAnalysis}"
-                   th:onclick="'return displayParameters(\'#Scale_Probability\', \'' + ${probabilityScaleTitle} + '\')'"
+                         <a href="#" th:if="${showDynamicAnalysis != true}"
+                             th:onclick="|return displayParameters('#Scale_Probability', '${probabilityScaleTitleSafe}')|"
                    th:text="${probabilityScaleMenu}">Probability Menu</a>
             </li>
         </ul>
         <table class="table table-hover table-condensed table-fixed-header-analysis">
             <thead>
-                <th:block th:if="${type.qualitative}">
+                <th:block th:if="${type != null and type.qualitative == true}">
                     <tr>
                         <th rowspan="2" style="width: 10%" th:title="#{label.assessment.scenario}">[[#{label.assessment.scenario}]]</th>
                         <th rowspan="2" style="width: 2%" th:title="#{label.title.likelihood}">[[#{label.assessment.likelihood}]]</th>
-                        <th style="text-align: center;" th:colspan="${!type.quantitative} ? ${qualitativeImpactCount} : ${#lists.size(impactTypes)}">[[#{label.title.impact}]]</th>
+                        <th style="text-align: center;" th:colspan="${(type != null and type.quantitative) ? #lists.size(impactTypes) : qualitativeImpactCount}">[[#{label.title.impact}]]</th>
             
-                        <th:block th:if="${type.quantitative}">
-                            <th:block th:if="${show_uncertainty}">
+                        <th:block th:if="${type != null and type.quantitative == true}">
+                            <th:block th:if="${show_uncertainty == true}">
                                 <th rowspan="2" style="width: 2%" th:title="#{label.title.uncertainty}">[[#{label.assessment.uncertainty}]]</th>
                                 <th rowspan="2" style="width: 2%" th:title="#{label.title.aleo}">[[#{label.assessment.aleo}]]</th>
                                 <th rowspan="2" style="width: 2%" th:title="#{label.title.ale}">[[#{label.assessment.ale}]]</th>
                                 <th rowspan="2" style="width: 2%" th:title="#{label.title.alep}">[[#{label.assessment.alep}]]</th>
                             </th:block>
-                            <th:block th:unless="${show_uncertainty}">
+                            <th:block th:if="${show_uncertainty != true}">
                                 <th rowspan="2" style="width: 2%" th:title="#{label.title.ale}">[[#{label.assessment.ale}]]</th>
                             </th:block>
                         </th:block>
@@ -156,27 +152,28 @@
                         <th th:if="${showHiddenComment}" rowspan="2" style="width: 30%" th:title="#{label.assessment.hidden_comment}">[[#{label.assessment.hidden_comment}]]</th>
                     </tr>
                     <tr>
-                        <th th:if="${type.quantitative}" style="width: 2%" th:title="#{label.analysis.quantitative.impact}">[[#{label.assessment.impact}]]</th>
+                        <th th:if="${type != null and type.quantitative == true}" style="width: 2%" th:title="#{label.analysis.quantitative.impact}">[[#{label.assessment.impact}]]</th>
                         <th:block th:each="impactType : ${impactTypes}">
                             <th th:if="${impactType.name != 'IMPACT'}" style="width: 2%"
-                                th:title="#{label.title.assessment.impact_${impactType.name.toLowerCase()}}">[[#{label.assessment.impact_${impactType.name.toLowerCase()}}]]</th>
+                                th:title="#{${'label.title.assessment.impact_' + #strings.toLowerCase(impactType.name)}}"
+                                th:text="#{${'label.assessment.impact_' + #strings.toLowerCase(impactType.name)}}"></th>
                         </th:block>
                     </tr>
                 </th:block>
             
-                <th:block th:unless="${type.qualitative}">
+                <th:block th:if="${type == null or (type != null and type.qualitative != true)}">
                     <tr>
                         <th style="width: 10%" th:title="#{label.assessment.scenario}">[[#{label.assessment.scenario}]]</th>
                         <th style="width: 5%" th:title="#{label.title.impact}">[[#{label.assessment.impact}]]</th>
                         <th style="width: 5%" th:title="#{label.title.likelihood}">[[#{label.assessment.likelihood}]]</th>
             
-                        <th:block th:if="${show_uncertainty}">
+                        <th:block th:if="${show_uncertainty == true}">
                             <th style="width: 2%" th:title="#{label.title.uncertainty}">[[#{label.assessment.uncertainty}]]</th>
                             <th style="width: 2%" th:title="#{label.title.aleo}">[[#{label.assessment.aleo}]]</th>
                             <th style="width: 2%" th:title="#{label.title.ale}">[[#{label.assessment.ale}]]</th>
                             <th style="width: 2%" th:title="#{label.title.alep}">[[#{label.assessment.alep}]]</th>
                         </th:block>
-                        <th:block th:unless="${show_uncertainty}">
+                        <th:block th:if="${show_uncertainty != true}">
                             <th style="width: 2%" th:title="#{label.title.ale}">[[#{label.assessment.ale}]]</th>
                         </th:block>
             
@@ -187,14 +184,14 @@
                 </th:block>
             </thead>
             <tbody>
-                <th:block th:if="${not #lists.isEmpty(asset)}">
+                <th:block th:if="${assessments != null}">
                     <th:block th:with="naParameterLabel='0-' + ${#messages.msg('label.parameter.label.na')}">
                         <th:block th:each="assessment : ${assessments}">
                             <tr data-trick-class="Assessment" data-trick-id="${assessment.id}">
                                 <td style="height: 32px;" th:title="${assessment.scenario.description}" th:text="${assessment.scenario.name}"></td>
                                 <th:block th:with="likelihood=${assessment.likelihood}">
-                                    <th:block th:switch="${type.qualitative}">
-                                        <th:block th:case="${type.quantitative}">
+                                    <th:block th:switch="${type != null and type.qualitative == true}">
+                                        <th:block th:case="${type != null and type.quantitative == true}">
                                             <th:block th:switch="${likelihood}">
                                                 <th:block th:case="${#strings.isEmpty(likelihood)}">
                                                     <td data-trick-field="likelihood" data-trick-field-type="string" class="editable" th:title="${naParameterLabel}" onclick="return editField(this);">
@@ -208,7 +205,7 @@
                                                         </td>
                                                     </th:block>
                                                     <th:block th:unless="${likelihood.real == 0}">
-                                                        <th:block th:with="realValue=${#numbers.formatDecimal(likelihood.real,3,'#0.###')}">
+                                                        <th:block th:with="realValue=${#numbers.formatDecimal(likelihood.real != null ? likelihood.real : 0,3,'#0.###')}">
                                                             <td data-trick-field="likelihood" data-trick-field-type="string" class="editable" onclick="return editField(this);" th:title="${realValue}" data-real-value="${realValue}">
                                                                 <span th:text="${likelihood.variable}"></span>
                                                             </td>
@@ -216,7 +213,7 @@
                                                     </th:block>
                                                 </th:block>
                                                 <th:block th:case="*">
-                                                    <td data-trick-field="likelihood" data-trick-field-type="string" class="editable" onclick="return editField(this);" data-real-value="${likelihood.raw}" th:title="${#numbers.formatDecimal(likelihood.real,3)}">
+                                                    <td data-trick-field="likelihood" data-trick-field-type="string" class="editable" onclick="return editField(this);" data-real-value="${likelihood.raw}" th:title="${#numbers.formatDecimal(likelihood.real != null ? likelihood.real : 0,3)}">
                                                         <span th:text="${likelihood.variable}"></span>
                                                     </td>
                                                 </th:block>
@@ -232,17 +229,17 @@
                                         <th:block th:unless="${#strings.isEmpty(impact)}">
                                             <th:block th:switch="${impact.raw == impact.real}">
                                                 <th:block th:case="*">
-                                                    <th:block th:with="realImpact=${#numbers.formatDecimal(impact.real, 3, '#0.###')}">
+                                                    <th:block th:with="realImpact=${#numbers.formatDecimal(impact.real != null ? impact.real : 0, 3, '#0.###')}">
                                                         <th:block th:switch="${impact.real < 10000}">
                                                             <th:block th:case="true">
-                                                                <th:block th:with="impactValue=${#numbers.formatDecimal(impact.real * 0.001, 3)}">
+                                                                <th:block th:with="impactValue=${#numbers.formatDecimal(((impact.real != null ? impact.real : 0) * 0.001), 3)}">
                                                                     <td data-trick-field="IMPACT" data-trick-field-type="string" class="editable" onclick="return editField(this);" th:title="${realImpact} &euro;" data-real-value="${impactValue}">
                                                                         <span th:text="${impactValue}"></span>
                                                                     </td>
                                                                 </th:block>
                                                             </th:block>
                                                             <th:block th:case="false">
-                                                                <th:block th:with="impactValue=${#numbers.formatDecimal(impact.real * 0.001, 0)}">
+                                                                <th:block th:with="impactValue=${#numbers.formatDecimal(((impact.real != null ? impact.real : 0) * 0.001), 0)}">
                                                                     <td data-trick-field="IMPACT" data-trick-field-type="string" class="editable" onclick="return editField(this);" th:title="${realImpact} &euro;" data-real-value="${impactValue}">
                                                                         <span th:text="${impactValue}"></span>
                                                                     </td>
@@ -283,21 +280,21 @@
                                     </th:block>
             
                                     <!-- Uncertainty Section -->
-                                    <th:block th:if="${type.quantitative}">
-                                        <th:block th:if="${show_uncertainty}">
-                                            <td data-trick-field="uncertainty" data-trick-field-type="double" class="editable" data-trick-min-value="1.0000000000001" data-real-value="${#numbers.formatDecimal(assessment.uncertainty, 2)}" onclick="return editField(this);">
-                                                <span th:text="${#numbers.formatDecimal(assessment.uncertainty, 2)}"></span>
+                                    <th:block th:if="${type != null and type.quantitative == true}">
+                                        <th:block th:if="${show_uncertainty == true}">
+                                            <td data-trick-field="uncertainty" data-trick-field-type="double" class="editable" data-trick-min-value="1.0000000000001" data-real-value="${#numbers.formatDecimal(assessment.uncertainty != null ? assessment.uncertainty : 0, 2)}" onclick="return editField(this);">
+                                                <span th:text="${#numbers.formatDecimal(assessment.uncertainty != null ? assessment.uncertainty : 0, 2)}"></span>
                                             </td>
-                                            <td th:title="${#numbers.formatDecimal(assessment.ALEO, 2)} &euro;">
-                                                <span th:text="${#numbers.formatDecimal(assessment.ALEO * 0.001, 1)}"></span>
+                                            <td th:title="${#numbers.formatDecimal(assessment.ALEO != null ? assessment.ALEO : 0, 2)} &euro;">
+                                                <span th:text="${#numbers.formatDecimal(((assessment.ALEO != null ? assessment.ALEO : 0) * 0.001), 1)}"></span>
                                             </td>
                                         </th:block>
-                                        <td th:title="${#numbers.formatDecimal(assessment.ALE, 2)} &euro;">
-                                            <span th:text="${#numbers.formatDecimal(assessment.ALE * 0.001, 1)}"></span>
+                                        <td th:title="${#numbers.formatDecimal(assessment.ALE != null ? assessment.ALE : 0, 2)} &euro;">
+                                            <span th:text="${#numbers.formatDecimal(((assessment.ALE != null ? assessment.ALE : 0) * 0.001), 1)}"></span>
                                         </td>
-                                        <th:block th:if="${show_uncertainty}">
-                                            <td th:title="${#numbers.formatDecimal(assessment.ALEP, 2)} &euro;">
-                                                <span th:text="${#numbers.formatDecimal(assessment.ALEP * 0.001, 1)}"></span>
+                                        <th:block th:if="${show_uncertainty == true}">
+                                            <td th:title="${#numbers.formatDecimal(assessment.ALEP != null ? assessment.ALEP : 0, 2)} &euro;">
+                                                <span th:text="${#numbers.formatDecimal(((assessment.ALEP != null ? assessment.ALEP : 0) * 0.001), 1)}"></span>
                                             </td>
                                         </th:block>
                                     </th:block>
@@ -319,25 +316,25 @@
                         </th:block>
             
                         <!-- Footer for Quantitative Type -->
-                        <th:block th:if="${type.quantitative}">
+                        <th:block th:if="${type != null and type.quantitative == true}">
                             <tr class="panel-footer" style="font-weight: bold;">
                                 <th:block th:choose>
-                                    <th:block th:when="${show_uncertainty}">
-                                        <td colspan="${impactTypes.size() + 3}">
+                                    <th:block th:when="${show_uncertainty == true}">
+                                        <td colspan="${#lists.size(impactTypes) + 3}">
                                             <span th:text="#{label.total.ale}"></span>
                                         </td>
-                                        <td th:title="${#numbers.formatDecimal(aleo.value, 2)} &euro;">
-                                            <span th:text="${#numbers.formatDecimal(aleo.value * 0.001, 1)}"></span>
+                                        <td th:title="${#numbers.formatDecimal(aleo.value != null ? aleo.value : 0, 2)} &euro;">
+                                            <span th:text="${#numbers.formatDecimal(((aleo.value != null ? aleo.value : 0) * 0.001), 1)}"></span>
                                         </td>
-                                        <td th:title="${#numbers.formatDecimal(ale.value, 2)} &euro;">
-                                            <span th:text="${#numbers.formatDecimal(ale.value * 0.001, 1)}"></span>
+                                        <td th:title="${#numbers.formatDecimal(ale.value != null ? ale.value : 0, 2)} &euro;">
+                                            <span th:text="${#numbers.formatDecimal(((ale.value != null ? ale.value : 0) * 0.001), 1)}"></span>
                                         </td>
-                                        <td th:title="${#numbers.formatDecimal(alep.value, 2)} &euro;">
-                                            <span th:text="${#numbers.formatDecimal(alep.value * 0.001, 1)}"></span>
+                                        <td th:title="${#numbers.formatDecimal(alep.value != null ? alep.value : 0, 2)} &euro;">
+                                            <span th:text="${#numbers.formatDecimal(((alep.value != null ? alep.value : 0) * 0.001), 1)}"></span>
                                         </td>
                                     </th:block>
                                     <th:block th:otherwise>
-                                        <td colspan="${impactTypes.size() + 2}">
+                                        <td colspan="${#lists.size(impactTypes) + 2}">
                                             <span th:text="#{label.total.ale}"></span>
                                         </td>
                                         <td th:title="${#numbers.formatDecimal(ale.value, 2)} &euro;">
@@ -353,5 +350,4 @@
             </tbody>            
         </table>                                        
     </div>
-</body>
-</html>
+</div>

@@ -10,18 +10,19 @@
 
         <div th:if="${soas != null and not soas.isEmpty()}">
             <ul class="nav nav-pills bordered-bottom" id="menu_section_soa">
-                <li th:each="standard : ${soas.keySet()}"
+                <li th:each="standard, status : ${soas.keySet()}"
                     th:class="${status.index == 0 ? 'disabled' : ''}" 
                     th:data-trick-nav-control="${standard.id}">
-                    <a href="#" 
-                       th:onclick="'return navToogled(\'#section_soa\',\'#menu_section_soa,#tabOption\',\'' + ${standard.id} + '\',true);'">
+                          <a href="#" 
+                              th:onclick="|return navToogled('#section_soa','#menu_section_soa,#tabOption','${standard.id}',true);|">
                        <span th:text="${standard.name}"></span>
                     </a>
                 </li>
             </ul>
         </div>
 
-        <div th:each="standard : ${soas.keySet()}"
+       <div th:if="${soas != null}"
+           th:each="standard, status : ${soas.keySet()}"
              th:data-trick-nav-content="${standard.id}" 
              th:attr="hidden=${status.index != 0}">
             <table class="table table-hover table-fixed-header-analysis table-condensed" 
@@ -33,23 +34,23 @@
                         <th style="width: 2%;" th:title="#{label.title.measure.status}"><span th:text="#{label.measure.status}"></span></th>
                         <th style="width: 2%;" th:title="#{label.title.measure.ir}"><span th:text="#{label.measure.ir}"></span></th>
                         <th style="width: 2%;" th:title="#{label.title.measure.phase}"><span th:text="#{label.measure.phase}"></span></th>
-                        <th th:if="${type.quantitative}" style="width: 15%;" th:title="#{label.measure.soa.risk}"><span th:text="#{label.measure.soa.risk}"></span></th>
+                        <th th:if="${type != null and type.quantitative}" style="width: 15%;" th:title="#{label.measure.soa.risk}"><span th:text="#{label.measure.soa.risk}"></span></th>
                         <th th:title="#{label.justification}"><span th:text="#{label.justification}"></span></th>
                         <th th:title="#{label.reference}"><span th:text="#{label.reference}"></span></th>
                     </tr>
                 </thead>
                 <tbody>
-                    <div th:each="measure : ${soas[standard]}" th:object="${measure}">
-                        <div th:if="${not measure.measureDescription.computable}">
+                    <th:block th:each="measure : ${soas != null ? soas[standard] : {}}" th:object="${measure}">
+                        <th:block th:if="${not measure.measureDescription.computable}">
                             <tr class="active" th:data-trick-id="${measure.id}">
-                                <div th:set="measureDescriptionText = ${measure.measureDescription.getMeasureDescriptionTextByAlpha2(language)}">
+                                <th:block th:set="measureDescriptionText = ${measure.measureDescription.getMeasureDescriptionTextByAlpha2(language)}">
                                 <td><span th:text="${measure.measureDescription.reference}"></span></td>
-                                <td th:colspan="${type.quantitative ? 7 : 6}">
+                                <td th:colspan="${(type != null and type.quantitative) ? 7 : 6}">
                                     <span th:text="${measureDescriptionText != null and !measureDescriptionText.isEmpty() ? measureDescriptionText.domain : ''}"></span>
                                 </td>
                             </tr>
-                        </div>
-                        <div th:else>
+                        </th:block>
+                        <th:block th:else>
                             <tr th:data-trick-class="'SOA'" th:data-trick-id="${measure.id}">
                                 <td th:class="${measure.status == 'NA' ? 'active' : ''}"
                                     th:data-toggle="popover" th:data-container="'body'" th:data-placement="'right'"
@@ -77,14 +78,14 @@
                                     <span th:text="${measure.phase.number}"></span>
                                 </td>
 
-                                <td th:if="${type.quantitative}" th:class="${measure.status == 'NA' or measure.status == 'EX' ? 'active' : ''}">
+                                <td th:if="${type != null and type.quantitative}" th:class="${measure.status == 'NA' or measure.status == 'EX' ? 'active' : ''}">
                                     <span th:text="${measure.soaRisk}"></span>
                                 </td>
                                 <td th:class="${measure.soaComment == '' ? 'warning' : (css != '' ? css : '')}" 
                                     th:onclick="'return editField(this);'" 
                                     th:data-trick-field="'soaComment'" th:data-trick-content="'text'"
                                     th:data-trick-field-type="'string'" 
-                                    th:data-trick-callback="'validateSOAState(' + ${standard.id} + ',' + ${measure.id} + ')'" >
+                                    th:data-trick-callback="|validateSOAState(${standard.id},${measure.id})|" >
                                     <span th:text="${measure.soaComment}"></span>
                                 </td>
                                 <td th:class="${css}" th:onclick="'return editField(this);'" 
@@ -93,8 +94,8 @@
                                     <span th:text="${measure.soaReference}"></span>
                                 </td>
                             </tr>
-                        </div>
-                    </div>
+                        </th:block>
+                    </th:block>
                 </tbody>
             </table>
         </div>

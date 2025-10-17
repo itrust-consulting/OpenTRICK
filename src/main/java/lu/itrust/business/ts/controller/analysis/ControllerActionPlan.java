@@ -33,10 +33,12 @@ import lu.itrust.business.ts.database.service.ServiceUserAnalysisRight;
 import lu.itrust.business.ts.helper.JsonMessage;
 import lu.itrust.business.ts.model.actionplan.ActionPlanEntry;
 import lu.itrust.business.ts.model.actionplan.ActionPlanMode;
+import lu.itrust.business.ts.model.actionplan.ActionPlanAsset;
 import lu.itrust.business.ts.model.actionplan.helper.ActionPlanManager;
 import lu.itrust.business.ts.model.analysis.Analysis;
 import lu.itrust.business.ts.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.ts.model.general.OpenMode;
+import lu.itrust.business.ts.model.asset.Asset;
 
 /**
  * ControllerAdministration.java: <br>
@@ -105,9 +107,11 @@ public class ControllerActionPlan extends AbstractController {
 		model.addAttribute("isEditable", !OpenMode.isReadOnly(mode)
 				&& serviceUserAnalysisRight.isUserAuthorized(selected, principal.getName(), AnalysisRight.MODIFY));
 		model.addAttribute("actionplans", actionplans);
+	// Also provide split-by-type map for Thymeleaf templates that rely on it
+	model.addAttribute("actionplansplitted", ActionPlanManager.splitByType(actionplans));
 		model.addAttribute("type", analysis.getType());
 		model.addAttribute("analysisId", selected);
-		return "templates/analyses/single/components/actionPlan/section";
+	return "templates/analyses/single/components/action-plan/section";
 	}
 
 	@SuppressWarnings("unchecked")
@@ -117,10 +121,27 @@ public class ControllerActionPlan extends AbstractController {
 			Principal principal) throws Exception {
 		try {
 			section(model, session, principal);
-			model.addAttribute("selectedApt", ActionPlanMode.valueOf(selectedApt));
-			model.addAttribute("assets", ActionPlanManager
-					.getAssetsByActionPlanType((List<ActionPlanEntry>) model.asMap().get("actionplans")));
-			return "templates/analyses/single/components/actionPlan/assets";
+			// Keep selectedApt as String to match Thymeleaf comparison against keys from actionplansplitted
+			model.addAttribute("selectedApt", selectedApt);
+
+			// Build assets header list for the selected action plan type
+			@SuppressWarnings("unchecked")
+			final Map<String, List<ActionPlanEntry>> actionplansplitted = (Map<String, List<ActionPlanEntry>>) model.asMap()
+					.get("actionplansplitted");
+			List<ActionPlanEntry> selectedEntries = actionplansplitted != null
+					? actionplansplitted.getOrDefault(selectedApt, List.of())
+					: List.of();
+
+			final List<Asset> actionplanassets = ActionPlanManager.getAssetsByActionPlanType(selectedEntries);
+			model.addAttribute("actionplanassets", actionplanassets);
+
+			// Pre-compute ordered assets per entry to avoid using forbidden utilities in templates
+			final Map<Integer, List<ActionPlanAsset>> ordered = new java.util.LinkedHashMap<>();
+			for (ActionPlanEntry ape : selectedEntries) {
+				ordered.put(ape.getId(), ActionPlanManager.orderActionPlanAssetsByAssetList(ape, actionplanassets));
+			}
+			model.addAttribute("orderedActionPlanAssets", ordered);
+			return "templates/analyses/single/components/action-plan/asssets";
 		} catch (Exception e) {
 			TrickLogManager.persist(e);
 			throw e;

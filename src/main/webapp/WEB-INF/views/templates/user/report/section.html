@@ -23,12 +23,12 @@
                 </td>
                 <td>
                     <a class="btn btn-primary" th:href="@{${pageContext.request.contextPath}/Account/Report/{id}/Download(id=${report.id})}"
-                       th:onclick="'return downloadWordReport(' + ${report.id} + ')'" 
+                       th:onclick="|return downloadWordReport(${report.id})|" 
                        th:title="#{label.action.download}">
                         <i class="fa fa-download"></i>
                     </a>
                     <a class="btn btn-danger" th:href="@{${pageContext.request.contextPath}/Account/Report/{id}/Delete(id=${report.id})}"
-                       th:onclick="'return deleteReport(' + ${report.id} + ')'" 
+                       th:onclick="|return deleteReport(${report.id})|" 
                        th:title="#{label.action.delete}">
                         <i class="fa fa-trash"></i>
                     </a>

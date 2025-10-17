@@ -25,8 +25,8 @@
                 <div th:each="apt : ${actionplansplitted.keySet()}">
                     <div th:attr="data-trick-nav-content=${apt}"
                          th:if="${selectedApt} == ${apt}">
-                        <table class="table table-hover table-condensed table-fixed-header-analysis"
-                               th:attr="id='actionplantable_' + ${apt}">
+               <table class="table table-hover table-condensed table-fixed-header-analysis"
+                   th:id="'actionplantable_' + ${apt}">
                             <thead>
                                 <tr>
                                     <th style="width: 1%;" th:text="#{label.table.index}"></th>
@@ -38,11 +38,12 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr th:if="${#lists.size(actionplansplitted[apt]) > 0}">
+                                <tr th:if="${actionplansplitted != null and actionplansplitted[apt] != null and #lists.size(actionplansplitted[apt]) > 0}">
                                     <td colspan="3" th:text="#{label.action_plan.current_ale}"></td>
 
-                                    <td th:with="totalALE=${#numbers.formatDecimal((actionplansplitted[apt][0].totalALE + actionplansplitted[apt][0].deltaALE), 1, 2)},
-                                                 computedALE=${actionplansplitted[apt][0].totalALE + actionplansplitted[apt][0].deltaALE}"
+                                    <td th:with="firstEntry=${actionplansplitted[apt][0]},
+                                                 totalALE=${#numbers.formatDecimal((firstEntry.totalALE + firstEntry.deltaALE), 1, 2)},
+                                                 computedALE=${firstEntry.totalALE + firstEntry.deltaALE}"
                                         th:classappend="${computedALE == 0} ? 'danger'"
                                         th:title="|${#numbers.formatDecimal(computedALE, 1, 2)} €|"
                                         th:text="${#numbers.formatDecimal(computedALE * 0.001, 0, 0)}">
@@ -61,7 +62,7 @@
                                     </td>
                                 </tr>
 
-                                <tr th:each="ape : ${actionplansplitted[apt]}"
+                                <tr th:each="ape : ${actionplansplitted != null and actionplansplitted[apt] != null ? actionplansplitted[apt] : {}}"
                                     th:attr="data-trick-class='ActionPlanEntry', data-trick-id=${ape.id}"
                                     th:attrappend="data-trick-callback=|reloadMeasureRow('${ape.measure.id}', '${ape.measure.measureDescription.standard.label}')|">
                                     <td th:text="${ape.order}"></td>
@@ -71,7 +72,7 @@
                                         th:title="|${ape.totalALE} €|"
                                         th:text="${#numbers.formatDecimal(ape.totalALE * 0.001, 0, 0)}"></td>
 
-                                    <td th:each="apa : ${#request.getAttribute('orderedActionPlanAssets')[ape.id]}"
+                                    <td th:each="apa : ${orderedActionPlanAssets != null and orderedActionPlanAssets[ape.id] != null ? orderedActionPlanAssets[ape.id] : {}}"
                                         th:title="|${apa.currentALE} €|"
                                         th:text="${#numbers.formatDecimal(apa.currentALE * 0.001, 0, 0)}"></td>
                                 </tr>
