@@ -1,15 +1,9 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-<head>
-  <meta charset="UTF-8">
-  <title>Risk Profile Form</title>
-</head>
-<body>
+<th:block th:fragment="content">
 
 <div class="page-header tab-content-header hidden-xs">
   <div class="container">
     <div class="row-fluid">
-      <h3 th:text="${asset.name} + ' - ' + ${scenario.name}"></h3>
+  <h3 th:text="${(asset != null ? asset.name : '') + ' - ' + (scenario != null ? scenario.name : '')}"></h3>
     </div>
   </div>
 </div>
@@ -861,7 +855,7 @@
         </td>
       </th:block>
 
-      <td th:text="${measure.measureDescription.standard.name}"></td>
+  <td th:text="${measure.measureDescription != null and measure.measureDescription.standard != null ? measure.measureDescription.standard.name : ''}"></td>
 
       <td>
         <th:block th:with="mdt=${measure.measureDescription.getMeasureDescriptionTextByAlpha2(langue)}">
@@ -882,7 +876,7 @@
       <td th:if="${measure.status == 'AP'}" th:title="${titleStatusAP}"><span th:text="${statusAP}"></span></td>
       <td th:if="${measure.status != 'NA' and measure.status != 'AP'}" th:title="${titleStatusM}"><span th:text="${statusM}"></span></td>
 
-      <td><span th:text="${#numbers.formatDecimal(measure.implementationRateValue, 0, '###')}"></span></td>
+  <td><span th:text="${#numbers.formatDecimal(measure.implementationRateValue != null ? measure.implementationRateValue : 0, 0, 0)}"></span></td>
       <td th:title="${#dates.format(measure.phase.endDate, 'yyyy-MM-dd')}"><span th:text="${measure.phase.number}"></span></td>
       <td th:text="${measure.responsible}"></td>
     </tr>
@@ -901,5 +895,4 @@
   </div>
 </th:block>
 
-</body>
-</html>
+</th:block>

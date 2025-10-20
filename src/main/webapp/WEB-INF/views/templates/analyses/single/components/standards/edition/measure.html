@@ -1,11 +1,4 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>Measure UI</title>
-</head>
-<body>
+<th:block th:fragment="content">
     <div id="measure-ui" class="col-md-10 trick-ui" th:data-trick-id="${selectedMeasure.id}">
         <div class="page-header tab-content-header hidden-xs">
             <div class="container">
@@ -341,6 +334,4 @@
             </fieldset>          
         </div>
     </div>
-    
-</body>
-</html>
+</th:block>

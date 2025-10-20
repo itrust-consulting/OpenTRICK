@@ -6,11 +6,11 @@
                 <h4 class="modal-title" th:text="#{label.title.analysis.export.report}">Exporting analysis word report</h4>
             </div>
             <!-- Set nameControl variable -->
-            <div th:with="nameControl=${analysis.type.toLowerCase()}">
+            <div th:with="nameControl=${analysis != null and analysis.type != null ? analysis.type.toLowerCase() : 'hybrid'}">
                 <!-- dialog body -->
                 <div class="modal-body">
                     <form class="form form-inline" th:action="@{/Analysis/Report/Export-process}" method="post" enctype="multipart/form-data" th:data-type-control="${nameControl}">
-                        <input type="hidden" th:name="analysis" th:id="'exportWord.analysis.' + ${nameControl}" th:value="${analysis.id}">
+                        <input type="hidden" th:name="analysis" th:id="'exportWord.analysis.' + ${nameControl}" th:value="${analysisId != null ? analysisId : (analysis?.id ?: 0)}">
 
                         <!-- Check if types is not empty -->
                         <div th:if="${not #lists.isEmpty(types)}">

@@ -1,16 +1,9 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Impact Type</title>
-</head>
-<body>
+<th:block th:fragment="content">
     <th:block th:with="impactLanguage=${#strings.toUpperCase(language)}">
     <div th:switch="${(type == null or (type != null and type.quantitative != true)) and (type != null and type.qualitative == true)}">
             <div th:case="true">
                 <div class="row">
-                    <th:block th:include="~{templates/analyses/single/components/setting/parameters/probability/likelihood}"></th:block>
+                    <th:block th:include="~{templates/analyses/single/components/parameters/probability/likelihood :: content}"></th:block>
                     <th:block th:with="writeIndex=${1}"></th:block>
                 </div>
             </div>
@@ -24,7 +17,7 @@
                 <div th:switch="${impactType.name}">
                     <div th:case="'IMPACT'">
                         <div th:if="${writeIndex % 2 != 0 and status.index == #lists.size(impactTypes) - 1}">
-                            <th:block th:include="~{templates/analyses/single/components/setting/parameters/probability/dynamic}"></th:block>
+                            <th:block th:include="~{templates/analyses/single/components/parameters/probability/dynamic :: content}"></th:block>
                             <th:block th:with="writtenDynamic=${true}"></th:block>
                         </div>
                     </div>
@@ -48,22 +41,22 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <div th:each="parameter : ${mappedParameters[impactName]}">
-                                            <tr th:data-trick-class="ImpactParameter" th:data-trick-id="${parameter.id}">
-                                                <td th:data-trick-field="level" class="textaligncenter" th:text="${parameter.level}"></td>
-                                                <td th:data-trick-field="label" th:data-trick-acronym-value="${#strings.escapeXml(parameter.acronym)}" class="textaligncenter" th:text="${parameter.label}"></td>
-                                                <td th:data-trick-field="description" th:data-trick-content="text" th:data-trick-field-type="string" class="editable" th:onclick="|return editField(this);|">
-                                                    <span th:text="${parameter.description}"></span>
-                                                </td>
-                                            </tr>
-                                        </div>
+                                        <tr th:each="parameter : ${mappedParameters[impactName]}"
+                                            th:data-trick-class="ImpactParameter"
+                                            th:data-trick-id="${parameter.id}">
+                                            <td th:data-trick-field="level" class="textaligncenter" th:text="${parameter.level}"></td>
+                                            <td th:data-trick-field="label" th:data-trick-acronym-value="${#strings.escapeXml(parameter.acronym)}" class="textaligncenter" th:text="${parameter.label}"></td>
+                                            <td th:data-trick-field="description" th:data-trick-content="text" th:data-trick-field-type="string" class="editable" th:onclick="|return editField(this);|">
+                                                <span th:text="${parameter.description}"></span>
+                                            </td>
+                                        </tr>
                                     </tbody>
                                 </table>
                             </fieldset>
                         </div>
                         <div th:if="${writeIndex % 2 != 0 or status.index == #lists.size(impactTypes) - 1}">
                             <div th:if="${status.index == #lists.size(impactTypes) - 1}">
-                                <th:block th:include="~{templates/analyses/single/components/settings/parameters/probability/dynamic}"></th:block>
+                                <th:block th:include="~{templates/analyses/single/components/parameters/probability/dynamic :: content}"></th:block>
                                 <th:block th:with="writtenDynamic=${true}"></th:block>
                             </div>
                         </div>
@@ -74,10 +67,9 @@
 
             <div th:if="${(writtenDynamic != true) and (type != null and type.quantitative) and (showDynamicAnalysis == true)}">
                 <div class="row">
-                    <th:block th:include="~{templates/analyses/single/components/settings/parameters/probability/dynamic}"></th:block>
+                    <th:block th:include="~{templates/analyses/single/components/parameters/probability/dynamic :: content}"></th:block>
                 </div>
             </div>
         </th:block>
     </th:block>
-</body>
-</html>
+</th:block>

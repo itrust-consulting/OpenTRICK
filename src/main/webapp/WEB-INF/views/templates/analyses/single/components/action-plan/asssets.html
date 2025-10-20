@@ -66,7 +66,7 @@
                                     th:attr="data-trick-class='ActionPlanEntry', data-trick-id=${ape.id}"
                                     th:attrappend="data-trick-callback=|reloadMeasureRow('${ape.measure.id}', '${ape.measure.measureDescription.standard.label}')|">
                                     <td th:text="${ape.order}"></td>
-                                    <td th:text="${ape.measure.measureDescription.standard.name}"></td>
+                                    <td th:text="${ape.measure != null and ape.measure.measureDescription != null and ape.measure.measureDescription.standard != null ? ape.measure.measureDescription.standard.name : ''}"></td>
                                     <td th:text="${ape.measure.measureDescription.reference}"></td>
                                     <td th:classappend="${ape.totalALE == 0} ? 'danger'"
                                         th:title="|${ape.totalALE} €|"

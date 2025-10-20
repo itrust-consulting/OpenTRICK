@@ -71,8 +71,15 @@
 
 	<th:block sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_SUPERVISOR','ROLE_CONSULTANT', 'ROLE_USER')">
 		<div class="hidden" id="controller-notifications">
-			<div th:replace="~{templates/template/successErrors :: successErrors}"></div>
-			<div th:replace="~{templates/template/notifications :: notifications}"></div>
+			<!-- Render global success/error banners only when any is present -->
+			<th:block th:if="${success != null or error != null or errors != null or errorTRICKException != null or errorHANDLER != null}">
+				<div th:replace="~{templates/template/successErrors :: successErrors}"></div>
+			</th:block>
+
+			<!-- Render user notifications only when list exists and is not empty -->
+			<th:block th:if="${userNotifcations != null and !#lists.isEmpty(userNotifcations)}">
+				<div th:replace="~{templates/template/notifications :: notifications}"></div>
+			</th:block>
 		</div>
 	</th:block>
 

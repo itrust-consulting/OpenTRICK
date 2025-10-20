@@ -5,80 +5,106 @@
     <div id="wrap" class="wrap">
         <div th:replace="templates/template/menu :: main-menu(menu, analysisSharedCount)"></div>
         <div class="container" data-ug-root="analysis">
-            <div th:replace="templates/analyses/single/menu :: analysis-menu"></div>
+            <!-- Diagnostic gate: use ?only={section} to render a single section (e.g., history, parameters, standards) -->
+            <th:block th:with="only=${param.only != null and !#lists.isEmpty(param.only) ? param.only[0] : ''}">
+            <th:block th:if="${analysis != null}">
+                <div th:if="${param.debug != null}" class="alert alert-info" role="alert" style="margin: 10px 0;">
+                    <strong>Debug:</strong>
+                    <span>rendering section: </span>
+                    <code th:text="${#strings.isEmpty(only) ? 'ALL' : only}">ALL</code>
+                </div>
+                <div th:replace="templates/analyses/single/menu :: analysis-menu"></div>
 
-            <div class="tab-content" id="nav-container"
-                 th:attr="data-trick-id=${analysis.id},
-                          data-trick-class='Analysis',
-                          data-trick-rights-id=${analysis.profile ? 0 : analysis.findRightsforUserString(login).right.ordinal()},
-                          data-trick-language=${#locale.language}">
+             <div class="tab-content" id="nav-container"
+            th:attr="data-trick-id=${analysisId != null ? analysisId : (analysis?.id ?: 0)},
+                     data-trick-class='Analysis',
+                     data-trick-rights-id=${isProfile ? 0 : (accessLevel != null ? accessLevel : (analysis?.findRightsforUserString(login)?.right?.ordinal() ?: 0))},
+                     data-trick-language=${#locale.language}">
 
-                <th:block th:if="${isProfile != true}">
-                    <th:block th:with="histories=${analysis.histories}"
+                <th:block th:if="${(isProfile != true) and (#strings.isEmpty(only) or only == 'history')}">
+                    <th:block th:with="histories=${analysis != null ? analysis.histories : null}"
                               th:replace="templates/analyses/single/components/history"></th:block>
                 </th:block>
 
-                <th:block th:if="${isProfile != true}">
-                    <th:block th:with="itemInformations=${analysis.itemInformations}"
+                <th:block th:if="${(isProfile != true) and (#strings.isEmpty(only) or only == 'scope')}">
+                    <th:block th:with="itemInformations=${analysis != null ? analysis.itemInformations : null}"
                               th:replace="templates/analyses/single/components/iteminformation"></th:block>
                 </th:block>
 
-                <th:block th:if="${type != null and (type.qualitative == true)}">
-                    <th:block th:with="impactTypes=${analysis.findImpacts()}"></th:block>
+                <th:block th:if="${(type != null and (type.qualitative == true)) and (#strings.isEmpty(only) or only == 'parameters')}">
+                    <th:block th:with="impactTypes=${analysis != null ? analysis.findImpacts() : null}"></th:block>
                 </th:block>
 
-                <th:block th:with="parameters=${analysis.parameters}"
-                          th:replace="templates/analyses/single/components/parameters/home"></th:block>
+                <th:block th:if="${#strings.isEmpty(only) or only == 'parameters'}"
+                          th:with="parameters=${analysis != null ? analysis.parameters : null}"
+                          th:replace="templates/analyses/single/components/parameters/home :: content"></th:block>
 
-                <th:block th:if="${isProfile != true}"
-                          th:replace="templates/analyses/single/components/risk-information/home"></th:block>
+                <th:block th:if="${(isProfile != true) and (#strings.isEmpty(only) or only == 'riskinfo')}"
+                          th:replace="templates/analyses/single/components/risk-information/home :: content"></th:block>
 
-                <th:block th:if="${isProfile != true}">
-                    <th:block th:with="assets=${analysis.assets}"
+                <th:block th:if="${(isProfile != true) and (#strings.isEmpty(only) or only == 'riskestimation')}">
+                    <th:block th:with="assets=${analysis != null ? analysis.assets : null}"
                               th:replace="templates/analyses/single/components/risk-estimation/home"></th:block>
                     <th:block th:if="${type != null and (type.quantitative == true)}">
                         <th:block th:with="assetALE=${assetALE}, scenarioALE=${scenarioALE}"></th:block>
                     </th:block>
-                    <th:block th:with="assets=${analysis.assets}"
+                    <th:block th:with="assets=${analysis != null ? analysis.assets : null}"
                               th:replace="templates/analyses/single/components/asset/asset"></th:block>
                 </th:block>
 
-                <th:block th:with="scenarios=${analysis.scenarios}"
-                          th:replace="templates/analyses/single/components/scenario/scenario"></th:block>
+                <th:block th:if="${#strings.isEmpty(only) or only == 'scenario'}"
+                          th:with="scenarios=${analysis != null ? analysis.scenarios : null}"
+                          th:replace="templates/analyses/single/components/scenario/scenario :: content"></th:block>
 
-                <th:block th:with="phases=${analysis.phases}"
+                <th:block th:if="${#strings.isEmpty(only) or only == 'phase'}"
+                          th:with="phases=${analysis != null ? analysis.phases : null}"
                           th:replace="templates/analyses/single/components/phase/home"></th:block>
 
-                <th:block th:replace="templates/analyses/single/components/standards/standard/standards"></th:block>
-                <th:block th:replace="templates/analyses/single/components/standards/edition/home"></th:block>
+                <th:block th:if="${#strings.isEmpty(only) or only == 'standards'}"
+                          th:replace="templates/analyses/single/components/standards/standard/standards :: content"></th:block>
+                <th:block th:if="${#strings.isEmpty(only) or only == 'edition'}"
+                          th:replace="templates/analyses/single/components/standards/edition/home :: content"></th:block>
 
-                <th:block th:if="${isProfile != true}"
+                <th:block th:if="${(isProfile != true) and (#strings.isEmpty(only) or only == 'soa')}"
                           th:replace="templates/analyses/single/components/soa/home"></th:block>
 
-                <th:block th:if="${isProfile != true}">
-                    <th:block th:with="actionplans=${analysis.actionPlans}"
+                <th:block th:if="${(isProfile != true) and (#strings.isEmpty(only) or only == 'actionplan')}">
+                    <th:block th:with="actionplans=${analysis != null ? analysis.actionPlans : null}"
                               th:replace="templates/analyses/single/components/action-plan/section"></th:block>
                 </th:block>
 
-                <th:block th:if="${isProfile != true}">
-                    <th:block th:with="summaries=${analysis.summaries}"
+                <th:block th:if="${(isProfile != true) and (#strings.isEmpty(only) or only == 'summary')}">
+                    <th:block th:with="summaries=${analysis != null ? analysis.summaries : null}"
                               th:replace="templates/analyses/single/components/summary"></th:block>
                 </th:block>
 
-                <th:block th:if="${type != null and (type.qualitative == true) and (isProfile != true)}">
-                    <th:block th:with="riskregister=${analysis.riskRegisters}"
-                              th:replace="templates/analyses/single/components/riskRegister/home"></th:block>
+                <th:block th:if="${(type != null and (type.qualitative == true) and (isProfile != true)) and (#strings.isEmpty(only) or only == 'riskregister')}">
+                    <th:block th:with="riskregister=${analysis != null ? analysis.riskRegisters : null}"
+                              th:replace="templates/analyses/single/components/riskRegister/home :: content"></th:block>
                 </th:block>
 
-                <th:block th:if="${isProfile != true}"
+                <th:block th:if="${(isProfile != true) and (#strings.isEmpty(only) or only == 'charts')}"
                           th:replace="templates/analyses/single/components/charts"></th:block>
 
                 <div th:replace="templates/template/tab-option :: tab-option"></div>
             </div>
+            </th:block>
+            </th:block>
+
+            <th:block th:unless="${analysis != null}">
+                <div class="alert alert-info" role="alert" style="margin-top: 10px;">
+                    <span th:text="#{label.info.no_analysis_selected}">No analysis selected.</span>
+                </div>
+            </th:block>
         </div>
 
-        <div th:replace="templates/template/footer :: footer"></div>
-        <div th:replace="templates/analyses/single/components/widgets :: analysis-widgets"></div>
+        <!-- When isolating sections with ?only=..., skip footer to avoid global notifications interfering -->
+        <th:block th:if="${param.only == null or #lists.isEmpty(param.only)}">
+            <div th:replace="templates/template/footer :: footer"></div>
+        </th:block>
+        <th:block th:if="${param.only == null or #lists.isEmpty(param.only) or param.only[0] == 'widgets'}">
+            <div th:replace="templates/analyses/single/components/widgets :: analysis-widgets"></div>
+        </th:block>
     </div>
 
     <th:block th:replace="~{templates/template/scripts :: scripts}"></th:block>

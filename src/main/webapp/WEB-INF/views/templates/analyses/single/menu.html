@@ -112,8 +112,8 @@
                 <li th:if="${isEditable == true}"><a href="#" onclick="return computeAssessment();" th:text="#{label.action.generate.missing}">Generate Missing</a></li>
                 <li th:if="${(isEditable == true) and (type != null and type.quantitative == true) and (hasMaturity == true)}"><a href="#" onclick="return updateMeasureEffience(undefined, true)" th:text="#{label.action.update.efficiency}">Update Efficiency</a></li>
                 <li th:if="${isEditable == true}" class="divider"></li>
-                    <li th:if="${canExport == true}"><a href="#" th:onclick="|return exportDataManager(${analysis.id});|" th:text="#{label.action.export}">Export</a></li>
-                    <li><a href="#" th:onclick="|return importDataManager(${analysis.id});|" th:text="#{label.action.import}">Import</a></li>
+                    <li th:if="${canExport == true}"><a href="#" th:onclick="|return exportDataManager(${analysisId != null ? analysisId : (analysis?.id ?: 0)});|" th:text="#{label.action.export}">Export</a></li>
+                    <li><a href="#" th:onclick="|return importDataManager(${analysisId != null ? analysisId : (analysis?.id ?: 0)});|" th:text="#{label.action.import}">Import</a></li>
                     <li class="divider"></li>
                 <li th:if="${((isProfile == true) or (isEditable == true)) and (type != null and type.quantitative)}"><a href="#" onclick="return loadRRF();" th:text="#{label.title.rrf}">RRF</a></li>
                 <li th:if="${((isProfile == true) or (isEditable == true)) and (type != null and type.quantitative)}" class="divider"></li>
@@ -139,8 +139,8 @@
             <li th:if="${(isProfile != true) and (isEditable == true)}"><a href="#" onclick="return computeAssessment();" th:text="#{label.action.generate.missing}">Generate Missing</a></li>
             <li th:if="${(isProfile != true) and (isEditable == true) and (type != null and type.quantitative == true) and (hasMaturity == true)}"><a href="#" onclick="return updateMeasureEffience(undefined, true)" th:text="#{label.action.update.efficiency}">Update Efficiency</a></li>
             <li th:if="${(isProfile != true) and (isEditable == true)}" class="divider"></li>
-            <li th:if="${(isProfile != true) and (isEditable == true) and (canExport == true)}"><a href="#" th:onclick="|return exportDataManager(${analysis.id});|" th:text="#{label.action.export}">Export</a></li>
-            <li th:if="${(isProfile != true) and (isEditable == true)}"><a href="#" th:onclick="|return importDataManager(${analysis.id});|" th:text="#{label.action.import}">Import</a></li>
+            <li th:if="${(isProfile != true) and (isEditable == true) and (canExport == true)}"><a href="#" th:onclick="|return exportDataManager(${analysisId != null ? analysisId : (analysis?.id ?: 0)});|" th:text="#{label.action.export}">Export</a></li>
+            <li th:if="${(isProfile != true) and (isEditable == true)}"><a href="#" th:onclick="|return importDataManager(${analysisId != null ? analysisId : (analysis?.id ?: 0)});|" th:text="#{label.action.import}">Import</a></li>
             <li th:if="${(isProfile != true) and (isEditable == true)}" class="divider"></li>
             <li th:if="${((isProfile == true) or (isEditable == true)) and (type != null and type.quantitative == true)}"><a href="#" onclick="return loadRRF();" th:text="#{label.title.rrf}">RRF</a></li>
             <li th:if="${((isProfile == true) or (isEditable == true)) and (type != null and type.quantitative == true)}" class="divider"></li>

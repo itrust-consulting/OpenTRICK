@@ -1,10 +1,4 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-<head>
-    <meta charset="UTF-8">
-    <title>Measure Status</title>
-</head>
-<body>
+<th:block th:fragment="content">
 <th:block
   th:with="
     lang=${(locale != null ? locale : #locale.getDefault()).language},
@@ -32,11 +26,9 @@
     hasTicket=${isLinkedToProject and measure.ticket != null}
   ">
 
-<table>
-  <tr th:data-trick-computable="false"
-      th:attr="data-trick-reference=${measure.measureDescription.reference},
-               data-trick-class=|Measure|,
-               data-trick-id=${measure.id},
+</table>
+</th:block>
+</th:block>
                data-is-linked=${hasTicket}"
       th:onclick="|selectElement(this); reloadMeasureRow('${measure.id}','${standardid}');|"
   th:ondblclick="${(isEditable == true) and ((analysisOnly == true) or (type == 'quantitative' and measure.measureDescription.computable and selectedStandard.computable and selectedStandard.type != 'MATURITY'))} ? |return editMeasure(this, ${standardid}, ${measure.id});| : null"
@@ -131,7 +123,7 @@
       </span>
     </td>
 
-    <td th:if="${standardType.name == 'MATURITY'}"
+  <td th:if="${standardType != null and standardType.name == 'MATURITY'}"
         th:attr="data-trick-field=|implementationRate|,
                  data-trick-class=|MaturityMeasure|,
                  data-trick-field-type=|double|,
@@ -141,7 +133,7 @@
       <span th:text="${implementationRateValue}"></span>
     </td>
 
-    <td th:unless="${standardType.name == 'MATURITY'}"
+  <td th:unless="${standardType != null and standardType.name == 'MATURITY'}"
         th:attr="data-trick-field=|implementationRate|,
                  data-trick-field-type=|string|,
                  data-trick-callback=|reloadMeasureAndCompliance('${standardid}','${measure.id}')|"
@@ -216,7 +208,7 @@
       <span th:text="${measure.responsible}"></span>
     </td>
 
-    <td th:if="${standardType.name == 'NORMAL' or standardType.name == 'ASSET'}"
+  <td th:if="${standardType != null and (standardType.name == 'NORMAL' or standardType.name == 'ASSET')}"
         th:attr="data-trick-field=|toCheck|, data-trick-content=|text|, data-trick-field-type=|string|">
       <span th:text="${measure.toCheck}"></span>
     </td>

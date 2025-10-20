@@ -1,11 +1,4 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
-
-<head>
-    <meta charset="UTF-8">
-</head>
-<body>
+<th:block th:fragment="content">
 
     <!-- Determine locale and language from Thymeleaf context -->
     <div th:with="locale=${#locale}, language=${locale.language}"></div>
@@ -46,9 +39,9 @@
                         <span class="col-sm-offset-1 col-sm-7">
                             <select id="measure-collection-selector" class="form-control" style="max-width: 280px;">
                                 <option th:each="standard, stat : ${standards}"
-                                        th:value="'tab-standard-' + ${standard.id}"
-                                        th:attr="data-trick-name=#{${standard.name}}"
-                                        th:text="#{${standard.name}}">
+                                        th:value="${standard != null ? 'tab-standard-' + standard.id : ''}"
+                                        th:attr="data-trick-name=${standard != null ? #messages.msg(standard.name) : ''}"
+                                        th:text="${standard != null ? #messages.msg(standard.name) : ''}">
                                 </option>
                             </select>
                         </span>
@@ -56,16 +49,16 @@
                 </div>
             </div>
         </div>
-    <tr th:each="standard : ${measuresByStandard != null ? measuresByStandard.keySet() : {}}">
+    <th:block th:each="standard : ${measuresByStandard != null ? measuresByStandard.keySet() : {}}">
             <div th:with="
             selectedStandard=${T(lu.itrust.business.ts.component.MeasureManager).getStandard(standards, standard)},
-            standardType=${selectedStandard.type},
-            standardid=${selectedStandard.id},
-            analysisOnly=${selectedStandard.analysisOnly},
-            measureExportUrl=@{'/Analysis/Standard/' + ${selectedStandard.id} + '/Export/Measure'}
+            standardType=${selectedStandard != null ? selectedStandard.type : null},
+            standardid=${selectedStandard != null ? selectedStandard.id : 0},
+            analysisOnly=${selectedStandard != null ? selectedStandard.analysisOnly : false},
+            measureExportUrl=${selectedStandard != null ? '/Analysis/Standard/' + selectedStandard.id + '/Export/Measure' : ''}
             ">
                 <!-- Use the variables here -->
-                <a th:href="${measureExportUrl}">Export Measure</a>
+                <a th:href="${measureExportUrl != '' ? measureExportUrl : null}">Export Measure</a>
             </div>
             <div th:id="'tab-standard-' + ${standardid}"
             th:attr="data-trick-id=${standardid},
@@ -209,7 +202,7 @@
                             <th width="2%" th:title="#{label.title.measure.importance}">[[#{label.measure.importance}]]</th>
                             <th width="3%" th:title="#{label.title.measure.responsible}">[[#{label.measure.responsible}]]</th>
                     
-                            <th:block th:switch="${standardType.name}">
+                            <th:block th:switch="${standardType != null ? standardType.name : ''}">
                                 <th:block th:case="'NORMAL'">
                                     <th width="14%" th:title="#{label.measure.tocheck}">[[#{label.measure.tocheck}]]</th>
                                     <th width="25%" th:title="#{label.comment}">[[#{label.comment}]]</th>
@@ -230,19 +223,18 @@
                     <tbody>
                         <!-- Measure row -->
                         <tr th:each="measure : ${measuresByStandard[standard]}"
-                            th:with="
-                                measureDescriptionText=${measure.measureDescription.getMeasureDescriptionTextByAlpha2(language)},
-                                css=${implementationRate < 100 and !(measure.status eq 'NA' or measure.status eq 'EX') ? 'editable' : ''},
-                                todoCSS=${(measure.toDo == null and css.contains('editable')) ? 'danger' : css},
-                                hasTicket=${(isLinkedToProject == true) and (measure.ticket != null)}
-                            "
+                            th:with=" measureDescriptionText=${measure.measureDescription.getMeasureDescriptionTextByAlpha2(language)},
+                                    implementationRate=${measure.getImplementationRateValue(valueFactory)},
+                                    css=${implementationRate < 100 and !(measure.status eq 'NA' or measure.status eq 'EX') ? 'editable' : ''},
+                                    todoCSS=${(measure.toDo == null and css.contains('editable')) ? 'danger' : css},
+                                    hasTicket=${(isLinkedToProject == true) and (measure.ticket != null)} "
                             th:data-trick-computable="${not measure.measureDescription.computable}"
                             th:data-trick-reference="${measure.measureDescription.reference}"
                             th:onclick="selectElement(this)" th:data-trick-class="'Measure'"
                             th:classappend="${'active'}" th:data-trick-id="${measure.id}"
                             th:data-is-linked="${hasTicket}"
                             th:data-trick-callback="reloadMeasureRow(${measure.id}, ${standardid});"
-                            th:ondblclick="${(isEditable == true) and ((analysisOnly == true) or ((type != null and type.quantitative == true) and measure.measureDescription.computable and selectedStandard.computable and selectedStandard.type != 'MATURITY'))} ? |return editMeasure(this, ${standardid}, ${measure.id});| : null">
+                            th:ondblclick="${(isEditable == true) and ((analysisOnly == true) or ((type != null and type.quantitative == true) and measure.measureDescription.computable and (selectedStandard != null and selectedStandard.computable) and (standardType != 'MATURITY')))} ? |return editMeasure(this, ${standardid}, ${measure.id});| : null">
                                 <th:block th:if="${(isLinkedToProject == true) or ((analysisOnly == true) and (isEditable == true))}">
                                     <td>
                                         <input type="checkbox" th:disabled="${analysisOnly ? 'disabled' : ''}" class="checkbox"
@@ -304,9 +296,9 @@
                                     </span>
                                 </td>
                             
-                                <fmt:formatNumber th:value="${implementationRate}" th:maxFractionDigits="0" th:minFractionDigits="0" var="implementationRateValue" />
+                                <th:block th:with="implementationRateValue=${#numbers.formatDecimal(implementationRate != null ? implementationRate : 0, 0, 0)}"></th:block>
                                 
-                                <th:block th:switch="${standardType.name}">
+                                <th:block th:switch="${standardType != null ? standardType.name : ''}">
                                     <th:block th:case="'MATURITY'">
                                         <td th:data-trick-field="implementationRate" th:data-trick-class="'MaturityMeasure'" 
                                             th:data-trick-field-type="'double'" th:title="${implementationRateValue} %" 
@@ -319,46 +311,43 @@
                                     </th:block>
                                 </th:block>
                             
-                                <th:block th:switch="${(hasMaturity == true) and standard.equals('27002')}">
+                                <th:block th:switch="${(hasMaturity == true) and (standard == '27002')}">
                                     <th:block th:case="true">
                                         <td class="text-center" th:data-trick-field="mer">
                                             <span th:switch="${effectImpl27002[measure.measureDescription.reference]}">
                                                 <span th:case="null">0</span>
-                                                <span th:case="*">
-                                                    <fmt:formatNumber th:value="${effectImpl27002[measure.measureDescription.reference]}" th:maxFractionDigits="0" th:minFractionDigits="0" />
-                                                </span>
+                                                <span th:case="*" th:text="${#numbers.formatDecimal(effectImpl27002[measure.measureDescription.reference] != null ? effectImpl27002[measure.measureDescription.reference] : 0, 0, 0)}"></span>
                                             </span>
                                         </td>
                                     </th:block>
                                 </th:block>
                             
                                 <td th:data-trick-field="internalWL" th:data-trick-field-type="'double'" th:onclick="return editField(this);" 
-                                    th:data-trick-min-value="0"><fmt:formatNumber th:value="${measure.internalWL}" th:maxFractionDigits="2" /></td>
+                                    th:data-trick-min-value="0"><span th:text="${#numbers.formatDecimal(measure.internalWL != null ? measure.internalWL : 0, 0, 2)}"></span></td>
                                 <td th:data-trick-field="externalWL" th:data-trick-field-type="'double'" th:onclick="return editField(this);" 
-                                    th:data-trick-min-value="0"><fmt:formatNumber th:value="${measure.externalWL}" th:maxFractionDigits="2" /></td>
+                                    th:data-trick-min-value="0"><span th:text="${#numbers.formatDecimal(measure.externalWL != null ? measure.externalWL : 0, 0, 2)}"></span></td>
                                 <td th:data-trick-field="investment" th:data-trick-field-type="'double'" th:onclick="return editField(this);"
                                     th:data-real-value="${measure.investment*0.001}" 
                                     th:title="${fct:round(measure.investment,0)} &euro;">
-                                    <fmt:formatNumber th:value="${fct:round(measure.investment*0.001,0)}" th:maxFractionDigits="0" />
+                                    <span th:text="${#numbers.formatDecimal(((measure.investment != null ? measure.investment : 0) * 0.001), 0, 0)}"></span>
                                 </td>
                                 <td th:data-trick-field="lifetime" th:data-trick-field-type="'double'" th:onclick="return editField(this);">
-                                    <fmt:formatNumber th:value="${measure.lifetime}" th:maxFractionDigits="2" />
+                                    <span th:text="${#numbers.formatDecimal(measure.lifetime != null ? measure.lifetime : 0, 0, 2)}"></span>
                                 </td>
                                 <td th:data-trick-field="internalMaintenance" th:data-trick-field-type="'double'" th:onclick="return editField(this);">
-                                    <fmt:formatNumber th:value="${measure.internalMaintenance}" th:maxFractionDigits="2" />
+                                    <span th:text="${#numbers.formatDecimal(measure.internalMaintenance != null ? measure.internalMaintenance : 0, 0, 2)}"></span>
                                 </td>
                                 <td th:data-trick-field="externalMaintenance" th:data-trick-field-type="'double'" th:onclick="return editField(this);">
-                                    <fmt:formatNumber th:value="${measure.externalMaintenance}" th:maxFractionDigits="2" />
+                                    <span th:text="${#numbers.formatDecimal(measure.externalMaintenance != null ? measure.externalMaintenance : 0, 0, 2)}"></span>
                                 </td>
                                 <td th:data-trick-field="recurrentInvestment" th:data-trick-field-type="'double'" th:onclick="return editField(this);"
                                     th:title="${fct:round(measure.recurrentInvestment,0)} &euro;" th:data-real-value="${measure.recurrentInvestment*0.001}">
-                                    <fmt:formatNumber th:value="${fct:round(measure.recurrentInvestment*0.001,0)}" th:maxFractionDigits="0" />
+                                    <span th:text="${#numbers.formatDecimal(((measure.recurrentInvestment != null ? measure.recurrentInvestment : 0) * 0.001), 0, 0)}"></span>
                                 </td>
                             </tr>                        
                     </tbody>
                 </table>
             </div>
-        </tr>                
+        </th:block>                
     </div>
-</body>
-</html>
+</th:block>

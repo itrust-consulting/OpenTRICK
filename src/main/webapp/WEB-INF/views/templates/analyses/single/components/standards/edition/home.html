@@ -1,4 +1,4 @@
-<div id="tab-measure-edition" class="tab-pane trick-container max-height" data-update-required="true" data-trigger="updateMeasureView">
+<div th:fragment="content" id="tab-measure-edition" class="tab-pane trick-container max-height" data-update-required="true" data-trigger="updateMeasureView">
     <div class="max-height">
         <div class="col-md-2 max-height" style="z-index: 1" role="left-menu">
             <div class="page-header tab-content-header">
@@ -59,7 +59,7 @@
                 </div>
             </th:block>
         </div>
-     <div th:replace="~{templates/analyses/single/components/standards/measure}"></div>
+    <div th:replace="~{templates/analyses/single/components/standards/edition/measure :: content}"></div>
      
 
 

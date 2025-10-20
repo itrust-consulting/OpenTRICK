@@ -2,7 +2,7 @@
     <div class="container">
         <div class="row-fluid">
             <h3>
-                <span th:text="${asset.name} + ' - ' + ${scenario.name}"></span>
+                <span th:text="${(asset != null ? asset.name : '') + ' - ' + (scenario != null ? scenario.name : '')}"></span>
             </h3>
         </div>
     </div>

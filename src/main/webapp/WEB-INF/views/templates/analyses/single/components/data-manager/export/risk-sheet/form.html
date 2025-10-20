@@ -1,10 +1,4 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-<head>
-    <meta charset="UTF-8">
-    <title>Data Manager Export</title>
-</head>
-<body>
+<th:block th:fragment="content">
     <fieldset>
         <legend th:text="#{label.title.data_manager.export.${T(org.springframework.util.StringUtils).replace(item.name,'-','_')}}" />
         <div class="alert alert-sm alert-info" style="margin-bottom: 15px">
@@ -111,5 +105,4 @@
             </div>
         </form>
     </fieldset>
-</body>
-</html>
+</th:block>

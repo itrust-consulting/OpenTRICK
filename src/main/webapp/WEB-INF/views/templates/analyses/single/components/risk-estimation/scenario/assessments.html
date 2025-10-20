@@ -1,10 +1,4 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-<head>
-  <meta charset="UTF-8">
-  <title>Scenario Assessments</title>
-</head>
-<body>
+<th:block th:fragment="content">
 
 <!-- ensure locale/langue -->
 <th:block th:with="
@@ -52,7 +46,6 @@
             <span th:text="${impactScaleMenu}"></span> <span class="caret"></span>
           </a>
           <ul class="dropdown-menu">
-            <!-- if quantitative on top of qualitative, show quantitative header then qualitative header -->
             <th:block th:switch="${type != null and type.quantitative == true}">
               <th:block th:case="true">
                 <li class="dropdown-header">
@@ -289,15 +282,15 @@
 
       <tr th:each="assessment : ${assessments}"
           th:attr="data-trick-class=|Assessment|, data-trick-id=${assessment.id}">
-        <td style="height: 32px;" th:title="#{label.status.na}">
-          <span th:text="${assessment.asset.name}"></span>
-        </td>
+        
+          <td style="height: 32px;" th:title="#{label.status.na}">
+            <span th:text="${assessment.asset != null ? assessment.asset.name : ''}"></span>
+          </td>
 
-        <td th:title="|${assessment.asset.value != null ? #numbers.formatDecimal(assessment.asset.value, 2) : 0} €|">
-          <span th:text="${assessment.asset.value != null ? #numbers.formatDecimal(assessment.asset.value * 0.001, 0) : 0}"></span>
-        </td>
+          <td th:title="|${(assessment.asset != null and assessment.asset.value != null) ? #numbers.formatDecimal(assessment.asset.value, 2) : 0} €|">
+            <span th:text="${(assessment.asset != null and assessment.asset.value != null) ? #numbers.formatDecimal(assessment.asset.value * 0.001, 0) : 0}"></span>
+          </td>
 
-        <!-- Likelihood (qualitative path only shown in your snippet) -->
         <th:block th:with="likelihood=${assessment.likelihood}"></th:block>
         <th:block th:if="${type != null and type.qualitative == true}">
           <th:block th:if="${type != null and type.quantitative == true}">
@@ -366,7 +359,6 @@
             </th:block>
           </th:block>
 
-          <!-- Quantitative columns (when qualitative + quantitative) -->
           <th:block th:if="${type != null and type.quantitative}">
             <th:block th:if="${show_uncertainty == true}">
               <td class="editable"
@@ -443,5 +435,4 @@
   </table>
 </div>
 
-</body>
-</html>
+</th:block>

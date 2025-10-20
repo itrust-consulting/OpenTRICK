@@ -5,7 +5,7 @@
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                 <h4 class="modal-title" id="addAssetModel-title">
-                    <span th:text="#{label.title.asset.__${asset == null}__ ? 'add' : 'edit'}"></span>
+                    <span th:text="${asset == null} ? #{label.title.asset.add} : #{label.title.asset.edit}"></span>
                 </h4>
             </div>
             <div class="modal-body">
@@ -36,10 +36,10 @@
                             <select name="assetType" class="form-control" id="asset_assettype_id">
                                 <option value="0" th:text="#{label.asset.type.select}" 
                                     th:if="${assettypes != null}"></option>
-                                <option th:each="type : ${assettypes}" 
-                                        th:value="${type.id}"
-                                        th:selected="${asset != null and asset.assetType?.id == type.id}"
-                                        th:text="#{label.asset_type.${#strings.toLowerCase(type.name)}}"></option>
+                <option th:each="type : ${assettypes}" 
+                    th:value="${type.id}"
+                    th:selected="${asset != null and asset.assetType?.id == type.id}"
+                    th:text="${#messages.msg('label.asset_type.' + #strings.toLowerCase(type.name))}"></option>
                                 <option value="0" th:if="${assettypes == null}" th:text="#{label.asset.type.loading}"></option>
                             </select>
                         </div>
@@ -52,8 +52,8 @@
                         </label>
                         <div class="col-sm-9">
                             <div class="input-group">
-                                <input name="value" id="asset_value" class="form-control"
-                                       th:value="${asset == null} ? 0 : ${#numbers.formatDecimal(asset.value * 0.001, 1, 'COMMA', 'POINT')}" />
+                    <input name="value" id="asset_value" class="form-control"
+                        th:value="${asset == null ? 0 : #numbers.formatDecimal(asset.value * 0.001, 1, 1)}" />
                                 <span class="input-group-addon">k&euro;</span>
                             </div>
                         </div>

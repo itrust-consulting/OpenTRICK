@@ -23,7 +23,7 @@
                             </li>
                         </ul>
                         <li class="pull-right">
-                            <a href="#" th:onclick="|return displayActionPlanOptions(${analysisId == null ? analysis.id : analysisId});|">
+                            <a href="#" th:onclick="|return displayActionPlanOptions(${analysisId != null ? analysisId : (analysis?.id ?: 0)});|">
                                 <i class="glyphicon glyphicon-expand"></i>
                                 <span th:text="#{label.action.compute}"></span>
                             </a>

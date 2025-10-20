@@ -1,4 +1,4 @@
-<div th:if="${type != null and type.quantitative and (showDynamicAnalysis == true)}" class="col-md-6 probability-dynamic">
+<div th:fragment="content" th:if="${type != null and type.quantitative and (showDynamicAnalysis == true)}" class="col-md-6 probability-dynamic">
     <fieldset id="DynamicParameters">
         <legend>
             <span th:text="#{label.parameter.dynamic.probability}"></span>

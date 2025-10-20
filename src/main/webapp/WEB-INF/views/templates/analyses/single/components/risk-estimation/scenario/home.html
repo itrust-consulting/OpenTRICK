@@ -1,14 +1,4 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Estimation UI</title>
-</head>
-<body>
-
-    
+<th:block th:fragment="content">
 
     <div th:switch="${not #lists.isEmpty(assessments)}">
         <div th:case="true">
@@ -26,7 +16,7 @@
                  th:data-trick-content="'scenario'">
                 <div th:switch="${type != null and type.qualitative}">
                     <div th:case="true">
-                        <th:block th:include="templates/analyses/single/components/risk-estimation/scenario/form/qualitative"></th:block>
+                        <th:block th:include="templates/analyses/single/components/risk-estimation/scenario/form/qualitative :: content"></th:block>
                     </div>
                     <div th:case="false">
                         <div th:set="rowLength=${showHiddenComment ? 14 : 30}">
@@ -47,5 +37,4 @@
         </div>
     </div>
 
-</body>
-</html>
+</th:block>

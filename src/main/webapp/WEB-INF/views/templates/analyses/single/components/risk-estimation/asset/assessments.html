@@ -48,7 +48,7 @@
             <div class="container">
                 <div class="row-fluid">
                     <h3 role="title"
-                        th:text="#{label.assessment.for.asset(${asset.name}, ${#numbers.formatDecimal((asset.value != null ? asset.value : 0) * 0.001, 0, 'COMMA', 0, 'POINT')})}">
+                        th:text="#{label.assessment.for.asset(${asset != null ? asset.name : ''}, ${#numbers.formatDecimal((asset != null and asset.value != null ? asset.value : 0) * 0.001, 0, 0)})}">
                         Assessment for Asset
                     </h3>
                 </div>
@@ -188,7 +188,9 @@
                     <th:block th:with="naParameterLabel='0-' + ${#messages.msg('label.parameter.label.na')}">
                         <th:block th:each="assessment : ${assessments}">
                             <tr data-trick-class="Assessment" data-trick-id="${assessment.id}">
-                                <td style="height: 32px;" th:title="${assessment.scenario.description}" th:text="${assessment.scenario.name}"></td>
+                                <td style="height: 32px;"
+                                    th:title="${assessment.scenario != null ? assessment.scenario.description : ''}"
+                                    th:text="${assessment.scenario != null ? assessment.scenario.name : ''}"></td>
                                 <th:block th:with="likelihood=${assessment.likelihood}">
                                     <th:block th:switch="${type != null and type.qualitative == true}">
                                         <th:block th:case="${type != null and type.quantitative == true}">
@@ -205,7 +207,7 @@
                                                         </td>
                                                     </th:block>
                                                     <th:block th:unless="${likelihood.real == 0}">
-                                                        <th:block th:with="realValue=${#numbers.formatDecimal(likelihood.real != null ? likelihood.real : 0,3,'#0.###')}">
+                                                        <th:block th:with="realValue=${#numbers.formatDecimal(likelihood.real != null ? likelihood.real : 0, 0, 3)}">
                                                             <td data-trick-field="likelihood" data-trick-field-type="string" class="editable" onclick="return editField(this);" th:title="${realValue}" data-real-value="${realValue}">
                                                                 <span th:text="${likelihood.variable}"></span>
                                                             </td>
@@ -213,7 +215,7 @@
                                                     </th:block>
                                                 </th:block>
                                                 <th:block th:case="*">
-                                                    <td data-trick-field="likelihood" data-trick-field-type="string" class="editable" onclick="return editField(this);" data-real-value="${likelihood.raw}" th:title="${#numbers.formatDecimal(likelihood.real != null ? likelihood.real : 0,3)}">
+                                                    <td data-trick-field="likelihood" data-trick-field-type="string" class="editable" onclick="return editField(this);" data-real-value="${likelihood.raw}" th:title="${#numbers.formatDecimal(likelihood.real != null ? likelihood.real : 0, 0, 3)}">
                                                         <span th:text="${likelihood.variable}"></span>
                                                     </td>
                                                 </th:block>
@@ -229,17 +231,17 @@
                                         <th:block th:unless="${#strings.isEmpty(impact)}">
                                             <th:block th:switch="${impact.raw == impact.real}">
                                                 <th:block th:case="*">
-                                                    <th:block th:with="realImpact=${#numbers.formatDecimal(impact.real != null ? impact.real : 0, 3, '#0.###')}">
+                                                    <th:block th:with="realImpact=${#numbers.formatDecimal(impact.real != null ? impact.real : 0, 0, 3)}">
                                                         <th:block th:switch="${impact.real < 10000}">
                                                             <th:block th:case="true">
-                                                                <th:block th:with="impactValue=${#numbers.formatDecimal(((impact.real != null ? impact.real : 0) * 0.001), 3)}">
+                                                                <th:block th:with="impactValue=${#numbers.formatDecimal(((impact.real != null ? impact.real : 0) * 0.001), 0, 3)}">
                                                                     <td data-trick-field="IMPACT" data-trick-field-type="string" class="editable" onclick="return editField(this);" th:title="${realImpact} &euro;" data-real-value="${impactValue}">
                                                                         <span th:text="${impactValue}"></span>
                                                                     </td>
                                                                 </th:block>
                                                             </th:block>
                                                             <th:block th:case="false">
-                                                                <th:block th:with="impactValue=${#numbers.formatDecimal(((impact.real != null ? impact.real : 0) * 0.001), 0)}">
+                                                                <th:block th:with="impactValue=${#numbers.formatDecimal(((impact.real != null ? impact.real : 0) * 0.001), 0, 0)}">
                                                                     <td data-trick-field="IMPACT" data-trick-field-type="string" class="editable" onclick="return editField(this);" th:title="${realImpact} &euro;" data-real-value="${impactValue}">
                                                                         <span th:text="${impactValue}"></span>
                                                                     </td>

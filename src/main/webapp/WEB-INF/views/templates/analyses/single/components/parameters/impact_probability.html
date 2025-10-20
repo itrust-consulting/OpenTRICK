@@ -1,10 +1,4 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body>
+<th:block th:fragment="content">
     <div th:object="${locale}" th:if="${locale != null}">
         <div th:field="*{locale}" th:value="'fr'"></div>
     </div>
@@ -22,23 +16,22 @@
             <div th:switch="${type != null and type.quantitative}">
                 <div th:case="true">
                     <div class="row">
-                        <div th:replace="~{templates/analyses/single/components/parameters/impact/financial}"></div>
-                        <div th:replace="~{templates/analyses/single/components/parameters/probability/likelihood}"></div>
-                        <div th:replace="~{templates/analyses/single/components/parameters/probability/dynamic}"></div>
+                        <div th:replace="~{templates/analyses/single/components/parameters/impact/financial :: content}"></div>
+                        <div th:replace="~{templates/analyses/single/components/parameters/probability/likelihood :: content}"></div>
+                        <div th:replace="~{templates/analyses/single/components/parameters/probability/dynamic :: content}"></div>
                     </div>
                 </div>
 
                 <div th:case="false">
                     <div th:if="${type != null and type.quantitative}">
                         <div class="row">
-                            <div th:replace="~{templates/analyses/single/components/parameters/probability/likelihood}"></div>
-                            <div th:replace="~{templates/analyses/single/components/parameters/impact/financial}"></div>
+                            <div th:replace="~{templates/analyses/single/components/parameters/probability/likelihood :: content}"></div>
+                            <div th:replace="~{templates/analyses/single/components/parameters/impact/financial :: content}"></div>
                         </div>
                     </div>
-                    <div th:replace="~{templates/analyses/single/components/parameters/impact/qualitative}"></div>
+                    <div th:replace="~{templates/analyses/single/components/parameters/impact/qualitative :: content}"></div>
                 </div>
             </div>
         </div>
     </div>
-</body>
-</html>
+</th:block>
