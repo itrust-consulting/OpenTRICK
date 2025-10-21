@@ -5,13 +5,10 @@ package lu.itrust.business.ts.asynchronousWorkers;
 
 import java.io.IOException;
 import java.sql.Timestamp;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -105,8 +102,7 @@ public class WorkerGenerateTickets extends WorkerImpl {
 			executeTask(session);
 		} catch (Exception e) {
 			TrickLogManager.persist(e);
-			if (e instanceof TrickException) {
-				TrickException e1 = (TrickException) e;
+			if (e instanceof TrickException e1) {
 				getServiceTaskFeedback().send(getId(),
 						new MessageHandler(e1.getCode(), e1.getParameters(), e.getMessage(), e));
 			} else

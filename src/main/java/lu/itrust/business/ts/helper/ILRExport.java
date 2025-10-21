@@ -17,7 +17,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.springframework.util.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import lu.itrust.business.ts.constants.Constant;
 import lu.itrust.business.ts.exception.TrickException;
@@ -145,8 +145,8 @@ public class ILRExport {
 
             final Map<String, Assessment> myAssessments = monarcInstances.isEmpty() ? Collections.emptyMap()
                     : entry.getValue().stream()
-                            .filter(e -> StringUtils.hasText(e.getScenario().getThreat())
-                                    && StringUtils.hasText(e.getScenario().getVulnerability()))
+                            .filter(e -> !(StringUtils.isBlank(e.getScenario().getThreat())
+                                    || StringUtils.isBlank(e.getScenario().getVulnerability())))
                             .collect(Collectors.toMap(e -> e.getScenario().getILRKey(), Function.identity()));
 
             for (MonarcInstance monarcInstance : monarcInstances) {
@@ -168,12 +168,12 @@ public class ILRExport {
 
                 final Map<Integer, Set<MonarcRecs>> mysRects = new HashMap<>();
 
-                database.searchAMVByInstanceId(monarcInstance.getId()).forEach(amv -> {
-                    updateAMVAndRecos(mappingProfiles, measureMappers, recsMappers, myAssessments, risks,
-                            threats,
-                            vulnerabilities, mysRects, amv, maxVulnerabilityScale);
-
-                });
+                database.searchAMVByInstanceId(monarcInstance.getId())
+                        .forEach(amv -> updateAMVAndRecos(monarcInstance, mappingProfiles, measureMappers, recsMappers,
+                                myAssessments,
+                                risks,
+                                threats,
+                                vulnerabilities, mysRects, amv, maxVulnerabilityScale));
 
                 mysRects.forEach((id, recs) -> {
                     final Map<String, MonarcRecos> recos = monarcInstance.getRecos().computeIfAbsent(id + "",
@@ -194,7 +194,7 @@ public class ILRExport {
         database.getMethod().setStepManage(true);
 
         // Delete recs without description.
-        database.removeIf(e -> !StringUtils.hasText(e.getDescription()));
+        database.removeIf(e -> StringUtils.isBlank(e.getDescription()));
 
         database.saveInstancesToJSON(data.getAbsolutePath());
 
@@ -210,7 +210,9 @@ public class ILRExport {
         }
     }
 
-    private void updateAMVAndRecos(final Map<String, RiskProfile> mappingProfiles,
+    private void updateAMVAndRecos(
+            final MonarcInstance instance,
+            final Map<String, RiskProfile> mappingProfiles,
             final Map<String, Map<String, MonarcMeasures>> measureMappers,
             final Map<String, Map<String, MonarcRecs>> recsMappers,
             final Map<String, Assessment> myAssessments, final Map<String, MonarcRisks> risks,
@@ -231,8 +233,8 @@ public class ILRExport {
         risk.setVulnerabilityRate(
                 Math.max(Math.min(assessment.getVulnerability(), maxVulnerabilityScale), risk.getVulnerabilityRate()));
 
-        if (StringUtils.hasText(assessment.getOwner())) {
-            if (StringUtils.hasText(risk.getRiskOwner())) {
+        if (!StringUtils.isBlank(assessment.getOwner())) {
+            if (!StringUtils.isBlank(risk.getRiskOwner())) {
                 if (!risk.getRiskOwner().toLowerCase().contains(assessment.getOwner().toLowerCase()))
                     risk.setRiskOwner(risk.getRiskOwner() + ", " + assessment.getOwner());
             } else {
@@ -247,8 +249,8 @@ public class ILRExport {
             risk.setThreatRate(Math.max(risk.getThreatRate(), 0));
         else {
 
-            if (StringUtils.hasText(riskProfile.getRiskTreatment())) {
-                if (StringUtils.hasText(risk.getComment())) {
+            if (!StringUtils.isBlank(riskProfile.getRiskTreatment())) {
+                if (!StringUtils.isBlank(risk.getComment())) {
                     if (!risk.getComment().toLowerCase().contains(riskProfile.getRiskTreatment().toLowerCase()))
                         risk.setComment(risk.getComment() + ". " + riskProfile.getRiskTreatment());
                 } else {
@@ -256,8 +258,8 @@ public class ILRExport {
                 }
             }
 
-            if (StringUtils.hasText(riskProfile.getActionPlan())) {
-                if (StringUtils.hasText(risk.getContext())) {
+            if (!StringUtils.isBlank(riskProfile.getActionPlan())) {
+                if (!StringUtils.isBlank(risk.getContext())) {
                     if (!risk.getContext().toLowerCase()
                             .contains(riskProfile.getActionPlan().toLowerCase()))
                         risk.setContext(risk.getContext() + ". " + riskProfile.getActionPlan());
@@ -282,7 +284,11 @@ public class ILRExport {
                             Collections.emptyMap())
                             .get(m.getMeasureDescription().getReference()))
                     .filter(Objects::nonNull)
-                    .forEach(m -> amv.addMeasure(m.getUuid()));
+                    .forEach(m -> {
+                        amv.addMeasure(m.getUuid());
+                        instance.addMeasure(m);
+                    });
+
             if (!(riskProfile.getExpProbaImpact() == null || riskProfile.getRiskStrategy() == RiskStrategy.ACCEPT)) {
                 risk.setReductionAmount(
                         Math.min(Math.min(
