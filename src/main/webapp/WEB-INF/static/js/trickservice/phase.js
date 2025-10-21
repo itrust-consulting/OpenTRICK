@@ -28,10 +28,10 @@ function addPhase() {
  * @returns {Object} - The current object.
  */
 function processPhaseForm(response, textStatus, jqXHR){
-	var $view = $("#phase-modal-form", new DOMParser().parseFromString(response, "text/html"));
+	let $view = $("#phase-modal-form", new DOMParser().parseFromString(response, "text/html"));
 	if ($view.length) {
 		$view.appendTo("#widgets").modal("show").on('hidden.bs.modal', () => $view.remove());
-		var $begin = $("input[name='begin']", $view), $end = $("input[name='end']", $view), $saveBtn = $("button[name='save']", $view), 
+		let $begin = $("input[name='begin']", $view), $end = $("input[name='end']", $view), $saveBtn = $("button[name='save']", $view), 
 		$submitBtn = $("button[name='submit']", $view);
 		if($begin.is(":disabled"))
 			$end.attr("min", $begin.val());

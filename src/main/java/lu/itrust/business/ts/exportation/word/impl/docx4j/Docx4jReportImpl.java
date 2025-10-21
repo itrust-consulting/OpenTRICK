@@ -1549,43 +1549,45 @@ public class Docx4jReportImpl implements Docx4jReport {
 	private String internalName(String name, AnalysisType type) {
 		final String tmp = name.toLowerCase().trim();
 		if (name.startsWith("ts_") || type == null || type.isHybrid())
-			return tmp;
+			return commonBookmarks(tmp);
+		return specificBookmarks(type, tmp);
+	}
+
+	private String specificBookmarks(AnalysisType type, final String tmp) {
 		final String prefix = type == AnalysisType.QUALITATIVE ? "ts_ql_" : "ts_qt_";
 		switch (tmp) {
 			case "additionalcollection":
 				return (type == AnalysisType.HYBRID ? "ts_hy_" : prefix) + tmp;
-			case "actionplan":
-			case "assessment":
-			case "asset":
-			case "assetnotselected":
-			case "chartcompliance27001":
-			case "chartcompliance27002":
-			case "impact":
-			case "impactlist":
-			case "phase":
-			case "proba":
-			case "summary":
+			case "actionplan", "assessment", "asset", "assetnotselected", "chartcompliance27001",
+					"chartcompliance27002", "impact", "impactlist", "phase", "proba", "summary":
 				return prefix + tmp;
-			case "dependencygraph":
-			case "chartalebyasset":
-			case "chartalebyassettype":
-			case "chartalebyscenario":
-			case "chartalebyscenariotype":
-			case "chartrentability":
-			case "chartriskbyasset":
-			case "chartriskbyassettype":
-			case "chartriskbyscenario":
-			case "chartriskbyscenariotype":
-			case "currentsecuritylevel":
-			case "listcollection":
-			case "measurescollection":
-			case "riskacceptance":
-			case "riskheatmap":
-			case "riskheatmapsummary":
-			case "scenario":
-			case "scope":
-			case "risk":
-			case "threat":
+			default:
+				return commonBookmarks(tmp);
+		}
+	}
+
+	private String commonBookmarks(final String tmp) {
+		switch (tmp) {
+			case "dependencygraph",
+					"chartalebyasset",
+					"chartalebyassettype",
+					"chartalebyscenario",
+					"chartalebyscenariotype",
+					"chartrentability",
+					"chartriskbyasset",
+					"chartriskbyassettype",
+					"chartriskbyscenario",
+					"chartriskbyscenariotype",
+					"currentsecuritylevel",
+					"listcollection",
+					"measurescollection",
+					"riskacceptance",
+					"riskheatmap",
+					"riskheatmapsummary",
+					"scenario",
+					"scope",
+					"risk",
+					"threat":
 				return "ts_" + tmp;
 			case "vul":
 				return "ts_vulnerability";

@@ -88,9 +88,7 @@ public class SummaryComputationQuantitative extends SummaryComputation {
 		// * check if calculation by phase
 		// ****************************************************************
 		switch (getActionPlanType().getActionPlanMode()) {
-			case APPN:
-			case APPO:
-			case APPP:
+			case APPN,APPO,APPP:
 				// set flag
 				byPhase = true;
 				// retrieve first phase number
