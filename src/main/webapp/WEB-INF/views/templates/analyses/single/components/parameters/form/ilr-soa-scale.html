@@ -1,0 +1,69 @@
+<div class="modal fade" id="modalIlrSoaScaleFormForm" tabindex="-1" role="dialog"
+    data-aria-labelledby="ilrSoaScaleForm" data-aria-hidden="true" data-backdrop="static"
+    data-keyboard="true" style="z-index: 1042">
+    <div class="modal-dialog modal-mdl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
+                <h4 class="modal-title" th:text="#{label.tile.manage.ilr_soa_scale}">Manage ILR SOA scale</h4>
+            </div>
+            <div class="modal-body" style="padding-top: 5px;">
+                                                <form name="ilr_soa_scale_form" class="form-horizontal" id="ilr_soa_scale_form" method="post"
+                                                            style="height: 600px; overflow-y: auto; overflow-x: hide;">
+                                                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                        <table class="table table-hover table-condensed"
+                                                     th:attr="data-trick-size=${#lists.size(parameters)}">
+                        <thead>
+                            <tr>
+                                <th th:text="#{label.action}">Action</th>
+                                <th class="textaligncenter" style="width: 27%"
+                                    th:text="#{label.implementation.rate.threshold}">Implementation rate threshold</th>
+                                <th class="textaligncenter" style="width: 55%"
+                                    th:text="#{label.description}">Description</th>
+                                <th class="textaligncenter" style="min-width: 50px;"
+                                    th:text="#{label.color}">Color</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="parameter : ${parameters}" th:attr="data-trick-id=${parameter.id}"
+                                th:with="value=${#numbers.formatDecimal(parameter.value, 0, 0)}">
+                                <td>
+                                    <button class="btn btn-danger outline" name="delete">
+                                        <i class="fa fa-remove"></i>
+                                    </button>
+                                </td>
+                                <td>
+                                    <div class="range-group">
+                                        <span class="range-text" th:text="${value}">0</span>
+                                        <input class="range-input" name="value" type="range" min="-1" max="100"
+                                               th:value="${parameter.value}" />
+                                    </div>
+                                </td>
+                                <td>
+                                    <textarea rows="1" class="form-control resize_vectical_only" name="description"
+                                              th:text="${parameter.description}"></textarea>
+                                </td>
+                                <td>
+                                    <input type="color" class="form-control form-control-static" name="color"
+                                           th:value="${parameter.color}" />
+                                </td>
+                            </tr>
+                            <tr class="panel-footer" th:attr="data-trick-max-value=${100}">
+                                <td colspan="5" align="center">
+                                    <button class="btn btn-xs btn-primary" type="button" name="add">
+                                        <i class="fa fa-plus"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" name="save" th:text="#{label.action.save}">Save</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal" name="cancel"
+                        th:text="#{label.action.cancel}">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>

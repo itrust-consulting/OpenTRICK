@@ -77,7 +77,7 @@ public class ControllerActionPlan extends AbstractController {
 	@PreAuthorize("@permissionEvaluator.userIsAuthorized(#session, #principal, T(lu.itrust.business.ts.model.analysis.rights.AnalysisRight).READ)")
 	public String showActionPlan(HttpSession session, Model model, Principal principal) throws Exception {
 		section(model, session, principal);
-		return "templates/analyses/single/components/actionplan";
+		return "templates/analyses/single/components/action-plan/section";
 	}
 
 	/**
@@ -141,7 +141,7 @@ public class ControllerActionPlan extends AbstractController {
 				ordered.put(ape.getId(), ActionPlanManager.orderActionPlanAssetsByAssetList(ape, actionplanassets));
 			}
 			model.addAttribute("orderedActionPlanAssets", ordered);
-			return "templates/analyses/single/components/action-plan/asssets";
+			return "templates/analyses/single/components/action-plan/assets";
 		} catch (Exception e) {
 			TrickLogManager.persist(e);
 			throw e;
@@ -166,7 +166,7 @@ public class ControllerActionPlan extends AbstractController {
 		model.put("type", serviceAnalysis.getAnalysisTypeById(analysisID));
 		model.put("id", analysisID);
 		model.put("standards", serviceAnalysisStandard.getAllFromAnalysis(analysisID));
-		return "templates/analyses/single/components/actionPlan/form";
+		return "templates/analyses/single/components/action-plan/form";
 	}
 
 	/**

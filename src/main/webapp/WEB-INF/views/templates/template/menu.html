@@ -61,10 +61,12 @@
                         <li th:classappend="${menu != 'Account'} ? '' : 'active'">
                             <a th:href="${menu != 'Account'} ? '/Account' : '#'" id="main_menu_profile"
                                th:with="currentUsername=${#authentication != null ? #authentication.name : ''}">
-                                <span th:text="${#strings.isEmpty(currentUsername) ? 'label.profile' : currentUsername}">Profile</span>
+                                <span th:if="${#strings.isEmpty(currentUsername)}" th:text="#{label.profile}">Profile</span>
+                                <span th:unless="${#strings.isEmpty(currentUsername)}" th:text="${currentUsername}">Profile</span>
+
                                 <span id="invitation-count" class="badge" style="padding-bottom: 4px; padding-top: 2px;"
                                       th:title="#{label.info.analysis.invitation.count}"
-                                      th:text="${analysisSharedCount}">0</span>
+                                      th:text="${analysisSharedCount ?: 0}">0</span>
                             </a>
                         </li>
 

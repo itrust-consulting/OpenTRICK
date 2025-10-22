@@ -102,7 +102,7 @@ function manageAnalysisAccess(analysisId, section_analysis) {
 
 					$content.on('hidden.bs.modal', () => {
 						$content.remove();
-						delete instance;
+						  instance = undefined;
 					}).modal("show");
 
 				} else
@@ -513,22 +513,24 @@ function customAnalysis(element) {
 								}
 
 								$("#analysis-versions li", $modalBody).hover(function () {
-									$(this).css('cursor', 'move');
-								}).draggable({
-									helper: "clone",
-									cancel: "span.glyphicon-remove-sign",
-									revert: "invalid",
-									containment: "#group_2",
-									accept: "*[dropzone='true']",
-									cursor: "move",
-									start: function (e, ui) {
-										$(ui.helper).css({
-											'z-index': '1385',
-											'min-width': instance.cloneWidth,
-											'border-radius': "5px"
-										});
-									}
-								});
+	$(this).css('cursor', 'move');
+}).draggable({
+	helper: "clone",
+	cancel: "span.glyphicon-remove-sign",
+	revert: "invalid",
+	appendTo: "body",              
+	containment: "window",         
+	cursor: "move",
+	start: function (e, ui) {
+		$(ui.helper).css({
+			'z-index': '1385',
+			'min-width': instance.cloneWidth,
+			'border-radius': "5px",
+			'position': 'absolute'
+		});
+	}
+});
+
 								return this;
 							},
 							updateAnalysisSelector: function (idCustomer) {

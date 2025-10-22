@@ -16,6 +16,9 @@
 		</Socket>-->
 	</Appenders>
 	<Loggers>
+		<!-- Increase Thymeleaf and parser verbosity to get template line/column in errors -->
+		<logger name="org.thymeleaf" level='TRACE' />
+		<logger name="org.attoparser" level='TRACE' />
 		<!--
 		<Asynclogger name="TrickLogManager" level='INFO'>
 			<AppenderRef ref="RemoteLogger" />

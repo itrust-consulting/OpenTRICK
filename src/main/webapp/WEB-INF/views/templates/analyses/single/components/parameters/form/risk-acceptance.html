@@ -1,0 +1,77 @@
+<div class="modal fade" id="modalRiskAcceptanceForm" tabindex="-1" role="dialog"
+     data-aria-labelledby="riskAcceptanceForm" data-aria-hidden="true"
+     data-backdrop="static" data-keyboard="true" style="z-index: 1042;">
+    <div class="modal-dialog modal-mdl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
+                <h4 class="modal-title" th:text="#{label.tile.manage.risk-acceptance}">Manage risk acceptance</h4>
+            </div>
+            <div class="modal-body" style="padding-top: 5px;">
+                <form name="risk_acceptance_form" class="form-horizontal" id="risk_acceptance_form"
+                      method="post" style="height: 600px; overflow-y: auto; overflow-x: hidden;">
+                    <table class="table table-hover table-condensed"
+                           th:attr="data-trick-size=${parameters != null ? parameters.size() : 0}">
+                        <thead>
+                            <tr>
+                                <th th:text="#{label.action}">Action</th>
+                                <th style="width: 15%" class="textaligncenter"
+                                    th:text="#{label.parameter.label}">Label</th>
+                                <th style="width: 27%" class="textaligncenter"
+                                    th:text="#{label.importance.threshold}">Importance threshold</th>
+                                <th style="width: 55%" class="textaligncenter"
+                                    th:text="#{label.description}">Description</th>
+                                <th class="textaligncenter" style="min-width: 50px;"
+                                    th:text="#{label.color}">Color</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="parameter : ${parameters}" th:attr="data-trick-id=${parameter.id}">
+                                <td>
+                                    <button class="btn btn-danger outline" name="delete" type="button">
+                                        <i class="fa fa-remove"></i>
+                                    </button>
+                                </td>
+                                <td>
+                                    <input type="text" class="form-control" name="label"
+                                           th:value="${parameter.label}" />
+                                </td>
+                                <td>
+                                    <div class="range-group"
+                                         th:with="currentValue=${parameter.value != null ? parameter.value : 0}">
+                                        <span class="range-text"
+                                              th:text="${#numbers.formatDecimal(currentValue, 0, 0)}">0</span>
+                                        <input class="range-input" name="value" type="range"
+                                               th:value="${#numbers.formatDecimal(currentValue, 0, 0)}"
+                                               min="1" th:attr="max=${maxImportance}" />
+                                    </div>
+                                </td>
+                                <td>
+                                    <textarea rows="1" class="form-control resize_vectical_only" name="description"
+                                              th:text="${parameter.description}"></textarea>
+                                </td>
+                                <td>
+                                    <input type="color" class="form-control form-control-static" name="color"
+                                           th:value="${parameter.color}" />
+                                </td>
+                            </tr>
+                            <tr th:attr="data-trick-max-value=${maxImportance}" class="panel-footer">
+                                <td colspan="5" align="center">
+                                    <button class="btn btn-xs btn-primary" type="button" name="add">
+                                        <i class="fa fa-plus"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" name="save"
+                        th:text="#{label.action.save}">Save</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal" name="cancel"
+                        th:text="#{label.action.cancel}">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
