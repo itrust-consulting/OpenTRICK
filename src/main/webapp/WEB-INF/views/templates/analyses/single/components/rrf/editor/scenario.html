@@ -1,10 +1,4 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Scenario</title>
-</head>
-<body>
+<th:block th:fragment="content">
 
 <div th:if="${#lists.isEmpty(selectedScenario)}">
     <label data-trick-controller-name='scenario' class="label label-danger"
@@ -130,5 +124,4 @@
     </th:block>
 </div>
 
-</body>
-</html>
+</th:block>

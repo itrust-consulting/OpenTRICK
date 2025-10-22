@@ -1,10 +1,18 @@
-<div id="section_kb_measure" data-standard-id="${standard.id}" data-language-id="${selectedLanguage.id}">
+<div id="section_kb_measure"
+    th:attr="data-standard-id=${standard != null ? standard.id : null},
+            data-language-id=${selectedLanguage != null ? selectedLanguage.id : null}">
     <div class="page-header tab-content-header">
         <div class="container">
             <div class="row-fluid">
                 <h3 id="section_title_measure">
                     <th:block th:if="${standard != null}">
-                        <span th:text="${standard.name} + ': ' + ${standard.label} + ' - ' + ${standard.version} + '. ' + ${standard.description}"></span>
+                        <span th:text="${(standard.name != null ? standard.name : '')
+                                          + ': '
+                                          + (standard.label != null ? standard.label : '')
+                                          + ' - '
+                                          + (standard.version != null ? standard.version : '')
+                                          + '. '
+                                          + (standard.description != null ? standard.description : '')}"></span>
                     </th:block>
                 </h3>
             </div>
@@ -27,8 +35,8 @@
             <li data-role="title" class="pull-right">
                 <select id="languageselect" class="form-control" style="width: auto; margin-top: 5px;">
                     <th:block th:each="language : ${languages}">
-                        <option th:value="${language.id}" 
-                                th:selected="${language.id == selectedLanguage.id}">
+            <option th:value="${language.id}"
+                th:selected="${selectedLanguage != null ? language.id == selectedLanguage.id : false}">
                             <span th:text="${language.name}"></span>
                         </option>
                     </th:block>
@@ -64,9 +72,9 @@
         <tbody>
             <th:block th:each="measureDescription : ${measureDescriptions}">
                 <th:block th:set="measureDescriptionText = ${measureDescription.findByLanguage(selectedLanguage)}">
-                    <tr th:classappend="${measureDescription.computable ? '' : 'active'}" 
-                        data-trick-id="${measureDescription.id}" 
-                        ondblclick="return editSingleMeasure('${measureDescription.id}','${standard.id}');">
+                    <tr th:classappend="${measureDescription.computable ? '' : 'active'}"
+                        th:attr="data-trick-id=${measureDescription != null ? measureDescription.id : null}"
+                        th:ondblclick="|return editSingleMeasure('${measureDescription.id}', '${standard != null ? standard.id : ''}');|">
                         <td><input type="checkbox" class="checkbox" onchange="return updateMenu(this, '#section_kb_measure', '#menu_measure_description');"></td>
                         <td data-trick-field="reference">
                             <span th:text="${measureDescription.reference}"></span>

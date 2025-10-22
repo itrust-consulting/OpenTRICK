@@ -1,10 +1,4 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-<head>
-    <meta charset="UTF-8">
-    <title th:text="#{label.title.data_manager.export.ilr}">ILR Export</title>
-</head>
-<body>
+<th:block th:fragment="content">
 
 <!-- Determine maxSizeInfo based on maxFileSize -->
 <th:block th:if="${maxFileSize < 1024}" th:with="maxSizeInfo=#{label.max.unit.data.byte(${maxFileSize})}"></th:block>
@@ -54,5 +48,4 @@
     </fieldset>
 </div>
 
-</body>
-</html>
+</th:block>

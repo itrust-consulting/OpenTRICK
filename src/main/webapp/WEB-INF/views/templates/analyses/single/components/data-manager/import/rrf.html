@@ -13,10 +13,11 @@
     </ul>
     <div class="tab-content" data-view-tab="secondary">
         <div th:with="item=${rawRRFItem}" class="tab-pane active" id="import-${item.name}"
-            data-view-name="${item.name}" data-view-process-url="${item.processURL}" data-view-extentions="${item.extensions}">
-            <!-- Including another page: use fragment inclusion in Thymeleaf -->
-            <div th:replace="~{default :: content}"></div>
+             data-view-name="${item.name}" data-view-process-url="${item.processURL}" data-view-extentions="${item.extensions}">
+            <!-- full include instead of fragment -->
+            <div th:replace="~{templates/analyses/single/components/data-manager/import/default :: content}"></div>
         </div>
+
         <div class="tab-pane" id="import-${rrfItem.name}" data-view-name="${rrfItem.name}" data-view-process-url="${rrfItem.processURL}">
             <fieldset>
                 <legend>
@@ -44,17 +45,25 @@
                         </label>
                         <select class="form-control" name="analysis">
                             <th:block th:each="analysis : ${analyses}">
-                                <th:block th:if="${analysis.profile}">
-                                    <option th:value="${analysis.id}" th:title="#{${analysis.label}}"
-                                        th:data-trick-id="${analysis.customer.id}">
-                                        <span th:text="${analysis.label}"></span>
-                                    </option>
-                                </th:block>
-                                <th:block th:unless="${analysis.profile}">
-                                    <option th:value="${analysis.id}" th:title="#{${analysis.label} - v.${analysis.version}}"
-                                        th:data-trick-id="${analysis.customer.id}">
-                                        <span th:text="${analysis.label} - v.${analysis.version}"></span>
-                                    </option>
+                                <th:block th:if="${analysis != null}"
+                                          th:with="analysisId=${analysis.id != null ? analysis.id : 0},
+                                                   customerId=${analysis.customer != null ? analysis.customer.id : 0},
+                                                   analysisLabel=${analysis.label != null ? analysis.label : ''},
+                                                   analysisVersion=${analysis.version != null ? analysis.version : ''}">
+                                    <th:block th:if="${analysis.profile == true}">
+                                        <option th:value="${analysisId}"
+                                                th:title="#{{${analysisLabel}}}"
+                                                th:data-trick-id="${customerId}">
+                                            <span th:text="${analysisLabel}"></span>
+                                        </option>
+                                    </th:block>
+                                    <th:block th:unless="${analysis.profile == true}">
+                                        <option th:value="${analysisId}"
+                                                th:title="#{{${analysisLabel} - v.${analysisVersion}}}"
+                                                th:data-trick-id="${customerId}">
+                                            <span th:text="${analysisLabel} - v.${analysisVersion}"></span>
+                                        </option>
+                                    </th:block>
                                 </th:block>
                             </th:block>
                         </select>
@@ -65,12 +74,22 @@
                         </label>
                         <select class="form-control" name="standards" multiple="multiple">
                             <th:block th:each="analysis : ${analyses}">
-                                <th:block th:each="analysisStandard : ${analysis.analysisStandards.values()}">
-                                    <th:block th:if="${standards.contains(analysisStandard.standard)}">
-                                        <option th:title="#{${analysisStandard.standard.name} : ${analysisStandard.standard.label} - v.${analysisStandard.standard.version}}"
-                                            th:value="${analysisStandard.standard.id}" th:data-trick-id="${analysis.id}">
-                                            <span th:text="${analysisStandard.standard.name}"></span>
-                                        </option>
+                                <th:block th:if="${analysis != null}"
+                                          th:with="analysisId=${analysis.id != null ? analysis.id : 0},
+                                                   analysisStandards=${analysis.analysisStandards != null ? analysis.analysisStandards.values() : {}}">
+                                    <th:block th:each="analysisStandard : ${analysisStandards}">
+                                        <th:block th:if="${analysisStandard != null and analysisStandard.standard != null and standards.contains(analysisStandard.standard)}"
+                                                  th:with="standard=${analysisStandard.standard},
+                                                           standardId=${standard.id != null ? standard.id : 0},
+                                                           standardName=${standard.name != null ? standard.name : ''},
+                                                           standardLabel=${standard.label != null ? standard.label : ''},
+                                                           standardVersion=${standard.version != null ? standard.version : ''}">
+                                            <option th:title="#{{${standardName} : ${standardLabel} - v.${standardVersion}}}"
+                                                    th:value="${standardId}"
+                                                    th:data-trick-id="${analysisId}">
+                                                <span th:text="${standardName}"></span>
+                                            </option>
+                                        </th:block>
                                     </th:block>
                                 </th:block>
                             </th:block>

@@ -7,6 +7,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import jakarta.servlet.ServletContext;
+import java.net.URL;
+import java.nio.file.*;
+import java.util.stream.Stream;
+
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,142 +37,179 @@ import lu.itrust.business.ts.database.service.WorkersPoolManager;
 import lu.itrust.business.ts.exception.TrickException;
 import lu.itrust.business.ts.model.general.Customer;
 
-/**
- * ControllerIntstallation.java: <br>
- * Detailed description...
- * 
- * @author itrust consulting s.à.rl.
- * @version
- * @since Apr 23, 2014
- */
 @Controller
 @PreAuthorize(Constant.ROLE_MIN_ADMIN)
 public class ControllerIntstallation {
 
-	@Autowired
-	private ServiceCustomer serviceCustomer;
+    @Autowired private ServiceCustomer serviceCustomer;
+    @Autowired private SessionFactory sessionFactory;
+    @Autowired private MessageSource messageSource;
+    @Autowired private ServiceTaskFeedback serviceTaskFeedback;
+    @Autowired private WorkersPoolManager workersPoolManager;
+    @Autowired private TaskExecutor executor;
+    @Autowired private ServiceStorage serviceStorage;
+    @Autowired private DefaultTemplateLoader defaultReportTemplateLoader;
 
-	@Autowired
-	private SessionFactory sessionFactory;
+    @Autowired
+    private ServletContext servletContext;
 
-	@Autowired
-	private MessageSource messageSource;
-
-	@Autowired
-	private ServiceTaskFeedback serviceTaskFeedback;
-
-	@Autowired
-	private WorkersPoolManager workersPoolManager;
-
-	@Autowired
-	private TaskExecutor executor;
-
-	private ServiceStorage serviceStorage;
-
-	@Autowired
-	private DefaultTemplateLoader defaultReportTemplateLoader;
-
-	@Value("${app.settings.version}")
-	private String version;
+    @Value("${app.settings.version}")
+    private String version;
 
     @Value("${app.settings.default.profile.mixed.en.sqlite.path}")
-	private String defaultProfileMixedEnSqlitePath;
-   
-	@Value("${app.settings.default.profile.mixed.fr.sqlite.path}")
-	private String defaultProfileMixedFrSqlitePath;
+    private String defaultProfileMixedEnSqlitePath;
 
-	/**
-	 * installTS: <br>
-	 * Description
-	 * 
-	 * @param model
-	 * @param principal
-	 * @param request
-	 * @param locale
-	 * @return
-	 * @throws Exception
-	 */
-	@RequestMapping(value = "/Install", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.POST)
-	public @ResponseBody Map<String, String> installTS(Model model, Principal principal, Locale locale) throws Exception {
-		final Map<String, String> errors = new LinkedHashMap<>();
-		installProfileCustomer(errors, locale);
-		if (!errors.isEmpty())
-			return errors;
-		final List<String> fileNames = new LinkedList<>();
-		fileNames.add(defaultProfileMixedEnSqlitePath);
-		fileNames.add(defaultProfileMixedFrSqlitePath);
-		installDefaultProfile(fileNames, principal, errors, locale);
-		return errors;
+    @Value("${app.settings.default.profile.mixed.fr.sqlite.path}")
+    private String defaultProfileMixedFrSqlitePath;
 
-	}
+    @RequestMapping(value = "/Install", produces = MediaType.APPLICATION_JSON_VALUE, method = RequestMethod.POST)
+    public @ResponseBody Map<String, Object> installTS(Model model, Principal principal, Locale locale) throws Exception {
+        diagDataFolder(); 
 
-	/**
-	 * installProfileCustomer: <br>
-	 * Description
-	 * 
-	 * @param errors
-	 * @param locale
-	 * @return
-	 */
-	private Customer installProfileCustomer(Map<String, String> errors, Locale locale) {
-		try {
-			return defaultReportTemplateLoader.getDefaultCustomer();
-		} catch (TrickException e) {
-			errors.put("installProfileCustomer", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
-			return null;
-		} catch (Exception e) {
-			TrickLogManager.persist(e);
-			errors.put("installProfileCustomer", e.getMessage());
-			return null;
-		}
-	}
+        final Map<String, Object> result = new LinkedHashMap<>();
 
-	/**
-	 * installDefaultProfile: <br>
-	 * Description
-	 * 
-	 * @param fileName
-	 * @param principal
-	 * @param errors
-	 * @param locale
-	 * @return
-	 */
-	private boolean installDefaultProfile(List<String> fileNames, Principal principal, Map<String, String> errors, Locale locale) {
-		try {
-			// customer
-			Customer customer = serviceCustomer.getProfile();
-			if (customer == null) {
-				customer = installProfileCustomer(errors, locale);
-				if (customer == null) {
-					System.out.println("Customer could not be installed!");
-					errors.put("error", messageSource.getMessage("error.customer_profile.no_found", null, "Could not find profile customer!", locale));
-					return false;
-				}
-			}
-			defaultReportTemplateLoader.loadLanguages();
-			defaultReportTemplateLoader.load();
-			// owner
-			if (principal == null) {
-				System.out.println("Could not determine owner! Canceling default Profile creation...");
-				errors.put("error", messageSource.getMessage("error.analysis.owner.no_found", null, "Could not determine owner!", locale));
-				return false;
-			}
-			final Worker worker = new WorkerTSInstallation(version, workersPoolManager, sessionFactory, serviceTaskFeedback, serviceStorage, fileNames, customer.getId(), principal.getName());
-			if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale)) {
-				errors.put("error", messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
-				return false;
-			}
-			executor.execute(worker);
-			errors.put("idTask", String.valueOf(worker.getId()));
-			return true;
+        try {
+            Path root = serviceStorage.getRoot();
 
-		} catch (TrickException e) {
-			errors.put("error", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
-			return false;
-		} catch (Exception e) {
-			TrickLogManager.persist(e);
-			errors.put("error", messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
-			return false;
-		}
-	}
+            Path en = root.resolve(defaultProfileMixedEnSqlitePath);
+            Path fr = root.resolve(defaultProfileMixedFrSqlitePath);
+
+            result.put("storageRoot", root.toString());
+            result.put("expectEN", en.toString());
+            result.put("expectFR", fr.toString());
+
+            boolean hasEN = Files.exists(en);
+            boolean hasFR = Files.exists(fr);
+            result.put("hasEN", hasEN);
+            result.put("hasFR", hasFR);
+
+            if (!hasEN || !hasFR) {
+                serviceStorage.init();
+                hasEN = Files.exists(en);
+                hasFR = Files.exists(fr);
+                result.put("hasEN_afterInit", hasEN);
+                result.put("hasFR_afterInit", hasFR);
+
+                if (!hasEN || !hasFR) {
+                    result.put("error", "Resource cannot be found in storage. Looked at: " + en + " and " + fr);
+                    return result;
+                }
+            }
+        } catch (Exception preflightEx) {
+            result.put("error", "Storage preflight failed: " + preflightEx.getMessage());
+            return result;
+        }
+       
+
+        installProfileCustomer(result, locale);
+        if (result.containsKey("error")) {
+            return result;
+        }
+
+        final List<String> fileNames = new LinkedList<>();
+        fileNames.add(defaultProfileMixedEnSqlitePath);
+        fileNames.add(defaultProfileMixedFrSqlitePath);
+
+        if (installDefaultProfile(fileNames, principal, result, locale)) {
+            result.putIfAbsent("success", true);
+        }
+        return result;
+    }
+
+    private Customer installProfileCustomer(Map<String, Object> out, Locale locale) {
+        try {
+            return defaultReportTemplateLoader.getDefaultCustomer();
+        } catch (TrickException e) {
+            out.put("error", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+            return null;
+        } catch (Exception e) {
+            TrickLogManager.persist(e);
+            out.put("error", e.getMessage());
+            return null;
+        }
+    }
+
+    private boolean installDefaultProfile(List<String> fileNames, Principal principal, Map<String, Object> out, Locale locale) {
+        try {
+            Customer customer = serviceCustomer.getProfile();
+            if (customer == null) {
+                customer = installProfileCustomer(out, locale);
+                if (customer == null) {
+                    out.put("error", messageSource.getMessage("error.customer_profile.no_found", null, "Could not find profile customer!", locale));
+                    return false;
+                }
+            }
+
+            
+            try {
+                defaultReportTemplateLoader.loadLanguages();
+                defaultReportTemplateLoader.load();
+            } catch (Exception ex) {
+                TrickLogManager.persist(ex);
+                out.put("error", "TEMPLATES: " + ex.getMessage());
+                return false;
+            }
+
+            if (principal == null) {
+                out.put("error", messageSource.getMessage("error.analysis.owner.no_found", null, "Could not determine owner!", locale));
+                return false;
+            }
+
+            final Worker worker = new WorkerTSInstallation(
+                    version, workersPoolManager, sessionFactory, serviceTaskFeedback,
+                    serviceStorage, fileNames, customer.getId(), principal.getName());
+
+            if (!serviceTaskFeedback.registerTask(principal.getName(), worker.getId(), locale)) {
+                out.put("error", messageSource.getMessage("error.task_manager.too.many", null, "Too many tasks running in background", locale));
+                return false;
+            }
+
+            executor.execute(worker);
+            out.put("idTask", String.valueOf(worker.getId()));
+            return true;
+
+        } catch (TrickException e) {
+            out.put("error", messageSource.getMessage(e.getCode(), e.getParameters(), e.getMessage(), locale));
+            return false;
+        } catch (Exception e) {
+            TrickLogManager.persist(e);
+            out.put("error", messageSource.getMessage("error.500.message", null, "Internal error occurred", locale));
+            return false;
+        }
+    }
+
+  
+    private void diagDataFolder() {
+        try {
+            String base = servletContext.getRealPath("/WEB-INF/data");
+            System.out.println("TS-DIAG data.realPath=" + base);
+            if (base != null) {
+                Path root = Paths.get(base);
+                if (Files.isDirectory(root)) {
+                    try (Stream<Path> s = Files.list(root)) {
+                        s.forEach(p -> System.out.println("TS-DIAG data.item=" + p.getFileName()));
+                    }
+                }
+                Path sqliteDir = root.resolve("sqlite");
+                if (Files.isDirectory(sqliteDir)) {
+                    try (Stream<Path> s = Files.list(sqliteDir)) {
+                        s.forEach(p -> System.out.println("TS-DIAG sqlite.item=" + p.getFileName()));
+                    }
+                }
+                Path docxDir = root.resolve("docx");
+                if (Files.isDirectory(docxDir)) {
+                    try (Stream<Path> s = Files.list(docxDir)) {
+                        s.limit(3).forEach(p -> System.out.println("TS-DIAG docx.sample=" + p.getFileName()));
+                    }
+                }
+            }
+            URL en = servletContext.getResource("/WEB-INF/data/sqlite/161T_TSE_Profile-OpenTRICK-default-mixed-EN-DB_v1.0.sqlite");
+            URL fr = servletContext.getResource("/WEB-INF/data/sqlite/161T_TSE_Profile-OpenTRICK-default-mixed-FR-DB_v1.0.sqlite");
+            System.out.println("TS-DIAG sqlite.en.url=" + en);
+            System.out.println("TS-DIAG sqlite.fr.url=" + fr);
+        } catch (Exception e) {
+            System.out.println("TS-DIAG error=" + e.getMessage());
+            e.printStackTrace();
+        }
+    }
 }

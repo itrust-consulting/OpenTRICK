@@ -1,7 +1,7 @@
 <form name="importStandardFromFile" method="post" action="/Import" class="form-inline" id="importStandardFromFile" enctype="multipart/form-data">
     <input type="hidden" value="0" name="id" id="importStandardFromFileId">
     <fieldset style="margin-bottom: 10px">
-        <legend th:attr="data-helper-content='@{${#messages.msg('help.norm.type')}}'" th:text="#{label.norm.standard_type}"></legend>
+    <legend th:attr="data-helper-content=${#messages.msg('help.norm.type')}" th:text="#{label.norm.standard_type}"></legend>
         <div class="col-sm-12" data-trick-info="type">
             <select name="type" class="form-control" style="width: 97%">
                 <option value="NORMAL" th:text="#{label.norm.standard_type.normal}"></option>
@@ -10,13 +10,13 @@
         </div>
     </fieldset>
     <fieldset style="margin-bottom: 10px">
-        <legend th:attr="data-helper-content='@{${#messages.msg('help.norm.name')}}'" th:text="#{label.norm.name}"></legend>
+    <legend th:attr="data-helper-content=${#messages.msg('help.norm.name')}" th:text="#{label.norm.name}"></legend>
         <div class="col-sm-12" data-trick-info="name">
             <input name="name" id="import_standard_name" class="form-control" style="width: 97%" type="text"/>
         </div>
     </fieldset>
     <fieldset>
-        <legend for="name" th:attr="data-helper-content='@{${#messages.msg('label.norm.import.choose_file')}}'" th:text="#{label.file.choose_the_file}"></legend>
+    <legend for="name" th:attr="data-helper-content=${#messages.msg('label.norm.import.choose_file')}" th:text="#{label.file.choose_the_file}"></legend>
         <div class="col-lg-12">
             <div class="input-group-btn">
                 <input id="importStandardFromFileInputFile" type="file" accept=".xls,.xlsx,.xlsm"

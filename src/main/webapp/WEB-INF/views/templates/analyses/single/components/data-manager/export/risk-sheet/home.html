@@ -18,8 +18,7 @@
              data-view-process-url="[[${rawRiskSheetItem.processURL}]]"
              data-view-extentions="[[${rawRiskSheetItem.extensions}]]">
             <span th:with="type='RAW'"></span>
-            <!-- Include form.jsp (this would need to be handled with Thymeleaf or HTML snippet instead) -->
-            <div th:replace="form :: content"></div>
+            <div th:replace="templates/analyses/single/components/data-manager/export/risk-sheet/form :: content"></div>
         </div>
 
         <!-- Set item to reportRiskSheetItem -->
@@ -28,8 +27,7 @@
              data-view-process-url="[[${reportRiskSheetItem.processURL}]]"
              data-view-extentions="[[${reportRiskSheetItem.extensions}]]">
             <span th:with="type='REPORT'"></span>
-            <!-- Include form.jsp (this would need to be handled with Thymeleaf or HTML snippet instead) -->
-            <div th:replace="form :: content"></div>
+            <div th:replace="templates/analyses/single/components/data-manager/export/risk-sheet/form :: content"></div>
         </div>
     </div>
 </div>

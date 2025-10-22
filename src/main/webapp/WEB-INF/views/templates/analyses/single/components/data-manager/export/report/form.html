@@ -1,7 +1,7 @@
-<form th:action="@{/Analysis/Export/Report/{analysisId}(analysisId=${analysis.id})}" method="post" enctype="multipart/form-data"
+<form th:action="@{/Analysis/Export/Report/{analysisId}(analysisId=${analysisId != null ? analysisId : (analysis?.id ?: 0)})}" method="post" enctype="multipart/form-data"
       th:data-type-control="${nameControl}">
   
-  <input type="hidden" name="analysis" id="exportWord.analysis" th:value="${analysis.id}">
+  <input type="hidden" name="analysis" id="exportWord.analysis" th:value="${analysisId != null ? analysisId : (analysis?.id ?: 0)}">
   <input type="hidden" name="type" th:value="${item.name}">
 
   <fieldset style="margin-bottom: 10px">

@@ -8,7 +8,7 @@
 <body>
 <div id="wrap" class="wrap">
     <!-- Nav Menu -->
-    <div th:replace="templates/template/menu :: main-menu"></div>
+    <div th:replace="templates/template/menu :: main-menu(menu, analysisSharedCount)"></div>
 
     <div class="container" data-ug-root="administration">
         <ul class="nav nav-tabs affix affix-top nav-tab">
@@ -23,20 +23,19 @@
             <li><a href="#tab-broadcasting" data-toggle="tab" th:text="#{label.administrator.messages}">Messages</a></li>
             <li><a href="#tab-log" data-toggle="tab" th:text="#{label.logs}">Logs</a></li>
         </ul>
+<div class="tab-content" id="tab-container">
+    <div th:replace="templates/admin/status"></div>
+    <div th:replace="templates/admin/user/users"></div>
+    <div th:replace="templates/admin/ids/home"></div>
+    <div th:replace="templates/admin/customer/customers"></div>
+    <div th:replace="templates/admin/analysis/analyses"></div>
+    <div th:replace="templates/admin/tsSetting/home"></div>
+    <div th:replace="templates/admin/notification/home"></div>
+    <div th:replace="templates/admin/log/home"></div>
+    <div th:replace="templates/admin/widget"></div>
+    <div th:replace="templates/template/tab-option"></div>
+</div>
 
-        <div class="tab-content" id="tab-container">
-            <div th:replace="templates/admin/status :: content"></div>
-            <div th:replace="templates/admin/user/users :: content"></div>
-            <div th:replace="templates/admin/ids/home :: content"></div>
-            <div th:replace="templates/admin/customer/customers :: content"></div>
-            <div th:replace="templates/admin/analysis/analyses :: content"></div>
-            <div th:replace="templates/admin/tsSetting/home :: content"></div>
-            <div th:replace="templates/admin/notification/home :: content"></div>
-            <div th:replace="templates/admin/log/home :: content"></div>
-            <div th:replace="templates/admin/widget :: content"></div>
-            <div th:replace="templates/template/tab-option :: tabOptions"></div>
-        </div>
-    </div>
 
     <div th:replace="templates/template/footer :: footer"></div>
 </div>

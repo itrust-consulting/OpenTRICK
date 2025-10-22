@@ -1,17 +1,20 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
 <div th:fragment="notifications">
-	<div th:each="notification : ${userNotifcations}"
-		th:with="lang=${#locale.language}, nType=${#strings.toLowerCase(notification.type)}" class="alert alert-info"
-		id="info-notification" th:class="'alert alert-'+${nType}" th:id="${nType}+${notification.id}">
-		<a href="#" class="close" data-dismiss="alert" style="margin-right: -10px; margin-top: -12px">×</a>
-		<div data-notification-type='info' th:attr="data-notification-type=${nType}" data-type='static' id='all'
-			th:id="${notification.id}">
-			[[${!#strings.isEmpty(notification.code)}? #{${notification.code}(${notification.parameters})} :
-			${notification.messages[{lang}]}]]
+	<th:block th:each="notification : ${userNotifcations}">
+		<div th:if="${notification != null}"
+			 th:with="lang=${#locale.language}"
+			 th:class="${'alert alert-' + (#strings.toLowerCase(notification.type) != null ? #strings.toLowerCase(notification.type) : 'info')}"
+			 th:id="${(#strings.toLowerCase(notification.type) != null ? #strings.toLowerCase(notification.type) : 'info') + (notification.id != null ? notification.id : 0)}">
+			<a href="#" class="close" data-dismiss="alert" style="margin-right: -10px; margin-top: -12px">×</a>
+			<div th:attr="data-notification-type=${#strings.toLowerCase(notification.type) != null ? #strings.toLowerCase(notification.type) : 'info'}"
+				 data-type='static'
+				 th:id="${notification.id != null ? notification.id : 0}">
+				[[${notification != null and !#strings.isEmpty(notification.code)} ? #{${notification.code}(${notification.parameters})} : ${notification != null && notification.messages != null ? notification.messages[{lang}] : ''}]]
+			</div>
 		</div>
-	</div>
+	</th:block>
 </div>
 
 </html>

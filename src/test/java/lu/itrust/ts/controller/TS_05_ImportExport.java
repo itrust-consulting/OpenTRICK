@@ -110,6 +110,7 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 	@Autowired
 	private WorkersPoolManager workersPoolManager;
 
+	@SuppressWarnings("null")
 	@Test(timeOut = 120000)
 	public synchronized void test_00_Import() throws Exception {
 
@@ -166,6 +167,7 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 		notNull(getInteger(ANALYSIS_KEY), "Analysis id cannot be found");
 	}
 
+	@SuppressWarnings("null")
 	@Test(timeOut = 120000, dependsOnMethods = "test_01_CheckImportedAnalysis")
 	public synchronized void test_02_ComputeActionPlan() throws Exception {
 		Integer idAnalysis = getInteger(ANALYSIS_KEY);
@@ -422,6 +424,7 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 
 	}
 
+	@SuppressWarnings("null")
 	@Test(dependsOnMethods = "test_02_ComputeActionPlan")
 	public synchronized void test_04_ExportSQLite() throws Exception {
 		Integer idAnalysis = getInteger(ANALYSIS_KEY);
@@ -495,7 +498,7 @@ public class TS_05_ImportExport extends SpringTestConfiguration {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "null" })
 	@Transactional
 	@Test(dependsOnMethods = "test_02_ComputeActionPlan")
 	public synchronized void test_06_ExportReport() throws Exception {

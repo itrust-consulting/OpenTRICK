@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="[[${locale.language}]]">
+<html xmlns:th="http://www.thymeleaf.org" lang="[[${locale.language}]]" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,7 +8,7 @@
 <body>
     <div id="wrap">
         
-        <th:block th:replace="~{templates/template/menu :: menu}" />
+        <th:block th:replace="~{templates/template/menu :: main-menu(menu, analysisSharedCount)}" />
         <div class="container">
             <th:block th:replace="~{templates/template/successErrors :: successErrors}" />
             

@@ -1,0 +1,77 @@
+<th:block th:fragment="content">
+<fieldset>
+    <legend>
+        <th:block th:if="${isEditable}">
+            <span th:text="#{label.title.parameter.risk.acceptance.threshold}"></span>
+            <span class="pull-right">
+                <button class='btn btn-xs btn-link' onclick="return manageRiskAcceptance(true)" style="font-size: 15px">
+                    <i class="fa fa-cog" aria-hidden="true"></i>
+                    <span th:text="#{label.action.manage}"></span>
+                </button>
+            </span>
+        </th:block>
+        <th:block th:unless="${isEditable}">
+            <span th:text="#{label.title.parameter.risk.acceptance.threshold}"></span>
+        </th:block>
+    </legend>
+
+    <table class="table table-hover table-condensed" id="table_parameter_risk_acceptance">
+        <thead>
+            <tr>
+                <th class="textaligncenter" th:text="#{label.importance.threshold}"></th>
+                <th style="width: 20%" class="textaligncenter" th:text="#{label.parameter.label}"></th>
+                <th style="width: 50%" th:text="#{label.description}"></th>
+                <th class="textaligncenter" th:text="#{label.color}"></th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- FIX: compute ra safely even if mappedParameters is null/missing -->
+            <th:block th:with="ra=${mappedParameters != null ? mappedParameters['RISK_ACCEPTANCE'] : null}">
+                <th:block th:if="${#lists.isEmpty(ra)}">
+                    <tr class="warning">
+                        <td colspan="4" th:text="#{info.risk_acceptance.current.empty}"></td>
+                    </tr>
+                </th:block>
+
+                <th:block th:unless="${#lists.isEmpty(ra)}" th:with="size=${ra != null ? ra.size() : 0}">
+                    <th:block th:each="parameter, status : ${ra}">
+                        <tr th:data-trick-class="RiskAcceptanceParameter"
+                            th:data-trick-id="${parameter.id}"
+                            th:attr="ondblclick=${isEditable} ? 'return manageRiskAcceptance()' : ''"
+                            th:data-trick-callback="reloadRiskHeatMapSection()">
+
+                            <th:block th:with="value=${#numbers.formatDecimal(parameter.value != null ? parameter.value : 0, 0, 0)}">
+                                <td class="textaligncenter" th:data-trick-field="value">
+                                    <th:block th:if="${status.index == 0}">
+                                        [ <span class="text-muted">0</span> ; <span th:text="${value}"></span> ]
+                                    </th:block>
+                                    <th:block th:if="${status.index < size - 1}">
+                                        ] <span class="text-muted" th:text="${prevValue}"></span> ; <span th:text="${value}"></span> ]
+                                    </th:block>
+                                    <th:block th:unless="${status.index < size - 1}">
+                                        ] <span class="text-muted" th:text="${prevValue}"></span> ; <span th:text="${maxImportance}"></span> ]
+                                    </th:block>
+                                </td>
+                            </th:block>
+
+                            <th:block th:with="prevValue=${value}"></th:block>
+
+                            <td class="textaligncenter editable" th:data-trick-field="label" th:data-trick-field-type="string" onclick="return editField(this);">
+                                <span th:text="${parameter.label}"></span>
+                            </td>
+
+                            <th:block th:with="color=${parameter.color}"></th:block>
+
+                            <td class="editable" th:data-trick-field="description" th:data-trick-content="text" th:data-trick-field-type="string" onclick="return editField(this);">
+                                <span th:text="${parameter.description}"></span>
+                            </td>
+
+                            <td th:style="${color} != null ? 'background-color:' + color : null" th:data-trick-field="color" th:data-trick-content="color" th:data-trick-field-type="string" th:data-real-value="${color}" onclick="return editField(this);"></td>
+                        </tr>
+                    </th:block>
+                </th:block>
+            </th:block>
+        </tbody>
+    </table>
+</fieldset>
+</th:block>

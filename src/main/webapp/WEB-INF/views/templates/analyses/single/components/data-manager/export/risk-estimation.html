@@ -1,11 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Risk Estimation Export</title>
-</head>
-<body>
+<th:block th:fragment="content">
     <div data-view-content-name="${item.name}" data-view-token="${item.token}">
         <fieldset>
             <legend>
@@ -44,5 +37,4 @@
     <div th:if="${maxFileSize >= 1048576}">
         <span th:text="#{label.max.unit.data.mega.byte} ${maxFileSize / 1048576}"></span>
     </div>
-</body>
-</html>
+</th:block>

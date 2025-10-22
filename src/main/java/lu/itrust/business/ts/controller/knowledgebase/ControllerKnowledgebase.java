@@ -17,6 +17,7 @@ import lu.itrust.business.ts.database.service.ServiceCustomer;
 import lu.itrust.business.ts.database.service.ServiceLanguage;
 import lu.itrust.business.ts.database.service.ServiceScaleType;
 import lu.itrust.business.ts.database.service.ServiceStandard;
+import lu.itrust.business.ts.model.standard.Standard;
 
 /**
  * ControllerKnowledgeBase: <br>
@@ -56,6 +57,7 @@ public class ControllerKnowledgebase {
 		model.put("standards", serviceStandard.getAllNotBoundToAnalysis());
 		model.put("analyses", serviceAnalysis.getAllProfiles());
 		model.put("scaleTypes", serviceScaleType.findAll());
+		model.put("standard", new Standard());  
 		return "templates/knowledgebase/knowledgebase";
 	}
 

@@ -1,24 +1,23 @@
 <!DOCTYPE html>
-<html lang="[[${locale.language}]]">
-<!-- Include Header -->
+<html xmlns:th="http://www.thymeleaf.org" lang="[[${locale.language}]]" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <th:block th:if="${#strings.isEmpty(locale)}">
-    <th:block th:replace="templates/template/locale :: localeContextHolder"></th:block>
+    <!-- TODO. review
+    <th:block th:replace="~{templates/template/locale}"></th:block>
+-->
 </th:block>
 
-<!-- Set the page title -->
 <th:block th:with="title=${'label.title.knowledgebase'}"></th:block>
 
-<!-- Include header -->
-<div th:replace="~{templates/template/header :: header}"></div>
+<!-- Header -->
+<div th:replace="~{templates/template/header :: header('label.title.knowledgebase')}"></div>
 
-<!-- ################################################################# Start Container ############################################################## -->
 <body>
     <div id="wrap" class="wrap">
-        <!-- ################################################################### Nav Menu ################################################################### -->
-        <div th:replace="~{templates/template/menu :: menu}"></div>
+        <!-- Menu -->
+        <div th:replace="~{templates/template/menu :: main-menu(menu, analysisSharedCount)}"></div>
         
         <div class="container" data-ug-root="knowledgebase">
-            <!-- #################################################################### Content ################################################################### -->
+            <!-- Tabs -->
             <ul class="nav nav-tabs affix affix-top nav-tab">
                 <li class="active">
                     <a href="#tab-customer" data-toggle="tab" th:text="#{title.menu.knowledgebase.customers}">Customers</a>
@@ -43,26 +42,27 @@
             </ul>
             
             <div class="tab-content" id="tab-container">
-                <div th:replace="~{customer/customers :: customers}"></div>
-                <div th:replace="~{language/languages :: languages}"></div>
-                <div th:replace="~{standards/standard/standards :: standards}"></div>
-                <div th:replace="~{standards/measure/measures :: measures}"></div>
-                <div th:replace="~{analysis/analyses :: analyses}"></div>
-                <div th:replace="~{scale/home :: home}"></div>
-                <div th:replace="~{templates/template/tab-option :: tabOption}"></div>
+                <!-- Include full template if fragment does not exist -->
+                <div th:replace="~{templates/knowledgebase/customer/customers}"></div>
+                <div th:replace="~{templates/knowledgebase/language/languages}"></div>
+                <div th:replace="~{templates/knowledgebase/standards/standard/standards}"></div>
+                <div th:replace="~{templates/knowledgebase/standards/measure/measures}"></div>
+                <div th:replace="~{templates/knowledgebase/analysis/analyses}"></div>
+                <div th:replace="~{templates/knowledgebase/scale/home}"></div>
+                <div th:replace="~{templates/template/tab-option :: tab-option}"></div>
             </div>
         </div>
-        <!-- ################################################################ End Container ################################################################# -->
     </div>
 
-    <!-- Include Footer -->
+    <!-- Footer -->
     <div th:replace="~{templates/template/footer :: footer}"></div>
-    <div th:replace="~{templates/template/widget :: widget}"></div>
+   <div th:replace="~{templates/knowledgebase/widget}"></div>
+
     
     <!-- Scripts -->
     <div th:replace="~{templates/template/scripts :: scripts}"></div>
     
-    <!-- Custom JS -->
+    <!-- JS -->
     <script type="text/javascript" th:src="@{/js/trickservice/knowledgebase.js}"></script>
     <script type="text/javascript" th:src="@{/js/jquery.fileDownload.js}"></script>
     <script type="text/javascript" th:src="@{/js/trickservice/measuredescription.js}"></script>
@@ -71,5 +71,4 @@
     <script type="text/javascript" th:src="@{/js/trickservice/customer.js}"></script>
     <script type="text/javascript" th:src="@{/js/trickservice/scale.js}"></script>
 </body>
-<!-- ################################################################### End HTML ################################################################### -->
 </html>

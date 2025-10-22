@@ -1,0 +1,100 @@
+<div class="modal fade" id="manageScaleLevelModal" tabindex="-1" role="dialog"
+     data-aria-labelledby="manageScaleLevelModal" data-aria-hidden="true" data-backdrop="static"
+     data-keyboard="true"
+     th:with="dropMessage=#{label.drop.level}">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
+                <h4 class="modal-title"
+                    th:attr="data-helper-content=#{helper.scale.level.migrate}, data-helper-placement='bottom'"
+                    th:text="#{label.title.manage.analysis.scale_level}">
+                    Manage analysis scale level
+                </h4>
+            </div>
+            <div class="modal-body" style="padding: 5px 20px;">
+                <div class="alert alert-sm alert-danger" style="margin-top: 0px"
+                     th:text="#{warning.scale.level.migrate}">Warning message</div>
+                <form id="manage-analysis-impact-scale"
+                      th:action="@{/Analysis/Prameter/Scale-level/Manage/Save}"
+                      method="post"
+                      class="form-horizontal">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                    <fieldset class="col-xs-6">
+                        <legend th:text="#{label.scale.level.current}">Current levels</legend>
+                        <div id="original-container" class="list-group" style="height: 500px; overflow-x: auto;">
+                            <div th:each="level : ${#numbers.sequence(1, maxLevel)}"
+                                 th:id="${'scale-level-' + level}"
+                                 class="list-group-item list-group-item-info"
+                                 th:attr="data-value=${level}, draggable='true'">
+                                <span th:text="#{label.scale.level.value(${level})}">Level value</span>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset class="col-xs-6">
+                        <legend>
+                            <span th:text="#{label.scale.level.new}">New levels</span>
+                            <button class="btn btn-xs btn-primary pull-right" type="button" id="btn-add-level">
+                                <i class="fa fa-plus"></i>
+                            </button>
+                        </legend>
+                        <div id="new-level-container" style="height: 500px; overflow-x: auto; padding-right: 5px;">
+                            <div class="panel panel-success" data-container-level="0">
+                                <div class="panel-heading">
+                                    <span th:text="#{label.scale.level.na}">Level 0</span>
+                                </div>
+                                <div class="panel-body list-group" data-level-value="0" dropzone="true">
+                                    <div id="scale-level-0" class="list-group-item list-group-item-info" data-value="0">
+                                        <span th:text="#{label.scale.level.na}">Level 0</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div th:each="level : ${#numbers.sequence(1, maxLevel)}"
+                                 class="panel panel-success"
+                                 th:attr="data-container-level=${level}">
+                                <div class="panel-heading">
+                                    <span class="panel-title"
+                                          th:text="#{label.scale.level.value(${level})}">Level N</span>
+                                    <a href="#" data-role="remove" class="text-danger pull-right" style="font-size: 18px;">
+                                        <span class="glyphicon glyphicon-remove-circle"></span>
+                                    </a>
+                                </div>
+                                <div class="panel-body list-group">
+                                    <span th:text="${dropMessage}">Drop your level here</span>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                </form>
+                <div class="clearfix"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" name="save"
+                        th:text="#{label.action.save}">Save</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal"
+                        th:text="#{label.action.cancel}">Cancel</button>
+            </div>
+            <div class="hidden">
+                <code data-lang-code="error.scale.level.not.all.selected"
+                      th:text="#{error.scale.level.not.all.selected}">
+                    All current levels must have a match
+                </code>
+                <code data-lang-code="label.scale.level.value"
+                      th:text="#{label.scale.level.value}">Level {0}</code>
+                <code data-lang-code="label.drop.level"
+                      th:text="${dropMessage}">Drop your level here</code>
+                <div id="level-template-ui" class="panel panel-success" data-container-level="">
+                    <div class="panel-heading">
+                        <span class="panel-title">x</span>
+                        <a href="#" data-role="remove" class="text-danger pull-right" style="font-size: 18px;">
+                            <span class="glyphicon glyphicon-remove-circle"></span>
+                        </a>
+                    </div>
+                    <div class="panel-body list-group">
+                        <span th:text="${dropMessage}">Drop your level here</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

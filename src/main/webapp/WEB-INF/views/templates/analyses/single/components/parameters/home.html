@@ -1,0 +1,13 @@
+<th:block th:fragment="content"
+          th:with="mappedParameters=${T(lu.itrust.business.ts.model.analysis.helper.AnalysisUtils).SplitParameters(parameters != null ? parameters : {})}">
+        <!-- Include other pages (whole file, not fragment) -->
+        <div th:replace="~{templates/analyses/single/components/parameters/other :: content}"></div>
+
+        <div th:replace="~{templates/analyses/single/components/parameters/impact_probability :: content}"></div>
+
+        <!-- Conditional block for quantitative type and maturity -->
+        <div th:if="${type != null and type.quantitative and (hasMaturity == true)}">
+            <div th:replace="~{templates/analyses/single/components/parameters/maturity/home :: content}"></div>
+        </div>
+    </th:block>
+</th:block>

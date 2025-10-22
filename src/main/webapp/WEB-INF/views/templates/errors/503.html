@@ -1,36 +1,34 @@
 <!DOCTYPE html>
-<html lang="${locale.language}">
+<html xmlns:th="http://www.thymeleaf.org" lang="[[${locale.language}]]" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="#{title.error.503}"></title>
-    <!-- Include Header -->
-    <div th:replace="templates/template/header :: header"></div>
+    <th:block th:replace="~{templates/template/header :: header('label.title.error.503')}"></th:block>
 </head>
 <body>
     <div id="wrap">
         <!-- ################################################################### Nav Menu ################################################################### -->
-        <div th:replace="templates/template/menu :: menu"></div>
+        <th:block th:replace="~{templates/template/menu :: main-menu(menu, analysisSharedCount)}"></th:block>
 
         <div class="container">
             <!-- Success/Error Message -->
-            <div th:replace="templates/template/successErrors :: successErrors"></div>
+            <th:block th:replace="~{templates/template/successErrors :: successErrors}"></th:block>
 
             <!-- #################################################################### Content ################################################################### -->
             <div class="page-header">
-                <h1 th:text="#{title.error.503}"></h1>
+                <h1 th:text="#{label.title.error.503}">503: Service Unavailable</h1>
             </div>
 
             <div class="content" id="content" data-spy="scroll">
-                <span th:text="#{error.503.message}"></span>
+                <span th:text="#{error.503.message}">The service is temporarily unavailable.</span>
             </div>
         </div>
 
         <!-- ################################################################ Include Footer ################################################################ -->
-        <div th:replace="templates/template/footer :: footer"></div>
+        <th:block th:replace="~{templates/template/footer :: footer}"></th:block>
     </div>
 
     <!-- Include Scripts -->
-    <div th:replace="templates/template/scripts :: scripts"></div>
+    <th:block th:replace="~{templates/template/scripts :: scripts}"></th:block>
 </body>
 </html>

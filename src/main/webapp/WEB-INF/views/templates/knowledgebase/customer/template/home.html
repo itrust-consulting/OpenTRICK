@@ -9,9 +9,10 @@
             </div>
             <div class="modal-body">
                 <div class="tab-content">
-                    <!-- Use th:replace to include other templates -->
-                    <div th:replace="~{manage :: content}"></div>
-                    <div th:replace="~{form :: content}"></div>
+ <div th:replace="templates/knowledgebase/customer/template/manage"></div>
+<div th:replace="templates/knowledgebase/customer/template/form"></div>
+
+
                 </div>
             </div>
             <div class="modal-footer">

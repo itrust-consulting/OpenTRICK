@@ -1,95 +1,107 @@
-<div id="analysis-export-dialog" class="modal fade" role="dialog" tabindex="-1" data-aria-hidden="true" data-backdrop="static">
-    <div class="modal-dialog modal-sml">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" data-aria-hidden="true">&times;</button>
-                <h4 class="modal-title" th:text="#{label.title.analysis.export.report}">Exporting analysis word report</h4>
-            </div>
-            <!-- Set nameControl variable -->
-            <div th:with="nameControl=${analysis.type.toLowerCase()}">
-                <!-- dialog body -->
-                <div class="modal-body">
-                    <form class="form form-inline" th:action="@{/Analysis/Report/Export-process}" method="post" enctype="multipart/form-data" th:data-type-control="${nameControl}">
-                        <input type="hidden" th:name="analysis" th:id="'exportWord.analysis.' + ${nameControl}" th:value="${analysis.id}">
+<div
+  th:with="
+    analysisType=${analysis != null ? analysis.type : null},
+    nameControl=${analysisType != null ? #strings.toLowerCase(analysisType?.name() ?: analysisType.toString()) : 'hybrid'},
+    resolvedAnalysisId=${analysis != null ? analysis.id : (analysisId != null ? analysisId : 0)},
+    maxSizeInfo=${
+      maxFileSize < 1024
+        ? #messages.msg('label.max.unit.data.byte', maxFileSize)
+        : (maxFileSize < 1048576
+            ? #messages.msg('label.max.unit.data.kilo.byte', maxFileSize / 1024)
+            : #messages.msg('label.max.unit.data.mega.byte', maxFileSize / 1048576))
+    }
+  "
+>
+  <div class="modal fade" id="exportAnalysisReportModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
 
-                        <!-- Check if types is not empty -->
-                        <div th:if="${not #lists.isEmpty(types)}">
-                            <fieldset>
-                                <legend style="font-size: 15px" th:data-helper-content="#{help.export.report.type}">
-                                    <span th:text="#{label.analysis.type}">Type</span>
-                                </legend>
-                                <div class="col-sm-12" align="center" data-trick-info="type">
-                                    <div class="btn-group" data-toggle="buttons">
-                                        <div th:each="type : ${types}" th:with="typeValue=${type.toLowerCase()}">
-                                            <label class="btn btn-sm btn-default" th:classappend="${typeValue == 'hybrid' ? ' active' : ''}">
-                                                <span th:text="#{label.analysis.type.${typeValue}}">${typeValue}</span>
-                                                <input th:name="type" th:type="radio" th:value="${type}" th:checked="${typeValue == 'hybrid'}">
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </fieldset>
-                        </div>
-
-                        <fieldset style="margin-bottom: 10px">
-                            <legend style="font-size: 15px" th:data-helper-content="#{help.export.report.internal}">
-                                <span th:text="#{label.internal.template}">Internal template</span>
-                            </legend>
-
-                            <div class="col-sm-12 text-center" data-trick-info="template">
-                                <select name="template" class="form-control" th:id="'exportWord.template.' + ${nameControl}" required="required" style="width: 100%">
-                                    <option value="0" selected="selected" disabled="disabled" th:text="#{label.action.choose}">Choose...</option>
-                                    <div th:each="template : ${templates}">
-                                        <option th:value="${template.id}" th:classappend="${template.outToDate ? 'text-danger' : ''}" th:data-trick-type="${template.analysisType}">
-                                            <span th:text="${template.label}"></span> - V <span th:text="${template.version}"></span>
-                                        </option>
-                                    </div>
-                                </select>
-                            </div>
-                        </fieldset>
-
-                        <fieldset data-trick-info="file">
-                            <legend class="text-warning" style="font-size: 15px" th:data-helper-content="#{help.export.report.external}">
-                                <span th:text="#{label.external.template}">External template</span>
-                            </legend>
-
-                            <div th:switch="${maxFileSize}">
-                                <div th:case="* < 1024">
-                                    <span th:text="#{label.max.unit.data.byte}" th:arguments="${maxFileSize}">Maximum file size: ${maxFileSize} bytes</span>
-                                </div>
-                                <div th:case="* < 1048576">
-                                    <span th:text="#{label.max.unit.data.kilo.byte}" th:arguments="${maxFileSize / 1024}">Maximum file size: ${maxFileSize / 1024} KB</span>
-                                </div>
-                                <div th:case="*">
-                                    <span th:text="#{label.max.unit.data.mega.byte}" th:arguments="${maxFileSize / 1048576}">Maximum file size: ${maxFileSize / 1048576} MB</span>
-                                </div>
-                            </div>
-
-                            <div class="col-sm-12">
-                                <div class="input-group-btn">
-                                    <input th:id="'exportWord.file.' + ${nameControl}" type="file" accept=".docx" name="file" style="display: none;" th:maxlength="${maxFileSize}" />
-                                    <input th:id="'exportWord.file.info.' + ${nameControl}" name="filename" th:placeholder="${maxSizeInfo}" class="form-control" readonly="readonly" required="required" style="width: 83%" />
-                                    <button class="btn btn-primary" type="button" th:id="'exportWord.file.browse.button.' + ${nameControl}" name="browse" style="margin-left: -5px;">
-                                        <span th:text="#{label.action.browse.${nameControl}}">Browse</span>
-                                    </button>
-                                </div>
-                            </div>
-
-                        </fieldset>
-
-                        <button name="submit" type="submit" style="display: none"></button>
-                    </form>
-                </div>
-                <!-- dialog buttons -->
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" name="export">
-                        <span th:text="#{label.action.export}">Export</span>
-                    </button>
-                    <button type="button" class="btn btn-default" name="cancel" data-dismiss="modal">
-                        <span th:text="#{label.action.cancel}">Cancel</span>
-                    </button>
-                </div>
-            </div>
+        <div class="modal-header">
+          <h4 class="modal-title" th:text="#{label.export.analysis.report}">
+            Export Analysis Report
+          </h4>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
         </div>
+
+        <div class="modal-body">
+          <form th:action="@{/Analysis/Data-manager/Export}" method="post" enctype="multipart/form-data">
+
+            <!-- Type selector -->
+            <div class="form-group">
+              <label th:text="#{label.analysis.type}">Type</label>
+              <div>
+                <label
+                  th:each="type : ${types}"
+                  th:with="
+                    typeName=${type?.name() ?: type},
+                    typeValue=${#strings.toLowerCase(typeName)}
+                  "
+                  class="radio-inline"
+                >
+                  <input
+                    type="radio"
+                    th:name="${'type'}"
+                    th:value="${typeValue}"
+                    th:checked="${nameControl == typeValue}"
+                  />
+                  <span th:text="${typeName}">HYBRID</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Template selector -->
+            <div class="form-group">
+              <label th:text="#{label.analysis.template}">Template</label>
+              <select name="template" class="form-control">
+                <option value="0" th:text="#{label.select}">Select</option>
+                <option
+                  th:each="template : ${templates}"
+                  th:value="${template.id}"
+                  th:text="${template.name}"
+                  th:data-trick-type="${template.analysisType?.name() ?: template.analysisType}"
+                >
+                  Template Name
+                </option>
+              </select>
+            </div>
+
+            <!-- Other export options -->
+            <div class="form-group">
+              <label th:text="#{label.analysis.language}">Language</label>
+              <select name="language" class="form-control" required>
+                <option value="0" th:text="#{label.select}">Select</option>
+                <option
+                  th:each="language : ${languages}"
+                  th:value="${language.code}"
+                  th:text="${language.displayName}"
+                ></option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label th:text="#{label.export.comment}">Comment</label>
+              <textarea name="comment" class="form-control" rows="3"></textarea>
+            </div>
+
+            <input type="hidden" name="analysisId" th:value="${resolvedAnalysisId}" />
+            <p class="text-muted">
+              <small th:text="${maxSizeInfo}">Maximum file size: 10 MB</small>
+            </p>
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal" th:text="#{label.cancel}">
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-primary" th:text="#{label.export}">
+            Export
+          </button>
+        </div>
+      </div>
     </div>
+  </div>
 </div>
+<!-- END: modal.html -->

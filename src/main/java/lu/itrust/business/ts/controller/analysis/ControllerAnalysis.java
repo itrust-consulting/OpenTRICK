@@ -63,17 +63,18 @@ import lu.itrust.business.ts.database.service.ServiceIDS;
 import lu.itrust.business.ts.database.service.ServiceLanguage;
 import lu.itrust.business.ts.database.service.ServiceTicketingSystem;
 import lu.itrust.business.ts.database.service.ServiceUserAnalysisRight;
-import lu.itrust.business.ts.exception.ResourceNotFoundException;
 import lu.itrust.business.ts.exception.TrickException;
 import lu.itrust.business.ts.helper.Comparators;
 import lu.itrust.business.ts.helper.DependencyGraphManager;
 import lu.itrust.business.ts.helper.JsonMessage;
 import lu.itrust.business.ts.helper.NaturalOrderComparator;
 import lu.itrust.business.ts.model.actionplan.helper.ActionPlanComputation;
+import lu.itrust.business.ts.model.actionplan.helper.ActionPlanManager;
 import lu.itrust.business.ts.model.analysis.Analysis;
 import lu.itrust.business.ts.model.analysis.AnalysisSetting;
 import lu.itrust.business.ts.model.analysis.AnalysisType;
 import lu.itrust.business.ts.model.analysis.rights.AnalysisRight;
+import lu.itrust.business.ts.model.analysis.rights.UserAnalysisRight;
 import lu.itrust.business.ts.model.assessment.helper.Estimation;
 import lu.itrust.business.ts.model.externalnotification.helper.ExternalNotificationHelper;
 import lu.itrust.business.ts.model.general.Customer;
@@ -637,16 +638,23 @@ public class ControllerAnalysis extends AbstractController {
 	@RequestMapping("/{analysisId}/Select")
 	public String selectAnalysis(Model model, Principal principal, @PathVariable("analysisId") Integer analysisId,
 			@RequestParam(value = "open", defaultValue = "edit") String open,
-			HttpSession session, Locale locale) throws Exception {
+			HttpSession session, Locale locale, RedirectAttributes redirectAttributes) throws Exception {
 		// select the analysis
 		OpenMode mode = OpenMode.parseOrDefault(open);
 		session.setAttribute(SELECTED_ANALYSIS, analysisId);
 		session.setAttribute(OPEN_MODE, mode);
 		Analysis analysis = serviceAnalysis.get(analysisId);
-		if (analysis == null)
-			throw new ResourceNotFoundException(
-					messageSource.getMessage("error.analysis.not_found", null, "Analysis cannot be found", locale));
+		if (analysis == null) {
+			session.removeAttribute(SELECTED_ANALYSIS);
+			redirectAttributes.addFlashAttribute("error", "error.analysis.not_found");
+			return "redirect:/Analysis/Section";
+		}
 		User user = serviceUser.get(principal.getName());
+		if (user == null) {
+			session.removeAttribute(SELECTED_ANALYSIS);
+			redirectAttributes.addFlashAttribute("error", "error.permission_denied");
+			return "redirect:/Analysis/Section";
+		}
 		ValueFactory valueFactory = new ValueFactory(analysis.getParameters());
 		boolean readOnly = OpenMode.isReadOnly(mode);
 
@@ -747,15 +755,44 @@ public class ControllerAnalysis extends AbstractController {
 			analysis.getAssets().sort(Comparators.ASSET());
 			analysis.getHistories()
 					.sort((a1, a2) -> NaturalOrderComparator.compareTo(a1.getVersion(), a2.getVersion()) * -1);
+			UserAnalysisRight userAnalysisRight = analysis.findRightsforUserString(user.getLogin());
+			if (userAnalysisRight == null) {
+				session.removeAttribute(SELECTED_ANALYSIS);
+				redirectAttributes.addFlashAttribute("error", "error.permission_denied");
+				return "redirect:/Analysis/Section";
+			}
+			int accessLevel = userAnalysisRight.getRight().ordinal();
+			boolean isProfile = analysis.isProfile();
+			boolean canModify = isProfile || accessLevel < 3;
+			boolean isEditable = canModify && !readOnly;
+			boolean canExport = accessLevel < 2 && !(isProfile || readOnly);
+			
+			model.addAttribute("accessLevel", accessLevel);
+			model.addAttribute("isProfile", isProfile);
+			model.addAttribute("canModify", canModify);
+			model.addAttribute("isEditable", isEditable);
+			model.addAttribute("canExport", canExport);
+			model.addAttribute("language", locale.getLanguage());
+			
 			model.addAttribute("standardChapters", spliteMeasureByChapter(measuresByStandard));
 			model.addAttribute("valueFactory", valueFactory);
 			model.addAttribute("open", mode);
 			model.addAttribute("analysis", analysis);
+			model.addAttribute("analysisId", analysis.getId());
 			model.addAttribute("login", user.getLogin());
 			model.addAttribute("reportSettings", loadReportSettings(analysis));
 			model.addAttribute("exportFilenames", loadExportFileNames(analysis));
 			model.addAttribute("isILR", isILR);
-			loadUserSettings(principal, analysis.getCustomer().getTicketingSystem(), model, user);
+			boolean allowedTicketing = loadUserSettings(principal, analysis.getCustomer().getTicketingSystem(), model, user);
+			
+			boolean isLinkedToProject = allowedTicketing && (model.containsAttribute("isNoClientTicketing") || analysis.hasProject());
+			model.addAttribute("allowedTicketing", allowedTicketing);
+			model.addAttribute("isLinkedToProject", isLinkedToProject);
+
+			// Add action plans split by type for templates
+			if (!analysis.isProfile()) {
+				model.addAttribute("actionplansplitted", ActionPlanManager.splitByType(analysis.getActionPlans()));
+			}
 
 			/**
 			 * Log

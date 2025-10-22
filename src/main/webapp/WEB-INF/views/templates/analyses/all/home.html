@@ -1,69 +1,258 @@
+
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="${locale.language}">
-<head>
-    <meta charset="UTF-8">
-    <title th:text="#{label.menu.analysis.list}">List of Analyses</title>
-    <link rel="stylesheet" th:href="@{/css/analysis.css}"/>
-</head>
-<body>
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.language}">
+  <head th:replace="templates/template/header :: header('label.title.analyses')"></head>
+  <body>
+    <div id="wrap" class="wrap">
+      <div th:replace="templates/template/menu :: main-menu(menu, analysisSharedCount)"></div>
 
-<div th:with="user=${#authentication.principal}">
-    <ul>
-        <li th:if="${allowedTicketing} and ${ticketingURL != null}">
-            <a th:href="@{${ticketingURL}}">
-                <span th:text="#{label.menu.link.project(${ticketingName})}">Project Link</span>
-            </a>
-        </li>
-    </ul>
+      <div class="container" data-ug-root="analyses">
+        <div class="section" id="section_analysis">
+          <ul class="nav nav-pills bordered-bottom" style="margin-top: 5px; margin-bottom: 5px;" id="menu_analysis" data-trick-callback="updateDropdown">
+            <li data-trick-ignored="true" class="nav-dropdown-menu">
+              <a class="pull-left" href="#" onclick="return customAnalysis(this);">
+                <span class="glyphicon glyphicon-plus"></span>
+                <span th:text="#{label.menu.build.analysis}">Build an analysis</span>
+              </a>
+              <a href="#" class="pull-left dropdown-toggle disabled" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="fa fa-sort-desc fa-f20" aria-hidden="true"></i>
+              </a>
+              <ul class="dropdown-menu">
+                <li class="disabled" data-trick-selectable="true" data-trick-check="hasRight('EXPORT')">
+                  <a href="#" onclick="return addHistory()">
+                    <span class="glyphicon glyphicon-duplicate"></span>
+                    <span th:text="#{label.menu.create.analysis.new_version}">New version</span>
+                  </a>
+                </li>
+                <li class="disabled" data-trick-selectable="true" data-trick-check="!isArchived() && hasRight('EXPORT')">
+                  <a href="#" onclick="return createAnalysisProfile(null, 'section_analysis');">
+                    <span class="glyphicon glyphicon-file"></span>
+                    <span th:text="#{label.menu.create.analysis_profile}">New profile</span>
+                  </a>
+                </li>
+              </ul>
+            </li>
 
-    <select id="customer">
-        <option value="0" th:text="#{label.analysis.choice.customer}">Choose a customer</option>
-        <option th:each="icustomer : ${customers}"
-                th:value="${icustomer.id}"
-                th:selected="${customer != null} ? ${icustomer.id == customer} : false"
-                th:text="${icustomer.organisation}"></option>
-    </select>
+            <li class="disabled" data-trick-selectable="true" data-trick-check="hasRight('MODIFY') && !isArchived()">
+              <a href="#" onclick="return selectAnalysis(undefined,OPEN_MODE.EDIT)">
+                <span class="glyphicon glyphicon-folder-open"></span>
+                <span th:text="#{label.action.open}">Open</span>
+              </a>
+            </li>
 
-    <div>
-        <button th:onclick="|window.location='@{/analysis/add}'|">
-            <span th:text="#{label.analysis.create.new}">Create New Analysis</span>
-        </button>
+            <li class="disabled" data-trick-selectable="true" data-trick-check="hasRight('READ')">
+              <a href="#" onclick="return selectAnalysis(undefined,OPEN_MODE.READ)">
+                <span class="glyphicon glyphicon-eye-open"></span>
+                <span th:text="#{label.action.open.read_only}">Open read only</span>
+              </a>
+            </li>
+
+            <li class="disabled" data-trick-selectable="true" data-trick-check="!isArchived() && hasRight('ALL')">
+              <a href="#" onclick="return editSingleAnalysis();">
+                <span class="glyphicon glyphicon-edit"></span>
+                <span th:text="#{label.properties}">Properties</span>
+              </a>
+            </li>
+
+            <li th:if="${allowedTicketing and !#strings.isEmpty(ticketingURL)}" class="disabled" data-trick-selectable="true" data-trick-check="!isArchived() && !isLinked() && hasRight('ALL')">
+              <a href="#" onclick="return linkToProject()">
+                <span class="glyphicon glyphicon-link"></span>
+                <span th:text="#{label.menu.link.project(${ticketingName})}">Link to project</span>
+              </a>
+            </li>
+
+            <li th:if="${allowedTicketing and !#strings.isEmpty(ticketingURL)}" class="disabled" data-trick-selectable="multi" data-trick-single-check="!isArchived() && isLinked() && hasRight('ALL')">
+              <a href="#" onclick="return unLinkToProject()">
+                <span class="glyphicon glyphicon-scissors"></span>
+                <span th:text="#{label.menu.unlink.project(${ticketingName})}">Unlink from project</span>
+              </a>
+            </li>
+
+            <li th:class="${allowIDS} ? 'disabled nav-dropdown-menu' : 'disabled'" data-trick-selectable="true" data-trick-check="!isArchived() && canManageAccess()">
+              <a href="#" class="pull-left" onclick="return manageAnalysisAccess(null, 'section_analysis');">
+                <span class="fa fa-users"></span>
+                <span th:text="#{label.menu.manage.access.analysis}">Manage access rights</span>
+              </a>
+              <th:block th:if="${allowIDS}">
+                <a href="#" class="pull-left dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  <i class="fa fa-sort-desc fa-f20" aria-hidden="true"></i>
+                </a>
+                <ul class="dropdown-menu">
+                  <li class="disabled" data-trick-selectable="true" data-trick-check="!isArchived() && canManageAccess() && isAnalysisType('QUANTITATIVE')">
+                    <a href="#" onclick="return manageAnalysisIDSAccess('section_analysis');">
+                      <span class="fa fa-rss-square"></span>
+                      <span th:text="#{label.menu.manage.ids.access.analysis}">Manage IDS</span>
+                    </a>
+                  </li>
+                </ul>
+              </th:block>
+            </li>
+
+            <li class="disabled nav-dropdown-menu" data-trick-selectable="true" data-trick-check="hasRight('EXPORT') && !isArchived()">
+              <a class="pull-left" href="#" onclick="return exportAnalysisReport()">
+                <span class="glyphicon glyphicon-export"></span>
+                <span th:text="#{label.action.export.report}">Export a report</span>
+              </a>
+              <a href="#" class="pull-left dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="fa fa-sort-desc fa-f20" aria-hidden="true"></i>
+              </a>
+              <ul class="dropdown-menu">
+                <li class="disabled" data-trick-selectable="true" data-trick-check="hasRight('EXPORT')">
+                  <a href="#" onclick="return exportAnalysis()">
+                    <span class="glyphicon glyphicon-export"></span>
+                    <span th:text="#{label.action.export.database}">Export</span>
+                  </a>
+                </li>
+              </ul>
+            </li>
+
+            <li th:if="${!#lists.isEmpty(customers)}" data-trick-ignored="true">
+              <a href="#" onclick="return importAnalysis()">
+                <span class="glyphicon glyphicon-import"></span>
+                <span th:text="#{label.action.import}">Import</span>
+              </a>
+            </li>
+
+            <li class="disabled pull-right" data-trick-selectable="true" data-trick-check="isOwner() || !isArchived() && hasRight('ALL')">
+              <a href="#" onclick="return deleteAnalysis();" class="text-danger">
+                <span class="glyphicon glyphicon-remove"></span>
+                <span th:text="#{label.menu.delete.analysis}">Delete</span>
+              </a>
+            </li>
+
+            <li class="disabled pull-right" data-trick-selectable="true" data-trick-check="!isArchived() && canManageAccess()">
+              <a href="#" onclick="return archiveAnalysis();" class="text-warning">
+                <span class="glyphicon glyphicon-folder-close"></span>
+                <span th:text="#{label.menu.archive.analysis}">Archive</span>
+              </a>
+            </li>
+          </ul>
+
+          <div class="center-block">
+            <div class="col-md-6">
+              <p class="text-center">
+                <label th:text="#{label.filter.analysis.customer}">Analyses filtered by customer</label>
+              </p>
+              <form class="col-md-offset-4 col-md-4">
+                <select id="customerSelectorFilter" class="form-control" onchange="return customerChange('#customerSelectorFilter','#nameSelectorFilter')" style="margin-bottom: 10px">
+                  <option th:each="icustomer : ${customers}"
+                          th:value="${icustomer.id}"
+                          th:selected="${customer != null and icustomer.id == customer}"
+                          th:text="${icustomer.organisation}">Customer</option>
+                </select>
+              </form>
+            </div>
+            <div class="col-md-6">
+              <p class="text-center">
+                <label th:text="#{label.filter.analysis.name}">Analyses filtered by name</label>
+              </p>
+              <form class="col-md-offset-4 col-md-4">
+                <select id="nameSelectorFilter" class="form-control" onchange="return customerChange('#customerSelectorFilter','#nameSelectorFilter')" style="margin-bottom: 10px">
+                  <option value="ALL" th:text="#{label.all}">ALL</option>
+                  <option th:each="name : ${names}"
+                          th:value="${name}"
+                          th:selected="${analysisSelectedName != null and analysisSelectedName == name}"
+                          th:text="${name}">Name</option>
+                </select>
+              </form>
+            </div>
+          </div>
+
+          <table class="table table-striped table-hover" style="border-top: 1px solid #dddddd;">
+            <thead>
+              <tr>
+                <th width="1%">
+                  <th:block th:if="${allowedTicketing and !#strings.isEmpty(ticketingURL)}">
+                    <input type="checkbox" class="checkbox" onchange="return checkControlChange(this,'analysis');">
+                  </th:block>
+                </th>
+                <th width="20%" th:text="#{label.analysis.label}">Name</th>
+                <th width="5%" th:text="#{label.analysis.type}">Type</th>
+                <th width="35%" th:text="#{label.analysis.comment}">Comment</th>
+                <th th:if="${allowedTicketing and !#strings.isEmpty(ticketingURL)}" th:text="#{label.link.to.project(${ticketingName})}">Project</th>
+                <th th:text="#{label.analysis.version}">Version</th>
+                <th width="8%" th:text="#{label.analysis.creation_date}">Creation Date</th>
+                <th th:text="#{label.analysis.author}">Author</th>
+                <th th:text="#{label.analysis.based_on_analysis}">Based on</th>
+                <th th:text="#{label.analysis.language}">Language</th>
+                <th th:text="#{label.analysis.right}">Access</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="analysis : ${analyses}"
+                  th:class="${analysis.archived} ? 'text-muted' : ''"
+                  th:attr="data-trick-id=${analysis.id},
+                           data-trick-archived=${analysis.archived},
+                           data-is-linked=${!#strings.isEmpty(analysis.project)},
+                           data-trick-type=${analysis.type},
+                           data-trick-rights-id=${analysis.findRightsforUserString(login).right.ordinal()},
+                           data-analysis-owner=${login == analysis.owner.login}"
+                  onclick="selectElement(this)"
+                  ondblclick="return editSingleAnalysis(this.getAttribute('data-trick-id'));">
+                <td>
+                  <input type="checkbox" class="checkbox" onchange="return updateMenu(this,'#section_analysis','#menu_analysis');">
+                </td>
+                <td>
+                  <th:block th:if="${analysis.defaultProfile}">
+                    <i class="fa fa-file" aria-hidden="true" th:title="#{label.analysis.default.profile}"></i>
+                  </th:block>
+                  <th:block th:if="${analysis.profile and !analysis.defaultProfile}">
+                    <i class="fa fa-file-o" aria-hidden="true" th:title="#{label.analysis.profile}"></i>
+                  </th:block>
+                  <th:block th:if="${!analysis.profile and !analysis.data}">
+                    <i class="fa fa-folder-o" aria-hidden="true" th:title="#{label.analysis.empty}"></i>
+                  </th:block>
+                  <th:block th:if="${!analysis.profile and analysis.data and analysis.archived}">
+                    <i class="fa fa-archive" aria-hidden="true" th:title="#{label.analysis.archived}"></i>
+                  </th:block>
+                  <th:block th:if="${!analysis.profile and analysis.data and !analysis.archived}">
+                    <i class="fa fa-folder" aria-hidden="true" th:title="#{label.analysis.editable}"></i>
+                  </th:block>
+                  <span style="margin-left: 5px;" th:text="${analysis.label}">Analysis Name</span>
+                </td>
+                <td>
+                  <span th:text="#{${'label.analysis.type.' + #strings.toLowerCase(analysis.type)}}">Type</span>
+                </td>
+                <td data-trick-content="text" th:text="${analysis.lastHistory?.comment}">Comment</td>
+                <td th:if="${allowedTicketing and !#strings.isEmpty(ticketingURL)}">
+                  <th:block th:if="${!#strings.isEmpty(analysis.project)}">
+                    <a class="btn-link" th:href="${@clientBuilder.projectLink(#strings.toLowerCase(ticketingName), ticketingURL, analysis.project)}" target="_titck_ts">
+                      <i class="fa fa-external-link" aria-hidden="true"></i>
+                      <span th:text="${analysis.project}">Project</span>
+                    </a>
+                  </th:block>
+                </td>
+                <td th:attr="data-trick-version=${analysis.version}" th:text="${analysis.version}">Version</td>
+                <td th:text="${#dates.format(analysis.creationDate, 'yyyy-MM-dd HH:mm')}">Creation Date</td>
+                <td th:text="${analysis.owner.firstName + ' ' + analysis.owner.lastName}">Author</td>
+                <td>
+                  <th:block th:if="${analysis.basedOnAnalysis == null}">
+                    <span th:text="#{label.analysis.based_on_self}">None</span>
+                  </th:block>
+                  <th:block th:if="${analysis.basedOnAnalysis != null and analysis.basedOnAnalysis.id != analysis.id}">
+                    <span th:text="${analysis.basedOnAnalysis.version}">Version</span>
+                  </th:block>
+                </td>
+                <td th:text="${analysis.language.name}">Language</td>
+                <td>
+                  <span th:with="right=${analysis.findRightsforUserString(login).right}"
+                        th:text="#{${'label.analysis.right.' + #strings.toLowerCase(right)}}">Access</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div th:replace="templates/analyses/all/widgets :: analysis-widgets"></div>
+      <div th:replace="templates/template/footer :: footer"></div>
     </div>
 
-    <table>
-        <thead>
-        <tr>
-            <th th:text="#{label.analysis.label}">Label</th>
-            <th th:text="#{label.analysis.creation.date}">Creation Date</th>
-            <th th:text="#{label.analysis.owner}">Owner</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="analysis : ${analyses}"
-            th:classappend="${analysis.archived} ? 'text-muted'"
-            th:attr="data-trick-id=${analysis.id},
-                     data-trick-archived=${analysis.archived},
-                     data-is-linked=${analysis.project != null},
-                     data-trick-type=${analysis.type},
-                     data-trick-rights-id=${analysis.findRightsforUserString(login).right.ordinal()},
-                     data-analysis-owner=${user.username == analysis.owner.login}"
-            ondblclick="return editSingleAnalysis([[${analysis.id}]])">
-            <td>
-                <span th:if="${analysis.defaultProfile}" class="fa fa-file" th:title="#{label.analysis.default.profile}"></span>
-                <span th:text="${analysis.label}"></span>
-            </td>
-            <td th:text="${#dates.format(analysis.creationDate, 'yyyy-MM-dd HH:mm')}"></td>
-            <td th:text="${analysis.owner.login}"></td>
-        </tr>
-        </tbody>
-    </table>
-
-</div>
-
-<script th:src="@{/js/jquery-ui.min.js}"></script>
-<script th:src="@{/js/trickservice/analyses.js}"></script>
-<script th:src="@{/js/trickservice/analysisExport.js}"></script>
-<script th:if="${adminaAllowedTicketing}" th:src="@{/js/trickservice/ticketing-system.js}"></script>
-
-</body>
+    <div th:replace="templates/template/scripts :: scripts"></div>
+    <script th:src="@{/js/jquery-ui.min.js}"></script>
+    <script type="text/javascript" th:src="@{/js/trickservice/analyses.js}"></script>
+    <script type="text/javascript" th:src="@{/js/trickservice/analysisExport.js}"></script>
+    <script th:if="${allowedTicketing}" type="text/javascript" th:src="@{/js/trickservice/ticketing-system.js}"></script>
+  </body>
 </html>
+

@@ -136,7 +136,7 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 				.perform(get("/KnowledgeBase/Standard/1/Language/1/Measures")
 						.with(user(USERNAME).password(PASSWORD).roles("CONSULTANT", "ADMIN")).with(csrf()))
 				.andExpect(status().isOk())
-				.andExpect(view().name("jsp/knowledgebase/standards/measure/section"))
+				.andExpect(view().name("templates/knowledgebase/standards/measure/section"))
 				.andExpect(model().attributeExists("selectedLanguage", "languages", "standard", "measureDescriptions"));
 	}
 
@@ -221,6 +221,7 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 		put(PROFILE_STANDARD_LIST, standards);
 	}
 
+	@SuppressWarnings("null")
 	@Test(dependsOnMethods = "test_05_LoadAnalysisStandard", timeOut = 120000)
 	public synchronized void test_03_CreateProfile() throws Exception {
 		String standards = getString(PROFILE_STANDARD_LIST);
@@ -486,6 +487,7 @@ public class TS_06_KnowledgeBase extends SpringTestConfiguration {
 				result.getResponse().getContentType());
 	}
 
+	@SuppressWarnings("null")
 	@Test(dependsOnMethods = "test_11_DeleteCustomerAndLanguage", timeOut = 120000)
 	public synchronized void test_13_ImportStandard() throws Exception {
 		Resource resource = resourceLoader.getResource(importStandard);

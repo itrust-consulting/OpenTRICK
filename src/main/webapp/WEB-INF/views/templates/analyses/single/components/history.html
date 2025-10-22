@@ -4,9 +4,11 @@
             <div class="container">
                 <div class="row-fluid">
                     <h3>
-                        <span th:text="#{format.analysis.name(${analysis.customer.organisation}, ${analysis.label}, ${analysis.version})}"> 
-                            ${analysis.customer.organisation}: ${analysis.label} - v${analysis.version}
+                        <span th:if="${analysis != null}"
+                              th:text="#{format.analysis.name(${analysis.customer != null ? analysis.customer.organisation : ''}, ${analysis.label}, ${analysis.version})}"> 
+                            <!-- ${analysis.customer.organisation}: ${analysis.label} - v${analysis.version} -->
                         </span>
+                        <span th:unless="${analysis != null}" th:text="#{label.title.analysis}">Analysis</span>
                     </h3>
                 </div>
             </div>

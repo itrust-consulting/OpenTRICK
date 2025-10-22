@@ -1,4 +1,4 @@
-<div th:if="${type.quantitative}">
+<div th:if="${type != null and type.quantitative}">
     <div class="tab-pane trick-chart-tab" id="tab-chart-asset" data-update-required="true" data-trigger="loadChartAsset">
         <div id="chart_asset" class="container">
             <div class="page-header tab-content-header">
@@ -46,7 +46,7 @@
     </div>
 </div>
 
-<div th:if="${type.qualitative}">
+<div th:if="${type != null and type.qualitative == true}">
     <div th:with="riskAcceptanceTablePlaceHolder='
         <fieldset>
             <legend>
@@ -190,7 +190,7 @@
     </div>
 </div>
 
-<div th:if="${type.quantitative}">
+<div th:if="${type != null and type.quantitative}">
     <div class="tab-pane trick-chart-tab" id="tab-chart-evolution" data-update-required="true" data-trigger="loadChartEvolution">
         <div id="chart_evolution" class="container">
             <div class="page-header tab-content-header">
@@ -202,7 +202,7 @@
                     </div>
                 </div>
             </div>
-            <div th:if="${show_uncertainty}">
+            <div th:if="${show_uncertainty == true}">
                 <div id="chart_evolution_profitability_APPO" class="col-sm-6"></div>
                 <div id="chart_compliance_APPO" class="col-sm-6"></div>
                 <div id="chart_evolution_profitability_APPN" class="col-sm-6"></div>
@@ -210,7 +210,7 @@
                 <div id="chart_evolution_profitability_APPP" class="col-sm-6"></div>
                 <div id="chart_compliance_APPP" class="col-sm-6"></div>
             </div>
-            <div th:unless="${show_uncertainty}">
+            <div th:if="${show_uncertainty != true}">
                 <div id="chart_evolution_profitability_APPN" class="col-sm-6"></div>
                 <div id="chart_compliance_APPN" class="col-sm-6"></div>
             </div>
@@ -228,7 +228,7 @@
                     </div>
                 </div>
             </div>
-            <div th:if="${show_uncertainty}">
+            <div th:if="${show_uncertainty == true}">
                 <div id="chart_budget_cost_APPO" class="col-sm-6"></div>
                 <div id="chart_budget_workload_APPO" class="col-sm-6"></div>
                 <div id="chart_budget_cost_APPN" class="col-sm-6"></div>
@@ -236,7 +236,7 @@
                 <div id="chart_budget_cost_APPP" class="col-sm-6"></div>
                 <div id="chart_budget_workload_APPP" class="col-sm-6"></div>
             </div>
-            <div th:unless="${show_uncertainty}">
+            <div th:if="${show_uncertainty != true}">
                 <div id="chart_budget_cost_APPN" class="col-sm-6"></div>
                 <div id="chart_budget_workload_APPN" class="col-sm-6"></div>
             </div>

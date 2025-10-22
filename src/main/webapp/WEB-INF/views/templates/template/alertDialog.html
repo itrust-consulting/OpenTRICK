@@ -1,6 +1,6 @@
 
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <th:block th:fragment="alertDialog">
 <div id="dialog-body">
 	<img src='/images/loading.gif' alt="Loading" th:src="@{/images/loading.gif}" id="loading-indicator"
@@ -24,7 +24,7 @@
 				<!-- dialog buttons -->
 				<div class="modal-footer">
 					<button type="button" class="btn btn-primary" data-dismiss="modal">
-						<spring:message code="label.action.ok" text="OK" />
+						<span th:text="#{label.action.ok}">OK</span>
 					</button>
 				</div>
 			</div>
@@ -39,7 +39,7 @@
 				<!-- dialog buttons -->
 				<div class="modal-footer">
 					<button type="button" class="btn btn-danger" data-dismiss="modal">
-						<spring:message code="label.action.ok" text="OK" />
+						<span th:text="#{label.action.ok}">OK</span>
 					</button>
 				</div>
 			</div>
@@ -54,10 +54,10 @@
 				<!-- dialog buttons -->
 				<div class="modal-footer">
 					<button type="button" name="yes" class="btn btn-danger" data-dismiss="modal">
-						<spring:message code="label.action.confirm.yes" text="Yes" />
+						<span th:text="#{label.action.confirm.yes}">Yes</span>
 					</button>
 					<button type="button" name="no" class="btn btn-default" data-dismiss="modal">
-						<spring:message code="label.action.confirm.no" text="No" />
+						<span th:text="#{label.action.confirm.no}">No</span>
 					</button>
 				</div>
 			</div>

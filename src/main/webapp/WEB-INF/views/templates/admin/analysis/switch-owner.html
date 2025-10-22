@@ -29,14 +29,14 @@
                         <label class="col-xs-4" th:text="#{label.new.owner}">New owner</label>
                         <div class="list-group col-xs-8">
                             <select name="owner" class="form-control">
-                                <option th:each="user : ${userAnalysisRights.keySet()}"
+                                <option th:each="user : ${userAnalysisRights != null ? userAnalysisRights.keySet() : {}}"
                                         th:value="${user.id}">
                                     <span th:text="${user.firstName + ' ' + user.lastName}">User Name</span> -
-                                    <span th:if="${#maps.get(userAnalysisRights, user) == null}"
+                                    <span th:if="${userAnalysisRights == null || userAnalysisRights.get(user) == null}"
                                           th:text="#{label.analysis.right.none}">None</span>
-                                    <span th:if="${#maps.get(userAnalysisRights, user) != null}"
-                                          th:text="#{ 'label.analysis.right.' + #strings.toLowerCase(#maps.get(userAnalysisRights, user)) }"
-                                          th:utext="${#strings.replace(#maps.get(userAnalysisRights, user), '_', ' ')}">
+                                    <span th:if="${userAnalysisRights != null && userAnalysisRights.get(user) != null}"
+                                          th:text="#{ 'label.analysis.right.' + #strings.toLowerCase(userAnalysisRights.get(user)) }"
+                                          th:utext="${#strings.replace(userAnalysisRights.get(user), '_', ' ')}">
                                         RIGHT_NAME
                                     </span>
                                 </option>

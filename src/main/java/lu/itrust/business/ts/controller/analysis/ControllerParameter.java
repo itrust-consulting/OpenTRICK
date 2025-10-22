@@ -114,11 +114,18 @@ public class ControllerParameter extends AbstractController {
 		serviceScaleType.findFromAnalysis(idAnalysis).forEach(scale -> impacts.put(scale, true));
 		serviceScaleType.findAll().stream().filter(scale -> !impacts.containsKey(scale))
 				.forEach(scale -> impacts.put(scale, false));
-		model.addAttribute("quantitativeImpact", impacts.keySet().stream()
-				.filter(impact -> impact.getName().equals(Constant.DEFAULT_IMPACT_NAME)).findAny().orElse(null));
-		model.addAttribute("impacts", impacts);
+		ScaleType quantitativeImpact = impacts.keySet().stream()
+			.filter(impact -> impact.getName().equals(Constant.DEFAULT_IMPACT_NAME)).findAny().orElse(null);
+		Boolean quantitativeImpactEnabled = Boolean.FALSE;
+		if (quantitativeImpact != null) {
+			Boolean removed = impacts.remove(quantitativeImpact);
+			quantitativeImpactEnabled = Boolean.TRUE.equals(removed);
+		}
+		model.addAttribute("quantitativeImpact", quantitativeImpact);
+		model.addAttribute("quantitativeImpactEnabled", quantitativeImpactEnabled);
+		model.addAttribute("qualitativeImpacts", impacts);
 		model.addAttribute("langue", locale.getLanguage().toUpperCase());
-		return "templates/analyses/single/components/parameters/form/mange-impact";
+		return "templates/analyses/single/components/parameters/form/manage-impact";
 	}
 
 	@RequestMapping(value = "/Impact-scale/Manage/Save", method = RequestMethod.POST, headers = ACCEPT_APPLICATION_JSON_CHARSET_UTF_8)

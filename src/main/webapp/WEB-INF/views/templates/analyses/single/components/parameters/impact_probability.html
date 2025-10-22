@@ -1,0 +1,37 @@
+<th:block th:fragment="content">
+    <div th:object="${locale}" th:if="${locale != null}">
+        <div th:field="*{locale}" th:value="'fr'"></div>
+    </div>
+
+    <div class="tab-pane" id="tab-parameter-impact-probability">
+        <div class="section" id="section_parameter_impact_probability">
+            <div class="page-header tab-content-header">
+                <div class="container">
+                    <div class="row">
+                        <h3 th:text="#{label.title.impact_probability}"></h3>
+                    </div>
+                </div>
+            </div>
+
+            <div th:switch="${type != null and type.quantitative}">
+                <div th:case="true">
+                    <div class="row">
+                        <div th:replace="~{templates/analyses/single/components/parameters/impact/financial :: content}"></div>
+                        <div th:replace="~{templates/analyses/single/components/parameters/probability/likelihood :: content}"></div>
+                        <div th:replace="~{templates/analyses/single/components/parameters/probability/dynamic :: content}"></div>
+                    </div>
+                </div>
+
+                <div th:case="false">
+                    <div th:if="${type != null and type.quantitative}">
+                        <div class="row">
+                            <div th:replace="~{templates/analyses/single/components/parameters/probability/likelihood :: content}"></div>
+                            <div th:replace="~{templates/analyses/single/components/parameters/impact/financial :: content}"></div>
+                        </div>
+                    </div>
+                    <div th:replace="~{templates/analyses/single/components/parameters/impact/qualitative :: content}"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>

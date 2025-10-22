@@ -1,14 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Risk Register</title>
-</head>
-<body>
-
-<div class="tab-pane" id="tab-risk-register">
+<div th:fragment="content" class="tab-pane" id="tab-risk-register">
     <div class="section" id="section_riskregister">
         <div class="page-header tab-content-header">
             <div class="container">
@@ -142,48 +132,48 @@
                             <td class="editable" th:data-trick-id="${riskProfile.id}" th:data-trick-field=".identifier"
                                 th:onclick="|return editField(this);|" th:data-trick-class="RiskProfile"
                                 th:data-trick-field-type="string" th:text="${riskProfile.identifier}"></td>
-                            <td th:data-trick-field="category" th:text="#{label.scenario.type.${riskProfile.scenario.type.name.toLowerCase().replace('-', '_')}}"></td>
-                            <td th:data-trick-field="scenario" th:text="${riskProfile.scenario.name}"></td>
-                            <td th:data-trick-field="asset" th:text="${riskProfile.asset.name}"></td>
+                            <td th:data-trick-field="category" th:text="#{${'label.scenario.type.' + #strings.replace(#strings.toLowerCase(riskProfile.scenario.type.name), '-', '_')}}"></td>
+                            <td th:data-trick-field="scenario" th:text="${riskProfile.scenario != null ? riskProfile.scenario.name : ''}"></td>
+                            <td th:data-trick-field="asset" th:text="${riskProfile.asset != null ? riskProfile.asset.name : ''}"></td>
 
                             <span th:if="${showRawColumn}">
                                 <td th:data-trick-field="raw.probability" class="text-center"
-                                    th:text="${#numbers.formatDecimal(estimation.rawProbaImpact.probabilityLevel, 0, '###')}"></td>
+                                    th:text="${#numbers.formatDecimal(estimation.rawProbaImpact.probabilityLevel != null ? estimation.rawProbaImpact.probabilityLevel : 0, 0, 0)}"></td>
                                 <td th:data-trick-field="raw.impact" class="text-center"
-                                    th:text="${#numbers.formatDecimal(estimation.rawProbaImpact.impactLevel, 0, '###')}"></td>
+                                    th:text="${#numbers.formatDecimal(estimation.rawProbaImpact.impactLevel != null ? estimation.rawProbaImpact.impactLevel : 0, 0, 0)}"></td>
                                 <td th:data-trick-field="raw.importance" class="text-center">
                                     <span th:style="'color: ' + ${colorManager.getColor(estimation.rawProbaImpact.importance)}">
                                         <i class="fa fa-flag" aria-hidden="true"></i>
                                     </span>
-                                    <span th:text="${#numbers.formatDecimal(estimation.rawProbaImpact.importance, 0, '###')}"></span>
+                                    <span th:text="${#numbers.formatDecimal(estimation.rawProbaImpact.importance != null ? estimation.rawProbaImpact.importance : 0, 0, 0)}"></span>
                                 </td>
                             </span>
 
                             <td th:data-trick-field="net.probability" class="text-center"
-                                th:text="${#numbers.formatDecimal(estimation.netEvaluation.probabilityLevel, 0, '###')}"></td>
+                                th:text="${#numbers.formatDecimal(estimation.netEvaluation.probabilityLevel != null ? estimation.netEvaluation.probabilityLevel : 0, 0, 0)}"></td>
                             <td th:data-trick-field="net.impact" class="text-center"
-                                th:text="${#numbers.formatDecimal(estimation.netEvaluation.impactLevel, 0, '###')}"></td>
+                                th:text="${#numbers.formatDecimal(estimation.netEvaluation.impactLevel != null ? estimation.netEvaluation.impactLevel : 0, 0, 0)}"></td>
                             <td th:data-trick-field="net.importance" class="text-center">
                                 <span th:style="'color: ' + ${colorManager.getColor(estimation.netEvaluation.importance)}">
                                     <i class="fa fa-flag" aria-hidden="true"></i>
                                 </span>
-                                <span th:text="${#numbers.formatDecimal(estimation.netEvaluation.importance, 0, '###')}"></span>
+                                <span th:text="${#numbers.formatDecimal(estimation.netEvaluation.importance != null ? estimation.netEvaluation.importance : 0, 0, 0)}"></span>
                             </td>
 
                             <td th:data-trick-field="exp.probability" class="text-center"
-                                th:text="${#numbers.formatDecimal(estimation.expProbaImpact.probabilityLevel, 0, '###')}"></td>
+                                th:text="${#numbers.formatDecimal(estimation.expProbaImpact.probabilityLevel != null ? estimation.expProbaImpact.probabilityLevel : 0, 0, 0)}"></td>
                             <td th:data-trick-field="exp.impact" class="text-center"
-                                th:text="${#numbers.formatDecimal(estimation.expProbaImpact.impactLevel, 0, '###')}"></td>
+                                th:text="${#numbers.formatDecimal(estimation.expProbaImpact.impactLevel != null ? estimation.expProbaImpact.impactLevel : 0, 0, 0)}"></td>
                             <td th:data-trick-field="exp.importance" class="text-center">
                                 <span th:style="'color: ' + ${colorManager.getColor(estimation.expProbaImpact.importance)}">
                                     <i class="fa fa-flag" aria-hidden="true"></i>
                                 </span>
-                                <span th:text="${#numbers.formatDecimal(estimation.expProbaImpact.importance, 0, '###')}"></span>
+                                <span th:text="${#numbers.formatDecimal(estimation.expProbaImpact.importance != null ? estimation.expProbaImpact.importance : 0, 0, 0)}"></span>
                             </td>
 
                             <td class="editable" th:data-trick-id="${riskProfile.id}" th:data-trick-field=".riskStrategy"
                                 th:onclick="|return editField(this);|" th:data-trick-class="RiskProfile"
-                                th:data-trick-choose="ACCEPT,REDUCE,TRANSFER,AVOID"
+                                th:data-trick-choose="'ACCEPT,REDUCE,TRANSFER,AVOID'"
                                 th:data-trick-choose-translate="${accept},${reduce},${transfer},${avoid}"
                                 th:data-trick-field-type="string">
                                 <span th:text="#{label.risk_register.strategy.${riskProfile.riskStrategy.nameToLower}}"></span>
@@ -198,6 +188,3 @@
         </table>
     </div>
 </div>
-
-</body>
-</html>

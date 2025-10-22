@@ -1,19 +1,20 @@
 <!DOCTYPE html>
-<html lang="[[${locale.language}]]">
+<html xmlns:th="http://www.thymeleaf.org" lang="[[${locale.language}]]" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
-    <th:block th:if="${locale == null}">
-        <th:block th:with="locale=${T(org.springframework.web.servlet.support.RequestContextUtils).getLocale(request)}"></th:block>
-    </th:block>
-    <th:block th:replace="~{templates/template/header :: header}" />
+    <th:block th:if="${#locale != null}">
+    <th:block th:with="locale=${#locale}"></th:block>
+</th:block>
+
+    <th:block th:replace="~{templates/template/header :: header('label.title.error.404')}" />
 </head>
 <body>
     <div id="wrap">
-        <th:block th:replace="~{templates/template/menu :: menu}" />
+        <th:block th:replace="~{templates/template/menu :: main-menu(menu, analysisSharedCount)}" />
         <div class="container">
             <th:block th:replace="~{templates/template/successErrors :: successErrors}" />
             <div class="page-header">
                 <h1>
-                    <span th:text="#{title.error.404}">404: Page not found</span>
+                    <span th:text="#{label.title.error.404}">404: Page not found</span>
                 </h1>
             </div>
             <div class="content" id="content" data-spy="scroll">

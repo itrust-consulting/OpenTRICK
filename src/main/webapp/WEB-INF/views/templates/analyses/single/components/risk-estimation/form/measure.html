@@ -65,7 +65,7 @@
 									</button>
 								</td>
 								<td th:attr="data-real-value=${measure.measureDescription.standard.id}"
-									th:text="${measure.measureDescription.standard.name}"></td>
+									th:text="${measure.measureDescription != null and measure.measureDescription.standard != null ? measure.measureDescription.standard.name : ''}"></td>
 
 								<!-- Description with tooltip -->
 								<td th:if="${#strings.isEmpty(measure.measureDescription.getMeasureDescriptionTextByAlpha2(langue)?.description)}"

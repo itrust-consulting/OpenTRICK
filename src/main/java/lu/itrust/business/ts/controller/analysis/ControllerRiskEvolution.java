@@ -155,9 +155,10 @@ public class ControllerRiskEvolution {
 	}
 
 	@RequestMapping
-	public String home(Principal principal, HttpSession session, Model model) throws Exception {
+	public String home(Principal principal, HttpSession session, Model model, Locale locale) throws Exception {
 		LoadUserAnalyses(session, principal, model);
 		model.addAttribute("types", Arrays.stream(AnalysisType.values()).filter(type -> type != AnalysisType.HYBRID).toArray());
+		model.addAttribute("title", messageSource.getMessage("label.title.risk_evolution", null, "Risk evolution", locale));
 		return "templates/analyses/risk-evolution/home";
 	}
 
