@@ -6,12 +6,12 @@ package lu.itrust.business.ts.exportation.word.impl.docx4j.builder.chain;
 import static lu.itrust.business.ts.exportation.word.ExportReport.TS_TAB_TEXT_2;
 
 import java.text.DecimalFormat;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.docx4j.wml.P;
 import org.docx4j.wml.PPrBase.TextAlignment;
@@ -34,7 +34,9 @@ import lu.itrust.business.ts.model.assessment.Assessment;
 import lu.itrust.business.ts.model.assessment.helper.ALE;
 import lu.itrust.business.ts.model.assessment.helper.AssetComparatorByALE;
 import lu.itrust.business.ts.model.asset.Asset;
+import lu.itrust.business.ts.model.parameter.helper.ValueFactory;
 import lu.itrust.business.ts.model.parameter.impl.ImpactParameter;
+import lu.itrust.business.ts.model.parameter.impl.RiskAcceptanceParameter;
 import lu.itrust.business.ts.model.parameter.value.IValue;
 import lu.itrust.business.ts.model.parameter.value.impl.FormulaValue;
 import lu.itrust.business.ts.model.scale.ScaleType;
@@ -84,9 +86,13 @@ public class Docx4jAssessmentBuilder extends Docx4jBuilder {
 					.filter(p -> !p.getName().equals(Constant.DEFAULT_IMPACT_NAME))
 					.sorted((s1, s2) -> NaturalOrderComparator.compareTo(s1.getShortName(language),
 							s2.getShortName(language)))
-					.collect(Collectors.toList());
+					.toList();
 
-			final int colLength = 4 + scaleTypes.size();
+			final List<RiskAcceptanceParameter> riskAcceptanceParameters = analysis.getRiskAcceptanceParameters()
+					.stream()
+					.sorted((r1, r2) -> Double.compare(r1.getValue(), r2.getValue())).toList();
+
+			final int colLength = 5 + scaleTypes.size();
 
 			assessementsByAsset.keySet().forEach(asset -> {
 				final List<Assessment> assessments = assessementsByAsset.get(asset);
@@ -102,6 +108,10 @@ public class Docx4jAssessmentBuilder extends Docx4jBuilder {
 
 				exporter.setCellText((Tc) header.getContent().get(hColIndex++),
 						exporter.getMessage("report.assessment.probability", null, "P."), alignmentCenter);
+
+				exporter.setCellText((Tc) header.getContent().get(hColIndex++),
+						exporter.getMessage("report.assessment.level", null, "Level"), alignmentCenter);
+
 				exporter.setCellText((Tc) header.getContent().get(hColIndex++),
 						exporter.getMessage("report.assessment.owner", null, "Owner"));
 				exporter.setCellText((Tc) header.getContent().get(hColIndex++),
@@ -125,6 +135,20 @@ public class Docx4jAssessmentBuilder extends Docx4jBuilder {
 					exporter.setCellText((Tc) row.getContent().get(colIndex++),
 							probaLevel == 0 ? exporter.getMessage("label.status.na", null, "na") : probaLevel + "",
 							alignmentCenter);
+
+					final var riskLevel = getRiskLevel(ValueFactory.findImportance(assessment),
+							riskAcceptanceParameters);
+					var cell = (Tc) row.getContent().get(colIndex++);
+					if (riskLevel != null) {
+						exporter.setCellText(cell, riskLevel.getLabel(),
+								alignmentCenter);
+						Docx4jReportImpl.setColor(cell, riskLevel.getColor().substring(1));
+					} else {
+						exporter.setCellText(cell,
+								exporter.getMessage("label.status.na", null, "na"), alignmentCenter);
+						Docx4jReportImpl.setColor(cell, "FFFFFF");
+					}
+
 					exporter.addCellParagraph((Tc) row.getContent().get(colIndex++), assessment.getOwner());
 					exporter.addCellParagraph((Tc) row.getContent().get(colIndex++), assessment.getComment());
 				}
@@ -145,24 +169,94 @@ public class Docx4jAssessmentBuilder extends Docx4jBuilder {
 		return true;
 	}
 
+	/**
+	 * Determines the risk acceptance parameter corresponding to the given
+	 * importance value.
+	 * Uses an iterative binary search algorithm to efficiently find the appropriate
+	 * risk level
+	 * while avoiding potential stack overflow issues with large lists.
+	 * 
+	 * The method returns the first risk acceptance parameter whose threshold value
+	 * is >= the
+	 * given importance. If no parameter meets this criteria, returns the highest
+	 * available parameter.
+	 * 
+	 * Precondition: riskAcceptanceParameters must be sorted in ascending order by
+	 * threshold value.
+	 * 
+	 * @param importance               The importance value to match against risk
+	 *                                 acceptance thresholds
+	 * @param riskAcceptanceParameters List of risk acceptance parameters, sorted
+	 *                                 ascending by threshold
+	 * @return The appropriate RiskAcceptanceParameter, or null if the input list is
+	 *         null or empty
+	 */
+	private RiskAcceptanceParameter getRiskLevel(double importance,
+			List<RiskAcceptanceParameter> riskAcceptanceParameters) {
+
+		// Validate input parameters
+		if (riskAcceptanceParameters == null || riskAcceptanceParameters.isEmpty()) {
+			return null;
+		}
+
+		// Initialize binary search bounds
+		int left = 0;
+		int right = riskAcceptanceParameters.size() - 1;
+
+		// Default result: highest parameter (used when all thresholds are < importance)
+		RiskAcceptanceParameter result = riskAcceptanceParameters.get(right);
+
+		// Perform binary search to find first parameter with threshold >= importance
+		while (left <= right) {
+			// Calculate middle index - use this form to avoid integer overflow
+			int mid = left + (right - left) / 2;
+			RiskAcceptanceParameter midParam = riskAcceptanceParameters.get(mid);
+
+			if (importance <= midParam.getValue()) {
+				// Found a candidate parameter - it meets the threshold requirement
+				result = midParam;
+				// Continue searching left to find if there's an earlier parameter that also
+				// meets criteria
+				right = mid - 1;
+			} else {
+				// Current parameter's threshold is too low - search in right half
+				left = mid + 1;
+			}
+		}
+
+		return result;
+	}
+
 	private boolean buildQuantitative(Docx4jData data) {
 		final Docx4jReportImpl exporter = (Docx4jReportImpl) data.getExportor();
 		final P paragraphOrigin = exporter.findP(data.getSource());
 		if (paragraphOrigin != null) {
+			final List<ScaleType> scaleTypes;
 			final List<Object> contents = new LinkedList<>();
 			final Analysis analysis = exporter.getAnalysis();
-			final Map<String, ALE> alesmap = new LinkedHashMap<String, ALE>();
+			final Map<String, ALE> alesmap = new LinkedHashMap<>();
+			final List<RiskAcceptanceParameter> riskAcceptanceParameters;
 			final TextAlignment alignmentLeft = exporter.createAlignment("left");
 			final TextAlignment alignmentCenter = exporter.createAlignment("center");
 			final List<Assessment> assessments = analysis.findSelectedAssessments();
 			final double totalale = assessments.stream().mapToDouble(Assessment::getALE).sum();
 			final DecimalFormat assessmentFormat = (DecimalFormat) DecimalFormat.getInstance(Locale.FRANCE);
-			final Map<String, List<Assessment>> assessementsmap = new LinkedHashMap<String, List<Assessment>>();
+			final Map<String, List<Assessment>> assessementsmap = new LinkedHashMap<>();
 			final boolean mixted = analysis.isQualitative()
 					&& (boolean) analysis.findSetting(AnalysisSetting.ALLOW_QUALITATIVE_IN_QUANTITATIVE_REPORT);
-			final List<ScaleType> scaleTypes = analysis.getImpactParameters().stream()
-					.filter(p -> mixted && !p.getTypeName().equals(Constant.DEFAULT_IMPACT_NAME))
-					.map(ImpactParameter::getType).distinct().collect(Collectors.toList());
+
+			if (mixted) {
+				scaleTypes = analysis.getImpactParameters().stream()
+						.filter(p -> mixted && !p.getTypeName().equals(Constant.DEFAULT_IMPACT_NAME))
+						.map(ImpactParameter::getType).distinct().toList();
+				riskAcceptanceParameters = analysis.getRiskAcceptanceParameters()
+						.stream()
+						.sorted((r1, r2) -> Double.compare(r1.getValue(), r2.getValue())).toList();
+			} else {
+				scaleTypes = Collections.emptyList();
+				riskAcceptanceParameters = Collections.emptyList();
+			}
+
 			final P paraph = exporter.setStyle(exporter.getFactory().createP(), "TSAssessmentTotalALE");
 			exporter.setCurrentParagraphId(TS_TAB_TEXT_2);
 			exporter.setText(paraph,
@@ -184,7 +278,7 @@ public class Docx4jAssessmentBuilder extends Docx4jBuilder {
 			alesmap.values().stream().sorted(new AssetComparatorByALE()).forEach(ale -> {
 				final List<Assessment> assessmentsofasset = assessementsmap.get(ale.getAssetName());
 				final Tbl table = exporter.createTable("TableTSAssessment", assessmentsofasset.size() + 1,
-						6 + scaleTypes.size());
+						6 + (mixted ? scaleTypes.size() + 1 : 0));
 				P paragraph = exporter.getFactory().createP();
 				exporter.setText(paragraph, ale.getAssetName());
 				exporter.setStyle(paragraph, "TSEstimationTitle");
@@ -210,6 +304,11 @@ public class Docx4jAssessmentBuilder extends Docx4jBuilder {
 						exporter.getMessage("report.assessment.probability", null, "P."), alignmentCenter);
 				exporter.setCellText((Tc) row.getContent().get(colIndex++),
 						exporter.getMessage("report.assessment.ale", null, "ALE(k€/y)"));
+
+				if (mixted)
+					exporter.setCellText((Tc) row.getContent().get(colIndex++),
+							exporter.getMessage("report.assessment.level", null, "Level"), alignmentCenter);
+
 				exporter.setCellText((Tc) row.getContent().get(colIndex++),
 						exporter.getMessage("report.assessment.owner", null, "Owner"));
 				exporter.setCellText((Tc) row.getContent().get(colIndex++),
@@ -243,10 +342,27 @@ public class Docx4jAssessmentBuilder extends Docx4jBuilder {
 									? exporter.getMessage("label.status.na", null, "na")
 									: likelihood),
 							alignmentCenter);
+
 					exporter.addCellNumber((Tc) row.getContent().get(colIndex++),
 							assessment.getALE() == 0
 									? exporter.getKiloNumberFormat().format(assessment.getALE() * 0.001)
 									: assessmentFormat.format(assessment.getALE() * 0.001));
+
+					if (mixted) {
+						final var riskLevel = getRiskLevel(ValueFactory.findImportance(assessment),
+								riskAcceptanceParameters);
+						var cell = (Tc) row.getContent().get(colIndex++);
+						if (riskLevel != null) {
+							exporter.setCellText(cell, riskLevel.getLabel(),
+									alignmentCenter);
+							Docx4jReportImpl.setColor(cell, riskLevel.getColor().substring(1));
+						} else {
+							exporter.setCellText(cell,
+									exporter.getMessage("label.status.na", null, "na"), alignmentCenter);
+							Docx4jReportImpl.setColor(cell, "FFFFFF");
+						}
+					}
+
 					exporter.addCellParagraph((Tc) row.getContent().get(colIndex++), assessment.getOwner());
 					exporter.addCellParagraph((Tc) row.getContent().get(colIndex++), assessment.getComment());
 				}
