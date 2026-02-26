@@ -1043,13 +1043,13 @@ public class Docx4jReportImpl implements Docx4jReport {
 	}
 
 	public void setCustomProperty(String name, Object value) throws Docx4JException {
-		if (value instanceof Number) {
-			if (value instanceof Double)
-				createProperty(name, false).setR8(Double.isNaN((double) value) ? 0 : ((Number) value).doubleValue());
+		if (value instanceof Number val) {
+			if (val instanceof Double val1)
+				createProperty(name, false).setR8(Double.isNaN(val1) ? 0 :val1);
 			else
-				createProperty(name, false).setI4(((Number) value).intValue());
-		} else if (value instanceof Boolean)
-			createProperty(name, false).setBool((Boolean) value);
+				createProperty(name, false).setI4(val.intValue());
+		} else if (value instanceof Boolean val)
+			createProperty(name, false).setBool(val);
 		else
 			createProperty(name, false).setLpwstr(value.toString());
 	}
@@ -1384,6 +1384,11 @@ public class Docx4jReportImpl implements Docx4jReport {
 		setCustomProperty(INTERNAL_WL_VAL,
 				getAnalysis().getSimpleParameters().stream()
 						.filter(p -> p.getDescription().equals(Constant.PARAMETER_INTERNAL_SETUP_RATE))
+						.map(p -> p.getValue().doubleValue()).findAny().orElse(0D));
+
+	    setCustomProperty("MAX_RRF_VAL",
+				getAnalysis().getSimpleParameters().stream()
+						.filter(p -> p.getDescription().equals(Constant.PARAMETER_MAX_RRF))
 						.map(p -> p.getValue().doubleValue()).findAny().orElse(0D));
 
 		setCustomProperty(NUMBER_MEASURES_ALL_PHASES,

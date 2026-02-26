@@ -134,7 +134,7 @@ public class WorkerGenerateTickets extends WorkerImpl {
 		if (analysis.hasProject() || analysis.getCustomer().getTicketingSystem().getType().isNoClient()) {
 			final MessageHandler handler = new MessageHandler("info.load.measure", null, "Loading measures", 1);
 			getServiceTaskFeedback().send(getId(), handler);
-			final Map<Integer, Integer> contains = ticketingForm.getNews().stream()
+			final Map<Integer, Integer> contains = ticketingForm.getNews().stream().distinct()
 					.collect(Collectors.toMap(Function.identity(), Function.identity()));
 			ticketingForm.getUpdates().forEach(idMeasure -> contains.put(idMeasure, idMeasure));
 			final Map<Integer, Measure> mapMeasures = analysis.getAnalysisStandards().values().stream()
