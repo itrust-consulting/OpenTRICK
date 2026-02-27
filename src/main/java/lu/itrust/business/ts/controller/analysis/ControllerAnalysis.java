@@ -742,8 +742,6 @@ public class ControllerAnalysis extends AbstractController {
 				model.addAttribute("assetNodes", analysis.getAssetNodes().stream()
 						.collect(Collectors.toMap(e -> e.getAsset().getId(), Function.identity())));
 			}
-
-			analysis.getAssets().sort(Comparators.ASSET());
 			analysis.getHistories()
 					.sort((a1, a2) -> NaturalOrderComparator.compareTo(a1.getVersion(), a2.getVersion()) * -1);
 			model.addAttribute("standardChapters", spliteMeasureByChapter(measuresByStandard));

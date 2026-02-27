@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.docx4j.wml.P;
 import org.docx4j.wml.PPrBase.TextAlignment;
 import org.docx4j.wml.Tbl;
@@ -34,9 +35,11 @@ import lu.itrust.business.ts.model.assessment.Assessment;
 import lu.itrust.business.ts.model.assessment.helper.ALE;
 import lu.itrust.business.ts.model.assessment.helper.AssetComparatorByALE;
 import lu.itrust.business.ts.model.asset.Asset;
+import lu.itrust.business.ts.model.parameter.IBoundedParameter;
 import lu.itrust.business.ts.model.parameter.helper.ValueFactory;
 import lu.itrust.business.ts.model.parameter.impl.ImpactParameter;
 import lu.itrust.business.ts.model.parameter.impl.RiskAcceptanceParameter;
+import lu.itrust.business.ts.model.parameter.value.IParameterValue;
 import lu.itrust.business.ts.model.parameter.value.IValue;
 import lu.itrust.business.ts.model.parameter.value.impl.FormulaValue;
 import lu.itrust.business.ts.model.scale.ScaleType;
@@ -245,6 +248,9 @@ public class Docx4jAssessmentBuilder extends Docx4jBuilder {
 			final boolean mixted = analysis.isQualitative()
 					&& (boolean) analysis.findSetting(AnalysisSetting.ALLOW_QUALITATIVE_IN_QUANTITATIVE_REPORT);
 
+			final boolean useProbabilityLabel = (boolean) analysis
+					.findSetting(AnalysisSetting.ALLOW_USE_LABEL_EXPORT_PROBABILITY_LABEL);
+
 			if (mixted) {
 				scaleTypes = analysis.getImpactParameters().stream()
 						.filter(p -> mixted && !p.getTypeName().equals(Constant.DEFAULT_IMPACT_NAME))
@@ -330,12 +336,7 @@ public class Docx4jAssessmentBuilder extends Docx4jBuilder {
 								alignmentCenter);
 					}
 
-					final Object likelihood = assessment.getLikelihood() == null ? null
-							: assessment.getLikelihood() instanceof FormulaValue
-									? String.format("%s (p%d)",
-											exporter.getKiloNumberFormat().format(assessment.getLikelihood().getReal()),
-											assessment.getLikelihood().getLevel())
-									: assessment.getLikelihood().getRaw();
+					final Object likelihood = getLikelihood(exporter, assessment, useProbabilityLabel);
 
 					exporter.setCellText((Tc) row.getContent().get(colIndex++),
 							exporter.formatLikelihood(assessment.getLikelihood() == null
@@ -372,12 +373,29 @@ public class Docx4jAssessmentBuilder extends Docx4jBuilder {
 								String.format("Risk estimation for the asset %s", ale.getAssetName()))));
 			});
 			if (exporter.insertAllAfter(paragraphOrigin, contents))
-				contents.parallelStream().filter(t -> (t instanceof Tbl)).forEach(t -> DocxChainFactory.format(t,
+				contents.parallelStream().filter(Tbl.class::isInstance).forEach(t -> DocxChainFactory.format(t,
 						exporter.getDefaultTableStyle(), AnalysisType.QUANTITATIVE, exporter.getColors()));
 			assessementsmap.clear();
 			contents.clear();
 		}
 		return true;
+	}
+
+	private Object getLikelihood(final Docx4jReportImpl exporter, Assessment assessment, boolean useProbabilityLabel) {
+		if (assessment.getLikelihood() == null) {
+			return null;
+		}
+		if (useProbabilityLabel && assessment.getLikelihood() instanceof IParameterValue value
+				&& value.getParameter() instanceof IBoundedParameter parameter
+				&& StringUtils.isNotBlank(parameter.getLabel())) {
+			return parameter.getLabel();
+		}
+		if (assessment.getLikelihood() instanceof FormulaValue) {
+			return String.format("%s (p%d)",
+					exporter.getKiloNumberFormat().format(assessment.getLikelihood().getReal()),
+					assessment.getLikelihood().getLevel());
+		}
+		return assessment.getLikelihood().getRaw();
 	}
 
 }

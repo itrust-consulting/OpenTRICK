@@ -10,6 +10,10 @@
 <spring:message code="label.all" var="allText" />
 <spring:message code='label.title.assets' var="assetText" />
 <spring:message code="label.title.risk_estimation.scenario" var="scenarioText" />
+
+<spring:eval expression="T(lu.itrust.business.ts.helper.Comparators).sortAssetsByName(assets)" />
+<spring:eval expression="T(lu.itrust.business.ts.helper.Comparators).sortScenariosByName(scenarios)" />
+
 <div id="tab-risk-estimation" class="tab-pane trick-container max-height" data-update-required="true" data-trigger="riskEstimationUpdate">
 	<div class="max-height">
 		<div class="col-md-3 col-lg-2 max-height" style="z-index: 1" role="left-menu">
@@ -23,7 +27,6 @@
 						</div>
 					</div>
 				</div>
-
 				<div class="form-group input-group">
 					<c:choose>
 						<c:when test="${isEditable}">
@@ -39,6 +42,7 @@
 					</c:choose>
 					<select name="asset" class="form-control">
 						<option value='0' title="${allText}">${allText}</option>
+						
 						<c:forEach items="${assets}" var="asset" varStatus="assetStatus">
 							<spring:message text='${asset.name}' var="assetName" />
 							<spring:message text="${asset.assetType.id}" var="assetTypeId" />

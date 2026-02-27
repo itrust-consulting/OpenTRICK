@@ -22,6 +22,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.commons.lang3.StringUtils;
 import org.docx4j.openpackaging.exceptions.Docx4JException;
 import org.docx4j.openpackaging.exceptions.InvalidFormatException;
 import org.docx4j.openpackaging.packages.SpreadsheetMLPackage;
@@ -156,6 +157,7 @@ import lu.itrust.business.ts.model.parameter.IImpactParameter;
 import lu.itrust.business.ts.model.parameter.IParameter;
 import lu.itrust.business.ts.model.parameter.helper.ValueFactory;
 import lu.itrust.business.ts.model.parameter.impl.LikelihoodParameter;
+import lu.itrust.business.ts.model.parameter.value.IParameterValue;
 import lu.itrust.business.ts.model.parameter.value.IValue;
 import lu.itrust.business.ts.model.riskinformation.RiskInformation;
 import lu.itrust.business.ts.model.riskinformation.helper.RiskInformationComparator;
@@ -617,8 +619,6 @@ public class ControllerDataManager {
 			serviceAnalysis.saveOrUpdate(analysis);
 
 			final Map<String, String> extrasColumns = loadExtrasColumns(extrasFormula);
-
-			System.out.println(extrasColumns);
 
 			final List<ScaleType> scales = analysis.findImpacts();
 
@@ -1534,6 +1534,9 @@ public class ControllerDataManager {
 				.collect(Collectors.toMap(Function.identity(), e -> messageSource
 						.getMessage("label.asset_type." + e.getName().toLowerCase(), null, e.getName(), locale)));
 
+		final boolean useProbabilityLabel = (boolean) analysis
+				.findSetting(AnalysisSetting.ALLOW_USE_LABEL_EXPORT_PROBABILITY_LABEL);
+
 		if (isILR)
 			DependencyGraphManager.computeImpact(analysis.getAssetNodes());
 
@@ -1553,11 +1556,13 @@ public class ControllerDataManager {
 						(profile.getRiskStrategy() == null ? RiskStrategy.ACCEPT : profile.getRiskStrategy())
 								.getNameToLower());
 				if (rowColumn)
-					cellIndex += writeProbaImpact(row, cellIndex++, profile.getRawProbaImpact(), scales, false);
-				cellIndex += writeProbaImpact(row, cellIndex++, assessment, scales, isILR);
-				cellIndex += writeProbaImpact(row, cellIndex++, profile.getExpProbaImpact(), scales, isILR);
+					cellIndex += writeProbaImpact(row, cellIndex++, profile.getRawProbaImpact(), scales, false,
+							useProbabilityLabel);
+				cellIndex += writeProbaImpact(row, cellIndex++, assessment, scales, isILR, useProbabilityLabel);
+				cellIndex += writeProbaImpact(row, cellIndex++, profile.getExpProbaImpact(), scales, isILR,
+						useProbabilityLabel);
 			} else {
-				writeLikelihood(row, cellIndex++, assessment.getLikelihood());
+				writeLikelihood(row, cellIndex++, assessment.getLikelihood(), useProbabilityLabel);
 				if (isILR)
 					setValue(row, cellIndex++, assessment.getVulnerability());
 				writeQuantitativeImpact(row, cellIndex++,
@@ -2217,7 +2222,8 @@ public class ControllerDataManager {
 		setValue(row.getC().get(++colIndex), measure.getRecurrentInvestment() * 0.001);
 		setValue(row.getC().get(++colIndex), measure.getCost() * 0.001);
 		setValue(row.getC().get(++colIndex), measure.getPhase().getNumber());
-		setValue(row.getC().get(++colIndex), measure.getImportance() <= 1 ? "L" : (measure.getImportance() == 2 ? "M" : "H"));
+		setValue(row.getC().get(++colIndex),
+				measure.getImportance() <= 1 ? "L" : (measure.getImportance() == 2 ? "M" : "H"));
 		setValue(row.getC().get(++colIndex), measure.getResponsible());
 
 		if (measure instanceof AbstractNormalMeasure normalMeasure)
@@ -2302,8 +2308,8 @@ public class ControllerDataManager {
 	}
 
 	private int writeProbaImpact(Row row, int colIndex, Assessment assessment, List<ScaleType> scales,
-			boolean hasVulnerability) {
-		writeLikelihood(row, colIndex++, assessment.getLikelihood());
+			boolean hasVulnerability, boolean useProbabilityLabel) {
+		writeLikelihood(row, colIndex++, assessment.getLikelihood(), useProbabilityLabel);
 		if (hasVulnerability)
 			setValue(row, colIndex++, "v" + assessment.getVulnerability());
 		for (ScaleType type : scales) {
@@ -2319,7 +2325,7 @@ public class ControllerDataManager {
 	}
 
 	private int writeProbaImpact(Row row, int colIndex, RiskProbaImpact probaImpact, List<ScaleType> scales,
-			boolean hasVulnerability) {
+			boolean hasVulnerability, boolean useProbabilityLabel) {
 		int columnCount = hasVulnerability ? 2 : 1;
 		if (probaImpact == null) {
 			setValue(row, colIndex++, 0);
@@ -2333,8 +2339,14 @@ public class ControllerDataManager {
 				}
 			}
 		} else {
-			setValue(row, colIndex++,
-					probaImpact.getProbability() == null ? 0 : probaImpact.getProbability().getAcronym());
+
+			if (useProbabilityLabel && probaImpact.getProbability() != null && StringUtils.isNotBlank(probaImpact.getProbability().getLabel())) {
+				setValue(row, colIndex++,
+						probaImpact.getProbability() == null ? 0 : probaImpact.getProbability().getLabel());
+			} else {
+				setValue(row, colIndex++,
+						probaImpact.getProbability() == null ? 0 : probaImpact.getProbability().getAcronym());
+			}
 
 			if (hasVulnerability)
 				setValue(row, colIndex++, "v" + probaImpact.getVulnerability());
@@ -2362,16 +2374,22 @@ public class ControllerDataManager {
 			setValue(row, cellIndex, impact.getVariable());
 	}
 
-	private void writeLikelihood(Row row, int cellIndex, IValue impact) {
-		if (impact == null)
+	private void writeLikelihood(Row row, int cellIndex, IValue likelihood, boolean useProbabilityLabel) {
+		if (likelihood == null)
 			setValue(row, cellIndex, "na");
-		else if (impact.getRaw() instanceof Double) {
-			if (impact.getRaw().equals(0d))
-				setValue(row, cellIndex, "na");
-			else
-				setValue(row, cellIndex, impact.getReal());
-		} else
-			setValue(row, cellIndex, impact.getVariable());
+		else {
+			if (useProbabilityLabel && likelihood instanceof IParameterValue value
+					&& value.getParameter() instanceof IBoundedParameter parameter
+					&& StringUtils.isNotBlank(parameter.getLabel())) {
+				setValue(row, cellIndex, parameter.getLabel());
+			} else if (likelihood.getRaw() instanceof Double val) {
+				if (val.equals(0d))
+					setValue(row, cellIndex, "na");
+				else
+					setValue(row, cellIndex, val);
+			} else
+				setValue(row, cellIndex, likelihood.getVariable());
+		}
 	}
 
 }

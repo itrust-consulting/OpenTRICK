@@ -3,35 +3,33 @@ package lu.itrust.business.ts.helper;
 import java.util.Comparator;
 
 /**
- NaturalOrderComparator.java -- Perform 'natural order' comparisons of strings in Java.
- Copyright (C) 2003 by Pierre-Luc Paour <natorder@paour.com>
-
- Based on the C version by Martin Pool, of which this is more or less a straight conversion.
- Copyright (C) 2000 by Martin Pool <mbp@humbug.org.au>
-
- This software is provided 'as-is', without any express or implied
- warranty.  In no event will the authors be held liable for any damages
- arising from the use of this software.
-
- Permission is granted to anyone to use this software for any purpose,
- including commercial applications, and to alter it and redistribute it
- freely, subject to the following restrictions:
-
- 1. The origin of this software must not be misrepresented; you must not
- claim that you wrote the original software. If you use this software
- in a product, an acknowledgment in the product documentation would be
- appreciated but is not required.
- 2. Altered source versions must be plainly marked as such, and must not be
- misrepresented as being the original software.
- 3. This notice may not be removed or altered from any source distribution.
+ * NaturalOrderComparator.java -- Perform 'natural order' comparisons of strings
+ * in Java.
+ * Copyright (C) 2003 by Pierre-Luc Paour <natorder@paour.com>
+ * 
+ * Based on the C version by Martin Pool, of which this is more or less a
+ * straight conversion.
+ * Copyright (C) 2000 by Martin Pool <mbp@humbug.org.au>
+ * 
+ * This software is provided 'as-is', without any express or implied
+ * warranty. In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ * 
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ * 
+ * 1. The origin of this software must not be misrepresented; you must not
+ * claim that you wrote the original software. If you use this software
+ * in a product, an acknowledgment in the product documentation would be
+ * appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ * misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
  **/
 
-
-
-public interface NaturalOrderComparator<T> extends Comparator<T>
-{
-    static int compareRight(String a, String b)
-    {
+public interface NaturalOrderComparator<T> extends Comparator<T> {
+    static int compareRight(String a, String b) {
         int bias = 0;
         int ia = 0;
         int ib = 0;
@@ -40,64 +38,51 @@ public interface NaturalOrderComparator<T> extends Comparator<T>
         // value wins, but we can't know that it will until we've scanned
         // both numbers to know that they have the same magnitude, so we
         // remember it in BIAS.
-        for (;; ia++, ib++)
-        {
+        for (;; ia++, ib++) {
             char ca = charAt(a, ia);
             char cb = charAt(b, ib);
 
-            if (!Character.isDigit(ca) && !Character.isDigit(cb))
-            {
+            if (!Character.isDigit(ca) && !Character.isDigit(cb)) {
                 return bias;
-            }
-            else if (!Character.isDigit(ca))
-            {
+            } else if (!Character.isDigit(ca)) {
                 return -1;
-            }
-            else if (!Character.isDigit(cb))
-            {
+            } else if (!Character.isDigit(cb)) {
                 return +1;
-            }
-            else if (ca < cb)
-            {
-                if (bias == 0)
-                {
+            } else if (ca < cb) {
+                if (bias == 0) {
                     bias = -1;
                 }
-            }
-            else if (ca > cb)
-            {
+            } else if (ca > cb) {
                 if (bias == 0)
                     bias = +1;
-            }
-            else if (ca == 0 && cb == 0)
-            {
+            } else if (ca == 0 && cb == 0) {
                 return bias;
             }
         }
     }
 
-    /* (non-Javadoc)
-	 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
-	 */
-	@Override
-	default int compare(T o1, T o2) {
-		return compareTo(o1 == null ? null : o1.toString(), o2 == null ? null : o2.toString());
-	}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
+     */
+    @Override
+    default int compare(T o1, T o2) {
+        return compareTo(o1 == null ? null : o1.toString().toLowerCase(), o2 == null ? null : o2.toString().toLowerCase());
+    }
 
-	static int compareTo(String a, String b)
-    {
+    static int compareTo(String a, String b) {
         int ia = 0, ib = 0;
         int nza = 0, nzb = 0;
         char ca, cb;
         int result;
-        
-        if (a == null)
-			a = "";
-		if (b == null)
-			b = "";
 
-        while (true)
-        {
+        if (a == null)
+            a = "";
+        if (b == null)
+            b = "";
+
+        while (true) {
             // only count the number of zeroes leading the last number compared
             nza = nzb = 0;
 
@@ -105,14 +90,10 @@ public interface NaturalOrderComparator<T> extends Comparator<T>
             cb = charAt(b, ib);
 
             // skip over leading spaces or zeros
-            while (Character.isSpaceChar(ca) || ca == '0')
-            {
-                if (ca == '0')
-                {
+            while (Character.isSpaceChar(ca) || ca == '0') {
+                if (ca == '0') {
                     nza++;
-                }
-                else
-                {
+                } else {
                     // only count consecutive zeroes
                     nza = 0;
                 }
@@ -120,14 +101,10 @@ public interface NaturalOrderComparator<T> extends Comparator<T>
                 ca = charAt(a, ++ia);
             }
 
-            while (Character.isSpaceChar(cb) || cb == '0')
-            {
-                if (cb == '0')
-                {
+            while (Character.isSpaceChar(cb) || cb == '0') {
+                if (cb == '0') {
                     nzb++;
-                }
-                else
-                {
+                } else {
                     // only count consecutive zeroes
                     nzb = 0;
                 }
@@ -136,27 +113,21 @@ public interface NaturalOrderComparator<T> extends Comparator<T>
             }
 
             // process run of digits
-            if (Character.isDigit(ca) && Character.isDigit(cb))
-            {
-                if ((result = compareRight(a.substring(ia), b.substring(ib))) != 0)
-                {
+            if (Character.isDigit(ca) && Character.isDigit(cb)) {
+                if ((result = compareRight(a.substring(ia), b.substring(ib))) != 0) {
                     return result;
                 }
             }
 
-            if (ca == 0 && cb == 0)
-            {
+            if (ca == 0 && cb == 0) {
                 // The strings compare the same. Perhaps the caller
                 // will want to call strcmp to break the tie.
                 return nza - nzb;
             }
 
-            if (ca < cb)
-            {
+            if (ca < cb) {
                 return -1;
-            }
-            else if (ca > cb)
-            {
+            } else if (ca > cb) {
                 return +1;
             }
 
@@ -165,14 +136,10 @@ public interface NaturalOrderComparator<T> extends Comparator<T>
         }
     }
 
-    static char charAt(String s, int i)
-    {
-        if (i >= s.length())
-        {
+    static char charAt(String s, int i) {
+        if (i >= s.length()) {
             return 0;
-        }
-        else
-        {
+        } else {
             return s.charAt(i);
         }
     }

@@ -379,7 +379,7 @@ public class ControllerAsset {
 		final Analysis analysis = serviceAnalysis.get(integer);
 		final AnalysisType type = analysis.getType();
 		final List<Asset> assets = analysis.getAssets();
-		assets.sort(Comparators.ASSET());
+		assets.sort(Comparators.assetByValue());
 
 		loadAnalysisSettings(model, integer);
 

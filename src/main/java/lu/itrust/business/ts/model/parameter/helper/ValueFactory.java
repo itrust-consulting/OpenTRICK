@@ -163,8 +163,8 @@ public class ValueFactory {
 	public Integer findProbLevel(Object value) {
 		if (value == null)
 			return 0;
-		else if (value instanceof IValue)
-			return ((IValue) value).getLevel();
+		else if (value instanceof IValue val)
+			return val.getLevel();
 		else {
 			IValue impact = findProb(value);
 			return impact == null ? 0 : impact.getLevel();
@@ -305,20 +305,20 @@ public class ValueFactory {
 			final List<? extends ILevelParameter> parameters = getParameters(type);
 			if (parameters == null)
 				return null;
-			if (value instanceof Integer)
-				return findByLevel((Integer) value, parameters);
-			if (value instanceof String) {
-				ILevelParameter parameter = (ILevelParameter) getParameterMapper(type).get(value.toString());
+			if (value instanceof Integer val)
+				return findByLevel(val, parameters);
+			if (value instanceof String str) {
+				ILevelParameter parameter = (ILevelParameter) getParameterMapper(type).get(str);
 				if (parameter != null)
 					return new Value(parameter);
 
-				if ("na".equalsIgnoreCase((String) value))
+				if ("na".equalsIgnoreCase(str))
 					value = "0";
 				else {
 					final String myValue = (String) value;
 					parameter = parameters.stream()
-							.filter(e -> e instanceof IBoundedParameter && ((IBoundedParameter) e).getLabel() != null
-									&& ((IBoundedParameter) e).getLabel().equalsIgnoreCase(myValue))
+							.filter(e -> e instanceof IBoundedParameter p1 && p1.getLabel() != null
+									&& p1.getLabel().equalsIgnoreCase(myValue))
 							.findAny().orElse(null);
 
 					if (parameter != null)
@@ -326,10 +326,10 @@ public class ValueFactory {
 				}
 			}
 
-			final Double doubleValue = (value instanceof Double) ? (Double) value : toDouble(value.toString(), null);
+			final Double doubleValue = (value instanceof Double val) ? val: toDouble(value.toString(), null);
 			if (doubleValue == null) {
-				if (includExpression && value instanceof String) {
-					final IValue aux = findDynValue((String) value, type, parameters);
+				if (includExpression && value instanceof String val) {
+					final IValue aux = findDynValue(val, type, parameters);
 					if (aux != null)
 						return aux;
 				}

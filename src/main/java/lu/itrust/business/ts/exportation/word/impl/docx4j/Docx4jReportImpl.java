@@ -982,7 +982,7 @@ public class Docx4jReportImpl implements Docx4jReport {
 	}
 
 	public Tc setAlignment(Tc cell, TextAlignment alignment) {
-		cell.getContent().parallelStream().filter(p -> p instanceof P).forEach(p -> setAlignment((P) p, alignment));
+		cell.getContent().parallelStream().filter(P.class::isInstance).forEach(p -> setAlignment((P) p, alignment));
 		return cell;
 	}
 
