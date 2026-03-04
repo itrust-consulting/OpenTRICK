@@ -45,7 +45,15 @@ public class Docx4jImpactProbaFormatter extends Docx4jFormatter {
 			return false;
 		table.getTblPr().getTblW().setType("auto");
 		table.getTblPr().getTblW().setW(BigInteger.valueOf(0));
-		int[] cols = (table.getTblGrid().getGridCol().size() == 3 ? new int[] { 626, 812, 6737 } : new int[] { 493, 784, 6737, 746, 488, 380 });
+		final int[] cols;
+		int gridSize = table.getTblGrid().getGridCol().size();
+		if (gridSize == 3) {
+			cols = new int[] { 626, 812, 6737 };
+		} else if (gridSize == 6) {
+			cols = new int[] { 493, 784, 6737, 746, 488, 380 };
+		} else {
+			cols = new int[] { 493, 784, 784, 5953, 746, 488, 380 };
+		}
 		for (int i = 0; i < cols.length; i++)
 			table.getTblGrid().getGridCol().get(i).setW(BigInteger.valueOf(cols[i]));
 		getTrs(table).forEach(tr -> updateRow(tr, null, "auto"));

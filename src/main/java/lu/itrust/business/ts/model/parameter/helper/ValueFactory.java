@@ -313,7 +313,7 @@ public class ValueFactory {
 					return new Value(parameter);
 
 				if ("na".equalsIgnoreCase(str))
-					value = "0";
+					value = "0.0";
 				else {
 					final String myValue = (String) value;
 					parameter = parameters.stream()

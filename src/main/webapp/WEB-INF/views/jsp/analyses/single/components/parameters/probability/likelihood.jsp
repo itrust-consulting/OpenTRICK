@@ -56,20 +56,20 @@
 								text="${parameter.description}" /></td>
 						<c:if test="${type.quantitative}">
 							<c:set var="parameterValue">
-								<fmt:formatNumber value="${parameter.value}" />
+								<fmt:formatNumber value="${parameter.value}" maxFractionDigits="7"/>
 							</c:set>
 							<td data-trick-field="value" data-trick-field-type="double"
 								onclick="return editField(this);" class="editable textaligncenter" title="${parameterValue}"
 								data-real-value="${parameterValue}"><fmt:formatNumber value="${parameter.value}" maxFractionDigits="2" /></td>
-							<td class="textaligncenter"><fmt:formatNumber value="${parameter.bounds.from}" maxFractionDigits="2" /></td>
-							<td class="textaligncenter"><c:choose>
-									<c:when test="${status.index!=length}">
-										<fmt:formatNumber value="${parameter.bounds.to}" maxFractionDigits="2" />
+							<td class="textaligncenter" title='<fmt:formatNumber value="${parameter.bounds.from}" maxFractionDigits="7" />' ><fmt:formatNumber value="${parameter.bounds.from}" maxFractionDigits="2" /></td>
+							<c:choose>
+								<c:when test="${status.index!=length}">
+									<td class="textaligncenter" title='<fmt:formatNumber value="${parameter.bounds.to}" maxFractionDigits="7" />' ><fmt:formatNumber value="${parameter.bounds.to}" maxFractionDigits="2" /></td>
 									</c:when>
 									<c:otherwise>
-										<span style="font-size: 17px;">+&#8734;</span>
+										<td class="textaligncenter" title='+&#8734;' ><span style="font-size: 17px;">+&#8734;</span></td>
 									</c:otherwise>
-								</c:choose></td>
+							</c:choose>
 						</c:if>
 					</tr>
 				</c:forEach>
