@@ -485,7 +485,7 @@ public class Docx4jStandardBuilder extends Docx4jBuilder {
 										exporter.getMessage("report.measure.importance.value",
 												new Object[] { measure.getImportance() }, null));
 								exporter.addCellParagraph((Tc) row.getContent().get(14), measure.getResponsible());
-								exporter.addCellParagraph((Tc) row.getContent().get(15), measure.getToDo());
+								
 								if (MEASURE_STATUS_NOT_APPLICABLE.equalsIgnoreCase(measure.getStatus())
 										|| measure.getImplementationRateValue(exporter.getValueFactory()) >= 100) {
 									for (Object object : row.getContent())
@@ -498,10 +498,10 @@ public class Docx4jStandardBuilder extends Docx4jBuilder {
 													: exporter.getDefaultColor());
 								}
 							}
+							exporter.addCellParagraph((Tc) row.getContent().get(15), measure.getToDo());
 							exporter.addCellParagraph((Tc) row.getContent().get(16), measure.getComment());
 						}
-						// contents.add(exporter.addBreak(exporter.getFactory().createP(),
-						// STBrType.PAGE));
+		
 						contents.add(
 								exporter.setText(exporter.setStyle(exporter.getFactory().createP(), "TSMeasureTitle"),
 										analysisStandard.getStandard().getName()));

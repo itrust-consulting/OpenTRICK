@@ -724,7 +724,7 @@ public abstract class Measure implements Cloneable {
 				return 0;
 			case Constant.MEASURE_STATUS_EXCLUDE:
 				return 1;
-			case Constant.MEASURE_STATUS_APPLICABLE:
+			case Constant.MEASURE_STATUS_OPTIONAL, Constant.MEASURE_STATUS_APPLICABLE:
 				return 2;
 			case Constant.MEASURE_STATUS_MANDATORY:
 				return 3;

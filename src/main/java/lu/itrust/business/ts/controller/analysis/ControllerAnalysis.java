@@ -75,7 +75,6 @@ import lu.itrust.business.ts.model.analysis.AnalysisSetting;
 import lu.itrust.business.ts.model.analysis.AnalysisType;
 import lu.itrust.business.ts.model.analysis.rights.AnalysisRight;
 import lu.itrust.business.ts.model.assessment.helper.Estimation;
-import lu.itrust.business.ts.model.externalnotification.helper.ExternalNotificationHelper;
 import lu.itrust.business.ts.model.general.Customer;
 import lu.itrust.business.ts.model.general.Language;
 import lu.itrust.business.ts.model.general.LogAction;
@@ -743,8 +742,6 @@ public class ControllerAnalysis extends AbstractController {
 				model.addAttribute("assetNodes", analysis.getAssetNodes().stream()
 						.collect(Collectors.toMap(e -> e.getAsset().getId(), Function.identity())));
 			}
-
-			analysis.getAssets().sort(Comparators.ASSET());
 			analysis.getHistories()
 					.sort((a1, a2) -> NaturalOrderComparator.compareTo(a1.getVersion(), a2.getVersion()) * -1);
 			model.addAttribute("standardChapters", spliteMeasureByChapter(measuresByStandard));

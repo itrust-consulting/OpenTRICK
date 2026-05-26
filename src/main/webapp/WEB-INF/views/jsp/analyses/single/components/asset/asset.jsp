@@ -7,6 +7,7 @@
 <%@ taglib prefix="fct" uri="https://trickservice.com/tags/functions"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 <fmt:setLocale value="fr" scope="session" />
+<spring:eval expression="T(lu.itrust.business.ts.helper.Comparators).sortAssetsByValue(assets)" />
 <div class="tab-pane" id="tab-asset">
 	<div class="section" id="section_asset">
 		<div class="page-header tab-content-header">

@@ -20,7 +20,9 @@
 
 <!DOCTYPE html>
 <html lang="${language}">
-<c:set scope="request" var="title">label.title.analysis</c:set>
+
+<spring:message code="label.title.analysis" arguments="${analysis.customer.organisation}, ${analysis.label}, ${analysis.version}" text="${analysis.customer.organisation}: ${analysis.label} - v${analysis.version}"  var="title" scope="request"/>
+
 <jsp:include page="../../template/header.jsp" />
 <body>
 	<div id="wrap" class="wrap">

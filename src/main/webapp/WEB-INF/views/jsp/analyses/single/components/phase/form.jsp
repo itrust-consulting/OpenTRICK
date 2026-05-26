@@ -4,6 +4,7 @@
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
+<c:set var="language" value="${locale.language}" scope="request" />
 <div class="modal fade" id="phase-modal-form" tabindex="-1" role="dialog" data-aria-labelledby="phase-modal-form" data-aria-hidden="true" data-backdrop="static">
 	<div class="modal-dialog">
 		<div class="modal-content">

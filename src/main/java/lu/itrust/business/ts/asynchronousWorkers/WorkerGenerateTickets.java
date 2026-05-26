@@ -5,13 +5,10 @@ package lu.itrust.business.ts.asynchronousWorkers;
 
 import java.io.IOException;
 import java.sql.Timestamp;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -105,8 +102,7 @@ public class WorkerGenerateTickets extends WorkerImpl {
 			executeTask(session);
 		} catch (Exception e) {
 			TrickLogManager.persist(e);
-			if (e instanceof TrickException) {
-				TrickException e1 = (TrickException) e;
+			if (e instanceof TrickException e1) {
 				getServiceTaskFeedback().send(getId(),
 						new MessageHandler(e1.getCode(), e1.getParameters(), e.getMessage(), e));
 			} else
@@ -138,7 +134,7 @@ public class WorkerGenerateTickets extends WorkerImpl {
 		if (analysis.hasProject() || analysis.getCustomer().getTicketingSystem().getType().isNoClient()) {
 			final MessageHandler handler = new MessageHandler("info.load.measure", null, "Loading measures", 1);
 			getServiceTaskFeedback().send(getId(), handler);
-			final Map<Integer, Integer> contains = ticketingForm.getNews().stream()
+			final Map<Integer, Integer> contains = ticketingForm.getNews().stream().distinct()
 					.collect(Collectors.toMap(Function.identity(), Function.identity()));
 			ticketingForm.getUpdates().forEach(idMeasure -> contains.put(idMeasure, idMeasure));
 			final Map<Integer, Measure> mapMeasures = analysis.getAnalysisStandards().values().stream()

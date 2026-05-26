@@ -11,8 +11,6 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import jakarta.servlet.http.HttpSession;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -26,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import jakarta.servlet.http.HttpSession;
 import lu.itrust.business.ts.component.AssessmentAndRiskProfileManager;
 import lu.itrust.business.ts.component.ChartGenerator;
 import lu.itrust.business.ts.component.TrickLogManager;
@@ -39,6 +38,7 @@ import lu.itrust.business.ts.exception.TrickException;
 import lu.itrust.business.ts.helper.FieldValue;
 import lu.itrust.business.ts.helper.ILRExport;
 import lu.itrust.business.ts.helper.JsonMessage;
+import lu.itrust.business.ts.helper.NaturalOrderComparator;
 import lu.itrust.business.ts.helper.chartJS.item.ColorBound;
 import lu.itrust.business.ts.helper.chartJS.model.Chart;
 import lu.itrust.business.ts.model.analysis.Analysis;
@@ -49,7 +49,6 @@ import lu.itrust.business.ts.model.asset.Asset;
 import lu.itrust.business.ts.model.cssf.RiskProfile;
 import lu.itrust.business.ts.model.cssf.RiskStrategy;
 import lu.itrust.business.ts.model.general.OpenMode;
-import lu.itrust.business.ts.model.ilr.AssetNode;
 import lu.itrust.business.ts.model.parameter.IParameter;
 import lu.itrust.business.ts.model.parameter.helper.ValueFactory;
 import lu.itrust.business.ts.model.parameter.impl.DynamicParameter;
@@ -132,7 +131,7 @@ public class ControllerAssessment {
 				model.addAttribute("alep", alep);
 				AssessmentAndRiskProfileManager.ComputeALE(assessments, ale, alep, aleo);
 			}
-			assessments.sort(assessmentScenarioComparator().reversed());
+			assessments.sort(assessmentScenarioNameComparator());
 			model.addAttribute("assessments", assessments);
 		} else {
 			Scenario scenario = analysis.findScenario(idScenario);
@@ -184,7 +183,7 @@ public class ControllerAssessment {
 				model.addAttribute("alep", alep);
 				AssessmentAndRiskProfileManager.ComputeALE(assessments, ale, alep, aleo);
 			}
-			assessments.sort(assessmentAssetComparator().reversed());
+			assessments.sort(assessmentAssetNameComparator());
 			model.addAttribute("assessments", assessments);
 		} else {
 			Asset asset = analysis.findAsset(idAsset);
@@ -266,7 +265,7 @@ public class ControllerAssessment {
 					.collect(Collectors.toMap(RiskProfile::getKey, Function.identity()));
 
 			final List<Assessment> assessments = analysis.getAssessments().stream()
-					.filter(Assessment::isSelected).collect(Collectors.toList());
+					.filter(Assessment::isSelected).toList();
 
 			final ValueFactory factory = new ValueFactory(analysis.getParameters());
 
@@ -500,9 +499,10 @@ public class ControllerAssessment {
 			if (compare == 0) {
 				compare = Double.compare(a1.getAsset().getValue(), a2.getAsset().getValue());
 				if (compare == 0) {
-					compare = a1.getAsset().getAssetType().getName().compareTo(a2.getAsset().getAssetType().getName());
+					compare = NaturalOrderComparator.compareTo(a1.getAsset().getAssetType().getName(),
+							a2.getAsset().getAssetType().getName());
 					if (compare == 0)
-						compare = a1.getAsset().getName().compareTo(a2.getAsset().getName());
+						compare = NaturalOrderComparator.compareTo(a1.getAsset().getName(), a2.getAsset().getName());
 				}
 			}
 			return compare;
@@ -520,13 +520,24 @@ public class ControllerAssessment {
 		return (a1, a2) -> {
 			int compare = Double.compare(a1.getALE(), a2.getALE());
 			if (compare == 0) {
-				compare = a1.getScenario().getType().getName().compareTo(a2.getScenario().getType().getName());
+				compare = NaturalOrderComparator.compareTo(a1.getScenario().getType().getName(),
+						a2.getScenario().getType().getName());
 				if (compare == 0)
-					compare = a1.getScenario().getName().compareTo(a2.getScenario().getName());
+					compare = NaturalOrderComparator.compareTo(a1.getScenario().getName(), a2.getScenario().getName());
 			}
 			return compare;
 		};
 	}
+	
+	private Comparator<? super Assessment> assessmentAssetNameComparator() {
+		return (a1, a2) -> NaturalOrderComparator.compareTo(a1.getAsset().getName(), a2.getAsset().getName());
+	};
+
+	private Comparator<? super Assessment> assessmentScenarioNameComparator() {
+		return (a1, a2) -> NaturalOrderComparator.compareTo(a1.getScenario().getName(), a2.getScenario().getName());
+	};
+
+	
 
 	/**
 	 * Loads the analysis settings into the model.
@@ -614,10 +625,9 @@ public class ControllerAssessment {
 				model.addAttribute("ilrVulnerabilityScales", analysis.getSimpleParameters().stream()
 						.filter(e -> e.getTypeName().equals(Constant.PARAMETERTYPE_TYPE_ILR_VULNERABILITY_SCALE_NAME))
 						.sorted((v1, v2) -> Double.compare(v1.getValue(), v2.getValue()))
-						.collect(Collectors.toList()));
+						.toList());
 				model.addAttribute("ilrMaxRisk", ilrRisks[0]);
 				model.addAttribute("ilrTargetedRisk", ilrRisks[1]);
-
 			}
 		}
 	}

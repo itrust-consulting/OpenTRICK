@@ -63,54 +63,67 @@ public class Docx4jProbaImpactBuilder extends Docx4jBuilder {
 
 	protected void buildQuantitative(final String type, final List<IBoundedParameter> parameters, final Docx4jReportImpl exporter, final P paragraph,
 			final DecimalFormat decimalFormat) {
-		final Tbl table = exporter.createTable("TableTS" + type, parameters.size() + 1, 6);
+		final boolean useProbabilityLabel = (boolean) exporter.getAnalysis()
+					.findSetting(AnalysisSetting.ALLOW_USE_LABEL_EXPORT_PROBABILITY_LABEL) && type.equalsIgnoreCase(TYPE_PROBA);
+		final Tbl table = exporter.createTable("TableTS" + type, parameters.size() + 1, useProbabilityLabel? 7 : 6);
 		final TextAlignment alignmentCenter = exporter.createAlignment("center");
 		final List<Object> contents = new LinkedList<>();
 		final Tr header = (Tr) table.getContent().get(0);
 		final int length = parameters.size() - 1;
+		
+		int indexCol= 0;
 
 		exporter.setCurrentParagraphId(TS_TAB_TEXT_2);
-		exporter.setCellText((Tc) header.getContent().get(0), exporter.getMessage("report.parameter.level", null, "Level"));
-		exporter.setCellText((Tc) header.getContent().get(1), exporter.getMessage("report.parameter.acronym", null, "Acro"));
-		exporter.setCellText((Tc) header.getContent().get(2), exporter.getMessage("report.parameter.qualification", null, "Qualification"));
+		exporter.setCellText((Tc) header.getContent().get(indexCol++), exporter.getMessage("report.parameter.level", null, "Level"));
+		exporter.setCellText((Tc) header.getContent().get(indexCol++), exporter.getMessage("report.parameter.acronym", null, "Acro"));
+		if(useProbabilityLabel)
+			exporter.setCellText((Tc) header.getContent().get(indexCol++), exporter.getMessage("report.parameter.label", null, "Label"));
+		exporter.setCellText((Tc) header.getContent().get(indexCol++), exporter.getMessage("report.parameter.qualification", null, "Qualification"));
 		if (type.equalsIgnoreCase(TYPE_PROBA))
-			exporter.setCellText((Tc) header.getContent().get(3), exporter.getMessage("report.parameter.proba.value", null, "Value (/y)"));
+			exporter.setCellText((Tc) header.getContent().get(indexCol++), exporter.getMessage("report.parameter.proba.value", null, "Value (/y)"));
 		else
-			exporter.setCellText((Tc) header.getContent().get(3), exporter.getMessage("report.parameter.value", null, "Value (k€/y)"));
-		exporter.setCellText((Tc) header.getContent().get(4), exporter.getMessage("report.parameter.value.from", null, "Value From"));
-		exporter.setCellText((Tc) header.getContent().get(5), exporter.getMessage("report.parameter.value.to", null, "Value To"));
+			exporter.setCellText((Tc) header.getContent().get(indexCol++), exporter.getMessage("report.parameter.value", null, "Value (k€/y)"));
+		exporter.setCellText((Tc) header.getContent().get(indexCol++), exporter.getMessage("report.parameter.value.from", null, "Value From"));
+		exporter.setCellText((Tc) header.getContent().get(indexCol), exporter.getMessage("report.parameter.value.to", null, "Value To"));
 		exporter.setRepeatHeader(header);
 
 		int countrow = 0;
 		// set data
 		for (IBoundedParameter parameter : parameters) {
+
 			final Tr row = (Tr) table.getContent().get(countrow + 1);
-			exporter.setCellText((Tc) row.getContent().get(0), "" + parameter.getLevel(), alignmentCenter);
-			exporter.setCellText((Tc) row.getContent().get(1), parameter.getAcronym(), alignmentCenter);
-			exporter.setCellText((Tc) row.getContent().get(2), parameter.getDescription());
-			setColor((Tc) row.getContent().get(2), exporter.getDefaultColor());
+			indexCol= 0;
+
+			exporter.setCellText((Tc) row.getContent().get(indexCol++), "" + parameter.getLevel(), alignmentCenter);
+			exporter.setCellText((Tc) row.getContent().get(indexCol++), parameter.getAcronym(), alignmentCenter);
+
+			if(useProbabilityLabel)
+				exporter.setCellText((Tc) row.getContent().get(indexCol++), parameter.getLabel());
+
+			exporter.setCellText((Tc) row.getContent().get(indexCol++), parameter.getDescription());
+			setColor((Tc) row.getContent().get(indexCol-1), exporter.getDefaultColor());
 			if (type.equalsIgnoreCase(TYPE_IMPACT))
-				exporter.addCellNumber((Tc) row.getContent().get(3), decimalFormat.format(parameter.getValue() * 0.001));
+				exporter.addCellNumber((Tc) row.getContent().get(indexCol++), decimalFormat.format(parameter.getValue() * 0.001));
 			else
-				exporter.addCellNumber((Tc) row.getContent().get(3),
+				exporter.addCellNumber((Tc) row.getContent().get(indexCol++),
 						parameter.getValue() >= 1 ? exporter.getKiloNumberFormat().format(parameter.getValue()) : decimalFormat.format(parameter.getValue()));
 
 			if (countrow % 2 == 0)
-				setColor((Tc) row.getContent().get(3), exporter.getDefaultColor());
+				setColor((Tc) row.getContent().get(indexCol - 1), exporter.getDefaultColor());
 
 			if (type.equals(TYPE_IMPACT))
-				exporter.addCellNumber((Tc) row.getContent().get(4), decimalFormat.format(parameter.getBounds().getFrom() * 0.001));
+				exporter.addCellNumber((Tc) row.getContent().get(indexCol++), decimalFormat.format(parameter.getBounds().getFrom() * 0.001));
 			else
-				exporter.addCellNumber((Tc) row.getContent().get(4), parameter.getBounds().getFrom() >= 1 ? exporter.getKiloNumberFormat().format(parameter.getBounds().getFrom())
+				exporter.addCellNumber((Tc) row.getContent().get(indexCol++), parameter.getBounds().getFrom() >= 1 ? exporter.getKiloNumberFormat().format(parameter.getBounds().getFrom())
 						: decimalFormat.format(parameter.getBounds().getFrom()));
 
 			if (parameter.getLevel() == length)
-				exporter.addCellNumber((Tc) row.getContent().get(5), "+∞");
+				exporter.addCellNumber((Tc) row.getContent().get(indexCol), "+∞");
 			else {
 				if (type.equals(TYPE_IMPACT))
-					exporter.addCellNumber((Tc) row.getContent().get(5), decimalFormat.format(parameter.getBounds().getTo() * 0.001));
+					exporter.addCellNumber((Tc) row.getContent().get(indexCol), decimalFormat.format(parameter.getBounds().getTo() * 0.001));
 				else
-					exporter.addCellNumber((Tc) row.getContent().get(5), parameter.getBounds().getTo() >= 1 ? exporter.getKiloNumberFormat().format(parameter.getBounds().getTo())
+					exporter.addCellNumber((Tc) row.getContent().get(indexCol), parameter.getBounds().getTo() >= 1 ? exporter.getKiloNumberFormat().format(parameter.getBounds().getTo())
 							: decimalFormat.format(parameter.getBounds().getTo()));
 			}
 			countrow++;

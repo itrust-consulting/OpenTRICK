@@ -293,7 +293,7 @@ public final class ExcelHelper {
 	}
 
 	public static boolean isEmpty(String name) {
-		return name == null || name.length() == 0;
+		return name == null || name.trim().isEmpty();
 	}
 
 	public static Row createRow(SheetData sheetData) {
@@ -358,7 +358,7 @@ public final class ExcelHelper {
 				return row;
 			}
 		}
-		
+
 		for (int i = 0; i < sheet.getRow().size(); i++) {
 			final Row row = sheet.getRow().get(i);
 			if (row.getR() != null && (row.getR() - 1) == index) {

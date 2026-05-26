@@ -28,7 +28,13 @@ public enum AnalysisSetting {
 			AnalysisType.HYBRID),
 	ALLOW_QUALITATIVE_IN_QUANTITATIVE_REPORT("label.analysis.setting.allow_qualitative_in_quantitative_report",
 			Boolean.class,
-			false, AnalysisType.HYBRID);
+			false, AnalysisType.HYBRID),
+	ALLOW_USE_LABEL_EXPORT_PROBABILITY_LABEL("label.analysis.setting.allow_use_label_export_probability_label",
+			Boolean.class,
+			true,AnalysisType.QUANTITATIVE,
+			AnalysisType.HYBRID)
+
+	;
 
 	/**
 	 * The code associated with the analysis setting.

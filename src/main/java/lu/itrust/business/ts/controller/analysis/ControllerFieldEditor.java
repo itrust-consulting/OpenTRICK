@@ -18,8 +18,6 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import jakarta.servlet.http.HttpSession;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -31,6 +29,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.servlet.http.HttpSession;
+import lu.itrust.business.expressions.StringExpressionParser;
 import lu.itrust.business.ts.component.AssessmentAndRiskProfileManager;
 import lu.itrust.business.ts.component.ChartGenerator;
 import lu.itrust.business.ts.component.TrickLogManager;
@@ -66,7 +66,6 @@ import lu.itrust.business.ts.helper.Result;
 import lu.itrust.business.ts.helper.chartJS.item.ColorBound;
 import lu.itrust.business.ts.model.actionplan.ActionPlanEntry;
 import lu.itrust.business.ts.model.analysis.Analysis;
-import lu.itrust.business.ts.model.analysis.AnalysisSetting;
 import lu.itrust.business.ts.model.analysis.AnalysisType;
 import lu.itrust.business.ts.model.analysis.ExportFileName;
 import lu.itrust.business.ts.model.analysis.ReportSetting;
@@ -114,7 +113,6 @@ import lu.itrust.business.ts.validator.ParameterValidator;
 import lu.itrust.business.ts.validator.RiskInformationValidator;
 import lu.itrust.business.ts.validator.ScenarioValidator;
 import lu.itrust.business.ts.validator.field.ValidatorField;
-import lu.itrust.business.expressions.StringExpressionParser;
 
 /**
  * 
@@ -1624,6 +1622,9 @@ public class ControllerFieldEditor {
 				if (assessment.getLikelihood() instanceof FormulaValue)
 					assessment.getLikelihood().merge(factory.findDynValue(assessment.getLikelihood().getVariable(),
 							Constant.PARAMETER_TYPE_PROPABILITY_NAME));
+				else if (assessment.getLikelihood() instanceof RealValue)
+					assessment.getLikelihood().merge(factory.findValue(assessment.getLikelihood().getRaw(),
+							Constant.PARAMETER_TYPE_PROPABILITY_NAME));
 				AssessmentAndRiskProfileManager.ComputeAlE(assessment);
 			});
 		}
@@ -1794,7 +1795,8 @@ public class ControllerFieldEditor {
 			case "riskProfile.riskStrategy":
 				if (isILR) {
 					result.add(new FieldValue(
-							"ILR-VALUE-THREAT-PROBABILITY", riskProfile.getRawProbaImpact().getProbability().getIlrLevel(),
+							"ILR-VALUE-THREAT-PROBABILITY",
+							riskProfile.getRawProbaImpact().getProbability().getIlrLevel(),
 							riskProfile.getRawProbaImpact().getProbability().getIlrLevel() + ""));
 					computeIlrRiskResult(assessment, riskProfile, analysis, result, false);
 				}

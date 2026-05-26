@@ -334,11 +334,14 @@ function AssessmentHelder() {
 	this.asset = $("select[name='asset']", this.$tabSection);
 	this.scenario = $("select[name='scenario']", this.$tabSection);
 	this.isReadOnly = application.openMode.value.startsWith("read-only");
+    this.sort();
 	this.lastSelected = {
 		asset: this.asset.find("option[data-trick-selected='true']:first").val(),
 		scenario: this.scenario.find("option[data-trick-selected='true']:first").val()
 	};
+
 	this.switchControl(this.asset.val() == "0" ? "scenario" : "asset");
+	
 
 }
 
@@ -634,6 +637,28 @@ AssessmentHelder.prototype = {
 			this.$tabSection.attr("data-update-required", helper.invalidate = true);
 		}
 		return this;
+	}, sort: function () {
+
+		const sorter = natsort({ insensitive: true });
+
+		$("option[value!='0']", this.asset).sort(function (a, b) {
+			return sorter($(a).text(), $(b).text());
+		}).detach().appendTo(this.asset);
+
+		$("option[value!='0']", this.scenario).sort(function (a, b) {
+			return sorter($(a).text(), $(b).text());
+		}).detach().appendTo(this.scenario);
+
+		$("div[data-trick-content='asset'] a.list-group-item:not(.lead)").sort(function (a, b) {
+			return sorter($(a).text(), $(b).text());
+		}).detach().appendTo("div[data-trick-content='asset']>div.list-group");
+
+		$("div[data-trick-content='scenario'] a.list-group-item:not(.lead)").sort(function (a, b) {
+			return sorter($(a).text(), $(b).text());
+		}).detach().appendTo("div[data-trick-content='scenario']>div.list-group");	
+
+
+
 	}
 }
 
@@ -1147,7 +1172,13 @@ function initialiseRiskEstimation() {
 
 	application["estimation-helper"] = helper = new AssessmentHelder();
 
-	let $previousSelector = $("[data-trick-nav='previous-selector']", application["estimation-helper"].$tabSection), $nextSelector = $("[data-trick-nav='next-selector']", application["estimation-helper"].$tabSection), $previousAssessment = $("[data-trick-nav='previous-assessment']", application["estimation-helper"].$tabSection), $nextAssessment = $("[data-trick-nav='next-assessment']", application["estimation-helper"].$tabSection);
+
+	let $previousSelector = $("[data-trick-nav='previous-selector']", application["estimation-helper"].$tabSection);
+	let $nextSelector = $("[data-trick-nav='next-selector']", application["estimation-helper"].$tabSection);
+	let $previousAssessment = $("[data-trick-nav='previous-assessment']", application["estimation-helper"].$tabSection);
+	let $nextAssessment = $("[data-trick-nav='next-assessment']", application["estimation-helper"].$tabSection);
+
+
 
 	$previousSelector.on("click", function () {
 		$("select[name='" + activeSelector + "']>option:selected", application["estimation-helper"].$tabSection).prev("[data-trick-selected='true']:last").prop('selected', true).parent().change();
